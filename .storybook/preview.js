@@ -1,5 +1,5 @@
 import { create } from "@storybook/theming";
-import "../src/assets/scss/main.scss";
+import "../src/tailwind.css";
 
 const lightTheme = create({
   base: "light",

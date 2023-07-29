@@ -10,6 +10,9 @@ module.exports = {
   addons: ["@storybook/addon-links", "@storybook/addon-essentials", "storybook-dark-mode", {
     name: "@storybook/addon-postcss",
     options: {
+		postCss: {
+			implementation: postcss,
+		  },
       postcssLoaderOptions: {
         implementation: postcss
       }

@@ -1,79 +1,87 @@
-import { Canvas, Meta, Story, ColorPalette, ColorItem } from "@storybook/addon-docs";
+import { Meta, ColorPalette, ColorItem } from "@storybook/addon-docs";
 
 <Meta title="Style Guide/Colors" />
 
 # Colors
 
-A yummy color palette for your delicious needs.
-
-<div class="pt-32">
-  <ColorPalette>
-    <ColorItem
-      title="Banana"
-      subtitle="Yellow"
-      colors={{
-        "500": "#FAD161",
-        "400": "#FBDA7F",
-        "300": "#FCE29C",
-        "200": "#FDEBBA",
-        "100": "#FEF4D8",
-        "50": "#FEF8E6",
-      }}
-    />
-    <ColorItem
-      title="Plummy"
-      subtitle="Maroon"
-      colors={{
-        "500": "#A04163",
-        "400": "#BB597C",
-        "300": "#CA7D99",
-        "200": "#D9A1B5",
-        "100": "#E8C5D2",
-        "50": "#EFD8E0",
-      }}
-    />
-    <ColorItem
-      title="Cherry"
-      subtitle="Red"
-      colors={{
-        "500": "#FF005B",
-        "400": "#FF337C",
-        "300": "#FF669D",
-        "200": "#FF99BD",
-        "100": "#FFCCDE",
-        "50": "#FFE5EF",
-      }}
-    />
-    <ColorItem
-      title="Pistachio"
-      subtitle="Green"
-      colors={{
-        "500": "#7AFAD4",
-        "400": "#93FBDC",
-        "300": "#ABFCE4",
-        "200": "#C4FDEC",
-        "100": "#DCFEF4",
-        "50": "#E9FEF8",
-      }}
-    />
-    <ColorItem
-      title="Raisin"
-      subtitle="Black"
-      colors={{
-        "500": "#27272B",
-        "400": "#47474E",
-        "300": "#666671",
-        "200": "#878792",
-        "100": "#AAAAB2",
-        "50": "#BBBBC1",
-      }}
-    />
-    <ColorItem
-      title="Coconut"
-      subtitle="White"
-      colors={{
-        "": "#FAF3EC",
-      }}
-    />
-  </ColorPalette>
+<div className="pt-32">
+    <ColorPalette>
+        <ColorItem
+            title="Primary"
+            subtitle="Shades of Purple"
+            colors={{
+                "primary-50": "#F0E6F2",
+                "primary-100": "#f3dcf9",
+                "primary-300": "#c7a4d1",
+                "primary-500": "#741b8c",
+                "primary-600": "#4A1159",
+                "primary-800": "#461054",
+            }}
+        />
+        <ColorItem
+            title="Accent"
+            subtitle="Orange"
+            colors={{
+                "accent-500": "#fa6400",
+            }}
+        />
+        <ColorItem
+            title="Success"
+            subtitle="Shades of Green"
+            colors={{
+                "success-100": "#CCE8E4",
+                "success-500": "#6cca67",
+                "success-600": "#326961",
+            }}
+        />
+        <ColorItem
+            title="Warning"
+            subtitle="Red"
+            colors={{
+                "warning-500": "#d4364d",
+            }}
+        />
+        <ColorItem
+            title="Error"
+            subtitle="Red"
+            colors={{
+                "error-500": "#d4364d",
+                "error-600": "#E55151",
+            }}
+        />
+        <ColorItem
+            title="Others"
+            subtitle="Neutral Colors"
+            colors={{
+                white: "#fff",
+                "neutral-50": "#f9f9f9",
+                "neutral-100": "#f3f3f4",
+                "neutral-150": "#e7e6e6",
+                "neutral-200": "#e1e1e3",
+                "neutral-300": "#cecfd2",
+                "neutral-500": "#85868f",
+                "neutral-600": "#666666",
+                "neutral-700": "#4d4d4d",
+                "neutral-800": "#333333",
+                black: "#000",
+            }}
+        />
+        <ColorItem
+            title="Rating Range"
+            subtitle="Shades of Colors"
+            colors={{
+                "rating-range-1": "#d4364d",
+                "rating-range-2": "#e8682b",
+                "rating-range-3": "#41793e",
+                "rating-range-4": "#6cca67",
+            }}
+        />
+        <ColorItem
+            title="Progress Bar"
+            subtitle="Peach"
+            colors={{
+                "progress-bar": "#FFF0E5",
+            }}
+        />
+    </ColorPalette>
 </div>

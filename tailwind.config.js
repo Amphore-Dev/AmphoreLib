@@ -44,26 +44,34 @@ module.exports = {
 				"primary-500": "#741b8c",
 				"primary-600": "#4A1159",
 				"primary-800": "#461054",
+
 				"accent-500": "#fa6400",
+
 				"success-100": "#CCE8E4",
 				"success-500": "#6cca67",
 				"success-600": "#326961",
+
 				"warning-500": "#d4364d",
 				"error-500": "#d4364d",
 				"error-600": "#E55151",
-				white: "#fff",
-				black: "#333333",
-				"neutral-50": "#f9f9f9",
-				"neutral-100": "#f3f3f4",
 
-				"neutral-150": "#e7e6e6",
-				"neutral-200": "#e1e1e3",
-				"neutral-300": "#cecfd2",
-				"neutral-500": "#85868f",
+				"white": "#fff",
+                "neutral-50": "#f9f9f9",
+                "neutral-100": "#f3f3f4",
+                "neutral-150": "#e7e6e6",
+                "neutral-200": "#e1e1e3",
+                "neutral-300": "#cecfd2",
+                "neutral-500": "#85868f",
+                "neutral-600": "#666666",
+                "neutral-700": "#4d4d4d",
+                "neutral-800": "#333333",
+                "black": "#000",
+
 				"rating-range-1": "#d4364d",
 				"rating-range-2": "#e8682b",
 				"rating-range-3": "#41793e",
 				"rating-range-4": "#6cca67",
+				
 				"progress-bar": "#FFF0E5",
 			},
 
