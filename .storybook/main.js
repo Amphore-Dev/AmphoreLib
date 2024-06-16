@@ -22,6 +22,12 @@ module.exports = {
     name: "@storybook/react-webpack5",
     options: {}
   },
+  typescript: {
+    reactDocgen: 'react-docgen-typescript',
+    // Provide your own options if necessary.
+    // See https://storybook.js.org/docs/configure/typescript for more information.
+    reactDocgenTypescriptOptions: {},
+  },
   webpackFinal: async config => {
     config.resolve.extensions.push(".ts", ".tsx");
 
