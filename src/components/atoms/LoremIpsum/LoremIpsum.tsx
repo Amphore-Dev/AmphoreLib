@@ -8,8 +8,6 @@ export interface ILoremIpsumProps extends ILoremIpsumParams {
 export const LoremIpsum: React.FC<ILoremIpsumProps> = (props) => {
     const elemRef = React.useRef<HTMLDivElement>(null);
 
-    console.log(props);
-
     React.useEffect(() => {
         if (!elemRef.current) return;
         // create node and render it in the ref

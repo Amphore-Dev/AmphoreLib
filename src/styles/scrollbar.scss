@@ -1,0 +1,42 @@
+/*
+** -- ScrollBar
+*/
+
+/* Width and height of the scrollbar */
+/* WebKit browsers (Chrome, Safari, and Opera) */
+* {
+    --scrollbar-size: 6px;
+    --thumb-color: #9f9f9f;
+    --track-color: #e0e0e0a1;
+}
+
+::-webkit-scrollbar,
+scrollbar {
+    width: var(--scrollbar-size);
+    height: var(--scrollbar-size);
+}
+
+/* Track - the area behind the scrollbar thumb */
+/* WebKit browsers (Chrome, Safari, and Opera) */
+::-webkit-scrollbar-track,
+scrollbar-track {
+    background: var(--track-color);
+    border-radius: var(--scrollbar-size);
+    margin: 3px;
+}
+
+/* Thumb - the draggable scrolling element */
+/* WebKit browsers (Chrome, Safari, and Opera) */
+::-webkit-scrollbar-thumb,
+scrollbar-thumb {
+    border-radius: var(--scrollbar-size);
+    background: #e0e0e0a1;
+    background: var(--thumb-color);
+}
+
+/* Corner - the bottom corner of the scrollbar, where both horizontal and vertical scrollbars meet */
+/* WebKit browsers (Chrome, Safari, and Opera) */
+::-webkit-scrollbar-corner,
+scrollbar-corner {
+    background: transparent;
+}

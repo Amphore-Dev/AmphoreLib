@@ -1,5 +1,5 @@
 import React from "react";
-import { Story, StoryFn } from "@storybook/react";
+import { StoryFn } from "@storybook/react";
 import { LoremIpsum } from "./LoremIpsum";
 
 export default {

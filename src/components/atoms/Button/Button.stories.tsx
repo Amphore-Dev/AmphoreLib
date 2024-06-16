@@ -1,5 +1,5 @@
 import React from "react";
-import { Story, StoryFn } from "@storybook/react";
+import { StoryFn } from "@storybook/react";
 import { Button, ButtonProps } from "./Button";
 
 export default {
@@ -9,7 +9,7 @@ export default {
 
 const Template: StoryFn<ButtonProps> = (args) => <Button {...args} />;
 
-export const Base: any = Template.bind({});
+export const Base = Template.bind({});
 Base.args = {
     children: "Yummm 🌭",
     hasBorder: true,

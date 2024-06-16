@@ -1,5 +1,5 @@
 import { create } from "@storybook/theming";
-import "../src/tailwind.css";
+import "../src/index.scss";
 
 const lightTheme = create({
   base: "light",
@@ -26,7 +26,6 @@ const darkTheme = create({
 });
 
 export const parameters = {
-  actions: { argTypesRegex: "^on[A-Z].*" },
   controls: {
     matchers: {
       color: /(background|color)$/i,
@@ -39,3 +38,4 @@ export const parameters = {
     stylePreview: true,
   },
 };
+export const tags = ["autodocs"];

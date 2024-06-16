@@ -1,12 +1,8 @@
 import React from "react";
-// @ts-ignore
-import Logo from "@assets/logo.svg";
-// @ts-ignore
-import profilePicture from "./assets/profile.png";
-import { LoremIpsum } from "@components/atoms/LoremIpsum/LoremIpsum";
 
-import "./DashboardLayout.scss";
-import cn from "utils/cn";
+import { cn } from "../../../utils/cn";
+import { LoremIpsum } from "../../atoms/LoremIpsum/LoremIpsum";
+
 const menuItemClassNames =
     "menu-item p-4 text-center hover:bg-neutral-100 bg-white border-x-8 border-transparent !border-r-transparent duration-300 cursor-pointer w-full";
 
@@ -37,7 +33,7 @@ export const DashboardLayout: React.FC = () => {
                     <hr className="border-neutral-300 border-2 group-hover:border-black" />
                 </div>
                 <div className="menu-item flex items-center flex-col 2xl:flex-row py-6 2xl:py-10 gap-y-2 gap-6 justify-center w-full overflow-hidden bg-white rounded-3xl">
-                    <Logo id="Logo" className="h-full min-h-[60px]" />
+                    {/* <Logo id="Logo" className="h-full min-h-[60px]" /> */}
                     <div className="flex flex-col items-center gap-0">
                         <span className="text-[1.5vw]">AMPHORE</span>
                         <span className="text-[.75vw] leading-3">
@@ -97,7 +93,7 @@ export const DashboardLayout: React.FC = () => {
                                 <hr className="border-neutral-300 border-2 group-hover:border-black" />
                                 <hr className="border-neutral-300 border-2 group-hover:border-black" />
                             </div>
-                            <Logo id="Logo" className="h-[50px]" />
+                            {/* <Logo id="Logo" className="h-[50px]" /> */}
                             <div className="flex-col items-center gap-0 hidden md:flex">
                                 <span className="text-lg smdtext-[1.5vw]">
                                     AMPHORE
@@ -119,7 +115,7 @@ export const DashboardLayout: React.FC = () => {
                                 <div
                                     className="rounded-full aspect-square w-[40px] bg-cover bg-neutral-200 bg-center"
                                     style={{
-                                        backgroundImage: `url(${profilePicture})`,
+                                        backgroundImage: `url('')`,
                                     }}
                                 ></div>
                             </div>

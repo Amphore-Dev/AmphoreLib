@@ -4,20 +4,17 @@ import postcss
  import sass from "sass";
 
 module.exports = {
-  stories: ["../src/**/*.stories.mdx", "../src/**/*.stories.@(js|jsx|ts|tsx|mdx)"],
+  stories: ["../src/**/*.@(stories.@(js|jsx|ts|tsx))"],
   /** Expose public folder to storybook as static */
   staticDirs: ["../lib"],
-  addons: ["@storybook/addon-links", "@storybook/addon-essentials", "storybook-dark-mode", {
-    name: "@storybook/addon-postcss",
-    options: {
-		postCss: {
-			implementation: postcss,
-		  },
-      postcssLoaderOptions: {
-        implementation: postcss
-      }
-    }
-  }, "@storybook/addon-mdx-gfm"],
+  addons: [
+    "@storybook/addon-links",
+    "@storybook/addon-essentials",
+    "storybook-dark-mode",
+    "@storybook/addon-styling-webpack",
+    "@storybook/addon-mdx-gfm",
+    "@storybook/addon-webpack5-compiler-babel"
+  ],
   framework: {
     name: "@storybook/react-webpack5",
     options: {}
@@ -66,8 +63,6 @@ module.exports = {
 
     return config;
   },
-  docs: {
-    autodocs: true
-  },
+  docs: {},
   telemetry: false
 };
