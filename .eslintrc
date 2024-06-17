@@ -1,0 +1,44 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:jsx-a11y/recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript",
+    "plugin:prettier/recommended",
+  ],
+  "plugins": [
+    "react",
+    "react-hooks",
+    "@typescript-eslint",
+    "jsx-a11y",
+    "import",
+    "prettier"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2021,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true,
+    },
+  },
+  "settings": {
+    "react": {
+      "version": "detect",
+    },
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "es2021": true,
+  },
+  "rules": {
+    "prettier/prettier": "error",
+    "react/react-in-jsx-scope": "off", // Only if you"re using React 17+
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+  },
+}

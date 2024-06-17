@@ -1,4 +1,3 @@
-import "../index.scss"
-import { Button } from "./atoms/Button/Button";
-
-export { Button };
+export * from "./atoms";
+export * from "./molecules";
+export * from "./templates";

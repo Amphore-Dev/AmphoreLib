@@ -1,5 +1,5 @@
 import { twMerge } from "tailwind-merge";
 
-export const cn = (classes: any) => {
-    return twMerge(classes.filter(Boolean));
+export const cn = (classes: (string | undefined | false)[]) => {
+	return twMerge(classes.filter(Boolean));
 };

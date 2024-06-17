@@ -1,9 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from "@storybook/react";
 
-import { DashboardLayout } from './DashboardLayout';
+import { DashboardLayout } from "./DashboardLayout";
 
 const meta = {
-  component: DashboardLayout,
+	component: DashboardLayout,
+	title: "Components/Templates/DashboardLayout",
 } satisfies Meta<typeof DashboardLayout>;
 
 export default meta;
