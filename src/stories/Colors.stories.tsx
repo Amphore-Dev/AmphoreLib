@@ -1,6 +1,5 @@
 import React from "react";
-import { Meta,ColorPalette, ColorItem  } from "@storybook/addon-docs";
-
+import { Meta, ColorPalette, ColorItem } from "@storybook/addon-docs";
 
 export default {
 	title: "Style Guide/Colors",
@@ -16,12 +15,17 @@ export default {
 								title="Primary"
 								subtitle="Shades of Purple"
 								colors={{
-									"primary-50": "#F0E6F2",
-									"primary-100": "#f3dcf9",
-									"primary-300": "#c7a4d1",
-									"primary-500": "#741b8c",
-									"primary-600": "#4A1159",
-									"primary-800": "#461054",
+									"primary-50": "#f0f8ff",
+									"primary-100": "#e0f1fe",
+									"primary-200": "#bae3fd",
+									"primary-300": "#7ecdfb",
+									"primary-400": "#39b5f7",
+									"primary-500": "#0f9be8",
+									"primary-600": "#0383d3",
+									"primary-700": "#0462a0",
+									"primary-800": "#085384",
+									"primary-900": "#0c466e",
+									"primary-950": "#082c49",
 								}}
 							/>
 							<ColorItem

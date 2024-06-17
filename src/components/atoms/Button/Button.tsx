@@ -1,30 +1,44 @@
 import React from "react";
 import "./Button.scss";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { Spinner } from "../Spinner/Spinner";
+import { cn } from "@utils/cn";
 
-export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
+export interface IButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
 	children: React.ReactNode;
-	color: "black" | "white";
-	size?: "sm";
-	hasBorder?: boolean;
+	color?: "black" | "white" | "primary";
+	size?: "s" | "m" | "l";
+	outline?: boolean;
 	disabled?: boolean;
 	isLoading?: boolean;
+	className?: string;
 }
 
 export const Button = ({
 	children,
-	color = "black",
-	size,
-	hasBorder = false,
+	color = "primary",
+	size = "m",
+	outline = false,
 	disabled = false,
 	isLoading = false,
+	className = "",
 	...props
-}: ButtonProps) => {
-	const hasBorderClass = hasBorder && `btn--border`;
+}: IButtonProps) => {
+	const hasOutlineClass = outline && `btn--outline`;
 	const isLoadingClass = isLoading && `btn--loading`;
-	const classNames = `btn !text-white btn--${color} btn--${size} ${hasBorderClass} ${isLoadingClass}`;
+	const classNames = cn([
+		`btn text-white btn--${color} btn--${size} ${hasOutlineClass} ${isLoadingClass}`,
+		className,
+	]);
 
 	return (
-		<button className={classNames} {...props} disabled={disabled}>
+		<button
+			className={classNames}
+			{...props}
+			disabled={disabled || isLoading}
+		>
+			{isLoading && <Spinner size={1.25} />}
 			{children}
 		</button>
 	);

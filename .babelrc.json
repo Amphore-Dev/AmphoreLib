@@ -12,5 +12,20 @@
     "@babel/preset-typescript",
     "@babel/preset-react"
   ],
-  "plugins": []
+  "plugins": [
+    [
+      "babel-plugin-module-resolver",
+      {
+        "root": ".",
+        "alias": {
+          "@assets": "./src/assets",
+          "@components": "./src/components",
+          "@hooks": "./src/hooks",
+          "@contexts": "./src/contexts",
+          "@interfaces": "./src/types",
+          "@utils": "./src/utils"
+        }
+      }
+    ]
+  ]
 }

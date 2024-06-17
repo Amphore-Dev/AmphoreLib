@@ -26,3 +26,5 @@ export const LoremIpsum: React.FC<ILoremIpsumProps> = (props) => {
 	});
 	return <p ref={elemRef} className={props.className} />;
 };
+
+export { loremIpsum } from "lorem-ipsum";

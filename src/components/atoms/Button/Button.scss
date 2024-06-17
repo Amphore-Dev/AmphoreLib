@@ -1,64 +1,95 @@
 .btn {
-    padding: 1.6rem 2.4rem;
-    background: transparent;
-    border: none;
-    border-radius: 1.2rem;
+	background: transparent;
+	border: none;
 
-    font-size: 1.6rem;
-    text-transform: uppercase;
+	@apply flex items-center gap-2 rounded-3xl cursor-pointer transition-all duration-300 px-4 py-2;
 
-    cursor: pointer;
-    transition: all 0.3s linear;
+	transition: all 0.3s linear;
 
-    &:hover {
-        background-color: #fad161;
-        color: #27272b;
-    }
+	&:focus {
+		outline-color: #faf3ec;
+	}
 
-    &:focus {
-        outline-style: dashed;
-        outline-width: 2px;
-        outline-offset: 2px;
-        outline-color: #faf3ec;
-    }
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
 
-    &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
+	/* =============================================== */
+	/* COLOR VARIANTS */
+	/* =============================================== */
+	&--black {
+		background-color: #27272b;
+		color: white;
 
-    /* =============================================== */
-    /* COLOR VARIANTS */
-    /* =============================================== */
-    &--black {
-        background-color: #27272b;
-        color: #faf3ec;
-    }
+		&.btn--outline {
+			outline-color: #27272b;
+			color: #27272b;
+		}
 
-    &--white {
-        background-color: #faf3ec;
-        color: #27272b;
-    }
+		&:not(.btn--loading):hover {
+			background-color: #27272b;
+			color: white;
+		}
+	}
 
-    /* =============================================== */
-    /* SIZES VARIANTS */
-    /* =============================================== */
-    &--sm {
-        padding: 0.8rem 1.6rem;
-        border-radius: 0.8rem;
+	&--white {
+		background-color: white;
+		color: #27272b;
 
-        font-size: 1.2rem;
-    }
+		&.btn--outline {
+			outline-color: #e2e2e2;
+			color: #27272b;
+		}
 
-    /* =============================================== */
-    /* OTHER STATES */
-    /* =============================================== */
-    &--border {
-        border: 2px solid #fad161;
-    }
+		&:not(.btn--loading):hover {
+			background-color: #e2e2e2;
+			color: #27272b;
+		}
+	}
 
-    &--loading {
-        opacity: 0.7;
-        cursor: wait;
-    }
+	&--primary {
+		@apply bg-primary-500;
+
+		&.btn--outline {
+			@apply outline-primary-500 text-primary-500;
+
+			&:not(.btn--loading):hover {
+				@apply bg-primary-500;
+			}
+		}
+
+		&:not(.btn--loading):hover {
+			color: white !important;
+			@apply bg-primary-600;
+		}
+	}
+
+	/* =============================================== */
+	/* SIZES VARIANTS */
+	/* =============================================== */
+	&--s {
+		@apply px-4 py-1 text-sm;
+	}
+
+	&--m {
+		@apply px-4 py-2 text-base;
+	}
+
+	&--l {
+		@apply px-6 py-3 rounded-[5rem] text-lg;
+	}
+
+	/* =============================================== */
+	/* OTHER STATES */
+	/* =============================================== */
+	&--outline {
+		outline: 2px solid;
+		@apply bg-transparent;
+	}
+
+	&--loading {
+		opacity: 0.7;
+		cursor: wait !important;
+	}
 }

@@ -1,38 +1,53 @@
 import React from "react";
 import { StoryFn } from "@storybook/react";
-import { Button, ButtonProps } from "./Button";
+import { Button, IButtonProps } from "./Button";
 
 export default {
 	title: "Components/Atoms/Button",
 	component: Button,
+	argTypes: {
+		outline: {
+			control: {
+				type: "boolean",
+			},
+		},
+		disabled: {
+			control: {
+				type: "boolean",
+			},
+		},
+		isLoading: {
+			control: {
+				type: "boolean",
+			},
+		},
+	},
 };
 
-const Template: StoryFn<ButtonProps> = (args) => <Button {...args} />;
+const Template: StoryFn<IButtonProps> = (args) => (
+	<div className="flex items-center gap-6">
+		<Button {...args} size="s" />
+		<Button {...args} />
+		<Button {...args} size="l" />
+	</div>
+);
 
 export const Base = Template.bind({});
-Base.args = {
-	children: "Yummm 🌭",
-	hasBorder: true,
-};
 
-export const All = () => {
-	return (
-		<div className="flex gap-12">
-			<Button color="black" hasBorder>
-				Raisin Black 🍇
-			</Button>
-			<Button color="white">Coconut White 🥥</Button>
-		</div>
-	);
+Base.args = {
+	children: "Button",
+	outline: true,
+	disabled: false,
+	isLoading: false,
 };
 
 export const Sizes = () => {
 	return (
 		<div className="flex items-start gap-12">
-			<Button color="black" hasBorder>
+			<Button color="black" outline>
 				Default Raisin
 			</Button>
-			<Button color="black" hasBorder size={"sm"}>
+			<Button color="black" outline size={"s"}>
 				Small Raisin
 			</Button>
 		</div>
@@ -42,7 +57,7 @@ export const Sizes = () => {
 export const Loading = () => {
 	return (
 		<div className="flex gap-12">
-			<Button color="black" hasBorder isLoading>
+			<Button color="black" outline isLoading>
 				Loading...
 			</Button>
 			<Button color="white" isLoading>
@@ -55,7 +70,7 @@ export const Loading = () => {
 export const Disabled = () => {
 	return (
 		<div className="flex gap-12">
-			<Button color="black" hasBorder disabled>
+			<Button color="black" outline disabled>
 				Hey there 👋
 			</Button>
 			<Button color="white" disabled>
