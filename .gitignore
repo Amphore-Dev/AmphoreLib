@@ -1,5 +1,13 @@
 .npmrc
 
+.yarn/*
+!.yarn/cache
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
 # build output
 lib/
 .output/
@@ -22,3 +30,5 @@ pnpm-debug.log*
 .DS_Store
 
 old_base_to_sort/
+
+storybook-static/
