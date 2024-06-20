@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
+
 import { StoryFn } from "@storybook/react";
 
 import { Modal } from "./Modal";
-import { LoremIpsum } from "../LoremIpsum/LoremIpsum";
-import { Button } from "../Button/Button";
+import { Button, LoremIpsum } from "@components/atoms";
 
 export default {
 	title: "Components/Atoms/Modal",

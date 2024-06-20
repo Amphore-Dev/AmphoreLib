@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { DashboardLayout } from "./DashboardLayout";
+import { DashboardLayout } from "./DashboardLayout.tsx.disabled";
 
 const meta = {
 	component: DashboardLayout,

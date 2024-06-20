@@ -1,11 +1,13 @@
 /* story for the useModal hook */
 import React from "react";
-import { StoryFn } from "@storybook/react";
+
 import { Meta } from "@storybook/addon-docs";
+import { StoryFn } from "@storybook/react";
+
 import { useModal } from "./useModal";
-import { Modal } from "@components/atoms/Modal/Modal";
-import { LoremIpsum } from "@components/atoms/LoremIpsum/LoremIpsum";
 import { Button } from "@components/atoms";
+import { LoremIpsum } from "@components/atoms/LoremIpsum/LoremIpsum";
+import { Modal } from "@components/atoms/Modal/Modal";
 
 export default {
 	title: "Hooks/useModal",

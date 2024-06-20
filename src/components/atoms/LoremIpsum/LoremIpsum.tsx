@@ -1,4 +1,5 @@
 import React from "react";
+
 import { ILoremIpsumParams, loremIpsum } from "lorem-ipsum";
 
 export interface ILoremIpsumProps extends ILoremIpsumParams {

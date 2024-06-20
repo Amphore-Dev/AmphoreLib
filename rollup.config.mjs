@@ -5,7 +5,7 @@ import typescript from "@rollup/plugin-typescript";
 import postcss from "rollup-plugin-postcss";
 import dts from "rollup-plugin-dts";
 
-import reactSvg from "rollup-plugin-react-svg";
+import svg from 'rollup-plugin-svg'
 
 // This is required to read package.json file when
 // using Native ES modules in Node.js
@@ -40,17 +40,7 @@ export default [{
 		},
       extensions: ['.css', '.scss']
     }),
-	reactSvg({
-		// svgo options
-		svgo: {
-			plugins: [], // passed to svgo
-			multipass: true
-		},
-	
-		// whether to output jsx
-		jsx: true,
-	
-	})
+	svg()
   ]
 }, {
   input: 'lib/index.d.ts',

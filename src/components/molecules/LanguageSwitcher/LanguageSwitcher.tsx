@@ -1,11 +1,10 @@
 import React from "react";
 
-import { useTranslation } from "react-i18next";
-
 import FR from "./assets/flags/FR.svg";
 // Flags icon
 // flags can be found here: https://purecatamphetamine.github.io/country-flag-icons/3x2/index.html
 import US from "./assets/flags/US.svg";
+import { Picto } from "@components/atoms";
 
 interface ILanguage {
 	code: string; // language code ex: en-EN, fr-FR, fr-CA
@@ -41,16 +40,16 @@ export const LanguageSwitcher: React.FC<ILanguageSwitcher> = ({
 	return (
 		<div className="flex flex-wrap gap-4">
 			{Trads.map((lang) => {
-				console.log(lang);
 				return (
 					<div className="text-black dark:text-white" key={lang.code}>
 						<button
 							className="flex items-center"
 							onClick={() => handleClick(lang.code)}
 						>
-							<img
-								className={"flag-icon mr-2 w-5 h-5"}
+							<Picto
+								className={"flag-icon mr-2 h-5 w-5"}
 								src={lang.icon}
+								currentColor={false}
 							/>
 							<span>{lang.title}</span>
 						</button>

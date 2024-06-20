@@ -1,10 +1,8 @@
-import { IPaginationProp } from "@interfaces";
-import { IFilters } from "@interfaces";
 import { useCallback, useLayoutEffect, useState } from "react";
 
 import { useSearchParams } from "react-router-dom";
 
-
+import { IPaginationProp, IFilters } from "@interfaces";
 
 import {
 	getDatesFromParams,

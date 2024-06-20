@@ -2,7 +2,7 @@
 	background: transparent;
 	border: none;
 
-	@apply flex items-center gap-2 rounded-3xl cursor-pointer transition-all duration-300 px-4 py-2;
+	@apply flex cursor-pointer items-center gap-2 rounded-3xl px-4 py-2 transition-all duration-300;
 
 	transition: all 0.3s linear;
 
@@ -52,7 +52,7 @@
 		@apply bg-primary-500;
 
 		&.btn--outline {
-			@apply outline-primary-500 text-primary-500;
+			@apply text-primary-500 outline-primary-500;
 
 			&:not(.btn--loading):hover {
 				@apply bg-primary-500;
@@ -77,7 +77,7 @@
 	}
 
 	&--l {
-		@apply px-6 py-3 rounded-[5rem] text-lg;
+		@apply rounded-[5rem] px-6 py-3 text-lg;
 	}
 
 	/* =============================================== */

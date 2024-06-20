@@ -1,5 +1,6 @@
-import { cn } from "@utils/cn";
 import React, { useRef, useState, ChangeEvent, FC } from "react";
+
+import { cn } from "@utils/cn";
 
 export interface IToggleProps {
 	checked?: boolean;
@@ -35,7 +36,7 @@ export const Toggle: FC<IToggleProps> = ({
 	return (
 		<label
 			className={cn([
-				"relative inline-flex items-center cursor-pointer",
+				"relative inline-flex cursor-pointer items-center",
 				className,
 			])}
 		>
@@ -45,24 +46,24 @@ export const Toggle: FC<IToggleProps> = ({
 				onChange={handleOnChange}
 				name={name}
 				disabled={disabled}
-				className="sr-only peer unstyled"
+				className="unstyled peer sr-only"
 				data-unstyled
 				ref={inputRef}
 			/>
 			<div
 				className={cn([
 					states
-						? "w-fit h-6 after:right-[calc(100%-1.4rem)] peer-checked:after:right-[1.4rem] after:h-5 after:w-5"
-						: "min-w-[2.5rem] w-10 h-5 after:start-[2px] peer-checked:after:start-[6px] after:h-4 after:w-4",
-					"relative bg-gray-200 rounded-3xl peer peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-primary-500 after:content-[''] after:absolute after:top-0.5  after:bg-white after:border-gray-300 after:border after:rounded-full after:transition-all dark:border-gray-600 peer-checked:bg-primary-500",
-					disabled && "opacity-50 cursor-not-allowed",
+						? "h-6 w-fit after:right-[calc(100%-1.4rem)] after:h-5 after:w-5 peer-checked:after:right-[1.4rem]"
+						: "h-5 w-10 min-w-[2.5rem] after:start-[2px] after:h-4 after:w-4 peer-checked:after:start-[6px]",
+					"peer relative rounded-3xl bg-gray-200 after:absolute after:top-0.5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary-500 peer-checked:after:translate-x-full peer-checked:after:border-primary-500 peer-focus:ring-4 peer-focus:ring-primary-300 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-primary-800 rtl:peer-checked:after:-translate-x-full",
+					disabled && "cursor-not-allowed opacity-50",
 				])}
 			>
 				{states && (
-					<div className="items-center gap-2 row mt-[1px] font-bold">
+					<div className="row mt-[1px] items-center gap-2 font-bold">
 						<span
 							className={cn([
-								"text-white ml-3 duration-300",
+								"ml-3 text-white duration-300",
 								isChecked ? "opacity-100" : "opacity-0",
 							])}
 						>
@@ -70,8 +71,8 @@ export const Toggle: FC<IToggleProps> = ({
 						</span>
 						<span
 							className={cn([
-								"mr-3 duration-300 text-neutral-500",
-								!isChecked ? "opacity-100 " : "opacity-0",
+								"mr-3 text-neutral-500 duration-300",
+								!isChecked ? "opacity-100" : "opacity-0",
 							])}
 						>
 							NO
@@ -82,8 +83,8 @@ export const Toggle: FC<IToggleProps> = ({
 			{!!label && (
 				<span
 					className={cn([
-						"text-sm font-medium text-gray-900 ms-3 dark:text-gray-300",
-						disabled && "opacity-70 cursor-not-allowed",
+						"ms-3 text-sm font-medium text-gray-900 dark:text-gray-300",
+						disabled && "cursor-not-allowed opacity-70",
 					])}
 				>
 					{label}

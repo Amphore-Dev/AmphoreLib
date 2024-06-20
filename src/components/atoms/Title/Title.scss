@@ -1,7 +1,7 @@
 /* leading = line-height * 1.2 */
 
 h1 {
-	@apply text-[3.2rem] leading-[3.84rem] font-bold;
+	@apply text-[3.2rem] font-bold leading-[3.84rem];
 }
 
 h2 {

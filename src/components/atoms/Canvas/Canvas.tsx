@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
-import { IPoint } from "../../../types";
+
+import { IPoint } from "@interfaces/index";
 
 // extends canvas props without the onLoad and onTouchMove using Omit
 export interface ICanvasProps
@@ -74,13 +75,13 @@ export const Canvas: React.FC<ICanvasProps> = ({
 	};
 
 	const animate = () => {
-		let start = performance.now();
+		const start = performance.now();
 		const context = getContext();
 		if (!canvasRef.current || !context) return;
 
 		onAnimate?.(context, canvasRef.current, elapsedTime.current || 1);
 
-		let stop = performance.now();
+		const stop = performance.now();
 		elapsedTime.current = stop - start;
 
 		if (IsPlaying) frameRef.current = requestAnimationFrame(animate);
@@ -158,9 +159,9 @@ export const Canvas: React.FC<ICanvasProps> = ({
 	});
 
 	return (
-		<div className="h-full w-full relative">
+		<div className="relative h-full w-full">
 			{showDebug && (
-				<pre className="debug absolute top-0 left-0 z-10  text-white text-left" />
+				<pre className="debug absolute left-0 top-0 z-10 text-left text-white" />
 			)}
 			<canvas
 				ref={canvasRef}

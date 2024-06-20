@@ -1,4 +1,5 @@
 import React from "react";
+
 import { Meta } from "@storybook/addon-docs";
 
 export default {
@@ -30,21 +31,21 @@ export default {
 								<td>rounded-12</td>
 								<td align="center">1.2rem (12px)</td>
 								<td align="center">
-									<div className="p-48 border-2 border-black-500 bg-yellow-200 rounded-12"></div>
+									<div className="border-black-500 rounded-12 border-2 bg-yellow-200 p-48"></div>
 								</td>
 							</tr>
 							<tr>
 								<td>rounded-24</td>
 								<td align="center">2.4rem (24px)</td>
 								<td align="center">
-									<div className="p-48 border-2 border-black-500 bg-yellow-200 rounded-24"></div>
+									<div className="border-black-500 rounded-24 border-2 bg-yellow-200 p-48"></div>
 								</td>
 							</tr>
 							<tr>
 								<td>rounded-full</td>
 								<td align="center">9999rem (99,990px)</td>
 								<td align="center">
-									<div className="p-48 border-2 border-black-500 bg-yellow-200 rounded-full"></div>
+									<div className="border-black-500 rounded-full border-2 bg-yellow-200 p-48"></div>
 								</td>
 							</tr>
 						</tbody>
@@ -76,21 +77,21 @@ export const BorderRadius = () => (
 					<td>rounded-12</td>
 					<td align="center">1.2rem (12px)</td>
 					<td align="center">
-						<div className="p-48 border-2 border-black-500 bg-yellow-200 rounded-12"></div>
+						<div className="border-black-500 rounded-12 border-2 bg-yellow-200 p-48"></div>
 					</td>
 				</tr>
 				<tr>
 					<td>rounded-24</td>
 					<td align="center">2.4rem (24px)</td>
 					<td align="center">
-						<div className="p-48 border-2 border-black-500 bg-yellow-200 rounded-24"></div>
+						<div className="border-black-500 rounded-24 border-2 bg-yellow-200 p-48"></div>
 					</td>
 				</tr>
 				<tr>
 					<td>rounded-full</td>
 					<td align="center">9999rem (99,990px)</td>
 					<td align="center">
-						<div className="p-48 border-2 border-black-500 bg-yellow-200 rounded-full"></div>
+						<div className="border-black-500 rounded-full border-2 bg-yellow-200 p-48"></div>
 					</td>
 				</tr>
 			</tbody>

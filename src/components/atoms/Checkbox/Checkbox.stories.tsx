@@ -1,5 +1,7 @@
 import React, { useEffect } from "react";
+
 import { StoryFn } from "@storybook/react";
+
 import { Checkbox, ICheckboxProps } from "./Checkbox";
 import { loremIpsum } from "@components/atoms";
 
@@ -18,6 +20,17 @@ export default {
 		},
 		label: {
 			control: "text",
+		},
+		"...": {
+			description: "All default checkbox props",
+			control: {
+				disable: true,
+			},
+		},
+	},
+	parameters: {
+		controls: {
+			include: ["checked", "indeterminate", "disabled", "label", "..."],
 		},
 	},
 };

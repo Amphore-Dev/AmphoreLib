@@ -1,5 +1,6 @@
 import React, { InputHTMLAttributes } from "react";
-import "./Checkbox.scss";
+
+import { cn } from "@utils/cn";
 
 export interface ICheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
 	indeterminate?: boolean;
@@ -15,14 +16,23 @@ export const Checkbox: React.FC<ICheckboxProps> = ({
 		<input
 			data-checkbox
 			data-indeterminate={indeterminate}
-			{...props}
 			type="checkbox"
+			{...props}
+			className={cn([
+				props.disabled ? "cursor-not-allowed" : "cursor-pointer",
+				props.disabled && !!label && "!opacity-100",
+			])}
 		/>
 	);
 
 	if (label) {
 		return (
-			<label className="flex items-center gap-2 cursor-pointer w-fit">
+			<label
+				className={cn([
+					"flex w-fit cursor-pointer items-center gap-2",
+					props.disabled && "cursor-not-allowed opacity-60",
+				])}
+			>
 				{genChildren()}
 				{label}
 			</label>

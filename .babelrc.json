@@ -1,31 +1,32 @@
 {
-  "sourceType": "unambiguous",
-  "presets": [
-    [
-      "@babel/preset-env",
-      {
-        "targets": {
-          "chrome": 100
-        }
-      }
-    ],
-    "@babel/preset-typescript",
-    "@babel/preset-react"
-  ],
-  "plugins": [
-    [
-      "babel-plugin-module-resolver",
-      {
-        "root": ".",
-        "alias": {
-          "@assets": "./src/assets",
-          "@components": "./src/components",
-          "@hooks": "./src/hooks",
-          "@contexts": "./src/contexts",
-          "@interfaces": "./src/types",
-          "@utils": "./src/utils"
-        }
-      }
-    ]
-  ]
+	"sourceType": "unambiguous",
+	"presets": [
+		[
+			"@babel/preset-env",
+			{
+				"targets": {
+					"chrome": 100
+				}
+			}
+		],
+		"@babel/preset-typescript",
+		"@babel/preset-react"
+	],
+	"plugins": [
+		[
+			"babel-plugin-module-resolver",
+			{
+				"root": ".",
+				"alias": {
+					"@assets": "./src/assets",
+					"@components": "./src/components",
+					"@hooks": "./src/hooks",
+					"@contexts": "./src/contexts",
+					"@constants": "./src/constants",
+					"@interfaces": "./src/types",
+					"@utils": "./src/utils"
+				}
+			}
+		]
+	]
 }

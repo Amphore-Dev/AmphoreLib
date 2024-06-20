@@ -1,7 +1,10 @@
 import React from "react";
+
 import { StoryFn } from "@storybook/react";
-import { ConfirmModal, IConfirmModalProps } from "./ConfirmModal";
+
 import { useModal } from "@hooks/useModal/useModal";
+
+import { ConfirmModal, IConfirmModalProps } from "./ConfirmModal";
 import { Button } from "@components/atoms";
 
 export default {

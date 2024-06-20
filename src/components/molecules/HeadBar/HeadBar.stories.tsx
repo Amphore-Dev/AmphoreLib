@@ -1,5 +1,7 @@
 import React from "react";
+
 import { StoryFn } from "@storybook/react";
+
 import { HeadBar } from "./HeadBar";
 
 export default {
@@ -26,14 +28,14 @@ export const Base: any = Template.bind({});
 
 Base.args = {
 	className: "bg-neutral-50",
-	leftContent: 
-		<div>Left Content</div>
-	,
-	rightContent: <>
-		<div>Menu 1</div>
-		<div>Menu 2</div>
-		<div className="p-5 bg-neutral-200 rounded-full"/>
-	</>,
+	leftContent: <div>Left Content</div>,
+	rightContent: (
+		<>
+			<div>Menu 1</div>
+			<div>Menu 2</div>
+			<div className="rounded-full bg-neutral-200 p-5" />
+		</>
+	),
 };
 
 export const Menu: StoryFn = (props) => {
