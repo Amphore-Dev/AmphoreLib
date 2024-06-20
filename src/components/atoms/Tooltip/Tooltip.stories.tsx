@@ -1,14 +1,20 @@
 import React from "react";
 
 import { StoryFn } from "@storybook/react/*";
+
 import { ITooltipProps, Tooltip } from "./Tooltip";
+import { Button } from "@components/atoms";
 
 export default {
 	title: "Components/Atoms/Tooltip",
 	component: Tooltip,
 };
 
-const Template: StoryFn<ITooltipProps> = (args) => <Tooltip {...args} />;
+const Template: StoryFn<ITooltipProps> = (args) => (
+	<Tooltip {...args}>
+		<Button>{args.children}</Button>
+	</Tooltip>
+);
 
 export const Base = Template.bind({});
 

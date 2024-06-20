@@ -1,5 +1,5 @@
 interface IObject {
-	[key: string]: any;
+	[key: string]: unknown;
 }
 
 export const cleanObject = (obj: IObject, emptyToo?: boolean) => {
@@ -16,12 +16,12 @@ export const cleanObject = (obj: IObject, emptyToo?: boolean) => {
 	return result;
 };
 
-export const duplicateObject = (obj: any) => {
+export const duplicateObject = (obj: IObject) => {
 	if (!obj) return null;
 	return JSON.parse(JSON.stringify(obj));
 };
 
-export const isObjectEmpty = (obj: any) => {
+export const isObjectEmpty = (obj: IObject) => {
 	if (!obj) return true;
 	return Object.keys(obj).length === 0;
 };

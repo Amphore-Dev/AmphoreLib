@@ -1,10 +1,8 @@
 import React, { Fragment } from "react";
 
-// import { t } from "i18next";
-
-import { cn } from "@utils/index";
-
 import { Button, IModalProps, Modal } from "@components/atoms";
+
+import { cn } from "@utils/cn";
 
 export interface IConfirmModalCallback {
 	onConfirm: () => Promise<any> | any;
@@ -71,15 +69,15 @@ export const ConfirmModal: React.FC<IConfirmModalProps> = (
 			size={props.size ?? "s"}
 			className={cn([
 				"ConfirmModal !min-w-[90%] sm:!min-w-[70%] md:!min-w-0",
-				"dark:[&>div:first-child]:bg-neutral-800 dark:[&>div:first-child]:text-white dark:bg-neutral-800 dark:text-white",
+				"dark:bg-neutral-800 dark:text-white dark:[&>div:first-child]:bg-neutral-800 dark:[&>div:first-child]:text-white",
 				props.className,
 			])}
 			title={props.title}
 		>
-			<div className="flex flex-col text-left gap-m">
+			<div className="gap-m flex flex-col text-left">
 				<div className="mb-5">{props.children ?? props.text}</div>
 				<div className="flex flex-wrap-reverse justify-end gap-4 [&>*]:w-full sm:[&>*]:w-auto">
-					{!!props.buttons?.length ? (
+					{props.buttons?.length ? (
 						props.buttons.map((button, key) => {
 							return (
 								<Fragment key={key}>

@@ -1,5 +1,7 @@
 import React from "react";
+
 import { StoryFn } from "@storybook/react";
+
 import { ISpinner, Spinner } from "./Spinner";
 
 export default {

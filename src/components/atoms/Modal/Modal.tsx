@@ -1,10 +1,11 @@
-import React, { useState, useEffect, PropsWithChildren, FC } from "react";
+import React, { useEffect, PropsWithChildren, FC } from "react";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ReactDOM from "react-dom";
 
 // Components
-
 import { cn } from "@utils/cn";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
 export interface IModalProps extends PropsWithChildren {
@@ -61,7 +62,7 @@ export const Modal: FC<IModalProps> = ({
 				<>
 					<div
 						className={
-							"fixed top-0 left-0 w-full h-full bg-black bg-opacity-70 z-10 flex items-center justify-center overflow-y-auto overflow-x-hidden p-8"
+							"fixed left-0 top-0 z-10 flex h-full w-full items-center justify-center overflow-y-auto overflow-x-hidden bg-black bg-opacity-70 p-8"
 						}
 						onClick={closeOnClickOutside ? onClose : undefined}
 						onKeyPress={handleKeyPress}
@@ -70,7 +71,7 @@ export const Modal: FC<IModalProps> = ({
 					>
 						<div
 							className={
-								" h-full max-w-full relative w-auto contents cursor-default"
+								"relative contents h-full w-auto max-w-full cursor-default"
 							}
 							onClick={(e) => {
 								e.stopPropagation();
@@ -78,20 +79,20 @@ export const Modal: FC<IModalProps> = ({
 						>
 							<div
 								className={cn([
-									"bg-white z-[11] rounded-3xl shadow-xl h-auto max-w-full m-auto",
+									"z-[11] m-auto h-auto max-w-full rounded-3xl bg-white shadow-xl",
 									modalSizes[size],
 									className,
 								])}
 							>
 								<div
 									className={cn([
-										"z-[12] sticky -top-12 p-8 pb-4 flex gap-[1rem] justify-between w-full rounded-t-3xl",
+										"sticky -top-12 z-[12] flex w-full justify-between gap-[1rem] rounded-t-3xl p-8 pb-4",
 									])}
 								>
 									{!!title?.length && (
 										<h2
 											className={
-												"p-0 m-0 leading-5 text-2xl font-bold break-words"
+												"m-0 break-words p-0 text-2xl font-bold leading-5"
 											}
 										>
 											{title}
@@ -100,16 +101,16 @@ export const Modal: FC<IModalProps> = ({
 									<button
 										onClick={onClose}
 										className={
-											"flex justify-center items-center bg-transparent border-none cursor-pointer outline-none ml-auto"
+											"ml-auto flex cursor-pointer items-center justify-center border-none bg-transparent outline-none"
 										}
 									>
 										<FontAwesomeIcon
 											icon={faTimes}
-											className="text-xl text-grey-500"
+											className="text-grey-500 text-xl"
 										/>
 									</button>
 								</div>
-								<div className={"p-8 pt-2 break-words"}>
+								<div className={"break-words p-8 pt-2"}>
 									{children}
 								</div>
 							</div>

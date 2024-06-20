@@ -1,5 +1,6 @@
 import React, { FC } from "react";
-import { cn } from "../../../utils/cn";
+
+import { cn } from "@utils/cn";
 
 export interface IHeadBarClasses {
 	leftContent?: string;
@@ -22,26 +23,31 @@ export const HeadBar: FC<IHeadBarProps> = ({
 	classNames = { leftContent: "", rightContent: "" },
 }) => {
 	return (
-		<div className={cn(["px-4 py-2 min-h-[70px] flex w-full justify-between", className])}>
-			<div className="flex items-center px-4 py-2 gap-y-2 gap-6 justify-center">
+		<div
+			className={cn([
+				"flex min-h-[70px] w-full justify-between px-4 py-2",
+				className,
+			])}
+		>
+			<div className="flex items-center justify-center gap-6 gap-y-2 px-4 py-2">
 				{onMenuClick && (
 					<div
 						className={cn([
-							"flex flex-col w-[30px] aspect-square gap-2 justify-center cursor-pointer group [&>*]:duration-500",
+							"group flex aspect-square w-[30px] cursor-pointer flex-col justify-center gap-2 [&>*]:duration-500",
 							classNames.leftContent,
 						])}
 						onClick={onMenuClick}
 					>
-						<hr className="border-neutral-300 border-1 group-hover:border-black" />
-						<hr className="border-neutral-300 border-1 group-hover:border-black" />
-						<hr className="border-neutral-300 border-1 group-hover:border-black" />
+						<hr className="border-1 border-neutral-300 group-hover:border-black" />
+						<hr className="border-1 border-neutral-300 group-hover:border-black" />
+						<hr className="border-1 border-neutral-300 group-hover:border-black" />
 					</div>
 				)}
 				{leftContent}
 			</div>
 			<div
 				className={cn([
-					"flex justify-end gap-10 items-center",
+					"flex items-center justify-end gap-10",
 					classNames.rightContent,
 				])}
 			>

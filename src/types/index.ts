@@ -1,4 +1,4 @@
-export * from './point';
+export * from "./point";
 
 // Lists
-export * from "./list"
+export * from "./list";

@@ -14,9 +14,17 @@ export const Tooltip: React.FC<ITooltipProps> = ({
 	...props
 }) => {
 	return (
-		// @ts-ignore - html prop is not recognized (??)
-		<Tippy html={content} arrow theme="light" animation="fade" {...props}>
-			{children}
-		</Tippy>
+		<div className="w-fit">
+			{/* @ts-expect-error - html prop is not recognized (??) */}
+			<Tippy
+				html={content}
+				arrow
+				theme="light"
+				animation="fade"
+				{...props}
+			>
+				{children}
+			</Tippy>
+		</div>
 	);
 };

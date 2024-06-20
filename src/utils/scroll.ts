@@ -1,6 +1,6 @@
 export const scrollToAnchor = (anchorName: string) => {
 	if (!anchorName) return false;
-	let anchorElement = document.querySelector(anchorName);
+	const anchorElement = document.querySelector(anchorName);
 	if (!anchorElement) return false;
 	anchorElement.scrollIntoView({
 		behavior: "smooth",
@@ -10,7 +10,7 @@ export const scrollToAnchor = (anchorName: string) => {
 
 export const scrollToTop = (anchorName: string) => {
 	if (!anchorName) return false;
-	let anchorElement = document.querySelector(anchorName);
+	const anchorElement = document.querySelector(anchorName);
 	if (!anchorElement) return false;
 
 	anchorElement.scrollTo({

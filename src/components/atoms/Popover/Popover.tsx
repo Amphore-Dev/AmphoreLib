@@ -1,5 +1,6 @@
-import React, { PropsWithChildren, ReactElement } from "react";
-import { ITooltipProps, Tooltip } from "../Tooltip/Tooltip";
+import React from "react";
+
+import { ITooltipProps, Tooltip } from "@components/atoms";
 
 export const Popover: React.FC<ITooltipProps> = (props) => {
 	return (

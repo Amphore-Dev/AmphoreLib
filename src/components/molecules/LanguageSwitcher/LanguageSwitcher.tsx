@@ -1,7 +1,5 @@
 import React from "react";
 
-import { useTranslation } from "react-i18next";
-
 import FR from "./assets/flags/FR.svg";
 // Flags icon
 // flags can be found here: https://purecatamphetamine.github.io/country-flag-icons/3x2/index.html
@@ -41,7 +39,6 @@ export const LanguageSwitcher: React.FC<ILanguageSwitcher> = ({
 	return (
 		<div className="flex flex-wrap gap-4">
 			{Trads.map((lang) => {
-				console.log(lang);
 				return (
 					<div className="text-black dark:text-white" key={lang.code}>
 						<button
@@ -49,8 +46,9 @@ export const LanguageSwitcher: React.FC<ILanguageSwitcher> = ({
 							onClick={() => handleClick(lang.code)}
 						>
 							<img
-								className={"flag-icon mr-2 w-5 h-5"}
+								className={"flag-icon mr-2 h-5 w-5"}
 								src={lang.icon}
+								alt={lang.title}
 							/>
 							<span>{lang.title}</span>
 						</button>

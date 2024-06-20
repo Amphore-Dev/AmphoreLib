@@ -1,9 +1,10 @@
 import React from "react";
-import "./Button.scss";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner } from "@fortawesome/free-solid-svg-icons";
-import { Spinner } from "../Spinner/Spinner";
+
+import { Spinner } from "@components/atoms";
+
 import { cn } from "@utils/cn";
+
+import "./Button.scss";
 
 export interface IButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
 	children: React.ReactNode;

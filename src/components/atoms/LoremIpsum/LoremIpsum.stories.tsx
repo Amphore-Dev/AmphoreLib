@@ -1,5 +1,7 @@
 import React from "react";
+
 import { StoryFn } from "@storybook/react";
+
 import { LoremIpsum } from "./LoremIpsum";
 
 export default {
@@ -49,7 +51,6 @@ export default {
 };
 
 const Template: StoryFn = (props) => {
-	console.log(props);
 	return <LoremIpsum {...props} />;
 };
 

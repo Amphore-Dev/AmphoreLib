@@ -23,7 +23,7 @@ export interface IWeek {
 export interface IDatePickerProps extends Omit<DatePickerProps, "onChange"> {
 	weekPicker?: boolean;
 
-	onChange?: (date: any, event?: any) => void;
+	onChange?: (date: Date | IWeek | null, event?: any) => void;
 	onMonthChange?: (date: Date) => void;
 }
 
@@ -38,7 +38,10 @@ export const DatePicker: React.FC<IDatePickerProps> = ({
 	const isInitied = React.useRef(false);
 	const calendarRef = React.useRef<any>(null);
 
-	const handleChange = (date: Date | null, event: any) => {
+	const handleChange = (
+		date: Date | null,
+		event?: React.MouseEvent<HTMLElement> | React.KeyboardEvent<HTMLElement>
+	) => {
 		if (!onChange) return;
 		if (!weekPicker) return onChange(date, event);
 		if (!date) return onChange(null);
@@ -59,7 +62,7 @@ export const DatePicker: React.FC<IDatePickerProps> = ({
 
 		calendarRef.current
 			?.querySelectorAll(".react-datepicker__week")
-			.forEach((a: any) => a.classList.remove("ActiveWeek"));
+			.forEach((a: HTMLElement) => a.classList.remove("ActiveWeek"));
 
 		return activeWeek;
 	};

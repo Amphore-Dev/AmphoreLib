@@ -2,13 +2,17 @@ import React from "react";
 
 import { t } from "i18next";
 
-import { Picto, Popover, PaginationV2 } from "@zolteam/react-ras-library";
-import { ActionsList, ConfirmModal, ListHeader } from "components/molecules";
-import { Table } from "components/molecules";
+import { IListProps } from "@interfaces/list";
 
+import { Picto, Popover, PaginationV2 } from "@zolteam/react-ras-library";
+import {
+	ActionsList,
+	ConfirmModal,
+	ListHeader,
+	Table,
+} from "components/molecules";
 
 import { cn, scrollToTop } from "utils";
-import { IListProps } from "@interfaces/list";
 
 export const List: React.FC<IListProps> = ({
 	children,
@@ -29,7 +33,7 @@ export const List: React.FC<IListProps> = ({
 	...props
 }) => {
 	const [ShowPageChangeConfirm, setShowPageChangeConfirm] = React.useState<
-		Number | undefined
+		number | undefined
 	>(undefined);
 
 	const pagination = props.pagination ?? useListHook?.Pagination;
@@ -92,7 +96,7 @@ export const List: React.FC<IListProps> = ({
 			<td
 				className={cn([
 					canSelect ? "pl-3" : "pl-6",
-					"pr-3 ml-auto w-10",
+					"ml-auto w-10 pr-3",
 				])}
 				onClick={(e) => {
 					e.stopPropagation();
@@ -138,7 +142,7 @@ export const List: React.FC<IListProps> = ({
 	return (
 		<div className={cn(["w-full", className])}>
 			{!!props.filters && (
-				<div className="px-4 pb-8 pr-0 sm:px-8 pt">{props.filters}</div>
+				<div className="pt px-4 pb-8 pr-0 sm:px-8">{props.filters}</div>
 			)}
 			{header !== false && (
 				<ListHeader
@@ -155,13 +159,13 @@ export const List: React.FC<IListProps> = ({
 			)}
 			<div className={cn(["w-full overflow-auto", props.tableClassName])}>
 				{children ? (
-					<div className="first:border-none ">
+					<div className="first:border-none">
 						{displayedItems?.map((item, key) => {
 							const ChildComponent = children as any;
 							return (
 								<div
 									key={item.id ?? key}
-									className="flex items-center px-8 py-6 bg-white border-b dark:bg-black border-neutral-150 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700"
+									className="flex items-center border-b border-neutral-150 bg-white px-8 py-6 hover:bg-neutral-50 dark:border-neutral-800 dark:bg-black dark:hover:bg-neutral-700"
 								>
 									<ChildComponent {...item} />
 								</div>
@@ -181,15 +185,17 @@ export const List: React.FC<IListProps> = ({
 							tableHeader
 								? tableHeader
 								: tableHeader === false
-								? false
-								: {
-										before: (
-											<>
-												{selectable && <th />}
-												{props.itemActions && <th />}
-											</>
-										),
-								  }
+									? false
+									: {
+											before: (
+												<>
+													{selectable && <th />}
+													{props.itemActions && (
+														<th />
+													)}
+												</>
+											),
+										}
 						}
 						rowProps={{ ...rowProps, items: displayedItems }}
 						row={{
@@ -203,7 +209,7 @@ export const List: React.FC<IListProps> = ({
 
 								const isDisabled = isSelectable
 									? typeof props.isSelectionDisabled ===
-									  "function"
+										"function"
 										? props.isSelectionDisabled?.(item)
 										: props.isSelectionDisabled ?? false
 									: true;
@@ -248,7 +254,7 @@ export const List: React.FC<IListProps> = ({
 			{footer}
 			{!!pagination && !!items?.length && (
 				<>
-					<div className="flex justify-center w-full py-4">
+					<div className="flex w-full justify-center py-4">
 						<PaginationV2
 							previousLabel={<Picto icon="chevronLeft" />}
 							nextLabel={<Picto icon="chevronRight" />}

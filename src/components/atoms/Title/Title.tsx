@@ -1,4 +1,5 @@
-import React, { HTMLAttributes, PropsWithChildren } from "react";
+import React, { HTMLAttributes } from "react";
+
 import "./Title.scss";
 
 export interface ITitleProps extends HTMLAttributes<HTMLHeadingElement> {

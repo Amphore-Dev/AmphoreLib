@@ -1,0 +1,25 @@
+[data-info-message] {
+	&.type- {
+		&success {
+			@apply bg-success-100 text-success-600;
+		}
+
+		&error {
+			@apply bg-error-100 text-error-600 outline-error-500;
+		}
+
+		&warning {
+			@apply text-warning-600 bg-warning-100 outline-warning-500;
+		}
+
+		&info {
+			@apply bg-primary-100 text-primary-600 outline-primary-500;
+		}
+	}
+
+	&.outline- {
+		&success {
+			@apply text-success-500;
+		}
+	}
+}

@@ -1,4 +1,5 @@
 import React from "react";
+
 import { Meta, Typeset } from "@storybook/addon-docs";
 
 export default {
@@ -17,7 +18,18 @@ export default {
 						900(black)
 					</p>
 					<Typeset
-						fontSizes={["12", "14", "16", "18", "20", "24", "32", "48", "56", "64"]}
+						fontSizes={[
+							"12",
+							"14",
+							"16",
+							"18",
+							"20",
+							"24",
+							"32",
+							"48",
+							"56",
+							"64",
+						]}
 						fontWeight={900}
 						sampleText="I like potatoes and I like chocolate milk"
 						fontFamily='"Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif'

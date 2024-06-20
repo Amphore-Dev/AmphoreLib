@@ -54,24 +54,19 @@ module.exports = {
 				
 				"accent-500": "#fa6400",
 
-				"success-100": "#CCE8E4",
-				"success-500": "#6cca67",
-				"success-600": "#326961",
+				"success-100": "#e2f7e1",
+				"success-500": "#41ac3b",
+				"success-600": "#2f8e2b",
 
-				"warning-500": "#d4364d",
+				"warning-100": "#fcead8",
+				"warning-500": "#ec854b",	
+				"warning-600": "#e8682b",
+
+				"error-100": "#fad1d3",
 				"error-500": "#d4364d",
-				"error-600": "#E55151",
+				"error-600": "#b02038",
 
 				"white": "#fff",
-                "neutral-50": "#f9f9f9",
-                "neutral-100": "#f3f3f4",
-                "neutral-150": "#e7e6e6",
-                "neutral-200": "#e1e1e3",
-                "neutral-300": "#cecfd2",
-                "neutral-500": "#85868f",
-                "neutral-600": "#666666",
-                "neutral-700": "#4d4d4d",
-                "neutral-800": "#333333",
                 "black": "#000",
 
 				"rating-range-1": "#d4364d",

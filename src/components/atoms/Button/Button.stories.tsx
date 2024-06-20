@@ -1,5 +1,7 @@
 import React from "react";
+
 import { StoryFn } from "@storybook/react";
+
 import { Button, IButtonProps } from "./Button";
 
 export default {
@@ -20,6 +22,33 @@ export default {
 			control: {
 				type: "boolean",
 			},
+		},
+		color: {
+			control: "radio",
+			options: ["black", "white", "primary"],
+		},
+		children: {
+			control: {
+				type: "text",
+			},
+		},
+		"...": {
+			description: "All default button props",
+			control: {
+				disable: true,
+			},
+		},
+	},
+	parameters: {
+		controls: {
+			include: [
+				"outline",
+				"color",
+				"disabled",
+				"isLoading",
+				"children",
+				"...",
+			],
 		},
 	},
 };
