@@ -1,22 +1,21 @@
 import React, { HTMLAttributes, PropsWithChildren } from "react";
 
-import { TPictoName } from "@constants/Pictos";
-
-import { Picto } from "@components/atoms";
+import { TPictoName } from "../../../constants/Pictos";
+import { Picto } from "../../atoms/Picto/Picto";
 
 import { cn } from "@utils/cn";
 
 import "./InfoMessage.scss";
 
 export interface IInfoMessageProps extends HTMLAttributes<HTMLDivElement> {
-	type: "info" | "warning" | "error" | "success";
+	type?: "info" | "warning" | "error" | "success";
 	icon?: TPictoName;
 	withIcon?: boolean;
 	outlined?: boolean;
 }
 
 export const InfoMessage: React.FC<IInfoMessageProps> = ({
-	type,
+	type = "info",
 	icon,
 	children,
 	className = "",

@@ -26,10 +26,10 @@ export const Button = ({
 	className = "",
 	...props
 }: IButtonProps) => {
-	const hasOutlineClass = outline && `btn--outline`;
-	const isLoadingClass = isLoading && `btn--loading`;
 	const classNames = cn([
-		`btn text-white btn--${color} btn--${size} ${hasOutlineClass} ${isLoadingClass}`,
+		`al__button text-white al__button--${color} al__button--${size}`,
+		outline && `al__button--outline`,
+		isLoading && `al__button--loading`,
 		className,
 	]);
 
@@ -38,6 +38,7 @@ export const Button = ({
 			className={classNames}
 			{...props}
 			disabled={disabled || isLoading}
+			data-amphore_btn
 		>
 			{isLoading && <Spinner size={1.25} />}
 			{children}

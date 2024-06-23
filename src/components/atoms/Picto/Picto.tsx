@@ -1,6 +1,6 @@
 import React, { CSSProperties } from "react";
 
-import { Pictos, TPictoName } from "@constants/Pictos";
+import { Pictos, TPictoName } from "../../../constants/Pictos";
 
 import { cn } from "@utils/cn";
 
@@ -27,6 +27,8 @@ export const Picto: React.FC<IPictoProps> = ({
 		<ReactSVG
 			src={src ?? Pictos[icon]}
 			style={style}
+			data-amphore-svg
+			wrapper={undefined}
 			className="w-aduto h-aduto [&>*]:w-full [&>*]:h-full"
 			beforeInjection={(svg) => {
 				const classes = cn([
