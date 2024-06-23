@@ -40,7 +40,9 @@ export default [{
 		},
       extensions: ['.css', '.scss']
     }),
-	svg()
+	svg({
+		base64: true
+	})
   ]
 }, {
   input: 'lib/index.d.ts',

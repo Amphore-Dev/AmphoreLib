@@ -1,6 +1,6 @@
 import React, { Fragment } from "react";
 
-import { Button, IModalProps, Modal } from "@components/atoms";
+import { Button, IModalProps, Modal } from "../../atoms";
 
 import { cn } from "@utils/cn";
 

@@ -8,7 +8,7 @@ export * from "./Picto/Picto";
 export * from "./Popover/Popover";
 export * from "./Radio/Radio";
 export * from "./Spinner/Spinner";
-export * from "./TextField/TextField";
+export * from "../molecules/TextField/TextField";
 export * from "./Title/Title";
 export * from "./Toggle/Toggle";
 export * from "./Tooltip/Tooltip";

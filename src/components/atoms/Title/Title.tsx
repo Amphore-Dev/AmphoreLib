@@ -1,5 +1,7 @@
 import React, { HTMLAttributes } from "react";
 
+import { cn } from "@utils/cn";
+
 import "./Title.scss";
 
 export interface ITitleProps extends HTMLAttributes<HTMLHeadingElement> {
@@ -8,5 +10,10 @@ export interface ITitleProps extends HTMLAttributes<HTMLHeadingElement> {
 
 export const Title: React.FC<ITitleProps> = ({ children, tag, ...props }) => {
 	const Tag = tag ?? "h1";
-	return <Tag {...props}>{children}</Tag>;
+
+	return (
+		<Tag {...props} data-amphore-title>
+			{children}
+		</Tag>
+	);
 };

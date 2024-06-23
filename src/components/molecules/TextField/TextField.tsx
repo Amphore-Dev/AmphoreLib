@@ -13,7 +13,7 @@ import {
 	useFormikContext,
 } from "formik";
 
-import { InfoMessage } from "@components/molecules";
+import { InfoMessage } from "../InfoMessage/InfoMessage";
 
 import { cn } from "@utils/cn";
 

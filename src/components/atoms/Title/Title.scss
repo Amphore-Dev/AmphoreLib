@@ -1,25 +1,23 @@
-/* leading = line-height * 1.2 */
-
-h1 {
+h1[data-amphore-title] {
 	@apply text-[3.2rem] font-bold leading-[3.84rem];
 }
 
-h2 {
+h2[data-amphore-title] {
 	@apply text-3xl font-bold;
 }
 
-h3 {
+h3[data-amphore-title] {
 	@apply text-2xl font-bold;
 }
 
-h4 {
+h4[data-amphore-title] {
 	@apply text-xl font-bold;
 }
 
-h5 {
+h5[data-amphore-title] {
 	@apply text-lg font-bold;
 }
 
-h6 {
+h6[data-amphore-title] {
 	@apply text-base font-bold;
 }
