@@ -22,12 +22,12 @@
 		background-color: #27272b;
 		color: white;
 
-		&.btn--outline {
+		&.al__button--outline {
 			outline-color: #27272b;
 			color: #27272b;
 		}
 
-		&:not(.btn--loading):hover {
+		&:not(.al__button--loading):hover {
 			background-color: #27272b;
 			color: white;
 		}
@@ -37,12 +37,12 @@
 		background-color: white;
 		color: #27272b;
 
-		&.btn--outline {
+		&.al__button--outline {
 			outline-color: #e2e2e2;
 			color: #27272b;
 		}
 
-		&:not(.btn--loading):hover {
+		&:not(.al__button--loading):hover {
 			background-color: #e2e2e2;
 			color: #27272b;
 		}
@@ -51,15 +51,15 @@
 	&--primary {
 		@apply bg-primary-500;
 
-		&.btn--outline {
+		&.al__button--outline {
 			@apply text-primary-500 outline-primary-500;
 
-			&:not(.btn--loading):hover {
+			&:not(.al__button--loading):hover {
 				@apply bg-primary-500;
 			}
 		}
 
-		&:not(.btn--loading):hover {
+		&:not(.al__button--loading):hover {
 			color: white !important;
 			@apply bg-primary-600;
 		}
