@@ -20,7 +20,7 @@ export default {
 
 const Template: StoryFn<IDatePickerProps> = (args) => {
 	return (
-		<div className="min-h-[300px]">
+		<div className="min-h-[300px] text-center ">
 			<DatePicker
 				{...args}
 				className="border-2 text-center"

@@ -40,6 +40,8 @@ export const PasswordField: React.FC<IPasswordFieldProps> = ({
 			{...props}
 			type={showPassword ? "text" : "password"}
 			onMouseLeave={launchAutoHide}
+			onBlur={launchAutoHide}
+			onFocus={clearAutoHide}
 			onMouseEnter={clearAutoHide}
 		>
 			<div className="absolute top-1/2 -translate-y-1/2 right-4 flex items-center gap-4 text-neutral-500">

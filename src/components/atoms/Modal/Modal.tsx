@@ -15,6 +15,8 @@ export interface IModalProps extends PropsWithChildren {
 	size?: "s" | "m" | "l" | "auto";
 	title?: string;
 	className?: string;
+	overlayClassName?: string;
+	zIndex?: number;
 }
 
 const modalSizes = {
@@ -31,7 +33,9 @@ export const Modal: FC<IModalProps> = ({
 	size = "m",
 	title = "",
 	className = "",
+	overlayClassName = "",
 	children,
+	zIndex = 10,
 }) => {
 	const handleKeyPress = (e: any) => e.code === "Escape" && onClose();
 
@@ -61,13 +65,15 @@ export const Modal: FC<IModalProps> = ({
 		? ReactDOM.createPortal(
 				<>
 					<div
-						className={
-							"fixed left-0 top-0 z-10 flex h-full w-full items-center justify-center overflow-y-auto overflow-x-hidden bg-black bg-opacity-70 p-8"
-						}
+						className={cn([
+							"fixed left-0 top-0 flex h-full w-full items-center justify-center overflow-y-auto overflow-x-hidden bg-black bg-opacity-70 p-8",
+							overlayClassName,
+						])}
 						onClick={closeOnClickOutside ? onClose : undefined}
-						onKeyPress={handleKeyPress}
+						onKeyDown={handleKeyPress}
 						role="button"
 						tabIndex={-1}
+						style={{ zIndex }}
 					>
 						<div
 							className={
@@ -76,18 +82,25 @@ export const Modal: FC<IModalProps> = ({
 							onClick={(e) => {
 								e.stopPropagation();
 							}}
+							role="button"
+							onKeyDown={() => {}}
+							tabIndex={-1}
 						>
 							<div
+								style={{ zIndex: zIndex + 1 }}
 								className={cn([
-									"z-[11] m-auto h-auto max-w-full rounded-3xl bg-white shadow-xl",
+									"m-auto h-auto max-w-full rounded-3xl bg-white shadow-xl",
 									modalSizes[size],
 									className,
 								])}
 							>
 								<div
 									className={cn([
-										"sticky -top-12 z-[12] flex w-full justify-between gap-[1rem] rounded-t-3xl p-8 pb-4",
+										"sticky -top-12 flex w-full justify-between gap-[1rem] rounded-t-3xl p-8 pb-4",
 									])}
+									style={{
+										zIndex: zIndex + 2,
+									}}
 								>
 									{!!title?.length && (
 										<h2

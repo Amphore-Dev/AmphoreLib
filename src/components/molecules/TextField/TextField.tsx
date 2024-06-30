@@ -5,13 +5,7 @@ import React, {
 	useState,
 } from "react";
 
-import {
-	ErrorMessage,
-	Field,
-	FormikContext,
-	useField,
-	useFormikContext,
-} from "formik";
+import { ErrorMessage, Field, FormikContext, useField } from "formik";
 
 import { InfoMessage } from "../InfoMessage/InfoMessage";
 
@@ -22,6 +16,7 @@ export interface ITextFieldProps
 		PropsWithChildren {
 	label: string;
 	alwaysShowLabel?: boolean;
+	isInForm?: boolean;
 }
 
 export const TextField: React.FC<ITextFieldProps> = ({
@@ -30,9 +25,9 @@ export const TextField: React.FC<ITextFieldProps> = ({
 	alwaysShowLabel = false,
 	type = "text",
 	children,
+	isInForm = true,
 	...props
 }) => {
-	const isInForm = !!useContext(FormikContext); // detect if the component is inside a Formik form
 	const Wrapper = isInForm ? Field : "input";
 
 	const [field, meta, helpers] =

@@ -107,6 +107,8 @@ export const DatePicker: React.FC<IDatePickerProps> = ({
 				onMonthChange={handleMonthChange}
 				dateFormat="dd/MM/yyyy"
 				className={cn(["DatePicker", className])}
+				wrapperClassName="DatePickerWrapper"
+				popperClassName="DatePickerPopper"
 			/>
 		</Wrapper>
 	);
