@@ -16,7 +16,6 @@ export interface ITextFieldProps
 		PropsWithChildren {
 	label: string;
 	alwaysShowLabel?: boolean;
-	isInForm?: boolean;
 }
 
 export const TextField: React.FC<ITextFieldProps> = ({
@@ -25,9 +24,9 @@ export const TextField: React.FC<ITextFieldProps> = ({
 	alwaysShowLabel = false,
 	type = "text",
 	children,
-	isInForm = true,
 	...props
 }) => {
+	const isInForm = !!useContext(FormikContext); // detect if the component is inside a Formik form
 	const Wrapper = isInForm ? Field : "input";
 
 	const [field, meta, helpers] =
@@ -56,7 +55,7 @@ export const TextField: React.FC<ITextFieldProps> = ({
 	const currentValue = getValue();
 
 	return (
-		<>
+		<div>
 			<div className="relative rounded-3xl">
 				<label
 					className={cn([
@@ -79,10 +78,10 @@ export const TextField: React.FC<ITextFieldProps> = ({
 					}
 					value={currentValue}
 					className={cn([
-						"h-10 w-full rounded-3xl px-5 py-6 text-sm outline outline-2 outline-neutral-300 duration-500 ",
+						"h-10 w-full rounded-3xl px-5 py-6 text-sm outline-none border-2 border-neutral-300 duration-500",
 						meta?.error && meta.touched
-							? "outline-error-500"
-							: "focus:outline-primary-500",
+							? "border-error-500"
+							: "focus:border-primary-500",
 						props.disabled && "bg-neutral-100 text-neutral-400",
 					])}
 				/>
@@ -102,21 +101,22 @@ export const TextField: React.FC<ITextFieldProps> = ({
 				{children}
 			</div>
 			{props.required && (
-				<div className="text-xs ml-5 text-neutral-500 mt-1">
+				<div className="text-xs text-left ml-5 text-neutral-500 mt-1">
 					Required
 				</div>
 			)}
 			{!!props.name && isInForm && (
-				<div className={cn([!props.required && "mt-3"])}>
-					<ErrorMessage
-						name={props.name}
-						component="div"
-						className="mt-8"
-					>
-						{(msg) => <InfoMessage type="error">{msg}</InfoMessage>}
-					</ErrorMessage>
-				</div>
+				<ErrorMessage name={props.name}>
+					{(msg: string) => (
+						<InfoMessage
+							type="error"
+							className={cn([!props.required ? "mt-2" : "mt-1"])}
+						>
+							{msg}
+						</InfoMessage>
+					)}
+				</ErrorMessage>
 			)}
-		</>
+		</div>
 	);
 };

@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 
-import { IPoint } from "@interfaces/index";
+import { IPoint } from "../../../types/point";
 
 // extends canvas props without the onLoad and onTouchMove using Omit
 export interface ICanvasProps

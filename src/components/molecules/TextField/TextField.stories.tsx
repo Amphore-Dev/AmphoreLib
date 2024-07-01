@@ -77,8 +77,8 @@ interface ITextFieldStoryProps extends ITextFieldProps {
 	formiked?: boolean;
 }
 
-const Template: StoryFn<ITextFieldStoryProps> = ({ ...args }) => {
-	if (!args.isInForm) return <TextField {...args} />;
+const Template: StoryFn<ITextFieldStoryProps> = ({ formiked, ...args }) => {
+	if (!formiked) return <TextField {...args} />;
 
 	return (
 		<Formik
@@ -90,14 +90,11 @@ const Template: StoryFn<ITextFieldStoryProps> = ({ ...args }) => {
 			}
 			onSubmit={() => {}}
 		>
-			{({ values }) => {
-				console.log(values);
-				return (
-					<Form>
-						<TextField {...args} name="field" />
-					</Form>
-				);
-			}}
+			{() => (
+				<Form>
+					<TextField {...args} name="field" />
+				</Form>
+			)}
 		</Formik>
 	);
 };
@@ -107,38 +104,31 @@ export const Base = Template.bind({});
 Base.args = {
 	label: "Field Label",
 	placeholder: "Enter text here",
-	isInForm: false,
 };
 
 export const Formiked = Template.bind({});
 Formiked.args = {
 	label: "With Formik",
 	name: "field",
+	formiked: true,
 	required: true,
-	isInForm: true,
 };
 
 export const Required = Template.bind({});
 Required.args = {
 	label: "Required",
-	name: "field",
 	required: true,
-	isInForm: false,
 };
 
 export const Disabled = Template.bind({});
 Disabled.args = {
 	label: "Disabled",
-	name: "field",
 	disabled: true,
-	isInForm: false,
 };
 
 export const MaxLength = Template.bind({});
 
 MaxLength.args = {
 	label: "Max Length",
-	name: "field",
 	maxLength: 1000,
-	isInForm: false,
 };
