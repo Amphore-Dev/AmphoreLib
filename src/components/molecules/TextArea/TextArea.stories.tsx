@@ -4,11 +4,11 @@ import { StoryFn } from "@storybook/react/*";
 import { Form, Formik } from "formik";
 import * as yup from "yup";
 
-import { TextField, ITextFieldProps } from "./TextField";
+import { TextArea, ITextAreaProps } from "./TextArea";
 
 export default {
-	title: "Components/Molecules/TextField",
-	component: TextField,
+	title: "Components/Molecules/TextArea",
+	component: TextArea,
 	argTypes: {
 		disabled: {
 			control: {
@@ -73,12 +73,12 @@ export default {
 	},
 };
 
-interface ITextFieldStoryProps extends ITextFieldProps {
+interface ITextAreaStoryProps extends ITextAreaProps {
 	formiked?: boolean;
 }
 
-const Template: StoryFn<ITextFieldStoryProps> = ({ formiked, ...args }) => {
-	if (!formiked) return <TextField {...args} />;
+const Template: StoryFn<ITextAreaStoryProps> = ({ formiked, ...args }) => {
+	if (!formiked) return <TextArea {...args} />;
 
 	return (
 		<Formik
@@ -92,7 +92,7 @@ const Template: StoryFn<ITextFieldStoryProps> = ({ formiked, ...args }) => {
 		>
 			{() => (
 				<Form>
-					<TextField {...args} name="field" />
+					<TextArea {...args} name="field" />
 				</Form>
 			)}
 		</Formik>

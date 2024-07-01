@@ -1,7 +1,5 @@
 import React, { HTMLAttributes } from "react";
 
-import { cn } from "@utils/cn";
-
 import "./Title.scss";
 
 export interface ITitleProps extends HTMLAttributes<HTMLHeadingElement> {

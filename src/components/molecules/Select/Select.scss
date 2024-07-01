@@ -1,0 +1,27 @@
+.al_select {
+	--primaryColor: theme("colors.primary.500");
+	--multiValueColor: theme("colors.primary.200");
+
+	@apply rounded-3xl;
+
+	// end with "-control" to target the control element
+	[class$="-control"] {
+		@apply rounded-[3rem] border-2 border-gray-300 bg-white p-2 text-base;
+	}
+
+	[class$="-multiValue"] {
+		background-color: var(--multiValueColor);
+		@apply rounded-3xl text-sm;
+
+		& [class$="-MultiValueRemove"] {
+			@apply rounded-r-full;
+			&:hover {
+				@apply bg-red-300 text-white;
+			}
+		}
+	}
+
+	[class$="-placeholder"] {
+		@apply text-sm;
+	}
+}

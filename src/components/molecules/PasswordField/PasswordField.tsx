@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
-import { CountDown, ITextFieldProps, Picto, TextField } from "../../atoms";
+import { CountDown, Picto } from "../../atoms";
+import { ITextFieldProps, TextField } from "../TextField/TextField";
 
 export interface IPasswordFieldProps extends ITextFieldProps {
 	autoHide?: boolean;

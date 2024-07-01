@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, PropsWithChildren } from "react";
+import React, { HTMLAttributes } from "react";
 
 import { TPictoName } from "../../../constants/Pictos";
 import { Picto } from "../../atoms/Picto/Picto";
