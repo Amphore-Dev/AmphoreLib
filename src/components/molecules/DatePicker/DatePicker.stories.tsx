@@ -29,11 +29,7 @@ const Template: StoryFn<IDatePickerStoryProps> = (args) => {
 	if (!args.formiked)
 		return (
 			<div className="min-h-[300px] text-center ">
-				<DatePicker
-					{...args}
-					className="border-2 text-center"
-					placeholderText="Click to pick a date"
-				/>
+				<DatePicker {...args} className="border-2 text-center" />
 			</div>
 		);
 	return (
@@ -58,7 +54,6 @@ const Template: StoryFn<IDatePickerStoryProps> = (args) => {
 							<DatePicker
 								{...args}
 								className="border-2 text-center"
-								placeholderText="Click to pick a date"
 							/>
 						</Form>
 					);
@@ -73,6 +68,8 @@ export const Base = Template.bind({});
 Base.args = {
 	formiked: true,
 	name: "field",
+	label: "Date",
+	placeholder: "Click to pick a date",
 };
 
 Base.parameters = {

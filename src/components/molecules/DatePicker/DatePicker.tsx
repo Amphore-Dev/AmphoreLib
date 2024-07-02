@@ -27,7 +27,8 @@ export interface IWeek {
 
 export interface IDatePickerProps extends Omit<DatePickerProps, "onChange"> {
 	weekPicker?: boolean;
-
+	label?: string;
+	placeholder?: string;
 	onChange?: (date: Date | IWeek | null, event?: any) => void;
 	onMonthChange?: (date: Date) => void;
 	formatInputValue?: (date: Date | IWeek | null) => string;
@@ -40,6 +41,8 @@ export const DatePicker: React.FC<IDatePickerProps> = ({
 	selected,
 	className,
 	formatInputValue,
+	placeholder,
+	label,
 	...props
 }) => {
 	const isInForm = !!useContext(FormikContext);
@@ -127,6 +130,7 @@ export const DatePicker: React.FC<IDatePickerProps> = ({
 			{/* @ts-ignore */}
 			<ReactDatePicker
 				{...props}
+				placeholderText={placeholder}
 				onChange={(date, event) => handleChange(date, event)}
 				locale="fr"
 				onMonthChange={handleMonthChange}
@@ -140,6 +144,8 @@ export const DatePicker: React.FC<IDatePickerProps> = ({
 						weekPicker={weekPicker}
 						isInForm={isInForm}
 						formatInputValue={formatInputValue}
+						label={label}
+						placeholder={placeholder}
 					/>
 				}
 				onCalendarOpen={() => {
@@ -165,6 +171,8 @@ interface IDatePickerFieldProps extends ITextFieldProps {
 	weekPicker?: boolean;
 	isInForm?: boolean;
 	formatInputValue?: (date: Date | IWeek | null) => string;
+	placeholder?: string;
+	label?: string;
 }
 
 const DatePickerField = forwardRef(
@@ -173,13 +181,12 @@ const DatePickerField = forwardRef(
 			weekPicker,
 			isInForm,
 			formatInputValue,
+			placeholder,
+			label,
 			...props
 		}: IDatePickerFieldProps,
 		ref: any
 	) => {
-		const placeholder = "Select a date";
-		const label = "Date";
-
 		return (
 			<div ref={ref}>
 				<TextField
