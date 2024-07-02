@@ -7,6 +7,8 @@ import Async, { AsyncProps } from "react-select/async";
 import { ISelectProps } from "../Select/Select";
 import { selectComponents } from "../Select/components";
 
+import { cn } from "@utils/cn";
+
 import "../Select/Select.scss";
 
 export interface IAsyncSelectProps<
@@ -38,9 +40,12 @@ export const AsyncSelect = <
 
 	return (
 		<Async
-			components={selectComponents}
 			{...props}
-			className="al_select al_async_select"
+			components={{
+				...selectComponents,
+				...props.components,
+			}}
+			className={cn(["al_select al_async_select", props.className])}
 			onChange={handleChange}
 		/>
 	);

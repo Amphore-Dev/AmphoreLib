@@ -5,6 +5,8 @@ import ReactSelect, { GroupBase, OnChangeValue, Props } from "react-select";
 
 import { selectComponents } from "./components";
 
+import { cn } from "@utils/cn";
+
 import "./Select.scss";
 
 export interface ISelectProps<
@@ -25,7 +27,7 @@ export const Select = <
 	...props
 }: ISelectProps<OptionType, IsMulti, GroupType>) => {
 	const isInForm = !!useContext(FormikContext);
-	const [field, meta, helpers] =
+	const [field, , helpers] =
 		props.name && isInForm
 			? useField(props.name)
 			: [undefined, undefined, undefined];
@@ -37,12 +39,13 @@ export const Select = <
 
 	return (
 		<ReactSelect
+			{...props}
 			components={{
 				...selectComponents,
+				...props.components,
 			}}
-			{...props}
 			onChange={handleChange}
-			className="al_select"
+			className={cn(["al_select", props.className])}
 		/>
 	);
 };
