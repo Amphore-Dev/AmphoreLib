@@ -29,7 +29,7 @@ export const Picto: React.FC<IPictoProps> = ({
 			style={style}
 			data-amphore-svg
 			wrapper={undefined}
-			className="w-aduto h-aduto [&>*]:w-full [&>*]:h-full"
+			className="[&>*]:w-full [&>*]:h-full"
 			beforeInjection={(svg) => {
 				const classes = cn([
 					"w-full !h-full",

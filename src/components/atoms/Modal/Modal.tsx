@@ -89,14 +89,14 @@ export const Modal: FC<IModalProps> = ({
 							<div
 								style={{ zIndex: zIndex + 1 }}
 								className={cn([
-									"m-auto h-auto max-w-full rounded-3xl bg-white shadow-xl",
+									"m-auto h-auto max-w-full rounded-3xl bg-white shadow-xl cursor-auto",
 									modalSizes[size],
 									className,
 								])}
 							>
 								<div
 									className={cn([
-										"sticky -top-12 flex w-full justify-between gap-[1rem] rounded-t-3xl p-8 pb-4",
+										"sticky -top-12 flex w-full justify-between gap-[1rem] rounded-t-3xl p-8 pb-4 bg-white",
 									])}
 									style={{
 										zIndex: zIndex + 2,

@@ -2,6 +2,10 @@
 	width: 100%;
 }
 
+.react-datepicker-wrapper {
+	width: 100%;
+}
+
 .DatePickerPopper {
 	.react-datepicker {
 		--background-color: white;
@@ -29,7 +33,7 @@
 	.react-datepicker__year-text--selected,
 	.react-datepicker__year-text--in-selecting-range,
 	.react-datepicker__year-text--in-range {
-		background-color: var(--color-primary-500) !important;
+		background-color: theme("colors.primary.500") !important;
 		color: white !important;
 		border-radius: 50%;
 		font-weight: bolder;
@@ -249,40 +253,6 @@
 	.react-datepicker__navigation:hover *::before {
 		@apply border-primary-300;
 	}
-
-	/* WeekPicker */
-	.WeekPicker {
-		.react-datepicker__week {
-			border-radius: 100px;
-			margin-bottom: 0.25rem;
-			transition-duration: 0.3s;
-		}
-
-		.react-datepicker__week:not(.ActiveWeek):hover {
-			@apply bg-primary-100;
-		}
-
-		.react-datepicker__week.ActiveWeek {
-			@apply bg-primary-500;
-			color: white;
-		}
-
-		.react-datepicker__day {
-			background-color: transparent;
-			margin: 0;
-			width: 2rem;
-			padding: 0.166rem;
-		}
-
-		.react-datepicker__week:not(.ActiveWeek) .react-datepicker__day--today {
-			@apply bg-primary-100;
-		}
-
-		.react-datepicker__day--selected {
-			font-weight: normal;
-			background-color: transparent !important;
-		}
-	}
 }
 
 .react-datepicker-popper.react-datepicker-popper .react-datepicker__triangle {
@@ -312,6 +282,41 @@
 .react-datepicker-popper[data-placement^="top"]
 	.react-datepicker__triangle::after {
 	border-top-color: var(--background-color);
+}
+
+/* WeekPicker */
+.WeekPicker {
+	.react-datepicker__week {
+		border-radius: 100px;
+		margin-bottom: 0.25rem;
+		transition-duration: 0.3s;
+	}
+
+	.react-datepicker__week:not(.ActiveWeek):hover {
+		@apply bg-primary-100;
+	}
+
+	.react-datepicker__week.ActiveWeek {
+		@apply bg-primary-500;
+		color: white;
+	}
+
+	.react-datepicker__day,
+	.react-datepicker__day:hover {
+		background-color: transparent !important;
+		margin: 0;
+		width: 2rem;
+		padding: 0.166rem;
+	}
+
+	.react-datepicker__week:not(.ActiveWeek) .react-datepicker__day--today {
+		@apply bg-primary-100;
+	}
+
+	.react-datepicker__day--selected {
+		font-weight: normal;
+		background-color: transparent !important;
+	}
 }
 
 /* darkTheme */

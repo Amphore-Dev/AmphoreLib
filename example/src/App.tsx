@@ -16,13 +16,10 @@ const App: React.FC = () => {
 				initialValues={{
 					name: "",
 				}}
-				onSubmit={(values) => {
-					console.log(values);
-				}}
+				onSubmit={(values) => {}}
 				validationSchema={validationSchema}
 			>
 				{({ values }) => {
-					console.log(values);
 					return (
 						<Form>
 							<TextField name="name" label="Name" />

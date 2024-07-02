@@ -14,16 +14,18 @@ import { cn } from "@utils/cn";
 export interface ITextFieldProps
 	extends React.InputHTMLAttributes<HTMLInputElement>,
 		PropsWithChildren {
-	label: string;
+	label?: string;
 	alwaysShowLabel?: boolean;
+	getValue?: (currentValue: any) => any;
 }
 
 export const TextField: React.FC<ITextFieldProps> = ({
 	value,
-	label,
+	label = "",
 	alwaysShowLabel = false,
 	type = "text",
 	children,
+	getValue,
 	...props
 }) => {
 	const isInForm = !!useContext(FormikContext); // detect if the component is inside a Formik form
@@ -42,7 +44,10 @@ export const TextField: React.FC<ITextFieldProps> = ({
 			? helpers.setValue(event.target.value)
 			: setValue(event.target.value);
 
-	const getValue = () => (isInForm && field ? field.value : Value) || "";
+	const getFieldValue = () => {
+		const fieldValue = (isInForm && field ? field.value : Value) || "";
+		return getValue ? getValue(fieldValue) : fieldValue;
+	};
 
 	useEffect(() => {
 		if (value !== undefined && !isInForm && value !== Value && !isInForm) {
@@ -52,7 +57,7 @@ export const TextField: React.FC<ITextFieldProps> = ({
 		}
 	}, [value]);
 
-	const currentValue = getValue();
+	const currentValue = getFieldValue();
 
 	return (
 		<div>

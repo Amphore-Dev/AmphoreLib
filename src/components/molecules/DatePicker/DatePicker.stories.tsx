@@ -1,6 +1,8 @@
 import React from "react";
 
 import { StoryFn } from "@storybook/react";
+import { Form, Formik } from "formik";
+import * as yup from "yup";
 
 import { DatePicker, IDatePickerProps } from "./DatePicker";
 
@@ -18,14 +20,50 @@ export default {
 	parameters: { docs: { iframeHeight: 400 } },
 };
 
-const Template: StoryFn<IDatePickerProps> = (args) => {
+interface IDatePickerStoryProps extends IDatePickerProps {
+	formiked?: boolean;
+	validationSchema?: any;
+}
+
+const Template: StoryFn<IDatePickerStoryProps> = (args) => {
+	if (!args.formiked)
+		return (
+			<div className="min-h-[300px] text-center ">
+				<DatePicker
+					{...args}
+					className="border-2 text-center"
+					placeholderText="Click to pick a date"
+				/>
+			</div>
+		);
 	return (
 		<div className="min-h-[300px] text-center ">
-			<DatePicker
-				{...args}
-				className="border-2 text-center"
-				placeholderText="Click to pick a date"
-			/>
+			<Formik
+				initialValues={{
+					field: "",
+				}}
+				validationSchema={
+					args.validationSchema
+						? args.validationSchema
+						: () =>
+								yup.object().shape({
+									field: yup.string().required(),
+								})
+				}
+				onSubmit={() => {}}
+			>
+				{({}) => {
+					return (
+						<Form>
+							<DatePicker
+								{...args}
+								className="border-2 text-center"
+								placeholderText="Click to pick a date"
+							/>
+						</Form>
+					);
+				}}
+			</Formik>
 		</div>
 	);
 };
@@ -33,9 +71,8 @@ const Template: StoryFn<IDatePickerProps> = (args) => {
 export const Base = Template.bind({});
 
 Base.args = {
-	onChange: (date) => {
-		alert(`Date changed to ${date}`);
-	},
+	formiked: true,
+	name: "field",
 };
 
 Base.parameters = {
@@ -47,9 +84,11 @@ Base.parameters = {
 export const WeekPicker = Template.bind({});
 WeekPicker.args = {
 	weekPicker: true,
-	onChange: (date) => {
-		alert(`Week changed to ${JSON.stringify(date)}`);
-	},
+	formiked: true,
+	name: "field",
+	validationSchema: yup.object().shape({
+		field: yup.object().required(),
+	}),
 };
 
 export const WithSelected = Template.bind({});
