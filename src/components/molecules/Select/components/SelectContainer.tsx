@@ -16,7 +16,6 @@ export const SelectContainer: React.FC<any> = ({ children, ...props }) => {
 	const [, meta] =
 		name && isInForm ? useField(name) : [undefined, undefined, undefined];
 
-	console.log("IS IN FORM ERROR", meta?.error);
 	return (
 		<components.SelectContainer {...props}>
 			{children}

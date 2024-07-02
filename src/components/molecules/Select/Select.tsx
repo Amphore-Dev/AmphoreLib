@@ -30,7 +30,6 @@ export const Select = <
 			? useField(props.name)
 			: [undefined, undefined, undefined];
 
-	console.log("IS IN FORM", isInForm, field, meta, helpers);
 	const handleChange = (value: any) => {
 		if (props.onChange) return props.onChange<any>(value);
 		isInForm && field && helpers.setValue(value);

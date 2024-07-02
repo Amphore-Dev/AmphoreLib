@@ -12,8 +12,6 @@ export default {
 };
 
 export const Template: StoryFn<any> = (args) => {
-	console.log(args);
-
 	if (!args.formiked)
 		return (
 			<div className="h-[250px]">
@@ -30,7 +28,6 @@ export const Template: StoryFn<any> = (args) => {
 			})}
 		>
 			{({ values, errors }) => {
-				console.log(values, errors);
 				return (
 					<Form className="h-[250px]">
 						<Select
