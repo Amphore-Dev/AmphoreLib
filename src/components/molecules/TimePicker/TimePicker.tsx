@@ -21,7 +21,7 @@ export interface ITimePickerProps extends Omit<ITextFieldProps, "onChange"> {
 }
 
 const inputClasses =
-	"!p-0 text-center appearance-textfield w-[2rem] border-none h-9 bg-transparent";
+	"!p-0 text-center appearance-textfield w-[2rem] h-auto bg-transparent focus:text-primary-600 !rounded-none py-1 !outline-none  !border-transparent focus:!border-b-primary-500";
 
 export const TimePicker: React.FC<ITimePickerProps> = ({
 	value = format(new Date(), "HH:mm"),
@@ -128,7 +128,7 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 					>
 						{label}
 					</label>
-					<div className="flex items-center mt-[2px]">
+					<div className="flex items-center mt-[10px]">
 						<TextField
 							type="number"
 							value={Hours}
@@ -154,7 +154,10 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 							autoDetectFormik={false}
 						/>
 					</div>
-					<Picto icon="clock" className="min-w-4 h-5" />
+					<Picto
+						icon="clock"
+						className="min-w-4 h-5 text-neutral-400 hover:text-neutral-500"
+					/>
 				</div>
 			</Popover>
 			{props.required && (

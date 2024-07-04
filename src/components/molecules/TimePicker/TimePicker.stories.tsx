@@ -47,7 +47,6 @@ export const Template: StoryFn<IStoryProps> = ({
 								onChange={(time) => {}}
 								required
 								readOnly
-								minutesStep={5}
 							/>
 						</Form>
 					);
