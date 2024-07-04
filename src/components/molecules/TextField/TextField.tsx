@@ -17,6 +17,7 @@ export interface ITextFieldProps
 	label?: string;
 	alwaysShowLabel?: boolean;
 	getValue?: (currentValue: any) => any;
+	autoDetectFormik?: boolean;
 }
 
 export const TextField: React.FC<ITextFieldProps> = ({
@@ -26,9 +27,10 @@ export const TextField: React.FC<ITextFieldProps> = ({
 	type = "text",
 	children,
 	getValue,
+	autoDetectFormik = true,
 	...props
 }) => {
-	const isInForm = !!useContext(FormikContext); // detect if the component is inside a Formik form
+	const isInForm = autoDetectFormik && !!useContext(FormikContext); // detect if the component is inside a Formik form
 	const Wrapper = isInForm ? Field : "input";
 
 	const [field, meta, helpers] =
@@ -66,7 +68,7 @@ export const TextField: React.FC<ITextFieldProps> = ({
 					className={cn([
 						"pointer-events-none absolute left-5 top-1/2 max-w-[calc(100%-2rem)] -translate-y-1/2 rounded-lg text-neutral-500 opacity-0 duration-300",
 						(!!currentValue || alwaysShowLabel) &&
-							"top-0 -translate-y-0 text-xs text-neutral-400 opacity-100",
+							"top-1 -translate-y-0 text-xs text-neutral-400 opacity-100",
 						props.disabled && "text-neutral-300",
 					])}
 				>
@@ -83,11 +85,12 @@ export const TextField: React.FC<ITextFieldProps> = ({
 					}
 					value={currentValue}
 					className={cn([
-						"h-10 w-full rounded-3xl px-5 py-6 text-sm outline-none border-2 border-neutral-300 duration-500",
+						"h-10 w-full rounded-[3rem] px-5 pt-7 pb-6 text-sm outline-none border-2 border-neutral-300 duration-500",
 						meta?.error && meta.touched
 							? "border-error-500"
 							: "focus:border-primary-500",
 						props.disabled && "bg-neutral-100 text-neutral-400",
+						props.className,
 					])}
 				/>
 				{!!props.maxLength &&

@@ -27,15 +27,18 @@ export const Picto: React.FC<IPictoProps> = ({
 		<ReactSVG
 			src={src ?? Pictos[icon]}
 			style={style}
-			data-amphore-svg
+			data-amphore-svg-wrapper
 			wrapper={undefined}
-			className="[&>*]:w-full [&>*]:h-full"
 			beforeInjection={(svg) => {
 				const classes = cn([
-					"w-full !h-full",
+					"w-full h-full",
 					currentColor && "[&>*]:fill-current",
 					className,
 				]).split(" ");
+				svg.setAttribute(
+					"data-amphore-svg",
+					currentColor ? "current" : ""
+				);
 
 				svg.classList.add(...classes.filter(Boolean));
 				if (currentColor) {

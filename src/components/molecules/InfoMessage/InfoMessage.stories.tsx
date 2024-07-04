@@ -10,10 +10,8 @@ export default {
 	component: InfoMessage,
 	argTypes: {
 		type: {
-			control: {
-				type: "radio",
-				options: ["info", "warning", "error"],
-			},
+			control: "radio",
+			options: ["info", "success", "warning", "error"],
 		},
 		children: {
 			control: {

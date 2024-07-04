@@ -19,7 +19,7 @@ export default {
 							(some of which I don't even use lol).
 						</p>
 						<h2>Solid icons</h2>
-						<div className="flex flex-wrap gap-4 text-primary-800">
+						<div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 justify-center items-center text-primary-800">
 							{Object.keys(Pictos).map((icon) => (
 								<div
 									className="flex flex-col items-center gap-2 p-4 rounded-md bg-white"

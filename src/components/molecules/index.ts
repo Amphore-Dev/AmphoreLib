@@ -8,3 +8,4 @@ export * from "./TextField/TextField";
 export * from "./TextArea/TextArea";
 export * from "./Select/Select";
 export * from "./AsyncSelect/AsyncSelect";
+export * from "./TimePicker/TimePicker";

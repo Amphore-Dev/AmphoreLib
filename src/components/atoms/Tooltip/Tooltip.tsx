@@ -4,6 +4,8 @@ import { Tooltip as Tippy, TooltipProps } from "react-tippy";
 // popper styles
 import "react-tippy/dist/tippy.css";
 
+import { cn } from "@utils/cn";
+
 export interface ITooltipProps extends PropsWithChildren, TooltipProps {
 	content: ReactElement;
 }
@@ -14,17 +16,15 @@ export const Tooltip: React.FC<ITooltipProps> = ({
 	...props
 }) => {
 	return (
-		<div className="w-fit">
-			{/* @ts-expect-error - html prop is not recognized (??) */}
-			<Tippy
-				html={content}
-				arrow
-				theme="light"
-				animation="fade"
-				{...props}
-			>
-				{children}
-			</Tippy>
-		</div>
+		<Tippy
+			html={content}
+			arrow
+			theme="light"
+			animation="fade"
+			{...props}
+			className={cn(["w-fit !inline-block", props.className])}
+		>
+			{children}
+		</Tippy>
 	);
 };

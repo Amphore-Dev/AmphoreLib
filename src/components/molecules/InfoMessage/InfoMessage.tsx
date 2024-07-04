@@ -23,13 +23,10 @@ export const InfoMessage: React.FC<IInfoMessageProps> = ({
 	outlined = false,
 }) => {
 	const getIcon = () => {
-		if (type === "success" && !icon) {
-			return "success";
-		}
-		if (type === "error" && !icon) {
-			return "alert";
-		}
-		return icon || "info";
+		if (icon) return icon;
+		if (type === "success") return "checkCircle";
+		if (type === "error") return "alert";
+		return "info";
 	};
 
 	return (

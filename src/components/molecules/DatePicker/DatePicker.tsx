@@ -16,6 +16,7 @@ import { Picto } from "@components/atoms";
 import { cn } from "@utils/cn";
 
 import "./DatePicker.scss";
+import "./TimePicker.scss";
 
 registerLocale("fr", fr);
 
@@ -32,6 +33,7 @@ export interface IDatePickerProps extends Omit<DatePickerProps, "onChange"> {
 	onChange?: (date: Date | IWeek | null, event?: any) => void;
 	onMonthChange?: (date: Date) => void;
 	formatInputValue?: (date: Date | IWeek | null) => string;
+	type?: "date" | "time";
 }
 
 export const DatePicker: React.FC<IDatePickerProps> = ({
@@ -43,6 +45,7 @@ export const DatePicker: React.FC<IDatePickerProps> = ({
 	formatInputValue,
 	placeholder,
 	label,
+	type,
 	...props
 }) => {
 	const isInForm = !!useContext(FormikContext);
@@ -127,42 +130,48 @@ export const DatePicker: React.FC<IDatePickerProps> = ({
 					}
 				: {})}
 		>
-			{/* @ts-ignore */}
-			<ReactDatePicker
-				{...props}
-				placeholderText={placeholder}
-				onChange={(date, event) => handleChange(date, event)}
-				locale="fr"
-				onMonthChange={handleMonthChange}
-				dateFormat="dd/MM/yyyy"
-				className={cn(["DatePicker", className])}
-				wrapperClassName="DatePickerWrapper"
-				popperClassName="DatePickerPopper"
-				selected={CurrentValue}
-				customInput={
-					<DatePickerField
-						weekPicker={weekPicker}
-						isInForm={isInForm}
-						formatInputValue={formatInputValue}
-						label={label}
-						placeholder={placeholder}
-					/>
-				}
-				onCalendarOpen={() => {
-					if (!weekPicker) return;
-					const activeWeek = resetAndGetActiveWeek();
+			{type === "time" ? (
+				<TextField type="time" data-al-input />
+			) : (
+				<>
+					{/* @ts-ignore */}
+					<ReactDatePicker
+						{...props}
+						placeholderText={placeholder}
+						onChange={(date, event) => handleChange(date, event)}
+						locale="fr"
+						onMonthChange={handleMonthChange}
+						dateFormat="dd/MM/yyyy"
+						className={cn(["DatePicker", className])}
+						wrapperClassName="DatePickerWrapper"
+						popperClassName="DatePickerPopper"
+						selected={CurrentValue}
+						customInput={
+							<DatePickerField
+								weekPicker={weekPicker}
+								isInForm={isInForm}
+								formatInputValue={formatInputValue}
+								label={label}
+								placeholder={placeholder}
+							/>
+						}
+						onCalendarOpen={() => {
+							if (!weekPicker) return;
+							const activeWeek = resetAndGetActiveWeek();
 
-					activeWeek
-						?.closest(".react-datepicker__week")
-						?.classList.add("ActiveWeek");
-				}}
-				onCalendarClose={() => {
-					resetAndGetActiveWeek();
-					setTimeout(() => {
-						if (field) helpers.setTouched(true);
-					}, 10);
-				}}
-			/>
+							activeWeek
+								?.closest(".react-datepicker__week")
+								?.classList.add("ActiveWeek");
+						}}
+						onCalendarClose={() => {
+							resetAndGetActiveWeek();
+							setTimeout(() => {
+								if (field) helpers.setTouched(true);
+							}, 10);
+						}}
+					/>
+				</>
+			)}
 		</Wrapper>
 	);
 };

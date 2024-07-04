@@ -1,3 +1,21 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ---------------------------------------- */
+/* allow to hide the cursor on input number */
+.appearance-textfield {
+	appearance: textfield;
+	-webkit-appearance: textfield;
+	-moz-appearance: textfield;
+}
+/* Chrome, Safari, Edge, Opera */
+input.appearance-textfield::-webkit-outer-spin-button,
+input.appearance-textfield::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+/* Firefox */
+input.appearance-textfield[type="number"] {
+	-moz-appearance: textfield;
+}

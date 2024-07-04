@@ -17,7 +17,7 @@ export const SelectControl: React.FC<any> = (props) => {
 				className={cn([
 					"pointer-events-none absolute top-1/2 max-w-[calc(100%-2rem)] -translate-y-1/2 rounded-lg text-neutral-500 opacity-0 duration-300 z-10",
 					!!hasValue &&
-						"top-2 -translate-y-0 text-xs text-neutral-400 opacity-100",
+						"top-1 -translate-y-0 text-xs text-neutral-400 opacity-100",
 					disabled && "text-neutral-300",
 					isMulti ? "left-6" : "left-5",
 				])}

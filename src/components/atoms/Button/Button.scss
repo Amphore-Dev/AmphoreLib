@@ -63,6 +63,73 @@
 			color: white !important;
 			@apply bg-primary-600;
 		}
+
+		svg {
+			@apply fill-primary-500;
+		}
+	}
+
+	&--green {
+		@apply bg-green-500;
+
+		&.al__button--outline {
+			@apply text-green-500 outline-green-500;
+
+			&:not(.al__button--loading):hover {
+				@apply bg-green-500;
+			}
+		}
+
+		&:not(.al__button--loading):hover {
+			color: white !important;
+			@apply bg-green-600;
+		}
+
+		svg {
+			@apply fill-green-500;
+		}
+	}
+
+	&--red {
+		@apply bg-red-500;
+
+		&.al__button--outline {
+			@apply text-red-500 outline-red-500;
+
+			&:not(.al__button--loading):hover {
+				@apply bg-red-500;
+			}
+		}
+
+		&:not(.al__button--loading):hover {
+			color: white !important;
+			@apply bg-red-600;
+		}
+
+		svg {
+			@apply fill-red-500;
+		}
+	}
+
+	&--yellow {
+		@apply bg-yellow-500;
+
+		&.al__button--outline {
+			@apply text-yellow-500 outline-yellow-500;
+
+			&:not(.al__button--loading):hover {
+				@apply bg-yellow-500;
+			}
+		}
+
+		&:not(.al__button--loading):hover {
+			color: white !important;
+			@apply bg-yellow-600;
+		}
+
+		svg {
+			@apply fill-yellow-500;
+		}
 	}
 
 	/* =============================================== */

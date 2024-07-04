@@ -1,3 +1,19 @@
-[data-amphore-svg] [fill="none"] {
-	fill: none !important;
+[data-amphore-svg-wrapper] {
+	& > * {
+		@apply h-full w-full;
+	}
+
+	[fill="none"] {
+		fill: none !important;
+
+		& > * {
+			@apply fill-none;
+		}
+	}
+
+	[data-amphore-svg="current"]:not([fill="none"]) {
+		& > * {
+			// @apply fill-current;
+		}
+	}
 }

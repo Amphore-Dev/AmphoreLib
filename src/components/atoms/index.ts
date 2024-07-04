@@ -11,3 +11,4 @@ export * from "./Spinner/Spinner";
 export * from "./Title/Title";
 export * from "./Toggle/Toggle";
 export * from "./Tooltip/Tooltip";
+export * from "./TimeWheel/TimeWheel";
