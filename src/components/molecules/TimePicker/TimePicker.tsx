@@ -6,13 +6,16 @@ import { format } from "date-fns";
 
 import { InfoMessage } from "../InfoMessage/InfoMessage";
 import { ITextFieldProps, TextField } from "../TextField/TextField";
-import { Picto, Popover, TimeWheel } from "@components/atoms";
+import {
+	Button,
+	Picto, //Popover, TimeWheel
+} from "@components/atoms";
 
 import { cn } from "@utils/cn";
 
-const HOURS = Array.from({ length: 24 }, (_, i) =>
-	i.toString().padStart(2, "0")
-);
+// const HOURS = Array.from({ length: 24 }, (_, i) =>
+// 	i.toString().padStart(2, "0")
+// );
 
 export interface ITimePickerProps extends Omit<ITextFieldProps, "onChange"> {
 	value?: string;
@@ -30,6 +33,7 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 	label = "",
 	...props
 }) => {
+	const fieldsContRef = React.useRef<HTMLDivElement>(null);
 	const isInForm = !!useContext(FormikContext); // detect if the component is inside a Formik form
 	const [Minutes, setMinutes] = React.useState("00");
 	const [Hours, setHours] = React.useState("00");
@@ -50,12 +54,12 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 		}
 	};
 
-	const MINUTES = useMemo(() => {
-		const minutes = Array.from({ length: 60 / minutesStep }, (_, i) =>
-			(i * minutesStep).toString().padStart(2, "0")
-		);
-		return minutes;
-	}, [minutesStep]);
+	// const MINUTES = useMemo(() => {
+	// 	const minutes = Array.from({ length: 60 / minutesStep }, (_, i) =>
+	// 		(i * minutesStep).toString().padStart(2, "0")
+	// 	);
+	// 	return minutes;
+	// }, [minutesStep]);
 
 	useEffect(() => {
 		const getInitialValue = () => {
@@ -93,9 +97,25 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 		else return value.toString().padStart(2, "0");
 	};
 
+	const stopScroll = (e) => {
+		e.stopPropagation();
+	};
+
+	const focusFirst = () => {
+		fieldsContRef.current?.querySelector("input")?.focus();
+	};
+
+	useEffect(() => {
+		fieldsContRef.current?.addEventListener("wheel", stopScroll);
+
+		return () => {
+			fieldsContRef.current?.removeEventListener("wheel", stopScroll);
+		};
+	}, []);
+
 	return (
 		<div className="w-full min-w-fit">
-			<Popover
+			{/* <Popover
 				className="w-full"
 				content={
 					<div className="flex relative items-center">
@@ -117,49 +137,56 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 				onRequestClose={() => {
 					helpers?.setValue(`${Hours}:${Minutes}`);
 				}}
-			>
-				<div className="relative flex items-center justify-between w-full border-2 border-neutral-300 p-4 py-2 pb-[6px] rounded-[3rem] gap-2">
-					<label
-						className={cn([
-							"pointer-events-none absolute left-5 top-1/2 max-w-[calc(100%-2rem)] -translate-y-1/2 rounded-lg text-neutral-500 opacity-0 duration-300",
-							"top-[2px] -translate-y-0 text-xs text-neutral-400 opacity-100",
-							props.disabled && "text-neutral-300",
-						])}
-					>
-						{label}
-					</label>
-					<div className="flex items-center mt-[10px]">
-						<TextField
-							type="number"
-							value={Hours}
-							onChange={(e) => {
-								setHours(handleRange(e.target.value, 23));
-							}}
-							onBlur={handleBlur}
-							className={inputClasses}
-							autoDetectFormik={false}
-						/>
-						<div className="mb-1">:</div>
-						<TextField
-							type="number"
-							value={Minutes}
-							onChange={(e) => {
-								setMinutes(
-									handleRange(e.target.value, 60, true)
-								);
-							}}
-							onBlur={handleBlur}
-							step={minutesStep}
-							className={inputClasses}
-							autoDetectFormik={false}
-						/>
-					</div>
+			> */}
+			<div className="relative flex items-center justify-between w-full border-2 border-neutral-300 p-4 py-2 pb-[6px] rounded-[3rem] gap-2">
+				<label
+					className={cn([
+						"pointer-events-none absolute left-5 top-1/2 max-w-[calc(100%-2rem)] -translate-y-1/2 rounded-lg text-neutral-500 opacity-0 duration-300",
+						"top-[2px] -translate-y-0 text-xs text-neutral-400 opacity-100",
+						props.disabled && "text-neutral-300",
+					])}
+				>
+					{label}
+				</label>
+				<div
+					className="flex items-center mt-[10px]"
+					ref={fieldsContRef}
+				>
+					<TextField
+						type="number"
+						value={Hours}
+						onChange={(e) => {
+							setHours(handleRange(e.target.value, 23));
+						}}
+						onBlur={handleBlur}
+						className={inputClasses}
+						autoDetectFormik={false}
+					/>
+					<div className="mb-1">:</div>
+					<TextField
+						type="number"
+						value={Minutes}
+						onChange={(e) => {
+							setMinutes(handleRange(e.target.value, 60, true));
+						}}
+						onBlur={handleBlur}
+						step={minutesStep}
+						className={inputClasses}
+						autoDetectFormik={false}
+						onWheel={(e) => {
+							console.log(e);
+							e.stopPropagation();
+						}}
+					/>
+				</div>
+				<Button onClick={focusFirst} className="!p-0 !bg-transparent">
 					<Picto
 						icon="clock"
 						className="min-w-4 h-5 text-neutral-400 hover:text-neutral-500"
 					/>
-				</div>
-			</Popover>
+				</Button>
+			</div>
+			{/* </Popover> */}
 			{props.required && (
 				<div className="text-xs text-left ml-5 text-neutral-500 mt-1">
 					Required

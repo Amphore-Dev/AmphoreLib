@@ -1,12 +1,11 @@
 import React, { useEffect, PropsWithChildren, FC } from "react";
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ReactDOM from "react-dom";
+
+import { Picto } from "../Picto/Picto";
 
 // Components
 import { cn } from "@utils/cn";
-
-import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
 export interface IModalProps extends PropsWithChildren {
 	isDisplayed: boolean;
@@ -117,9 +116,9 @@ export const Modal: FC<IModalProps> = ({
 											"ml-auto flex cursor-pointer items-center justify-center border-none bg-transparent outline-none"
 										}
 									>
-										<FontAwesomeIcon
-											icon={faTimes}
-											className="text-grey-500 text-xl"
+										<Picto
+											icon={"cross"}
+											className="text-grey-500 w-6 h-6"
 										/>
 									</button>
 								</div>
