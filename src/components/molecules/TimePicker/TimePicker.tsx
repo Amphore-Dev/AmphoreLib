@@ -35,8 +35,20 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 }) => {
 	const fieldsContRef = React.useRef<HTMLDivElement>(null);
 	const isInForm = !!useContext(FormikContext); // detect if the component is inside a Formik form
-	const [Minutes, setMinutes] = React.useState("00");
-	const [Hours, setHours] = React.useState("00");
+	const [Minutes, setMinutes] = React.useState(
+		(
+			Math.ceil(
+				parseInt((value ?? "00:00").split(":")[1]) / minutesStep
+			) * minutesStep
+		)
+			.toString()
+			.padStart(2, "0")
+	);
+	const [Hours, setHours] = React.useState(
+		parseInt((value ?? "00:00").split(":")[0])
+			.toString()
+			.padStart(2, "0")
+	);
 
 	const [field, , helpers] =
 		props.name && isInForm
@@ -44,7 +56,9 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 			: [undefined, undefined, undefined];
 
 	const handleChange = (time: string) => {
-		if (isInForm && field) return;
+		if (isInForm && field && time !== field.value) {
+			return helpers.setValue(time);
+		}
 		onChange?.(time);
 	};
 
@@ -53,35 +67,6 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 			helpers.setTouched(true);
 		}
 	};
-
-	// const MINUTES = useMemo(() => {
-	// 	const minutes = Array.from({ length: 60 / minutesStep }, (_, i) =>
-	// 		(i * minutesStep).toString().padStart(2, "0")
-	// 	);
-	// 	return minutes;
-	// }, [minutesStep]);
-
-	useEffect(() => {
-		const getInitialValue = () => {
-			const [hours, minutes] = value.split(":");
-			const roundedMinutes =
-				Math.ceil(parseInt(minutes) / minutesStep) * minutesStep;
-			const newDate = new Date();
-			newDate.setMinutes(roundedMinutes);
-			newDate.setHours(parseInt(hours));
-			return format(newDate, "HH:mm");
-		};
-
-		const [newHours, newMinutes] = getInitialValue().split(":");
-
-		setHours(newHours);
-		setMinutes(newMinutes);
-	}, [value]);
-
-	useEffect(() => {
-		// if (isInForm) return;
-		handleChange(`${Hours}:${Minutes}`);
-	}, [Hours, Minutes]);
 
 	const handleRange = (value: string, max: number, isMinutes?: boolean) => {
 		const selectedValue = parseInt(value);
@@ -112,6 +97,29 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 			fieldsContRef.current?.removeEventListener("wheel", stopScroll);
 		};
 	}, []);
+
+	useEffect(() => {
+		const getInitialValue = () => {
+			const [hours, minutes] = value.split(":");
+			const roundedMinutes =
+				Math.ceil(parseInt(minutes) / minutesStep) * minutesStep;
+			const newDate = new Date();
+			newDate.setMinutes(roundedMinutes);
+			newDate.setHours(parseInt(hours));
+			return format(newDate, "HH:mm");
+		};
+
+		const [newHours, newMinutes] = getInitialValue().split(":");
+
+		if (isInForm) return;
+		setHours(newHours);
+		setMinutes(newMinutes);
+	}, [value]);
+
+	useEffect(() => {
+		// if (isInForm) return;
+		handleChange(`${Hours}:${Minutes}`);
+	}, [Hours, Minutes]);
 
 	return (
 		<div className="w-full min-w-fit">

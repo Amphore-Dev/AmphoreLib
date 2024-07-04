@@ -1,4 +1,4 @@
-import React, { useEffect, PropsWithChildren, FC } from "react";
+import React, { useEffect, PropsWithChildren, FC, useMemo } from "react";
 
 import ReactDOM from "react-dom";
 
@@ -7,12 +7,20 @@ import { Picto } from "../Picto/Picto";
 // Components
 import { cn } from "@utils/cn";
 
+export type TModalTitle = string | ((props: IModalHeaderProps) => JSX.Element);
+
+export interface IModalHeaderProps {
+	title: TModalTitle;
+	onClose: () => void;
+}
+
 export interface IModalProps extends PropsWithChildren {
 	isDisplayed: boolean;
 	onClose: () => void;
 	closeOnClickOutside?: boolean;
 	size?: "s" | "m" | "l" | "auto";
-	title?: string;
+	title?: TModalTitle;
+	header?: (props: IModalHeaderProps) => JSX.Element;
 	className?: string;
 	overlayClassName?: string;
 	zIndex?: number;
@@ -35,6 +43,7 @@ export const Modal: FC<IModalProps> = ({
 	overlayClassName = "",
 	children,
 	zIndex = 10,
+	header,
 }) => {
 	const handleKeyPress = (e: any) => e.code === "Escape" && onClose();
 
@@ -59,6 +68,18 @@ export const Modal: FC<IModalProps> = ({
 			window.scrollTo(0, parseInt(scrollY || "0", 10) * -1);
 		};
 	}, [isDisplayed]);
+
+	const ModalTitle = useMemo(() => {
+		if (typeof title === "string") {
+			return (
+				<h2 className="m-0 break-words p-0 text-2xl font-bold leading-5">
+					{title}
+				</h2>
+			);
+		}
+
+		return title({ title, onClose });
+	}, [title]);
 
 	return isDisplayed
 		? ReactDOM.createPortal(
@@ -101,26 +122,24 @@ export const Modal: FC<IModalProps> = ({
 										zIndex: zIndex + 2,
 									}}
 								>
-									{!!title?.length && (
-										<h2
-											className={
-												"m-0 break-words p-0 text-2xl font-bold leading-5"
-											}
-										>
-											{title}
-										</h2>
+									{!header ? (
+										<>
+											{ModalTitle}
+											<button
+												onClick={onClose}
+												className={
+													"ml-auto flex cursor-pointer items-center justify-center border-none bg-transparent outline-none"
+												}
+											>
+												<Picto
+													icon={"cross"}
+													className="text-grey-500 w-6 h-6"
+												/>
+											</button>
+										</>
+									) : (
+										header?.({ title, onClose })
 									)}
-									<button
-										onClick={onClose}
-										className={
-											"ml-auto flex cursor-pointer items-center justify-center border-none bg-transparent outline-none"
-										}
-									>
-										<Picto
-											icon={"cross"}
-											className="text-grey-500 w-6 h-6"
-										/>
-									</button>
 								</div>
 								<div className={"break-words p-8 pt-2"}>
 									{children}

@@ -46,6 +46,7 @@ export const PasswordField: React.FC<IPasswordFieldProps> = ({
 					onClick={toggle}
 					onMouseEnter={clearAutoHide}
 					title={showPassword ? "Hide password" : "Show password"}
+					type="button"
 				>
 					<Picto icon={showPassword ? "eyeOff" : "eye"} />
 					{AutoHide && (
