@@ -2,6 +2,7 @@ import React from "react";
 
 import { StoryFn } from "@storybook/react/*";
 import { Form, Formik } from "formik";
+import { loremIpsum } from "lorem-ipsum";
 import * as yup from "yup";
 
 import { TextArea, ITextAreaProps } from "./TextArea";
@@ -78,11 +79,19 @@ interface ITextAreaStoryProps extends ITextAreaProps {
 }
 
 const Template: StoryFn<ITextAreaStoryProps> = ({ formiked, ...args }) => {
-	if (!formiked) return <TextArea {...args} />;
+	if (!formiked)
+		return (
+			<TextArea
+				{...args}
+				value={loremIpsum({ count: 10, units: "paragraphs" })}
+			/>
+		);
 
 	return (
 		<Formik
-			initialValues={{}}
+			initialValues={{
+				field: loremIpsum({ count: 10, units: "paragraphs" }),
+			}}
 			validationSchema={() =>
 				yup.object().shape({
 					field: yup.string().required(),
@@ -118,6 +127,7 @@ export const Required = Template.bind({});
 Required.args = {
 	label: "Required",
 	required: true,
+	formiked: true,
 };
 
 export const Disabled = Template.bind({});

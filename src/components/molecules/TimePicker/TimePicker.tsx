@@ -182,7 +182,6 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 						className={inputClasses}
 						autoDetectFormik={false}
 						onWheel={(e) => {
-							console.log(e);
 							e.stopPropagation();
 						}}
 					/>
