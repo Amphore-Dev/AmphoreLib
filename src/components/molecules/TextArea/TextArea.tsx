@@ -79,7 +79,7 @@ export const TextArea: React.FC<ITextAreaProps> = ({
 			props.placeholder !== undefined ? props.placeholder : label,
 		value: currentValue,
 		className: cn([
-			"bg-transparent h-10 w-full pt-0 mt-6 px-5 pb-6 text-sm outline-none min-h-[200px] max-h-[400px]",
+			"bg-transparent h-10 w-full pt-0 mt-6 px-5 pb-6 text-sm outline-none min-h-[200px] max-h-[400px] min-w-full",
 			meta?.error && meta.touched
 				? "border-error-500"
 				: "focus:border-primary-500",

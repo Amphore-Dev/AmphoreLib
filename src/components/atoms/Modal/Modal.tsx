@@ -1,5 +1,13 @@
-import React, { useEffect, PropsWithChildren, FC, useMemo } from "react";
+import React, {
+	useEffect,
+	PropsWithChildren,
+	FC,
+	useMemo,
+	useLayoutEffect,
+} from "react";
 
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import ReactDOM from "react-dom";
 
 import { Picto } from "../Picto/Picto";
@@ -24,6 +32,7 @@ export interface IModalProps extends PropsWithChildren {
 	className?: string;
 	overlayClassName?: string;
 	zIndex?: number;
+	portal?: boolean;
 }
 
 const modalSizes = {
@@ -44,8 +53,15 @@ export const Modal: FC<IModalProps> = ({
 	children,
 	zIndex = 10,
 	header,
+	portal = true,
 }) => {
-	const handleKeyPress = (e: any) => e.code === "Escape" && onClose();
+	const overlayRef = React.useRef<HTMLDivElement>(null);
+	const modalHeaderRef = React.useRef<HTMLDivElement>(null);
+
+	gsap.registerPlugin(ScrollTrigger);
+
+	const handleKeyPress = (e: React.KeyboardEvent) =>
+		e.code === "Escape" && onClose();
 
 	useEffect(() => {
 		if (isDisplayed) {
@@ -81,74 +97,96 @@ export const Modal: FC<IModalProps> = ({
 		return title({ title, onClose });
 	}, [title]);
 
-	return isDisplayed
-		? ReactDOM.createPortal(
-				<>
+	useLayoutEffect(() => {
+		if (!isDisplayed) return;
+		setTimeout(() => {
+			gsap.to(modalHeaderRef.current, {
+				scrollTrigger: {
+					trigger: modalHeaderRef.current,
+					scroller: overlayRef.current,
+					start: "top top",
+					end: "+=100% top",
+					onUpdate: ({ progress }) => {
+						if (!modalHeaderRef.current) return;
+						modalHeaderRef.current.style.boxShadow = `0 0 1rem rgba(0, 0, 0, ${0.3 * progress})`;
+					},
+				},
+			});
+		}, 100); // delay to wait for the modal to be fully rendered
+	}, [isDisplayed]);
+
+	const dom = (
+		<>
+			<div
+				ref={overlayRef}
+				className={cn([
+					"fixed left-0 top-0 flex h-full w-full items-center justify-center overflow-y-auto overflow-x-hidden bg-black bg-opacity-70 p-8",
+					!closeOnClickOutside && "cursor-default",
+					overlayClassName,
+				])}
+				onClick={closeOnClickOutside ? onClose : undefined}
+				onKeyDown={handleKeyPress}
+				role="button"
+				tabIndex={-1}
+				style={{ zIndex }}
+			>
+				<div
+					className={
+						"relative contents h-full w-auto max-w-full cursor-default"
+					}
+					onClick={(e) => {
+						e.stopPropagation();
+					}}
+					role="button"
+					onKeyDown={() => {}}
+					tabIndex={-1}
+				>
 					<div
+						style={{ zIndex: zIndex + 1 }}
 						className={cn([
-							"fixed left-0 top-0 flex h-full w-full items-center justify-center overflow-y-auto overflow-x-hidden bg-black bg-opacity-70 p-8",
-							overlayClassName,
+							"m-auto h-auto max-w-full rounded-3xl bg-white shadow-xl cursor-auto",
+							modalSizes[size],
+							className,
 						])}
-						onClick={closeOnClickOutside ? onClose : undefined}
-						onKeyDown={handleKeyPress}
-						role="button"
-						tabIndex={-1}
-						style={{ zIndex }}
 					>
 						<div
-							className={
-								"relative contents h-full w-auto max-w-full cursor-default"
-							}
-							onClick={(e) => {
-								e.stopPropagation();
+							className={cn([
+								"sticky -top-12 flex w-full justify-between gap-[1rem] rounded-t-3xl p-8 pb-4 bg-white",
+							])}
+							style={{
+								zIndex: zIndex + 2,
 							}}
-							role="button"
-							onKeyDown={() => {}}
-							tabIndex={-1}
+							ref={modalHeaderRef}
 						>
-							<div
-								style={{ zIndex: zIndex + 1 }}
-								className={cn([
-									"m-auto h-auto max-w-full rounded-3xl bg-white shadow-xl cursor-auto",
-									modalSizes[size],
-									className,
-								])}
-							>
-								<div
-									className={cn([
-										"sticky -top-12 flex w-full justify-between gap-[1rem] rounded-t-3xl p-8 pb-4 bg-white",
-									])}
-									style={{
-										zIndex: zIndex + 2,
-									}}
-								>
-									{!header ? (
-										<>
-											{ModalTitle}
-											<button
-												onClick={onClose}
-												className={
-													"ml-auto flex cursor-pointer items-center justify-center border-none bg-transparent outline-none"
-												}
-											>
-												<Picto
-													icon={"cross"}
-													className="text-grey-500 w-6 h-6"
-												/>
-											</button>
-										</>
-									) : (
-										header?.({ title, onClose })
-									)}
-								</div>
-								<div className={"break-words p-8 pt-2"}>
-									{children}
-								</div>
-							</div>
+							{!header ? (
+								<>
+									{ModalTitle}
+									<button
+										onClick={onClose}
+										className={
+											"ml-auto flex cursor-pointer items-center justify-center border-none bg-transparent outline-none"
+										}
+									>
+										<Picto
+											icon={"cross"}
+											className="text-grey-500 w-6 h-6"
+										/>
+									</button>
+								</>
+							) : (
+								header?.({ title, onClose })
+							)}
 						</div>
+						<div className={"break-words p-8 pt-2"}>{children}</div>
 					</div>
-				</>,
-				document.body
-			)
+				</div>
+			</div>
+		</>
+	);
+
+	return isDisplayed
+		? portal
+			? ReactDOM.createPortal(dom, document.body)
+			: dom
 		: null;
 };

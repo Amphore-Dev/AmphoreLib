@@ -1,6 +1,6 @@
 {
 	"name": "@amphore-dev/amphore-lib",
-	"version": "0.3.4",
+	"version": "0.3.5",
 	"main": "lib/index.js",
 	"module": "lib/index.esm.js",
 	"types": "lib/index.d.ts",
@@ -24,6 +24,7 @@
 		"@types/i18next": "^13.0.0",
 		"@types/react-datepicker": "^6.2.0",
 		"date-fns": "^3.6.0",
+		"gsap": "^3.12.5",
 		"i18n": "^0.15.1",
 		"i18next-browser-languagedetector": "^8.0.0",
 		"lorem-ipsum": "^2.0.8",
