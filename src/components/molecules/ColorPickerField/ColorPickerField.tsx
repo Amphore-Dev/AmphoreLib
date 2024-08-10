@@ -43,7 +43,6 @@ export const ColorPickerField: React.FC<IColorPickerFieldProps> = ({
 	);
 
 	useOutsideAlerter(pickerRef, () => {
-		console.log("outside");
 		setIsOpen(false);
 	});
 

@@ -64,7 +64,6 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 	};
 
 	const handleRange = (value: string, max: number, isMinutes?: boolean) => {
-		console.log("value", value);
 		const selectedValue = parseInt(value);
 		if (
 			(isMinutes && selectedValue >= max) ||
@@ -114,10 +113,7 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 
 	useEffect(() => {
 		// if (isInForm) return;
-		console.log(
-			"Hours, Minutes",
-			`${Hours.slice(-2)}:${Minutes.slice(-2)}`
-		);
+
 		handleChange(`${Hours.slice(-2)}:${Minutes.slice(-2)}`);
 	}, [Hours, Minutes]);
 

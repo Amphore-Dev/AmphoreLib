@@ -55,6 +55,11 @@ export default {
 				type: "text",
 			},
 		},
+		isLoading: {
+			control: {
+				type: "boolean",
+			},
+		},
 
 		"...": {
 			description: "All default input props",
@@ -76,6 +81,7 @@ export default {
 				"picto",
 				"pictoProps",
 				"onPictoClick",
+				"isLoading",
 				"...",
 			],
 		},
@@ -148,4 +154,11 @@ Picto.args = {
 	picto: "search",
 	label: "Search",
 	onPictoClick: () => alert("Picto clicked"),
+};
+
+export const Loading = Template.bind({});
+
+Loading.args = {
+	label: "Loading",
+	isLoading: true,
 };

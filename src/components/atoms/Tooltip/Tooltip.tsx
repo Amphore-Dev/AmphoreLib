@@ -14,7 +14,6 @@ import {
 	flip,
 	shift,
 	offset,
-	UseFloatingData,
 	UseFloatingOptions,
 } from "@floating-ui/react";
 
@@ -28,6 +27,7 @@ export interface ITooltipProps extends PropsWithChildren {
 	clickHookProps?: UseClickProps;
 	isOpen?: boolean;
 	setIsOpen?: (isOpen: boolean) => void;
+	portal?: boolean;
 }
 
 export const Tooltip: React.FC<ITooltipProps> = ({
@@ -41,6 +41,7 @@ export const Tooltip: React.FC<ITooltipProps> = ({
 	clickHookProps = {},
 	isOpen,
 	setIsOpen,
+	portal,
 }) => {
 	const isHover = trigger === "hover";
 	const [IsOpen, SetIsOpen] = React.useState(false);
@@ -79,6 +80,8 @@ export const Tooltip: React.FC<ITooltipProps> = ({
 
 	const { getReferenceProps, getFloatingProps } = useInteractions([hook]);
 
+	const Wrapper = portal ? FloatingPortal : React.Fragment;
+
 	return (
 		<>
 			<div
@@ -101,7 +104,7 @@ export const Tooltip: React.FC<ITooltipProps> = ({
 				{content}
 			</div>
 			{isOpenValue && (
-				<FloatingPortal>
+				<Wrapper>
 					<div
 						ref={refs.setFloating}
 						{...getFloatingProps()}
@@ -115,7 +118,7 @@ export const Tooltip: React.FC<ITooltipProps> = ({
 						/>
 						{children}
 					</div>
-				</FloatingPortal>
+				</Wrapper>
 			)}
 		</>
 	);
