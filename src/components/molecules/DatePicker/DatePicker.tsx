@@ -11,9 +11,7 @@ import ReactDatePicker, {
 import "react-datepicker/dist/react-datepicker.css";
 
 import { ITextFieldProps, TextField } from "../TextField/TextField";
-import { Picto } from "@components/atoms";
-
-import { cn } from "@utils/cn";
+import { cn } from "@utils/index";
 
 import "./DatePicker.scss";
 import "./TimePicker.scss";
@@ -26,13 +24,18 @@ export interface IWeek {
 	date: Date;
 }
 
+type IDate = Date | IWeek | null;
+
 export interface IDatePickerProps extends Omit<DatePickerProps, "onChange"> {
 	weekPicker?: boolean;
 	label?: string;
 	placeholder?: string;
-	onChange?: (date: Date | IWeek | null, event?: any) => void;
+	onChange?: (
+		date: IDate,
+		event?: React.MouseEvent<HTMLElement> | React.KeyboardEvent<HTMLElement>
+	) => void;
 	onMonthChange?: (date: Date) => void;
-	formatInputValue?: (date: Date | IWeek | null) => string;
+	formatInputValue?: (date: IDate) => string;
 	type?: "date" | "time";
 }
 
@@ -51,7 +54,7 @@ export const DatePicker: React.FC<IDatePickerProps> = ({
 	const isInForm = !!useContext(FormikContext);
 
 	const isInitied = React.useRef(false);
-	const calendarRef = React.useRef<any>(null);
+	const calendarRef = React.useRef<HTMLDivElement>(null);
 
 	const [field, , helpers] =
 		props.name && isInForm
@@ -92,7 +95,9 @@ export const DatePicker: React.FC<IDatePickerProps> = ({
 
 		calendarRef.current
 			?.querySelectorAll(".react-datepicker__week")
-			.forEach((a: HTMLElement) => a.classList.remove("ActiveWeek"));
+			.forEach((a: Element) => {
+				a.classList.remove("ActiveWeek");
+			});
 
 		return activeWeek;
 	};
@@ -134,7 +139,7 @@ export const DatePicker: React.FC<IDatePickerProps> = ({
 				<TextField type="time" data-al-input />
 			) : (
 				<>
-					{/* @ts-ignore */}
+					{/* @ts-expect-error: ReactDatePicker is not typed correctly */}
 					<ReactDatePicker
 						{...props}
 						placeholderText={placeholder}
@@ -179,7 +184,7 @@ export const DatePicker: React.FC<IDatePickerProps> = ({
 interface IDatePickerFieldProps extends ITextFieldProps {
 	weekPicker?: boolean;
 	isInForm?: boolean;
-	formatInputValue?: (date: Date | IWeek | null) => string;
+	formatInputValue?: (date: IDate) => string;
 	placeholder?: string;
 	label?: string;
 }
@@ -194,7 +199,7 @@ const DatePickerField = forwardRef(
 			label,
 			...props
 		}: IDatePickerFieldProps,
-		ref: any
+		ref: React.Ref<HTMLDivElement>
 	) => {
 		return (
 			<div ref={ref}>
@@ -203,11 +208,14 @@ const DatePickerField = forwardRef(
 					placeholder={placeholder}
 					{...(!isInForm ? { ...props } : {})}
 					name={props.name}
-					getValue={(value: any) => {
-						if (formatInputValue) return formatInputValue(value);
+					getValue={(value) => {
+						if (formatInputValue)
+							return formatInputValue(value as IDate);
 						if (!value) return "";
-						if (weekPicker)
-							return `${value.start ? format(value.start, "yyyy/MM/dd") : ""} - ${value.end ? format(value.end, "yyyy/MM/dd") : ""}`;
+						if (weekPicker) {
+							const week = value as IWeek;
+							return `${week.start ? format(week.start, "yyyy/MM/dd") : ""} - ${week.end ? format(week.end, "yyyy/MM/dd") : ""}`;
+						}
 						return value;
 					}}
 					onBlur={() => {}}
@@ -216,22 +224,17 @@ const DatePickerField = forwardRef(
 						e.stopPropagation();
 						props.onClick?.(e);
 					}}
+					picto="calendar"
+					onPictoClick={(e) => {
+						e.preventDefault();
+						e.stopPropagation();
+						props.onClick?.(e);
+					}}
+					pictoProps={{
+						className: "w-7 h-7",
+					}}
 					readOnly
-				>
-					<div className="absolute top-1/2 -translate-y-1/2 right-4 flex items-center gap-4 text-neutral-500">
-						<button
-							className="w-6 h-6 text-neutral-400 hover:text-neutral-500"
-							title={placeholder}
-							onClick={(e) => {
-								e.preventDefault();
-								e.stopPropagation();
-								props.onClick?.(e);
-							}}
-						>
-							<Picto icon={"calendar"} />
-						</button>
-					</div>
-				</TextField>
+				/>
 			</div>
 		);
 	}

@@ -48,9 +48,11 @@ import MinusCircle from "../assets/pictos/minus-circle.svg";
 import Minus from "../assets/pictos/minus.svg";
 import Moon from "../assets/pictos/moon.svg";
 import MoreHorizontal from "../assets/pictos/more-horizontal.svg";
+import PieChart from "../assets/pictos/pie-chart.svg";
 import AddCircle from "../assets/pictos/plus-circle.svg";
 import Add from "../assets/pictos/plus.svg";
 import Power from "../assets/pictos/power.svg";
+import Search from "../assets/pictos/search.svg";
 import Send from "../assets/pictos/send.svg";
 import Settings from "../assets/pictos/settings.svg";
 import Share from "../assets/pictos/share-2.svg";
@@ -61,6 +63,7 @@ import StarFill from "../assets/pictos/star-fill.svg";
 import Star from "../assets/pictos/star.svg";
 import Sun from "../assets/pictos/sun.svg";
 import Tag from "../assets/pictos/tag.svg";
+import Terminal from "../assets/pictos/terminal.svg";
 import Trash from "../assets/pictos/trash-2.svg";
 import Unlock from "../assets/pictos/unlock.svg";
 import Upload from "../assets/pictos/upload.svg";
@@ -73,6 +76,7 @@ export type TPictoName = keyof typeof Pictos;
 export type TPictos = {
 	[key in TPictoName]: string;
 };
+
 export const Pictos = {
 	logo: Logo,
 	add: Add,
@@ -128,7 +132,9 @@ export const Pictos = {
 	moon: Moon,
 	more: MoreHorizontal,
 	pen: Pen,
+	pieChart: PieChart,
 	power: Power,
+	search: Search,
 	send: Send,
 	settings: Settings,
 	share: Share,
@@ -139,6 +145,7 @@ export const Pictos = {
 	starFill: StarFill,
 	sun: Sun,
 	tag: Tag,
+	terminal: Terminal,
 	trash: Trash,
 	unlock: Unlock,
 	upload: Upload,

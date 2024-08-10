@@ -50,6 +50,12 @@ export default {
 				type: "boolean",
 			},
 		},
+		picto: {
+			control: {
+				type: "text",
+			},
+		},
+
 		"...": {
 			description: "All default input props",
 			control: {
@@ -67,6 +73,9 @@ export default {
 				"value",
 				"label",
 				"required",
+				"picto",
+				"pictoProps",
+				"onPictoClick",
 				"...",
 			],
 		},
@@ -131,4 +140,12 @@ export const MaxLength = Template.bind({});
 MaxLength.args = {
 	label: "Max Length",
 	maxLength: 1000,
+};
+
+export const Picto = Template.bind({});
+
+Picto.args = {
+	picto: "search",
+	label: "Search",
+	onPictoClick: () => alert("Picto clicked"),
 };

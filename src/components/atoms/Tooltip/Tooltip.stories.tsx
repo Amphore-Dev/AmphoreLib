@@ -11,20 +11,37 @@ export default {
 };
 
 const Template: StoryFn<ITooltipProps> = (args) => (
-	<Tooltip {...args}>
-		<Button>{args.children}</Button>
-	</Tooltip>
+	<div className="">
+		<Tooltip {...args}>
+			<Button>{args.children}</Button>
+		</Tooltip>
+	</div>
 );
 
 export const Base = Template.bind({});
 
 Base.args = {
-	children: "Hover me",
-	title: "Hello, world!",
+	content: <div>Click Me</div>,
+	children: "Children",
 };
 
 export const WithContent = Template.bind({});
 WithContent.args = {
+	children: "Click me",
+	content: <div>Click me</div>,
+};
+
+export const Hover = Template.bind({});
+Hover.args = {
 	children: "Hover me",
-	content: <div>Content</div>,
+	trigger: "hover",
+	content: <div>Hover Me</div>,
+};
+
+export const HoverNoLeave = Template.bind({});
+HoverNoLeave.args = {
+	children: "Hover me",
+	trigger: "hover",
+	closeOnLeave: false,
+	content: <div>Hover Me</div>,
 };

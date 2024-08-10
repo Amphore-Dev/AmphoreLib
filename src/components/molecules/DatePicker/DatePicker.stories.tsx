@@ -70,7 +70,6 @@ Base.args = {
 	name: "field",
 	label: "Date",
 	placeholder: "Click to pick a date",
-	type: "time",
 };
 
 Base.parameters = {

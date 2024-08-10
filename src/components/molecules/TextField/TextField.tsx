@@ -8,16 +8,20 @@ import React, {
 import { ErrorMessage, Field, FormikContext, useField } from "formik";
 
 import { InfoMessage } from "../InfoMessage/InfoMessage";
-
-import { cn } from "@utils/cn";
+import { IPictoProps, Picto } from "@components/atoms";
+import { TPictoName } from "@constants/index";
+import { cn } from "@utils/index";
 
 export interface ITextFieldProps
 	extends React.InputHTMLAttributes<HTMLInputElement>,
 		PropsWithChildren {
 	label?: string;
 	alwaysShowLabel?: boolean;
-	getValue?: (currentValue: any) => any;
+	getValue?: (currentValue: unknown) => unknown;
 	autoDetectFormik?: boolean;
+	picto?: TPictoName;
+	pictoProps?: IPictoProps;
+	onPictoClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
 export const TextField: React.FC<ITextFieldProps> = ({
@@ -28,6 +32,8 @@ export const TextField: React.FC<ITextFieldProps> = ({
 	children,
 	getValue,
 	autoDetectFormik = true,
+	picto,
+	onPictoClick,
 	...props
 }) => {
 	const isInForm = autoDetectFormik && !!useContext(FormikContext); // detect if the component is inside a Formik form
@@ -91,8 +97,20 @@ export const TextField: React.FC<ITextFieldProps> = ({
 							: "focus:border-primary-500",
 						props.disabled && "bg-neutral-100 text-neutral-400",
 						props.className,
+						!!picto && "pr-[3.25rem]",
 					])}
 				/>
+				{picto && (
+					<Picto
+						icon={picto}
+						onClick={onPictoClick}
+						{...props.pictoProps}
+						className={cn([
+							"absolute right-4 top-1/2 w-8 h-8 -translate-y-1/2 text-neutral-400 hover:text-neutral-500",
+							props.pictoProps?.className,
+						])}
+					/>
+				)}
 				{!!props.maxLength &&
 					props.maxLength > 0 &&
 					type !== "number" &&

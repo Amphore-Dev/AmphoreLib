@@ -1,0 +1,16 @@
+import * as Yup from "yup";
+
+export interface I{FORM_NAME}FormValues {
+
+}
+
+export const {FORM_NAME}FormInitialValues = {
+    
+}
+
+export const {FORM_NAME}FormValidation = (t:any) => {
+
+    return Yup.object().shape({
+
+    })
+}

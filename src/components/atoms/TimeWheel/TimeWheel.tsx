@@ -18,7 +18,7 @@ export const TimeWheel: React.FC<ITimeWheelProps> = ({
 	const [offset, setOffset] = useState(0);
 	const [isScrolling, setIsScrolling] = useState(false);
 
-	const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
+	const scrollTimeout = useRef<NodeJS.Timeout | undefined>(undefined);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const itemHeight = 40; // Height of each item
 
@@ -27,6 +27,7 @@ export const TimeWheel: React.FC<ITimeWheelProps> = ({
 	};
 
 	useEffect(() => {
+		if (!value) return;
 		const index = items.indexOf(value);
 		if (index === -1) return;
 		setOffset(index * itemHeight);
@@ -35,11 +36,11 @@ export const TimeWheel: React.FC<ITimeWheelProps> = ({
 	useEffect(() => {
 		const container = containerRef.current;
 
-		const handleWheelScroll = (e) => {
+		const handleWheelScroll = (e: WheelEvent) => {
 			e.preventDefault();
 			setIsScrolling(true);
 			const direction = e.deltaY > 0 ? 1 : -1;
-			window.clearTimeout(scrollTimeout.current);
+			clearTimeout(scrollTimeout.current);
 			const nbrItems = items.length + 1;
 
 			setOffset((prev) => {

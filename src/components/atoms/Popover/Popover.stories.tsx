@@ -21,7 +21,6 @@ export const Base = Template.bind({});
 
 Base.args = {
 	children: "Click Me",
-	title: "Hello, world!",
 };
 
 export const WithContent = Template.bind({});

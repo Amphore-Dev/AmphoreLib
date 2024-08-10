@@ -9,3 +9,5 @@ export * from "./TextArea/TextArea";
 export * from "./Select/Select";
 export * from "./AsyncSelect/AsyncSelect";
 export * from "./TimePicker/TimePicker";
+
+export * from "./ColorPickerField/ColorPickerField";

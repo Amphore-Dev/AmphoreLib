@@ -1,6 +1,6 @@
 import React, { HTMLAttributes } from "react";
 
-import { TPictoName } from "../../../constants/Pictos";
+import { TPictoName } from "../../../constants/CPictos";
 import { Picto } from "../../atoms/Picto/Picto";
 
 import { cn } from "@utils/cn";

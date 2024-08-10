@@ -18,7 +18,7 @@ export interface ITextAreaProps
 		PropsWithChildren {
 	label?: string;
 	alwaysShowLabel?: boolean;
-	autoGrow?: boolean;
+	autoGrow?: boolean | "onMount";
 }
 
 export const TextArea: React.FC<ITextAreaProps> = ({
@@ -67,7 +67,7 @@ export const TextArea: React.FC<ITextAreaProps> = ({
 			element.style.height = "5px";
 			return;
 		}
-		element.style.height = "5px";
+		element.style.height = "auto";
 		element.style.height = element.scrollHeight + "px";
 	};
 

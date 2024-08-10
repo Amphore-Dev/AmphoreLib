@@ -12,3 +12,4 @@ export * from "./Title/Title";
 export * from "./Toggle/Toggle";
 export * from "./Tooltip/Tooltip";
 export * from "./TimeWheel/TimeWheel";
+export * from "./ColorPicker/ColorPicker";

@@ -121,7 +121,7 @@ export const Modal: FC<IModalProps> = ({
 				ref={overlayRef}
 				className={cn([
 					"fixed left-0 top-0 flex h-full w-full items-center justify-center overflow-y-auto overflow-x-hidden bg-black bg-opacity-70 p-8",
-					!closeOnClickOutside && "cursor-default",
+					!closeOnClickOutside && "!cursor-default",
 					overlayClassName,
 				])}
 				onClick={closeOnClickOutside ? onClose : undefined}

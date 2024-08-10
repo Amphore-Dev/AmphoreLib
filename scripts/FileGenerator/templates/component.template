@@ -1,0 +1,12 @@
+import React from "react";
+
+export interface I{COMPONENT_NAME}Props {
+}
+
+export const {COMPONENT_NAME}: React.FC<I{COMPONENT_NAME}Props> = () => {
+    return (
+        <div>
+            {COMPONENT_NAME}
+        </div>
+    );
+};

@@ -1,9 +1,9 @@
 import React from "react";
 
-import { Pictos } from "@constants/Pictos";
 import { StoryFn } from "@storybook/react";
 
 import { Picto, IPictoProps } from "./Picto";
+import { Pictos } from "@constants/index";
 
 export default {
 	title: "Components/Atoms/Picto",

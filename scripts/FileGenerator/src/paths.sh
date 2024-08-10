@@ -1,0 +1,10 @@
+# Define source paths
+SRC_PATH="$script_dir/../../src"
+COMPONENTS_PATH="$SRC_PATH/components"
+TYPES_PATH="$SRC_PATH/types"
+VIEWS_PATHS="$SRC_PATH/screens"
+CONSTANTS_PATH="$SRC_PATH/constants"
+FORMS_PATH="$SRC_PATH/forms"
+UTILS_PATH="$SRC_PATH/utils"
+SERVICES_PATH="$SRC_PATH/services"
+HOOKS_PATH="$SRC_PATH/hooks"

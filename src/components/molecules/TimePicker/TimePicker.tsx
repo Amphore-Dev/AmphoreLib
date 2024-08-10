@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo } from "react";
+import React, { useContext, useEffect } from "react";
 
 import { ErrorMessage, FormikContext, useField } from "formik";
 
@@ -10,12 +10,7 @@ import {
 	Button,
 	Picto, //Popover, TimeWheel
 } from "@components/atoms";
-
-import { cn } from "@utils/cn";
-
-// const HOURS = Array.from({ length: 24 }, (_, i) =>
-// 	i.toString().padStart(2, "0")
-// );
+import { cn } from "@utils/index";
 
 export interface ITimePickerProps extends Omit<ITextFieldProps, "onChange"> {
 	value?: string;
@@ -69,6 +64,7 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 	};
 
 	const handleRange = (value: string, max: number, isMinutes?: boolean) => {
+		console.log("value", value);
 		const selectedValue = parseInt(value);
 		if (
 			(isMinutes && selectedValue >= max) ||
@@ -112,40 +108,21 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 		const [newHours, newMinutes] = getInitialValue().split(":");
 
 		if (isInForm) return;
-		setHours(newHours);
-		setMinutes(newMinutes);
+		setHours(newHours.slice(-2));
+		setMinutes(newMinutes.slice(-2));
 	}, [value]);
 
 	useEffect(() => {
 		// if (isInForm) return;
-		handleChange(`${Hours}:${Minutes}`);
+		console.log(
+			"Hours, Minutes",
+			`${Hours.slice(-2)}:${Minutes.slice(-2)}`
+		);
+		handleChange(`${Hours.slice(-2)}:${Minutes.slice(-2)}`);
 	}, [Hours, Minutes]);
 
 	return (
 		<div className="w-full min-w-fit">
-			{/* <Popover
-				className="w-full"
-				content={
-					<div className="flex relative items-center">
-						<TimeWheel
-							items={HOURS}
-							value={Hours}
-							onChange={setHours}
-						/>
-						<div className="h-full flex justify-center items-center">
-							:
-						</div>
-						<TimeWheel
-							items={MINUTES}
-							value={Minutes}
-							onChange={setMinutes}
-						/>
-					</div>
-				}
-				onRequestClose={() => {
-					helpers?.setValue(`${Hours}:${Minutes}`);
-				}}
-			> */}
 			<div className="relative flex items-center justify-between w-full border-2 border-neutral-300 p-4 py-2 pb-[6px] rounded-[3rem] gap-2">
 				<label
 					className={cn([
@@ -162,18 +139,21 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 				>
 					<TextField
 						type="number"
-						value={Hours}
+						value={Hours.slice(-2)}
 						onChange={(e) => {
 							setHours(handleRange(e.target.value, 23));
 						}}
 						onBlur={handleBlur}
 						className={inputClasses}
 						autoDetectFormik={false}
+						onClick={(e) => {
+							e.currentTarget.select();
+						}}
 					/>
 					<div className="mb-1">:</div>
 					<TextField
 						type="number"
-						value={Minutes}
+						value={Minutes.slice(-2)}
 						onChange={(e) => {
 							setMinutes(handleRange(e.target.value, 60, true));
 						}}
@@ -183,6 +163,9 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 						autoDetectFormik={false}
 						onWheel={(e) => {
 							e.stopPropagation();
+						}}
+						onClick={(e) => {
+							e.currentTarget.select();
 						}}
 					/>
 				</div>

@@ -1,9 +1,9 @@
 import React from "react";
 
-import { Pictos, TPictoName } from "@constants/Pictos";
 import { Meta } from "@storybook/addon-docs";
 
 import { Picto } from "@components/atoms";
+import { Pictos, TPictoName } from "@constants/index";
 
 export default {
 	title: "Style Guide/Icons",

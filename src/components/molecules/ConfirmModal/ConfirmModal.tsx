@@ -64,8 +64,6 @@ export const ConfirmModal: React.FC<IConfirmModalProps> = (
 	);
 	return (
 		<Modal
-			isDisplayed={isDisplayed}
-			onClose={onClose}
 			size={props.size ?? "s"}
 			className={cn([
 				"ConfirmModal !min-w-[90%] sm:!min-w-[70%] md:!min-w-0",
@@ -73,6 +71,8 @@ export const ConfirmModal: React.FC<IConfirmModalProps> = (
 				props.className,
 			])}
 			title={props.title}
+			{...props}
+			onClose={onClose}
 		>
 			<div className="gap-m flex flex-col text-left">
 				<div className="mb-5">{props.children ?? props.text}</div>
