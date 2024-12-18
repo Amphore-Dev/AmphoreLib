@@ -34,6 +34,7 @@ export const TextField: React.FC<ITextFieldProps> = ({
 	getValue,
 	autoDetectFormik = true,
 	picto,
+	pictoProps,
 	onPictoClick,
 	isLoading = false,
 	...props
@@ -106,11 +107,11 @@ export const TextField: React.FC<ITextFieldProps> = ({
 					<Picto
 						icon={picto}
 						onClick={onPictoClick}
-						{...props.pictoProps}
+						{...pictoProps}
 						className={cn([
 							"absolute right-4 top-1/2 w-7 h-7 -translate-y-1/2 text-neutral-400",
 							onPictoClick && "hover:text-neutral-500",
-							props.pictoProps?.className,
+							pictoProps?.className,
 						])}
 					/>
 				)}
@@ -118,7 +119,7 @@ export const TextField: React.FC<ITextFieldProps> = ({
 					<Spinner
 						className={cn([
 							"absolute right-4 top-1/2 w-7 h-7 -translate-y-1/2 text-neutral-40",
-							props.pictoProps?.className,
+							pictoProps?.className,
 						])}
 					/>
 				)}

@@ -45,7 +45,7 @@ export const InfoMessage: React.FC<IInfoMessageProps> = ({
 					data-info-message-picto
 				/>
 			)}
-			<span>{children}</span>
+			<span className="overflow-hidden">{children}</span>
 		</div>
 	);
 };
