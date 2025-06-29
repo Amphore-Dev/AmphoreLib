@@ -4,7 +4,7 @@ import { cn } from "@utils/cn";
 
 export interface ICheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
 	indeterminate?: boolean;
-	label?: string;
+	label?: string | React.ReactNode;
 }
 
 export const Checkbox: React.FC<ICheckboxProps> = ({

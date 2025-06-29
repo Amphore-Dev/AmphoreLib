@@ -23,6 +23,7 @@ export interface ITextFieldProps
 	pictoProps?: IPictoProps;
 	onPictoClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 	isLoading?: boolean;
+	size?: "s" | "m";
 }
 
 export const TextField: React.FC<ITextFieldProps> = ({
@@ -37,6 +38,7 @@ export const TextField: React.FC<ITextFieldProps> = ({
 	pictoProps,
 	onPictoClick,
 	isLoading = false,
+	size = "m",
 	...props
 }) => {
 	const isInForm = autoDetectFormik && !!useContext(FormikContext); // detect if the component is inside a Formik form
@@ -71,7 +73,7 @@ export const TextField: React.FC<ITextFieldProps> = ({
 	const currentValue = getFieldValue();
 
 	return (
-		<div>
+		<div className="al__text-field">
 			<div className="relative rounded-3xl">
 				<label
 					className={cn([

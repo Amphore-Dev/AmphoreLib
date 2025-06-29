@@ -107,7 +107,13 @@ export const TextArea: React.FC<ITextAreaProps> = ({
 					{label}
 				</label>
 				{isInForm ? (
-					<Field {...commonProps} innerRef={inputRef} />
+					<Field
+						{...commonProps}
+						innerRef={inputRef}
+						onChangeCapture={() => {
+							handleAutoGrow();
+						}}
+					/>
 				) : (
 					<textarea
 						{...props}

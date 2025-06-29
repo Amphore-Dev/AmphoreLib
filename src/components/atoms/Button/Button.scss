@@ -136,15 +136,26 @@
 	/* SIZES VARIANTS */
 	/* =============================================== */
 	&--s {
-		@apply px-4 py-1 text-sm;
+		@apply px-3 py-1 text-sm;
+
+		.al__button--picto {
+			@apply size-5;
+		}
 	}
 
 	&--m {
 		@apply px-4 py-2 text-base;
+
+		.al__button--picto {
+			@apply size-7;
+		}
 	}
 
 	&--l {
 		@apply rounded-[5rem] px-6 py-3 text-lg;
+		.al__button--picto {
+			@apply size-7;
+		}
 	}
 
 	/* =============================================== */

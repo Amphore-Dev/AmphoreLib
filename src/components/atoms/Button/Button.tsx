@@ -1,5 +1,8 @@
 import React from "react";
 
+import { TPictoName } from "@constants/CPictos";
+
+import { Picto } from "../Picto/Picto";
 import { Spinner } from "../Spinner/Spinner";
 
 import { cn } from "@utils/cn";
@@ -14,6 +17,7 @@ export interface IButtonProps
 	outline?: boolean;
 	disabled?: boolean;
 	isLoading?: boolean;
+	picto?: TPictoName;
 }
 
 export const Button: React.FC<IButtonProps> = ({
@@ -25,6 +29,7 @@ export const Button: React.FC<IButtonProps> = ({
 	isLoading = false,
 	type = "button",
 	className = "",
+	picto,
 	...props
 }) => {
 	const classNames = cn([
@@ -43,6 +48,7 @@ export const Button: React.FC<IButtonProps> = ({
 			data-amphore_btn
 		>
 			{isLoading && <Spinner size={1.25} />}
+			{!!picto && <Picto icon={picto} className="al__button--picto" />}
 			{children}
 		</button>
 	);

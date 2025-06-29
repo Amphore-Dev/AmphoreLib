@@ -121,6 +121,7 @@ Formiked.args = {
 	name: "field",
 	formiked: true,
 	required: true,
+	autoGrow: true,
 };
 
 export const Required = Template.bind({});

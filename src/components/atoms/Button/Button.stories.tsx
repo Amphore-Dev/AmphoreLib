@@ -1,5 +1,6 @@
 import React from "react";
 
+import { Pictos } from "@constants/CPictos";
 import { StoryFn } from "@storybook/react";
 
 import { Button, IButtonProps } from "./Button";
@@ -32,6 +33,13 @@ export default {
 				type: "text",
 			},
 		},
+		picto: {
+			control: {
+				type: "select",
+			},
+			options: Object.keys(Pictos),
+			description: "Icon to display in the button.",
+		},
 		"...": {
 			description: "All default button props",
 			control: {
@@ -47,6 +55,7 @@ export default {
 				"disabled",
 				"isLoading",
 				"children",
+				"picto",
 				"...",
 			],
 		},
