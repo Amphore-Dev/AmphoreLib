@@ -15,6 +15,8 @@ import { Picto } from "../Picto/Picto";
 // Components
 import { cn } from "@utils/cn";
 
+import "./Modal.scss";
+
 export type TModalTitle = string | ((props: IModalHeaderProps) => JSX.Element);
 
 export interface IModalHeaderProps {
@@ -34,13 +36,6 @@ export interface IModalProps extends PropsWithChildren {
 	zIndex?: number;
 	portal?: boolean;
 }
-
-const modalSizes = {
-	s: "w-[32rem]",
-	m: "w-[50rem]",
-	l: "w-[75rem]",
-	auto: "auto",
-};
 
 export const Modal: FC<IModalProps> = ({
 	isDisplayed,
@@ -87,11 +82,7 @@ export const Modal: FC<IModalProps> = ({
 
 	const ModalTitle = useMemo(() => {
 		if (typeof title === "string") {
-			return (
-				<h2 className="m-0 break-words p-0 text-2xl font-bold leading-5">
-					{title}
-				</h2>
-			);
+			return <h2 className="modal-title">{title}</h2>;
 		}
 
 		return title({ title, onClose });
@@ -120,10 +111,11 @@ export const Modal: FC<IModalProps> = ({
 			<div
 				ref={overlayRef}
 				className={cn([
-					"fixed left-0 top-0 flex h-full w-full items-center justify-center overflow-y-auto overflow-x-hidden bg-black bg-opacity-70 p-8",
-					!closeOnClickOutside && "!cursor-default",
+					"modal-overlay",
+					!closeOnClickOutside && "modal-overlay--no-click",
 					overlayClassName,
 				])}
+				data-al-modal
 				onClick={closeOnClickOutside ? onClose : undefined}
 				onKeyDown={handleKeyPress}
 				role="button"
@@ -131,9 +123,7 @@ export const Modal: FC<IModalProps> = ({
 				style={{ zIndex }}
 			>
 				<div
-					className={
-						"relative contents h-full w-auto max-w-full cursor-default"
-					}
+					className={"modal-wrapper"}
 					onClick={(e) => {
 						e.stopPropagation();
 					}}
@@ -143,16 +133,10 @@ export const Modal: FC<IModalProps> = ({
 				>
 					<div
 						style={{ zIndex: zIndex + 1 }}
-						className={cn([
-							"m-auto h-auto max-w-full rounded-3xl bg-white shadow-xl cursor-auto",
-							modalSizes[size],
-							className,
-						])}
+						className={cn(["modal-content", size, className])}
 					>
 						<div
-							className={cn([
-								"sticky -top-12 flex w-full justify-between gap-[1rem] rounded-t-3xl p-8 pb-4 bg-white",
-							])}
+							className={cn(["modal-header"])}
 							style={{
 								zIndex: zIndex + 2,
 							}}
@@ -163,13 +147,11 @@ export const Modal: FC<IModalProps> = ({
 									{ModalTitle}
 									<button
 										onClick={onClose}
-										className={
-											"ml-auto flex cursor-pointer items-center justify-center border-none bg-transparent outline-none"
-										}
+										className={"modal-close-button"}
 									>
 										<Picto
 											icon={"cross"}
-											className="text-grey-500 w-6 h-6"
+											className="modal-close-icon"
 										/>
 									</button>
 								</>
@@ -177,7 +159,7 @@ export const Modal: FC<IModalProps> = ({
 								header?.({ title, onClose })
 							)}
 						</div>
-						<div className={"break-words p-8 pt-2"}>{children}</div>
+						<div className={"modal-body"}>{children}</div>
 					</div>
 				</div>
 			</div>

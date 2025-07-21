@@ -1,0 +1,50 @@
+[data-al-modal] {
+	&.modal-overlay {
+		@apply fixed left-0 top-0 flex h-full w-full items-center justify-center overflow-y-auto overflow-x-hidden bg-black bg-opacity-70 p-8;
+	}
+
+	&.modal-overlay--no-click {
+		@apply cursor-default;
+	}
+
+	.modal-wrapper {
+		@apply relative contents h-full w-auto max-w-full cursor-default;
+	}
+
+	.modal-content {
+		@apply m-auto h-auto max-w-full cursor-auto rounded-3xl bg-white shadow-xl;
+
+		&.s {
+			@apply w-[32rem];
+		}
+		&.m {
+			@apply w-[40rem];
+		}
+		&.l {
+			@apply w-[48rem];
+		}
+		&.auto {
+			@apply w-auto;
+		}
+	}
+
+	.modal-header {
+		@apply sticky -top-12 flex w-full justify-between gap-[1rem] rounded-t-3xl bg-white p-8 pb-4;
+	}
+
+	.modal-title {
+		@apply m-0 break-words p-0 text-2xl font-bold leading-5;
+	}
+
+	.modal-close-button {
+		@apply ml-auto flex cursor-pointer items-center justify-center border-none bg-transparent outline-none;
+
+		.modal-close-icon {
+			@apply h-6 w-6 text-neutral-500;
+		}
+	}
+
+	.modal-body {
+		@apply break-words p-8 pt-2;
+	}
+}
