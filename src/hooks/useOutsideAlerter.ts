@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-const useOutsideAlerter = (
+export const useOutsideAlerter = (
 	ref: React.RefObject<HTMLElement>,
 	callback: (event: MouseEvent) => void
 ) => {

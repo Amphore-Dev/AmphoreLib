@@ -1,6 +1,6 @@
 import React, { PropsWithChildren, useRef } from "react";
 
-import useOutsideAlerter from "@hooks/useOutsideAlerter";
+import { useOutsideAlerter } from "@hooks";
 
 import {
 	ColorPicker,
