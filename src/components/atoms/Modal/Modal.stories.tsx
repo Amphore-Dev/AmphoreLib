@@ -116,3 +116,37 @@ export const CustomHeader: StoryFn = (props) => {
 		</Base>
 	);
 };
+
+export const StyleOverload: StoryFn = (props) => {
+	return (
+		<Base
+			{...props}
+			title="Style overload modal"
+			overlayClassName="bg-red-800"
+			className="bg-blue-200"
+			header={(props: IModalHeaderProps) => {
+				const { onClose, title } = props;
+				return (
+					<div className="flex justify-between items-center w-full">
+						<button onClick={onClose} className="flex items-center">
+							<Picto
+								icon="chevron"
+								className="w-6 -ml-2 rotate-180"
+							/>
+							Back
+						</button>
+						{typeof title === "string" ? (
+							<h2 className="text-lg font-semibold text-neutral-400">
+								{title}
+							</h2>
+						) : (
+							title(props)
+						)}
+					</div>
+				);
+			}}
+		>
+			<LoremIpsum units="paragraphs" count={15} />
+		</Base>
+	);
+};
