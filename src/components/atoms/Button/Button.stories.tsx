@@ -117,3 +117,24 @@ export const Disabled = () => {
 		</div>
 	);
 };
+
+export const CustomPicto = () => {
+	return (
+		<div className="flex gap-12">
+			<Button color="black" outline picto="logo">
+				With Picto name
+			</Button>
+			<Button
+				color="yellow"
+				outline
+				picto={{
+					icon: "logo",
+					style: { color: "red", rotate: "22.5deg" },
+					className: "animate-spin",
+				}}
+			>
+				Custom Picto props
+			</Button>
+		</div>
+	);
+};

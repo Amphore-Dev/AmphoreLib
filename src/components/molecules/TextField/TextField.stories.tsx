@@ -60,6 +60,11 @@ export default {
 				type: "boolean",
 			},
 		},
+		size: {
+			control: "radio",
+			options: ["s", "m"],
+			description: "Size of the text field.",
+		},
 
 		"...": {
 			description: "All default input props",
@@ -73,6 +78,7 @@ export default {
 			include: [
 				"name",
 				"disabled",
+				"size",
 				"maxLength",
 				"placeholder",
 				"value",
@@ -161,4 +167,31 @@ export const Loading = Template.bind({});
 Loading.args = {
 	label: "Loading",
 	isLoading: true,
+};
+
+export const NoLabel = Template.bind({});
+NoLabel.args = {
+	placeholder: "Enter text here",
+};
+
+export const NoLabelMaxLength = Template.bind({});
+NoLabelMaxLength.args = {
+	placeholder: "Enter text here",
+	maxLength: 1000,
+};
+
+export const Sizes = () => {
+	return (
+		<div className="flex flex-col gap-8">
+			<TextField label="Small Text Field" size="s" />
+			<TextField placeholder="Small Text Field no label" size="s" />
+			<TextField
+				label="Small Text Field with Picto"
+				size="s"
+				picto="search"
+				onPictoClick={() => alert("Picto clicked")}
+			/>
+			<TextField label="Medium Text Field" size="m" />
+		</div>
+	);
 };
