@@ -14,3 +14,4 @@ export * from "./Tooltip/Tooltip";
 export * from "./TimeWheel/TimeWheel";
 export * from "./ColorPicker/ColorPicker";
 export * from "./CircularChart/CircularChart";
+export * from "./PopoverItem/PopoverItem";
