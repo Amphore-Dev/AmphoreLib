@@ -4,7 +4,7 @@ import postcss
  import sass from "sass";
 
 module.exports = {
-  stories: ["../src/**/*.@(stories.@(js|jsx|ts|tsx))"],
+  stories: ["../src/**/*.@((stories|story).@(js|jsx|ts|tsx))"],
   /** Expose public folder to storybook as static */
   staticDirs: ["../public"],
   addons: [
