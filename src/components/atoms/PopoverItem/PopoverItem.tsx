@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, MouseEventHandler } from "react";
+import React, { FC, MouseEventHandler, PropsWithChildren } from "react";
 
 import { TPictoName } from "@constants/CPictos";
 
@@ -8,11 +8,11 @@ import { cn } from "@utils/cn";
 
 import "./PopoverItem.scss";
 
-export interface PopoverItemProps {
+export interface PopoverItemProps extends PropsWithChildren {
 	icon?: TPictoName;
 	onClick?: MouseEventHandler<HTMLButtonElement>;
 	rtl?: boolean;
-	children: ReactNode;
+
 	className?: string;
 }
 
@@ -20,7 +20,7 @@ export const PopoverItem: FC<PopoverItemProps> = ({
 	icon,
 	onClick = () => {},
 	rtl = false,
-	children,
+	children = false,
 	className,
 }) => (
 	<button
@@ -33,7 +33,7 @@ export const PopoverItem: FC<PopoverItemProps> = ({
 		onClick={onClick}
 		type="button"
 	>
-		{icon && <Picto className="al__popover-item-icon" icon={icon} />}
-		{children}
+		{!!icon && <Picto className="al__popover-item-icon" icon={icon} />}
+		{children || false}
 	</button>
 );

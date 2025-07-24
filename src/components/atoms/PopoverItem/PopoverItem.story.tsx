@@ -8,7 +8,6 @@ const meta: Meta<typeof PopoverItem> = {
 	title: "Components/Atoms/PopoverItem",
 	component: PopoverItem,
 	args: {
-		children: "Item de menu",
 		icon: "check", // adapter selon les noms d'icône valides dans ton composant Picto
 		rtl: false,
 	},
@@ -48,4 +47,23 @@ Reversed.args = {
 	children: "Icône à droite",
 	icon: "chevron",
 	rtl: true,
+};
+
+export const ReactNodeChildren = Template.bind({});
+ReactNodeChildren.args = {
+	children: (
+		<>
+			<span>Texte avec </span>
+			<strong>élément React</strong>
+		</>
+	),
+	icon: "info",
+	rtl: false,
+};
+
+export const ReactNodeUndefChildren = Template.bind({});
+ReactNodeChildren.args = {
+	children: undefined,
+	icon: "info",
+	rtl: false,
 };
