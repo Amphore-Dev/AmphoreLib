@@ -19,7 +19,7 @@ export interface ITimePickerProps extends Omit<ITextFieldProps, "onChange"> {
 }
 
 const inputClasses =
-	"!p-0 text-center appearance-textfield w-[2rem] h-auto bg-transparent focus:text-primary-600 !rounded-none py-1 !outline-none  !border-transparent focus:!border-b-primary-500";
+	"!p-0 text-center appearance-textfield !w-[2rem] h-auto bg-transparent focus:text-primary-600 !rounded-none py-1 !outline-none  !border-transparent focus:!border-b-primary-500";
 
 export const TimePicker: React.FC<ITimePickerProps> = ({
 	value = format(new Date(), "HH:mm"),
