@@ -70,7 +70,7 @@ export const CustomTitle: StoryFn = (props) => {
 						<button onClick={onClose} className="flex items-center">
 							<Picto
 								icon="chevron"
-								className="w-6 -ml-2 rotate-180"
+								className="w-6 h-6 -ml-2 rotate-180"
 							/>
 						</button>
 						<h2 className="text-lg font-semibold">
@@ -97,7 +97,7 @@ export const CustomHeader: StoryFn = (props) => {
 						<button onClick={onClose} className="flex items-center">
 							<Picto
 								icon="chevron"
-								className="w-6 -ml-2 rotate-180"
+								className="w-6 h-6 -ml-2 rotate-180"
 							/>
 							Back
 						</button>
@@ -131,7 +131,7 @@ export const StyleOverload: StoryFn = (props) => {
 						<button onClick={onClose} className="flex items-center">
 							<Picto
 								icon="chevron"
-								className="w-6 -ml-2 rotate-180"
+								className="w-6 h-6 -ml-2 rotate-180"
 							/>
 							Back
 						</button>

@@ -165,12 +165,12 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 						}}
 					/>
 				</div>
-				<Button onClick={focusFirst} className="!p-0 !bg-transparent">
-					<Picto
-						icon="clock"
-						className="min-w-4 h-5 text-neutral-400 hover:text-neutral-500"
-					/>
-				</Button>
+
+				<Picto
+					icon="clock"
+					onClick={focusFirst}
+					className="w-6 h-6 text-neutral-400 hover:text-neutral-500"
+				/>
 			</div>
 			{/* </Popover> */}
 			{props.required && (

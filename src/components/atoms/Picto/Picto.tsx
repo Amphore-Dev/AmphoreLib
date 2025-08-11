@@ -1,9 +1,7 @@
-import React, { CSSProperties, Fragment } from "react";
+import React from "react";
 
 import { Pictos, TPictoName } from "@constants/index";
 import { cn } from "@utils/index";
-
-import { ReactSVG } from "react-svg";
 
 import "./Picto.scss";
 
@@ -11,51 +9,86 @@ export interface IPictoProps {
 	icon?: TPictoName;
 	src?: string;
 	className?: string;
-	style?: CSSProperties;
+	wrapperClassName?: string;
+	style?: React.CSSProperties;
 	currentColor?: boolean;
-	onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+	onClick?: (
+		event: React.MouseEvent<HTMLButtonElement | HTMLDivElement>
+	) => void;
+	rotation?: number;
+	color?: string;
+	disabled?: boolean;
 }
 
 export const Picto: React.FC<IPictoProps> = ({
-	icon = "logo",
+	icon,
 	className = "",
+	color = "currentColor",
+	rotation = 0,
 	style,
 	src,
 	currentColor = true,
 	onClick,
+	wrapperClassName,
+	disabled = false,
 }) => {
-	const Wrapper = onClick ? "button" : Fragment;
-	const wrapperProps = onClick ? { onClick } : {};
-	return (
-		<Wrapper {...wrapperProps}>
-			<ReactSVG
-				src={src ?? Pictos[icon]}
-				style={style}
-				data-amphore-svg-wrapper
-				wrapper={undefined}
-				beforeInjection={(svg) => {
-					const classes = cn([
-						"w-full h-full",
-						currentColor && "[&>*]:fill-current",
-						className,
-					]).split(" ");
-					svg.setAttribute(
-						"data-amphore-svg",
-						currentColor ? "current" : ""
-					);
+	const Wrapper = onClick ? "button" : "div";
+	const wrapperProps = onClick
+		? {
+				disabled,
+				onClick,
+				tabIndex: 0,
+				type: "button" as HTMLButtonElement["type"],
+			}
+		: {};
 
-					svg.classList.add(...classes.filter(Boolean));
-					if (currentColor) {
-						svg.style.fill = "currentColor";
-						svg.style.stroke = "currentColor";
-					}
-					if (style) {
-						Object.keys(style).forEach((key) => {
-							svg.style[key] = style ? style[key] : "";
-						});
-					}
-				}}
-			/>
+	if (!icon && !src) {
+		return null;
+	}
+
+	const SvgIcon = icon
+		? (Pictos[icon] as React.FC<React.SVGProps<SVGSVGElement>>)
+		: null;
+
+	if (!SvgIcon && !src) {
+		console.warn(
+			`Picto: No icon found for "${icon}". Please check the icon name or provide a valid src.`
+		);
+		return null;
+	}
+
+	return (
+		<Wrapper
+			{...wrapperProps}
+			className={wrapperClassName}
+			data-testid={icon}
+		>
+			{!!SvgIcon && (
+				<SvgIcon
+					className={cn([className])}
+					style={{
+						color,
+						opacity: disabled ? 0.25 : 1,
+						transform: rotation
+							? `rotate(${rotation}deg)`
+							: undefined,
+						...style,
+					}}
+					data-amphore-svg={currentColor ? "current" : ""}
+				/>
+			)}
+			{src && (
+				<img
+					src={src}
+					alt={icon || "Picto"}
+					className={cn([className])}
+					style={{
+						...style,
+						color: currentColor ? "currentColor" : undefined,
+					}}
+					data-amphore-svg
+				/>
+			)}
 		</Wrapper>
 	);
 };

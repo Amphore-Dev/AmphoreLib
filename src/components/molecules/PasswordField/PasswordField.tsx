@@ -48,7 +48,10 @@ export const PasswordField: React.FC<IPasswordFieldProps> = ({
 					title={showPassword ? "Hide password" : "Show password"}
 					type="button"
 				>
-					<Picto icon={showPassword ? "eyeOff" : "eye"} />
+					<Picto
+						icon={showPassword ? "eyeOff" : "eye"}
+						className="w-6 h-6"
+					/>
 					{AutoHide && (
 						<span className="absolute bottom-0 -right-1 text-xs text-neutral-500 p-[2px] leading-[8px] rounded-40 bg-white">
 							<CountDown
