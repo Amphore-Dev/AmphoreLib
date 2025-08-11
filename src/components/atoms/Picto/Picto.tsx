@@ -1,7 +1,6 @@
 import React from "react";
 
 import { Pictos, TPictoName } from "@constants/index";
-import { cn } from "@utils/index";
 
 import "./Picto.scss";
 
@@ -65,7 +64,7 @@ export const Picto: React.FC<IPictoProps> = ({
 		>
 			{!!SvgIcon && (
 				<SvgIcon
-					className={cn(["!text-neutral-500", className])}
+					className={className}
 					style={{
 						color,
 						opacity: disabled ? 0.25 : 1,
