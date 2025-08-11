@@ -65,7 +65,7 @@ export const Picto: React.FC<IPictoProps> = ({
 		>
 			{!!SvgIcon && (
 				<SvgIcon
-					className={cn([className])}
+					className={cn(["!text-neutral-500", className])}
 					style={{
 						color,
 						opacity: disabled ? 0.25 : 1,

@@ -39,8 +39,10 @@
 	.modal-close-button {
 		@apply ml-auto flex cursor-pointer items-center justify-center border-none bg-transparent outline-none;
 
-		.modal-close-icon {
-			@apply h-6 w-6 text-neutral-500;
+		.modal-close-icon.modal-close-icon {
+			@apply h-6 w-6;
+
+			@apply text-red-500;
 		}
 	}
 

@@ -231,7 +231,8 @@ const DatePickerField = forwardRef(
 						props.onClick?.(e);
 					}}
 					pictoProps={{
-						className: "w-7 h-7",
+						color: "text-neutral-400",
+						className: "!w-6 !h-6",
 					}}
 					readOnly
 				/>

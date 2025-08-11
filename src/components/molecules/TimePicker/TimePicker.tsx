@@ -169,6 +169,7 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 				<Picto
 					icon="clock"
 					onClick={focusFirst}
+					color="text-neutral-400"
 					className="w-6 h-6 text-neutral-400 hover:text-neutral-500"
 				/>
 			</div>
