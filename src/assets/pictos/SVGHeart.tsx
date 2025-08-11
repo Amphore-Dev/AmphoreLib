@@ -4,8 +4,8 @@ import type { SVGProps } from "react";
 const SvgHeart = (props: SVGProps<SVGSVGElement>) => (
 	<svg
 		xmlns="http://www.w3.org/2000/svg"
-		width={72}
-		height={72}
+		width={24}
+		height={24}
 		stroke="currentColor"
 		strokeLinecap="round"
 		strokeLinejoin="round"
