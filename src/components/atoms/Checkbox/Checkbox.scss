@@ -1,0 +1,122 @@
+[data-amphore-lib-checkbox] {
+	&:focus-within:not([data-mouse-down]) {
+		@apply outline outline-2 outline-offset-2 outline-primary-500;
+	}
+
+	input[type="radio"],
+	input[type="checkbox"] {
+		@apply outline-none;
+
+		&[data-checkbox]:not([data-unstyled]) {
+			@apply relative left-0 h-4 w-4 min-w-[1rem] cursor-pointer appearance-none overflow-hidden rounded-sm p-0;
+
+			&::before,
+			&::after {
+				content: "";
+				@apply absolute left-0 top-0 h-full w-full rounded-sm pt-1 text-center text-xs text-white transition-all duration-100;
+			}
+
+			&:not(:checked) {
+				@apply border-2 border-neutral-200;
+
+				&::after {
+					@apply scale-0 opacity-0;
+				}
+			}
+
+			&:checked {
+				@apply overflow-visible border-2 border-primary-500 bg-primary-500 text-white;
+
+				&::after {
+					content: "";
+					@apply left-1/2 top-1/2 block;
+					width: 50%;
+					height: 100%;
+					border: 2px solid white;
+					border-left: none;
+					border-top: none;
+					transform: translate(-50%, -60%) rotate(45deg);
+				}
+			}
+
+			&[data-indeterminate="true"] {
+				&:checked {
+					@apply border-primary-500 bg-white;
+
+					&[type="radio"]:disabled {
+						@apply border-neutral-600;
+
+						&::after {
+							@apply bg-neutral-600;
+						}
+					}
+				}
+
+				&::after {
+					@apply left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full border-none bg-primary-500;
+				}
+			}
+
+			&:disabled {
+				@apply cursor-default bg-neutral-100 text-neutral-300 opacity-60;
+
+				&::before {
+					@apply border-neutral-100 bg-neutral-100 shadow-none;
+				}
+
+				&:checked {
+					@apply border-neutral-100 bg-neutral-100 text-neutral-900;
+
+					&::after {
+						@apply border-neutral-700 bg-transparent text-neutral-900;
+
+						&[data-indeterminate="true"] {
+							@apply bg-neutral-700 text-transparent;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	input[type="radio"] {
+		border-radius: 100% !important;
+
+		&:disabled::before {
+			background-color: transparent !important;
+		}
+	}
+}
+
+.amphorelib__checkbox {
+	@apply flex w-fit items-center gap-2 rounded-sm;
+
+	.amphorelib__checkbox-label {
+		@apply line-clamp-2 cursor-pointer leading-5;
+	}
+
+	&.disabled {
+		@apply cursor-default;
+		.amphorelib__checkbox-input {
+			@apply cursor-default;
+		}
+
+		.amphorelib__checkbox-label {
+			@apply cursor-default opacity-50;
+		}
+
+		&.withLabel {
+			.amphorelib__checkbox-input {
+				opacity: 1 !important;
+			}
+		}
+	}
+
+	&-input {
+		@apply cursor-pointer;
+	}
+
+	&-label {
+		@apply line-clamp-2 cursor-pointer text-sm;
+	}
+}

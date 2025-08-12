@@ -15,3 +15,7 @@ export * from "./TimeWheel/TimeWheel";
 export * from "./ColorPicker/ColorPicker";
 export * from "./CircularChart/CircularChart";
 export * from "./PopoverItem/PopoverItem";
+export * from "./Tag/Tag";
+export * from "./Badge/Badge";
+export * from "./TableHeaderCell/TableHeaderCell";
+export * from "./TableCell/TableCell";

@@ -1,0 +1,71 @@
+[data-ras-table-cell-wrapper] {
+	@apply h-px;
+
+	[data-ras-table-cell] {
+		@apply h-full w-full content-center;
+
+		&[data-show-on-hover="true"] {
+			@apply opacity-0 transition-opacity duration-200 group-focus-within:opacity-100 group-hover:opacity-100;
+		}
+
+		&[data-clickable="true"] {
+			@apply cursor-pointer rounded-none outline-transparent duration-100;
+
+			&:focus-visible {
+				background-color: white !important;
+				@apply rounded-md outline-2 -outline-offset-2 outline-primary-500;
+			}
+
+			&:hover {
+				background-color: white !important;
+				@apply rounded-md bg-white outline outline-2 -outline-offset-2 outline-primary-500;
+			}
+		}
+
+		.table-cell {
+			@apply flex items-center gap-2 gap-y-2 p-2;
+
+			.action-item {
+				@apply flex cursor-pointer items-center gap-2 rounded-md px-4 py-2 text-sm text-black;
+
+				&:not(.disabled) {
+					&:hover {
+						@apply bg-gray-100;
+					}
+
+					&:focus-visible {
+						@apply bg-gray-100 outline-primary-500;
+					}
+				}
+
+				.picto {
+					@apply h-5 w-5;
+				}
+
+				.label {
+					@apply text-gray-700;
+				}
+
+				&.disabled {
+					@apply cursor-default text-gray-400;
+
+					.label {
+						@apply text-gray-400;
+					}
+				}
+			}
+
+			.cell-body {
+				@apply flex flex-col overflow-hidden leading-5;
+
+				.cell-value {
+					@apply block overflow-hidden text-ellipsis whitespace-nowrap;
+				}
+
+				.cell-description {
+					@apply block overflow-hidden text-ellipsis whitespace-nowrap text-xs text-gray-500;
+				}
+			}
+		}
+	}
+}

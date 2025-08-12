@@ -1,0 +1,7 @@
+[data-ras-table-header] {
+	@apply sticky top-0 z-10 table-header-group bg-white;
+
+	tr {
+		@apply items-center align-middle shadow-[0_1px_0_0_rgb(210,211,219)];
+	}
+}

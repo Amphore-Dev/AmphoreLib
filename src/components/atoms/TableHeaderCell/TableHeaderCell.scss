@@ -1,0 +1,27 @@
+.table-header-cell {
+	@apply h-14 font-light outline-none;
+
+	&:focus-visible {
+		@apply rounded-md border-primary-500 outline outline-2 -outline-offset-2 outline-primary-500;
+	}
+
+	&.sortable {
+		@apply cursor-pointer;
+	}
+
+	&.is-sorted {
+		@apply font-bold text-primary-500;
+	}
+
+	.table-header-cell-content {
+		@apply flex h-full items-center gap-2 px-2;
+	}
+
+	.sort-icon-wrapper {
+		@apply flex w-3 flex-col items-center justify-center duration-300;
+
+		.sort-icon {
+			@apply flex h-3 w-3 flex-col gap-0;
+		}
+	}
+}

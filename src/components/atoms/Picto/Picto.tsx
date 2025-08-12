@@ -39,15 +39,20 @@ export const Picto: React.FC<IPictoProps> = ({
 				tabIndex: 0,
 				type: "button" as HTMLButtonElement["type"],
 			}
-		: {};
+		: {
+				"data-testid": icon,
+			};
 
 	if (!icon && !src) {
 		return null;
 	}
 
-	const SvgIcon = icon
-		? (Pictos[icon] as React.FC<React.SVGProps<SVGSVGElement>>)
-		: null;
+	const SvgIcon =
+		icon && Pictos[icon]
+			? (Pictos[icon] as React.FC<React.SVGProps<SVGSVGElement>>)
+			: typeof icon !== "string"
+				? icon
+				: null;
 
 	if (!SvgIcon && !src) {
 		console.warn(
@@ -57,11 +62,7 @@ export const Picto: React.FC<IPictoProps> = ({
 	}
 
 	return (
-		<Wrapper
-			{...wrapperProps}
-			className={wrapperClassName}
-			data-testid={icon}
-		>
+		<Wrapper {...wrapperProps} className={wrapperClassName}>
 			{!!SvgIcon && (
 				<SvgIcon
 					className={className}
@@ -80,7 +81,7 @@ export const Picto: React.FC<IPictoProps> = ({
 				<img
 					src={src}
 					alt={icon || "Picto"}
-					className={cn([className])}
+					className={className}
 					style={{
 						...style,
 						color: currentColor ? "currentColor" : undefined,

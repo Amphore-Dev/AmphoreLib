@@ -1,0 +1,39 @@
+[data-ras-table-row] {
+	@apply border-b border-neutral-200 -outline-offset-2 last:border-none;
+
+	&.clickable {
+		cursor: pointer;
+	}
+
+	&.disabled {
+		@apply cursor-not-allowed bg-neutral-50 opacity-50;
+	}
+
+	&.selected {
+		@apply bg-primary-50;
+
+		& > td {
+			@apply bg-primary-50;
+		}
+
+		&:hover {
+			@apply bg-primary-50;
+
+			& > td {
+				@apply bg-primary-50;
+			}
+		}
+	}
+
+	&:hover {
+		@apply bg-neutral-50;
+
+		& > td {
+			@apply bg-neutral-50;
+		}
+	}
+
+	&:focus-visible {
+		@apply outline-primary-500;
+	}
+}

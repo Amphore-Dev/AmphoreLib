@@ -22,7 +22,7 @@ export const Popover = forwardRef<HTMLDivElement, ITooltipProps>(
 					trigger === "hover" && !closeOnLeave ? false : closeOnLeave
 				}
 				closeOnClick={closeOnClick}
-				className={cn(["raslib__popover !bg-white", className])}
+				className={cn(["amphorelib__popover !bg-white", className])}
 				ref={ref}
 				{...props}
 			>

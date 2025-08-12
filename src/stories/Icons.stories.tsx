@@ -4,7 +4,8 @@ import { Meta } from "@storybook/addon-docs";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { Picto } from "@components/atoms";
+import { UnusedPictos } from "./icons/unusedPictos";
+import { Picto, Title } from "@components/atoms";
 import { ColorPickerField } from "@components/molecules";
 import { Pictos, TPictoName } from "@constants/index";
 
@@ -56,6 +57,40 @@ export default {
 									>
 										<Picto
 											icon={icon as TPictoName}
+											className="w-16 h-16 p-2 rounded-md shadow-md"
+											onClick={() => {
+												// set name of icon in clipboard
+												navigator.clipboard.writeText(
+													icon
+												);
+												toast.success(
+													`Icon "${icon}" copied to clipboard`
+												);
+											}}
+											color={color}
+										/>
+									</div>
+
+									<div className="text-xs">{icon}</div>
+								</div>
+							))}
+						</div>
+						<Title tag="h3">Unused Icons</Title>
+						<p>These icons are not exported by the library:</p>
+						<div className="grid items-center justify-center grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 text-neutral-500">
+							{Object.keys(UnusedPictos).map((icon) => (
+								<div
+									key={icon}
+									className="flex flex-col items-center h-[150px]"
+								>
+									<div
+										className="flex flex-col items-center gap-2 p-4 overflow-visible bg-white rounded-md"
+										key={icon}
+									>
+										<Picto
+											icon={
+												UnusedPictos[icon] as TPictoName
+											}
 											className="w-16 h-16 p-2 rounded-md shadow-md"
 											onClick={() => {
 												// set name of icon in clipboard

@@ -161,7 +161,7 @@ export const Tooltip = forwardRef<HTMLDivElement, ITooltipProps>(
 							}
 						}
 					}}
-					className={cn(["raslib__tooltip", buttonClassName])}
+					className={cn(["amphorelib__tooltip", buttonClassName])}
 				>
 					{content}
 				</div>
@@ -173,7 +173,7 @@ export const Tooltip = forwardRef<HTMLDivElement, ITooltipProps>(
 							style={floatingStyles}
 							className={cn([
 								container === true &&
-									"raslib__tooltip__container",
+									"amphorelib__tooltip__container",
 								className,
 							])}
 							onClick={() => {
@@ -208,7 +208,7 @@ export const Tooltip = forwardRef<HTMLDivElement, ITooltipProps>(
 									fill="bg-black"
 									className={cn([
 										container === true &&
-											"raslib__tooltip__arrow",
+											"amphorelib__tooltip__arrow",
 									])}
 								/>
 							)}

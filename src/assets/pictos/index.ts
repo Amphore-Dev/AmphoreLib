@@ -1,3 +1,13 @@
+export { default as UserCheck } from "../../assets/pictos/SVGUserCheck";
+export { default as UserMinus } from "../../assets/pictos/SVGUserMinus";
+export { default as UserPlus } from "../../assets/pictos/SVGUserPlus";
+export { default as UserX } from "../../assets/pictos/SVGUserX";
+export { default as Users } from "../../assets/pictos/SVGUsers";
+
+export { default as Target } from "../../assets/pictos/SVGTarget";
+
+export { default as Activity } from "../../assets/pictos/SVGActivity";
+export { default as Briefcase } from "./SVGBriefcase";
 export { default as AlertCircle } from "./SVGAlertCircle";
 export { default as AlertTriangle } from "./SVGAlertTriangle";
 export { default as Archive } from "./SVGArchive";

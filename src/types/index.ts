@@ -4,3 +4,6 @@ export * from "./point";
 export * from "./list";
 
 export * from "./TCharts";
+
+export * from "./TTable";
+export * from "./TGrid";
