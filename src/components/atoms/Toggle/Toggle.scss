@@ -1,30 +1,31 @@
 .amphorelib__toggle {
-	@apply flex cursor-pointer items-center gap-4 rounded-s p-m outline-2 outline-primary-500;
+	@apply flex cursor-pointer items-center gap-4 rounded-s outline-2 outline-primary-500;
 
 	&.amphorelib__toggle--disabled {
 		@apply cursor-default;
 	}
 
 	.amphorelib__toggle__thumb {
-		@apply relative flex h-5 w-8 min-w-8 items-center rounded-xl bg-neutral-200;
+		@apply relative flex h-5 w-8 min-w-8 items-center rounded-xl bg-neutral-200 dark:bg-neutral-600;
 
 		input {
 			@apply h-0 w-0 opacity-0;
 		}
 
 		&.amphorelib__toggle__thumb--checked {
-			@apply bg-primary-500;
+			@apply bg-primary-500 dark:bg-primary-400;
 		}
 
 		&.amphorelib__toggle__thumb--checked--disabled {
-			@apply bg-neutral-600;
+			@apply bg-neutral-600 dark:bg-neutral-500;
 		}
 	}
+
 	.amphorelib__toggle__slider {
-		@apply bottom-0 left-0 right-0 top-0 rounded-xl bg-neutral-200 transition-[transform,background-color] duration-300 ease-in-out;
+		@apply bottom-0 left-0 right-0 top-0 rounded-xl bg-neutral-200 transition-[transform,background-color] duration-300 ease-in-out dark:bg-neutral-600;
 
 		&::before {
-			@apply absolute bottom-0.5 left-0.5 z-0 h-4 w-4 rounded-full bg-white shadow-xs transition-[transform,background-color] duration-300 ease-in-out;
+			@apply absolute bottom-0.5 left-0.5 z-0 h-4 w-4 rounded-full bg-white shadow-xs transition-[transform,background-color] duration-300 ease-in-out dark:bg-neutral-200;
 			content: "";
 		}
 

@@ -1,8 +1,8 @@
 .table-header-cell {
-	@apply h-14 font-light outline-none;
+	@apply h-14 font-light outline-none dark:text-neutral-200;
 
 	&:focus-visible {
-		@apply rounded-md border-primary-500 outline outline-2 -outline-offset-2 outline-primary-500;
+		@apply rounded-md border-primary-500 outline outline-2 -outline-offset-2 outline-primary-500 dark:outline-primary-400;
 	}
 
 	&.sortable {
@@ -10,7 +10,7 @@
 	}
 
 	&.is-sorted {
-		@apply font-bold text-primary-500;
+		@apply font-bold text-primary-500 dark:text-primary-400;
 	}
 
 	.table-header-cell-content {

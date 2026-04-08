@@ -21,41 +21,47 @@
 	&--black {
 		background-color: #27272b;
 		color: white;
+		@apply dark:bg-neutral-200 dark:text-neutral-900;
 
 		&.al__button--outline {
 			outline-color: #27272b;
 			color: #27272b;
+			@apply dark:text-neutral-200 dark:outline-neutral-200;
 		}
 
 		&:not(.al__button--loading):hover {
 			background-color: #27272b;
 			color: white;
+			@apply dark:bg-neutral-300;
 		}
 	}
 
 	&--white {
 		background-color: white;
 		color: #27272b;
+		@apply dark:bg-neutral-700 dark:text-white;
 
 		&.al__button--outline {
 			outline-color: #e2e2e2;
 			color: #27272b;
+			@apply dark:text-neutral-200 dark:outline-neutral-600;
 		}
 
 		&:not(.al__button--loading):hover {
 			background-color: #e2e2e2;
 			color: #27272b;
+			@apply dark:bg-neutral-600 dark:text-white;
 		}
 	}
 
 	&--primary {
-		@apply bg-primary-500;
+		@apply bg-primary-500 text-white;
 
 		&.al__button--outline {
-			@apply text-primary-500 outline-primary-500;
+			@apply text-primary-500 outline-primary-500 dark:text-primary-300 dark:outline-primary-300;
 
 			&:not(.al__button--loading):hover {
-				@apply bg-primary-500;
+				@apply bg-primary-500 dark:bg-primary-600;
 			}
 		}
 
@@ -66,10 +72,10 @@
 	}
 
 	&--green {
-		@apply bg-green-500;
+		@apply bg-green-500 text-white;
 
 		&.al__button--outline {
-			@apply text-green-500 outline-green-500;
+			@apply text-green-500 outline-green-500 dark:text-green-400 dark:outline-green-400;
 
 			&:not(.al__button--loading):hover {
 				@apply bg-green-500;
@@ -83,10 +89,10 @@
 	}
 
 	&--red {
-		@apply bg-red-500;
+		@apply bg-red-500 text-white;
 
 		&.al__button--outline {
-			@apply text-red-500 outline-red-500;
+			@apply text-red-500 outline-red-500 dark:text-red-400 dark:outline-red-400;
 
 			&:not(.al__button--loading):hover {
 				@apply bg-red-500;
@@ -100,10 +106,10 @@
 	}
 
 	&--yellow {
-		@apply bg-yellow-500;
+		@apply bg-yellow-500 text-white;
 
 		&.al__button--outline {
-			@apply text-yellow-500 outline-yellow-500;
+			@apply text-yellow-500 outline-yellow-500 dark:text-yellow-400 dark:outline-yellow-400;
 
 			&:not(.al__button--loading):hover {
 				@apply bg-yellow-500;

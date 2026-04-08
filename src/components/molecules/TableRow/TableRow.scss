@@ -1,39 +1,39 @@
 [data-ras-table-row] {
-	@apply border-b border-neutral-200 -outline-offset-2 last:border-none;
+	@apply border-b border-neutral-200 -outline-offset-2 last:border-none dark:border-neutral-700;
 
 	&.clickable {
 		cursor: pointer;
 	}
 
 	&.disabled {
-		@apply cursor-not-allowed bg-neutral-50 opacity-50;
+		@apply cursor-not-allowed bg-neutral-50 opacity-50 dark:bg-neutral-800;
 	}
 
 	&.selected {
-		@apply bg-primary-50;
+		@apply bg-primary-50 dark:bg-primary-950;
 
 		& > td {
-			@apply bg-primary-50;
+			@apply bg-primary-50 dark:bg-primary-950;
 		}
 
 		&:hover {
-			@apply bg-primary-50;
+			@apply bg-primary-50 dark:bg-primary-950;
 
 			& > td {
-				@apply bg-primary-50;
+				@apply bg-primary-50 dark:bg-primary-950;
 			}
 		}
 	}
 
 	&:hover {
-		@apply bg-neutral-50;
+		@apply bg-neutral-50 dark:bg-neutral-800;
 
 		& > td {
-			@apply bg-neutral-50;
+			@apply bg-neutral-50 dark:bg-neutral-800;
 		}
 	}
 
 	&:focus-visible {
-		@apply outline-primary-500;
+		@apply outline-primary-500 dark:outline-primary-400;
 	}
 }

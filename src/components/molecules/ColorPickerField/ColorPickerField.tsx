@@ -21,7 +21,7 @@ export interface IColorPickerFieldProps
 
 export const ColorPickerField: React.FC<IColorPickerFieldProps> = ({
 	children,
-	className = "bg-white",
+	className,
 	tooltipProps = {
 		className: "max-w-[350px]",
 		floatingProps: {

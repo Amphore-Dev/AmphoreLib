@@ -11,7 +11,11 @@ export default {
 
 const Template: StoryFn<IColorPickerFieldProps> = (args) => {
 	const [Value, setValue] = React.useState<string>("#000000");
-	return <ColorPickerField {...args} value={Value} onChange={setValue} />;
+	return (
+		<div className="h-96">
+			<ColorPickerField {...args} value={Value} onChange={setValue} />
+		</div>
+	);
 };
 
 export const Base = Template.bind({});

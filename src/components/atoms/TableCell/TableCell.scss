@@ -14,11 +14,19 @@
 			&:focus-visible {
 				background-color: white !important;
 				@apply rounded-md outline-2 -outline-offset-2 outline-primary-500;
+
+				.dark & {
+					background-color: theme("colors.neutral.900") !important;
+				}
 			}
 
 			&:hover {
 				background-color: white !important;
 				@apply rounded-md bg-white outline outline-2 -outline-offset-2 outline-primary-500;
+
+				.dark & {
+					background-color: theme("colors.neutral.900") !important;
+				}
 			}
 		}
 
@@ -26,15 +34,15 @@
 			@apply flex items-center gap-2 gap-y-2 p-2;
 
 			.action-item {
-				@apply flex cursor-pointer items-center gap-2 rounded-md px-4 py-2 text-sm text-black;
+				@apply flex cursor-pointer items-center gap-2 rounded-md px-4 py-2 text-sm text-black dark:text-neutral-200;
 
 				&:not(.disabled) {
 					&:hover {
-						@apply bg-gray-100;
+						@apply bg-gray-100 dark:bg-neutral-700;
 					}
 
 					&:focus-visible {
-						@apply bg-gray-100 outline-primary-500;
+						@apply bg-gray-100 outline-primary-500 dark:bg-neutral-700;
 					}
 				}
 
@@ -43,14 +51,14 @@
 				}
 
 				.label {
-					@apply text-gray-700;
+					@apply text-gray-700 dark:text-neutral-300;
 				}
 
 				&.disabled {
-					@apply cursor-default text-gray-400;
+					@apply cursor-default text-gray-400 dark:text-neutral-600;
 
 					.label {
-						@apply text-gray-400;
+						@apply text-gray-400 dark:text-neutral-600;
 					}
 				}
 			}
@@ -67,7 +75,7 @@
 				}
 
 				.cell-description {
-					@apply block overflow-hidden text-ellipsis whitespace-nowrap text-xs text-gray-500;
+					@apply block overflow-hidden text-ellipsis whitespace-nowrap text-xs text-gray-500 dark:text-neutral-400;
 				}
 			}
 		}

@@ -7,5 +7,5 @@
 }
 
 .al__color-picker-field__preview {
-	@apply h-8 w-8 rounded-md border;
+	@apply h-8 w-8 rounded-md border dark:border-neutral-600;
 }

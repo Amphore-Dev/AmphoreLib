@@ -9,7 +9,7 @@
 		}
 
 		.footer {
-			@apply place-items-center pt-4 text-center text-neutral-500;
+			@apply place-items-center pt-4 text-center text-neutral-500 dark:text-neutral-400;
 		}
 	}
 }

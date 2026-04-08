@@ -6,6 +6,6 @@
 	}
 
 	&__container {
-		@apply z-[1] rounded-md bg-white p-2 text-sm text-neutral-900 shadow-md;
+		@apply z-[1] rounded-md bg-white p-2 text-sm text-neutral-900 shadow-md dark:bg-neutral-800 dark:text-neutral-100 dark:shadow-neutral-700;
 	}
 }

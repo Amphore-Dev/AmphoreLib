@@ -5,11 +5,11 @@
 		@apply absolute left-1/2 top-1/2 w-full -translate-x-1/2 -translate-y-1/2 text-center;
 
 		.chart-value {
-			@apply font-bold text-black;
+			@apply font-bold text-black dark:text-white;
 		}
 
 		.chart-title {
-			@apply mt-1 text-sm text-gray-600;
+			@apply mt-1 text-sm text-gray-600 dark:text-neutral-400;
 		}
 
 		.chart-value,

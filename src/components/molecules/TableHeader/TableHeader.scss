@@ -1,7 +1,7 @@
 [data-ras-table-header] {
-	@apply sticky top-0 z-10 table-header-group bg-white;
+	@apply sticky top-0 z-10 table-header-group bg-white dark:bg-neutral-900;
 
 	tr {
-		@apply items-center align-middle shadow-[0_1px_0_0_rgb(210,211,219)];
+		@apply items-center align-middle shadow-[0_1px_0_0_rgb(210,211,219)] dark:shadow-[0_1px_0_0_rgb(64,65,79)];
 	}
 }

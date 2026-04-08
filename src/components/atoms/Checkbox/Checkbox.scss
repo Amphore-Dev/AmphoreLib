@@ -17,7 +17,7 @@
 			}
 
 			&:not(:checked) {
-				@apply border-2 border-neutral-200;
+				@apply border-2 border-neutral-200 dark:border-neutral-600;
 
 				&::after {
 					@apply scale-0 opacity-0;
@@ -25,7 +25,7 @@
 			}
 
 			&:checked {
-				@apply overflow-visible border-2 border-primary-500 bg-primary-500 text-white;
+				@apply overflow-visible border-2 border-primary-500 bg-primary-500 text-white dark:border-primary-400 dark:bg-primary-400;
 
 				&::after {
 					content: "";
@@ -41,7 +41,7 @@
 
 			&[data-indeterminate="true"] {
 				&:checked {
-					@apply border-primary-500 bg-white;
+					@apply border-primary-500 bg-white dark:border-primary-400 dark:bg-neutral-800;
 
 					&[type="radio"]:disabled {
 						@apply border-neutral-600;
@@ -53,25 +53,25 @@
 				}
 
 				&::after {
-					@apply left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full border-none bg-primary-500;
+					@apply left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full border-none bg-primary-500 dark:bg-primary-400;
 				}
 			}
 
 			&:disabled {
-				@apply cursor-default bg-neutral-100 text-neutral-300 opacity-60;
+				@apply cursor-default bg-neutral-100 text-neutral-300 opacity-60 dark:bg-neutral-700 dark:text-neutral-500;
 
 				&::before {
-					@apply border-neutral-100 bg-neutral-100 shadow-none;
+					@apply border-neutral-100 bg-neutral-100 shadow-none dark:border-neutral-700 dark:bg-neutral-700;
 				}
 
 				&:checked {
-					@apply border-neutral-100 bg-neutral-100 text-neutral-900;
+					@apply border-neutral-100 bg-neutral-100 text-neutral-900 dark:border-neutral-600 dark:bg-neutral-600 dark:text-neutral-300;
 
 					&::after {
-						@apply border-neutral-700 bg-transparent text-neutral-900;
+						@apply border-neutral-700 bg-transparent text-neutral-900 dark:border-neutral-400;
 
 						&[data-indeterminate="true"] {
-							@apply bg-neutral-700 text-transparent;
+							@apply bg-neutral-700 text-transparent dark:bg-neutral-400;
 						}
 					}
 				}
@@ -92,7 +92,7 @@
 	@apply flex w-fit items-center gap-2 rounded-sm;
 
 	.amphorelib__checkbox-label {
-		@apply line-clamp-2 cursor-pointer leading-5;
+		@apply line-clamp-2 cursor-pointer leading-5 dark:text-neutral-200;
 	}
 
 	&.disabled {
@@ -117,6 +117,6 @@
 	}
 
 	&-label {
-		@apply line-clamp-2 cursor-pointer text-sm;
+		@apply line-clamp-2 cursor-pointer text-sm dark:text-neutral-200;
 	}
 }

@@ -1,20 +1,20 @@
 .amphorelib__tag {
-	@apply flex items-center justify-center rounded-md p-2 py-1 text-xs font-medium text-white;
+	@apply flex items-center justify-center rounded-md p-2 py-1 text-xs font-medium;
 
 	&--primary {
-		@apply bg-primary-100 text-primary-800;
+		@apply bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200;
 	}
 
 	&--orange {
-		@apply bg-orange-100 text-orange-800;
+		@apply bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200;
 	}
 
 	&--green {
-		@apply bg-green-100 text-green-800;
+		@apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200;
 	}
 
 	&--red {
-		@apply bg-red-100 text-red-800;
+		@apply bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200;
 	}
 
 	&--s {

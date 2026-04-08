@@ -1,6 +1,10 @@
 .ColorPicker {
 	.colorpicker {
 		background-color: transparent;
+
+		.color-picker-panel {
+			background-color: transparent;
+		}
 	}
 
 	.input_rgba .input_rgba-wrap .input_rgba-alpha .input_rgba-alpha-label {
@@ -11,9 +15,11 @@
 		top: 8px;
 	}
 
-	input {
-		background-color: #efefef !important;
-		box-shadow: none !important;
+	.input_rgba {
+		input {
+			background-color: #efefef;
+			box-shadow: none !important;
+		}
 	}
 
 	.popup_tabs {
@@ -31,10 +37,10 @@
 
 	&.dark {
 		.popup_tabs {
-			background-color: #121212;
+			background-color: transparent;
 		}
 		.popup_tabs-header {
-			background-color: #282828;
+			background-color: transparent;
 		}
 		.popup_tabs-header .popup_tabs-header-label {
 			color: #a2a2a2;
@@ -52,9 +58,11 @@
 			background-color: transparent;
 		}
 
-		input {
-			background-color: #353535 !important;
-			color: white !important;
+		.input_rgba {
+			input {
+				background-color: #353535 !important;
+				color: white !important;
+			}
 		}
 	}
 }

@@ -12,7 +12,7 @@
 	}
 
 	:where(.modal-content) {
-		@apply m-auto h-auto max-w-full cursor-auto rounded-3xl bg-white shadow-xl;
+		@apply m-auto h-auto max-w-full cursor-auto rounded-3xl bg-white shadow-xl dark:bg-neutral-900 dark:text-white;
 
 		&.s {
 			@apply w-[32rem];
@@ -29,7 +29,7 @@
 	}
 
 	.modal-header {
-		@apply sticky -top-12 flex w-full justify-between gap-[1rem] rounded-t-3xl bg-white p-8 pb-4;
+		@apply sticky -top-12 flex w-full justify-between gap-[1rem] rounded-t-3xl bg-white p-8 pb-4 dark:bg-neutral-900 dark:text-white;
 	}
 
 	.modal-title {
@@ -40,9 +40,7 @@
 		@apply ml-auto flex cursor-pointer items-center justify-center border-none bg-transparent outline-none;
 
 		.modal-close-icon.modal-close-icon {
-			@apply h-6 w-6;
-
-			@apply text-red-500;
+			@apply h-6 w-6 text-red-500 dark:text-red-400;
 		}
 	}
 

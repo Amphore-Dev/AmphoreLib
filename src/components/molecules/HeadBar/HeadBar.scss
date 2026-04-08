@@ -13,7 +13,7 @@
 		}
 
 		.al__headbar__menu-line {
-			@apply border border-neutral-300 group-hover:border-black;
+			@apply border border-neutral-300 group-hover:border-black dark:border-neutral-600 dark:group-hover:border-white;
 		}
 	}
 

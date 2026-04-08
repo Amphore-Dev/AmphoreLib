@@ -10,6 +10,6 @@
 	}
 
 	.al__time-wheel__item {
-		@apply flex h-10 items-center justify-center text-lg;
+		@apply flex h-10 items-center justify-center text-lg dark:text-neutral-200;
 	}
 }
