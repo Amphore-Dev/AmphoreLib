@@ -14,15 +14,15 @@ export const SelectControl: React.FC<any> = (props) => {
 	const hasValue = Array.isArray(value) ? !!value.length : !!value;
 
 	return (
-		<div className="al__select-control">
+		<div className="al__select-ctrl">
 			<label
 				className={cn([
-					"al__select-control__label",
-					!!hasValue && "al__select-control__label--has-value",
-					disabled && "al__select-control__label--disabled",
+					"al__select-ctrl__label",
+					!!hasValue && "al__select-ctrl__label--has-value",
+					disabled && "al__select-ctrl__label--disabled",
 					isMulti
-						? "al__select-control__label--multi"
-						: "al__select-control__label--single",
+						? "al__select-ctrl__label--multi"
+						: "al__select-ctrl__label--single",
 				])}
 			>
 				{label}
@@ -32,10 +32,10 @@ export const SelectControl: React.FC<any> = (props) => {
 				className={cn([
 					isMulti &&
 						hasValue &&
-						"al__select-control__control--multi-has-value",
+						"al__select-ctrl__control--multi-has-value",
 					!isMulti &&
 						hasValue &&
-						"al__select-control__control--has-value",
+						"al__select-ctrl__control--has-value",
 				])}
 			/>
 		</div>
