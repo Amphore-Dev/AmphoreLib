@@ -1,95 +1,93 @@
-import React, { useRef, useState, ChangeEvent, FC } from "react";
+import React, { InputHTMLAttributes, useCallback } from "react";
 
 import { cn } from "@utils/cn";
 
-export interface IToggleProps {
-	checked?: boolean;
-	onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
-	name?: string;
-	label?: string | React.ReactNode;
-	disabled?: boolean;
-	states?: boolean;
+import "./Toggle.scss";
+
+export interface IToggleProps
+	extends Omit<InputHTMLAttributes<HTMLInputElement>, "onChange"> {
+	label: string;
 	className?: string;
+	labelClassName?: string;
+	onChange: (checked: boolean) => void;
 }
 
-export const Toggle: FC<IToggleProps> = ({
+export const Toggle: React.FC<IToggleProps> = ({
+	className,
+	labelClassName,
+	name,
+	disabled,
+	label,
 	checked,
 	onChange,
-	name,
-	label,
-	disabled,
-	states,
-	className,
 }) => {
-	const inputRef = useRef<HTMLInputElement>(null);
-	const [, setLastUpdate] = useState<number>(0);
+	const wrapperClassNames = cn([
+		"al__toggle",
+		disabled && "al__toggle--disabled",
+		className,
+	]);
 
-	const handleOnChange = (e: ChangeEvent<HTMLInputElement>) => {
-		if (disabled) return;
+	const labelClassNames = cn([
+		"text-m text-black font-medium cursor-pointer",
+		labelClassName,
+		disabled && "text-neutral-600 cursor-default",
+	]);
 
-		setLastUpdate(Date.now());
-		onChange?.(e);
-	};
+	const thumbClassNames = cn([
+		"al__toggle__thumb",
+		checked && !disabled && "al__toggle__thumb--checked",
+		checked && disabled && "al__toggle__thumb--checked--disabled",
+	]);
 
-	const isChecked = checked ?? inputRef.current?.checked ?? false;
+	const sliderClassNames = cn([
+		"al__toggle__slider",
+		checked && "al__toggle__slider--checked",
+		disabled && "bg-neutral-100",
+	]);
+
+	const onChangeCallback = useCallback(
+		(
+			e:
+				| React.MouseEvent<HTMLDivElement>
+				| React.KeyboardEvent<HTMLDivElement>
+				| React.ChangeEvent<HTMLInputElement>
+		) => {
+			e.preventDefault();
+			e.stopPropagation();
+			if (!disabled) {
+				onChange(!checked);
+			}
+		},
+		[disabled, onChange, checked]
+	);
 
 	return (
-		<label
-			className={cn([
-				"relative inline-flex cursor-pointer items-center",
-				className,
-			])}
+		<div
+			className={wrapperClassNames}
+			role="button"
+			tabIndex={disabled ? -1 : 0}
+			onClick={onChangeCallback}
+			onKeyUp={(event) => {
+				if (event.key === "Enter") {
+					onChangeCallback(event);
+				}
+			}}
 		>
-			<input
-				type="checkbox"
-				checked={isChecked}
-				onChange={handleOnChange}
-				name={name}
-				disabled={disabled}
-				className="unstyled peer sr-only"
-				data-unstyled
-				ref={inputRef}
-			/>
-			<div
-				className={cn([
-					states
-						? "h-6 w-fit after:right-[calc(100%-1.4rem)] after:h-5 after:w-5 peer-checked:after:right-[1.4rem]"
-						: "h-5 w-10 min-w-[2.5rem] after:start-[2px] after:h-4 after:w-4 peer-checked:after:start-[6px]",
-					"peer relative rounded-3xl bg-gray-200 after:absolute after:top-0.5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary-500 peer-checked:after:translate-x-full peer-checked:after:border-primary-500 peer-focus:ring-4 peer-focus:ring-primary-300 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-primary-800 rtl:peer-checked:after:-translate-x-full",
-					disabled && "cursor-not-allowed opacity-50",
-				])}
-			>
-				{states && (
-					<div className="row mt-[1px] items-center gap-2 font-bold">
-						<span
-							className={cn([
-								"ml-3 text-white duration-300",
-								isChecked ? "opacity-100" : "opacity-0",
-							])}
-						>
-							YES
-						</span>
-						<span
-							className={cn([
-								"mr-3 text-neutral-500 duration-300",
-								!isChecked ? "opacity-100" : "opacity-0",
-							])}
-						>
-							NO
-						</span>
-					</div>
-				)}
+			<div className={thumbClassNames}>
+				<input
+					type="checkbox"
+					name={name}
+					id={name}
+					disabled={disabled}
+					tabIndex={-1}
+					checked={checked}
+					onChange={onChangeCallback}
+				/>
+				<span className={sliderClassNames} />
 			</div>
-			{!!label && (
-				<span
-					className={cn([
-						"ms-3 text-sm font-medium text-gray-900 dark:text-gray-300",
-						disabled && "cursor-not-allowed opacity-70",
-					])}
-				>
-					{label}
-				</span>
-			)}
-		</label>
+			<label htmlFor={name} className={labelClassNames}>
+				{label}
+			</label>
+		</div>
 	);
 };

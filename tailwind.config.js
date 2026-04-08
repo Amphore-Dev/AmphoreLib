@@ -24,6 +24,16 @@ module.exports = {
 				xxl: "2.5rem",
 			},
 
+			gap: {
+				xs: "1px",
+				s: "0.125rem",
+				m: "0.25rem",
+				l: "0.5rem",
+				xl: "1rem",
+				"2xl": "1.5rem",
+				"3xl": "2rem",
+			},
+
 			/* Radiuses */
 			borderRadius: {
 				2: "0.125rem",
@@ -98,6 +108,10 @@ module.exports = {
 			screens: {
 				xs: "420px",
 				"2md": "900px",
+			},
+
+			boxShadow: {
+				xs: "0 2px 2px #33333333",
 			},
 		},
 	},
