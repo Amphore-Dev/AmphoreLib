@@ -1,11 +1,10 @@
 {
 	"compilerOptions": {
-		"target": "es5",
+		"target": "es2022",
 		"outDir": "lib",
 		"lib": ["dom", "dom.iterable", "esnext"],
 		"declaration": true,
 		"declarationDir": "./lib/types",
-		"allowJs": true,
 		"skipLibCheck": true,
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
@@ -15,20 +14,29 @@
 		"moduleResolution": "node",
 		"resolveJsonModule": true,
 		"isolatedModules": true,
-		"noEmit": true,
-		"jsx": "react",
+		"jsx": "react-jsx",
 		"baseUrl": "./src",
 		"paths": {
+			"@": ["./"],
 			"@assets/*": ["assets/*"],
 			"@components/*": ["components/*"],
 			"@constants/*": ["constants/*"],
 			"@hooks/*": ["hooks/*"],
 			"@contexts/*": ["contexts/*"],
 			"@utils/*": ["utils/*"],
-			"@interfaces/*": ["types/*"]
+			"@interfaces/*": ["types/*"],
+			"@styles/*": ["styles/*"],
+			"@i18n": ["i18n"],
+			"@hoc/*": ["hoc/*"]
 		}
 	},
-	"include": ["src"],
+	"include": [
+		"src",
+		"src/i18n.ts",
+		"tests",
+		"./test/setup.js",
+		"./jest-dom.d.ts"
+	],
 	"exclude": [
 		"node_modules",
 		"**/Mocks/**",

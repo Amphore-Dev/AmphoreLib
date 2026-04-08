@@ -1,4 +1,5 @@
 import commonjs from "@rollup/plugin-commonjs";
+import json from "@rollup/plugin-json";
 import resolve from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
 // This is required to read package.json file when
@@ -22,6 +23,12 @@ export default [
 				file: packageJson.main,
 				format: "cjs",
 				sourcemap: true,
+				globals: {
+					react: "React",
+					"react-dom": "ReactDOM",
+					formik: "Formik",
+					yup: "Yup",
+				},
 			},
 			{
 				file: packageJson.module,
@@ -30,28 +37,19 @@ export default [
 			},
 		],
 		plugins: [
-			peerDepsExternal({
-				includeDependencies: true,
-			}),
+			peerDepsExternal({ includeDependencies: true }),
 			resolve(),
 			commonjs(),
 			typescript(),
+			json(),
 			postcss({
 				config: {
 					path: "./postcss.config.js",
 				},
 				extensions: [".css", ".scss"],
 			}),
-			svg({
-				base64: true,
-			}),
+			svg({ base64: false }),
 		],
-		globals: {
-			react: "React",
-			"react-dom": "ReactDOM",
-			formik: "Formik",
-			yup: "Yup",
-		},
 		external: ["react", "react-dom", "formik"],
 	},
 	{

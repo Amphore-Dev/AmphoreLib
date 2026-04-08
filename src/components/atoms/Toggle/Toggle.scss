@@ -1,26 +1,26 @@
-.al__toggle {
+.amphorelib__toggle {
 	@apply flex cursor-pointer items-center gap-4 rounded-s p-m outline-2 outline-primary-500;
 
-	&.al__toggle--disabled {
+	&.amphorelib__toggle--disabled {
 		@apply cursor-default;
 	}
 
-	.al__toggle__thumb {
+	.amphorelib__toggle__thumb {
 		@apply relative flex h-5 w-8 min-w-8 items-center rounded-xl bg-neutral-200;
 
 		input {
 			@apply h-0 w-0 opacity-0;
 		}
 
-		&.al__toggle__thumb--checked {
+		&.amphorelib__toggle__thumb--checked {
 			@apply bg-primary-500;
 		}
 
-		&.al__toggle__thumb--checked--disabled {
+		&.amphorelib__toggle__thumb--checked--disabled {
 			@apply bg-neutral-600;
 		}
 	}
-	.al__toggle__slider {
+	.amphorelib__toggle__slider {
 		@apply bottom-0 left-0 right-0 top-0 rounded-xl bg-neutral-200 transition-[transform,background-color] duration-300 ease-in-out;
 
 		&::before {
@@ -28,7 +28,7 @@
 			content: "";
 		}
 
-		&.al__toggle__slider--checked::before {
+		&.amphorelib__toggle__slider--checked::before {
 			@apply translate-x-3;
 		}
 	}

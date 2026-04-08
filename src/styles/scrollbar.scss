@@ -5,9 +5,9 @@
 /* Width and height of the scrollbar */
 /* WebKit browsers (Chrome, Safari, and Opera) */
 * {
-	--scrollbar-size: 6px;
-	--thumb-color: #9f9f9f;
-	--track-color: #e0e0e0a1;
+	--scrollbar-size: 8px;
+	--thumb-color: var(--color-primary-500);
+	--track-color: var(--color-neutral-100);
 }
 
 ::-webkit-scrollbar,
@@ -30,8 +30,7 @@ scrollbar-track {
 ::-webkit-scrollbar-thumb,
 scrollbar-thumb {
 	border-radius: var(--scrollbar-size);
-	background: #e0e0e0a1;
-	background: var(--thumb-color);
+	@apply bg-primary-500;
 }
 
 /* Corner - the bottom corner of the scrollbar, where both horizontal and vertical scrollbars meet */

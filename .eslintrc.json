@@ -24,6 +24,15 @@
 	"settings": {
 		"react": {
 			"version": "detect"
+		},
+		"import/resolver": {
+			"typescript": {
+				"project": "./tsconfig.json"
+			},
+			"node": {
+				"paths": ["src"],
+				"extensions": [".js", ".jsx", ".ts", ".tsx"]
+			}
 		}
 	},
 	"env": {
@@ -39,6 +48,13 @@
 			"error",
 			{ "argsIgnorePattern": "^_" }
 		],
-		"react/prop-types": "off"
+		"react/prop-types": "off", // We don't need prop-types to be defined in TypeScript,
+		// console
+		"no-console": [
+			"warn",
+			{
+				"allow": ["warn", "error"]
+			}
+		]
 	}
 }

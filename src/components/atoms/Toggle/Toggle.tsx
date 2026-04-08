@@ -22,8 +22,8 @@ export const Toggle: React.FC<IToggleProps> = ({
 	onChange,
 }) => {
 	const wrapperClassNames = cn([
-		"al__toggle",
-		disabled && "al__toggle--disabled",
+		"amphorelib__toggle",
+		disabled && "amphorelib__toggle--disabled",
 		className,
 	]);
 
@@ -34,14 +34,14 @@ export const Toggle: React.FC<IToggleProps> = ({
 	]);
 
 	const thumbClassNames = cn([
-		"al__toggle__thumb",
-		checked && !disabled && "al__toggle__thumb--checked",
-		checked && disabled && "al__toggle__thumb--checked--disabled",
+		"amphorelib__toggle__thumb",
+		checked && !disabled && "amphorelib__toggle__thumb--checked",
+		checked && disabled && "amphorelib__toggle__thumb--checked--disabled",
 	]);
 
 	const sliderClassNames = cn([
-		"al__toggle__slider",
-		checked && "al__toggle__slider--checked",
+		"amphorelib__toggle__slider",
+		checked && "amphorelib__toggle__slider--checked",
 		disabled && "bg-neutral-100",
 	]);
 
