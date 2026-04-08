@@ -31,3 +31,6 @@ pnpm-debug.log*
 old_base_to_sort/
 
 storybook-static/
+
+.claude
+.vscode/

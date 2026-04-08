@@ -55,8 +55,8 @@ export default [
 		external: ["react", "react-dom", "formik"],
 	},
 	{
-		input: "lib/index.d.ts",
-		output: [{ file: "lib/index.d.ts", format: "es" }],
+		input: "lib/types/index.d.ts",
+		output: [{ file: "lib/types/index.d.ts", format: "es" }],
 		plugins: [dts()],
 		external: [/\.css|\.scss$/],
 	},

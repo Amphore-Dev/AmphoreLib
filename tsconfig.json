@@ -4,7 +4,7 @@
 		"outDir": "lib",
 		"lib": ["dom", "dom.iterable", "esnext"],
 		"declaration": true,
-		"declarationDir": "lib",
+		"declarationDir": "./lib/types",
 		"allowJs": true,
 		"skipLibCheck": true,
 		"esModuleInterop": true,
@@ -29,5 +29,15 @@
 		}
 	},
 	"include": ["src"],
-	"exclude": ["node_modules", "lib"]
+	"exclude": [
+		"node_modules",
+		"**/Mocks/**",
+		"**/*.story.*",
+		"**/*.stories.*",
+		"**/*.test.*",
+		"**/*.spec.*",
+		"tests/**",
+		".storybook/**",
+		"lib/**"
+	]
 }
