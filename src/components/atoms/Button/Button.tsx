@@ -12,7 +12,14 @@ import "./Button.scss";
 export interface IButtonProps
 	extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 	children: React.ReactNode;
-	color?: "black" | "white" | "primary" | "red" | "green" | "yellow";
+	color?:
+		| "black"
+		| "white"
+		| "primary"
+		| "red"
+		| "green"
+		| "yellow"
+		| "transparent";
 	size?: "s" | "m" | "l";
 	outline?: boolean;
 	disabled?: boolean;

@@ -56,6 +56,14 @@ export const Template: StoryFn<IPictoProps> = (args) => (
 			color: args.color,
 		}}
 	>
-		<Picto {...args} className="w-32 h-32" />
+		<Picto {...args} wrapperClassName="!w-32 h-32" />
 	</div>
 );
+
+export const Default = Template.bind({});
+Default.args = {};
+
+export const WithOnClick = Template.bind({});
+WithOnClick.args = {
+	onClick: () => alert("Picto clicked!"),
+};

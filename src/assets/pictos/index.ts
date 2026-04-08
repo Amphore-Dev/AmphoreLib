@@ -1,3 +1,11 @@
+export { default as ZoomIn } from "../../assets/pictos/SVGZoomIn";
+export { default as ZoomOut } from "../../assets/pictos/SVGZoomOut";
+export { default as Save } from "../../assets/pictos/SVGSave";
+export { default as Layers } from "../../assets/pictos/SVGLayers";
+
+export { default as Pause } from "../../assets/pictos/SVGPause";
+export { default as Play } from "../../assets/pictos/SVGPlay";
+
 export { default as UserCheck } from "../../assets/pictos/SVGUserCheck";
 export { default as UserMinus } from "../../assets/pictos/SVGUserMinus";
 export { default as UserPlus } from "../../assets/pictos/SVGUserPlus";

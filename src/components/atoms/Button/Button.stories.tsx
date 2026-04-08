@@ -26,7 +26,15 @@ export default {
 		},
 		color: {
 			control: "radio",
-			options: ["black", "white", "primary", "red", "green", "yellow"],
+			options: [
+				"black",
+				"white",
+				"primary",
+				"red",
+				"green",
+				"yellow",
+				"transparent",
+			],
 		},
 		children: {
 			control: {

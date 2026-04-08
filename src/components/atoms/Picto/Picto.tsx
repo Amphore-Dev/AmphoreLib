@@ -62,7 +62,11 @@ export const Picto: React.FC<IPictoProps> = ({
 	}
 
 	return (
-		<Wrapper {...wrapperProps} className={wrapperClassName}>
+		<Wrapper
+			{...wrapperProps}
+			className={wrapperClassName}
+			data-amphore-svg-wrapper
+		>
 			{!!SvgIcon && (
 				<SvgIcon
 					className={className}

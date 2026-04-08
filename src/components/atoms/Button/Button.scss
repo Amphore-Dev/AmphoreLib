@@ -122,6 +122,18 @@
 		}
 	}
 
+	&--transparent {
+		@apply bg-transparent text-current;
+
+		&.al__button--outline {
+			@apply outline-current;
+		}
+
+		&:not(.al__button--loading):hover {
+			@apply bg-neutral-100 dark:bg-neutral-700;
+		}
+	}
+
 	/* =============================================== */
 	/* SIZES VARIANTS */
 	/* =============================================== */

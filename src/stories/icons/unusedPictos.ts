@@ -103,7 +103,6 @@ import { default as Info } from "../../assets/pictos/SVGInfo";
 import { default as Instagram } from "../../assets/pictos/SVGInstagram";
 import { default as Italic } from "../../assets/pictos/SVGItalic";
 import { default as Key } from "../../assets/pictos/SVGKey";
-import { default as Layers } from "../../assets/pictos/SVGLayers";
 import { default as Layout } from "../../assets/pictos/SVGLayout";
 import { default as LifeBuoy } from "../../assets/pictos/SVGLifeBuoy";
 import { default as Map } from "../../assets/pictos/SVGMap";
@@ -123,11 +122,9 @@ import { default as Navigation2 } from "../../assets/pictos/SVGNavigation2";
 import { default as Octagon } from "../../assets/pictos/SVGOctagon";
 import { default as Package } from "../../assets/pictos/SVGPackage";
 import { default as Paperclip } from "../../assets/pictos/SVGPaperclip";
-import { default as Pause } from "../../assets/pictos/SVGPause";
 import { default as PauseCircle } from "../../assets/pictos/SVGPauseCircle";
 import { default as PenTool } from "../../assets/pictos/SVGPenTool";
 import { default as Percent } from "../../assets/pictos/SVGPercent";
-import { default as Play } from "../../assets/pictos/SVGPlay";
 import { default as PlayCircle } from "../../assets/pictos/SVGPlayCircle";
 import { default as PlusSquare } from "../../assets/pictos/SVGPlusSquare";
 import { default as Pocket } from "../../assets/pictos/SVGPocket";
@@ -139,7 +136,6 @@ import { default as Rewind } from "../../assets/pictos/SVGRewind";
 import { default as RotateCcw } from "../../assets/pictos/SVGRotateCcw";
 import { default as RotateCw } from "../../assets/pictos/SVGRotateCw";
 import { default as Rss } from "../../assets/pictos/SVGRss";
-import { default as Save } from "../../assets/pictos/SVGSave";
 import { default as Scissors } from "../../assets/pictos/SVGScissors";
 import { default as Server } from "../../assets/pictos/SVGServer";
 import { default as Share2 } from "../../assets/pictos/SVGShare2";
@@ -195,8 +191,6 @@ import { default as XSquare } from "../../assets/pictos/SVGXSquare";
 import { default as Youtube } from "../../assets/pictos/SVGYoutube";
 import { default as Zap } from "../../assets/pictos/SVGZap";
 import { default as ZapOff } from "../../assets/pictos/SVGZapOff";
-import { default as ZoomIn } from "../../assets/pictos/SVGZoomIn";
-import { default as ZoomOut } from "../../assets/pictos/SVGZoomOut";
 
 export const UnusedPictos = {
 	Airplay: Airplay,
@@ -304,7 +298,7 @@ export const UnusedPictos = {
 	Instagram: Instagram,
 	Italic: Italic,
 	Key: Key,
-	Layers: Layers,
+
 	Layout: Layout,
 	LifeBuoy: LifeBuoy,
 	Map: Map,
@@ -324,11 +318,11 @@ export const UnusedPictos = {
 	Octagon: Octagon,
 	Package: Package,
 	Paperclip: Paperclip,
-	Pause: Pause,
+
 	PauseCircle: PauseCircle,
 	PenTool: PenTool,
 	Percent: Percent,
-	Play: Play,
+
 	PlayCircle: PlayCircle,
 	PlusSquare: PlusSquare,
 	Pocket: Pocket,
@@ -340,7 +334,7 @@ export const UnusedPictos = {
 	RotateCcw: RotateCcw,
 	RotateCw: RotateCw,
 	Rss: Rss,
-	Save: Save,
+
 	Scissors: Scissors,
 	Server: Server,
 	Share2: Share2,
@@ -397,6 +391,4 @@ export const UnusedPictos = {
 	Youtube: Youtube,
 	Zap: Zap,
 	ZapOff: ZapOff,
-	ZoomIn: ZoomIn,
-	ZoomOut: ZoomOut,
 };

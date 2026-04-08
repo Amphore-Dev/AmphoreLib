@@ -54,6 +54,8 @@ import {
 	PieChart,
 	PlusCircle,
 	Plus,
+	Pause,
+	Play,
 	Power,
 	Search,
 	Send,
@@ -79,6 +81,10 @@ import {
 	Users,
 	XCircle,
 	X,
+	Layers,
+	ZoomIn,
+	ZoomOut,
+	Save,
 } from "@assets/pictos";
 
 export type TPictoName = keyof typeof Pictos;
@@ -128,6 +134,7 @@ export const Pictos = {
 	help: HelpCircle,
 	home: Home,
 	info: InfoCircle,
+	layers: Layers,
 	link: Link,
 	linkH: LinkHorizontal,
 	list: List,
@@ -143,9 +150,12 @@ export const Pictos = {
 	minusCircle: MinusCircle,
 	moon: Moon,
 	more: MoreHorizontal,
+	pause: Pause,
+	play: Play,
 	pen: Pen,
 	pieChart: PieChart,
 	power: Power,
+	save: Save,
 	search: Search,
 	send: Send,
 	settings: Settings,
@@ -168,4 +178,6 @@ export const Pictos = {
 	userPlus: UserPlus,
 	userX: UserX,
 	users: Users,
+	zoomIn: ZoomIn,
+	zoomOut: ZoomOut,
 };
