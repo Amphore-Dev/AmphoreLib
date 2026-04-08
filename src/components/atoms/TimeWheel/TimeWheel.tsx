@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 
 import { cn } from "@utils/cn";
 
+import "./TimeWheel.scss";
+
 interface ITimeWheelProps {
 	items: string[];
 	scrollSpeed?: number;
@@ -80,29 +82,20 @@ export const TimeWheel: React.FC<ITimeWheelProps> = ({
 	}, [items.length, scrollSpeed, offset]);
 
 	return (
-		<div
-			className="flex flex-col items-center overflow-hidden h-10 w-20 relative"
-			ref={containerRef}
-		>
+		<div className="al__time-wheel" ref={containerRef}>
 			<div
 				className={cn([
-					"absolute flex flex-col transition-tradnsform",
-					!isScrolling && "duration-300",
+					"al__time-wheel__track",
+					!isScrolling && "al__time-wheel__track--snapping",
 				])}
 				style={{ top: -offset }}
 			>
 				{items.concat(items).map((item, index) => (
-					<div
-						key={index}
-						className="h-10 flex justify-center items-center text-lg"
-					>
+					<div key={index} className="al__time-wheel__item">
 						{item}
 					</div>
 				))}
-				<div
-					key={"00"}
-					className="h-10 flex justify-center items-center text-lg"
-				>
+				<div key={"00"} className="al__time-wheel__item">
 					{items[0]}
 				</div>
 			</div>

@@ -4,6 +4,8 @@ import { ITooltipProps, Tooltip } from "../Tooltip/Tooltip";
 
 import { cn } from "@utils/cn";
 
+import "./Popover.scss";
+
 export const Popover = forwardRef<HTMLDivElement, ITooltipProps>(
 	(
 		{
@@ -22,7 +24,7 @@ export const Popover = forwardRef<HTMLDivElement, ITooltipProps>(
 					trigger === "hover" && !closeOnLeave ? false : closeOnLeave
 				}
 				closeOnClick={closeOnClick}
-				className={cn(["amphorelib__popover !bg-white", className])}
+				className={cn(["amphorelib__popover", className])}
 				ref={ref}
 				{...props}
 			>

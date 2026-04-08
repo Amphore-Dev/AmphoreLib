@@ -1,0 +1,33 @@
+.al__select-control {
+	@apply relative;
+
+	.al__select-control__label {
+		@apply pointer-events-none absolute top-1/2 z-10 max-w-[calc(100%-2rem)] -translate-y-1/2 rounded-lg text-neutral-500 opacity-0 duration-300;
+
+		&.al__select-control__label--single {
+			@apply left-5;
+		}
+
+		&.al__select-control__label--multi {
+			@apply left-6;
+		}
+
+		&.al__select-control__label--has-value {
+			@apply top-1 -translate-y-0 text-xs text-neutral-400 opacity-100;
+		}
+
+		&.al__select-control__label--disabled {
+			@apply text-neutral-300;
+		}
+	}
+
+	.al__select-control__control--has-value {
+		padding-top: 0.75rem !important;
+		padding-bottom: 0.25rem !important;
+	}
+
+	.al__select-control__control--multi-has-value {
+		padding-top: 1.25rem !important;
+		padding-bottom: 0.25rem !important;
+	}
+}

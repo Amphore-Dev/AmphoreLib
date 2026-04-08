@@ -6,6 +6,8 @@ import FR from "./assets/flags/FR.svg";
 import US from "./assets/flags/US.svg";
 import { Picto } from "@components/atoms";
 
+import "./LanguageSwitcher.scss";
+
 interface ILanguage {
 	code: string; // language code ex: en-EN, fr-FR, fr-CA
 	title: string; // displayed text
@@ -38,16 +40,21 @@ export const LanguageSwitcher: React.FC<ILanguageSwitcher> = ({
 	}
 
 	return (
-		<div className="flex flex-wrap gap-4">
+		<div className="al__language-switcher">
 			{Trads.map((lang) => {
 				return (
-					<div className="text-black dark:text-white" key={lang.code}>
+					<div
+						className="al__language-switcher__item"
+						key={lang.code}
+					>
 						<button
-							className="flex items-center"
+							className="al__language-switcher__button"
 							onClick={() => handleClick(lang.code)}
 						>
 							<Picto
-								className={"flag-icon mr-2 h-5 w-5"}
+								className={
+									"flag-icon al__language-switcher__flag"
+								}
 								src={lang.icon}
 								currentColor={false}
 							/>

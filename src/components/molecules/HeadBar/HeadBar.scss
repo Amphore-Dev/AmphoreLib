@@ -1,0 +1,23 @@
+.al__headbar {
+	@apply flex min-h-[70px] w-full justify-between px-4 py-2;
+
+	.al__headbar__left {
+		@apply flex items-center justify-center gap-6 gap-y-2 px-4 py-2;
+	}
+
+	.al__headbar__menu {
+		@apply flex aspect-square w-[30px] cursor-pointer flex-col justify-center gap-2;
+
+		& > * {
+			@apply duration-500;
+		}
+
+		.al__headbar__menu-line {
+			@apply border border-neutral-300 group-hover:border-black;
+		}
+	}
+
+	.al__headbar__right {
+		@apply flex items-center justify-end gap-10;
+	}
+}

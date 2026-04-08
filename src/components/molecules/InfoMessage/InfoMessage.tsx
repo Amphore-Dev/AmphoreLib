@@ -33,19 +33,15 @@ export const InfoMessage: React.FC<IInfoMessageProps> = ({
 		<div
 			data-info-message
 			className={cn([
-				`flex items-center gap-2 p-2 type-${type} rounded-md text-xs`,
+				`type-${type}`,
 				className,
 				outlined && `!bg-transparent outline outline-${type}`,
 			])}
 		>
 			{withIcon && (
-				<Picto
-					icon={getIcon()}
-					className="w-8 h-8"
-					data-info-message-picto
-				/>
+				<Picto icon={getIcon()} className="" data-info-message-picto />
 			)}
-			<span className="overflow-hidden">{children}</span>
+			<span className="al__info-message__content">{children}</span>
 		</div>
 	);
 };

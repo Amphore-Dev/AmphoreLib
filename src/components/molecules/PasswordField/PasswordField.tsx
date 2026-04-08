@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { CountDown, Picto } from "../../atoms";
 import { ITextFieldProps, TextField } from "../TextField/TextField";
 
+import "./PasswordField.scss";
+
 export interface IPasswordFieldProps extends ITextFieldProps {
 	autoHide?: boolean;
 	autoHideTimeout?: number; // in seconds
@@ -40,9 +42,9 @@ export const PasswordField: React.FC<IPasswordFieldProps> = ({
 			onFocus={clearAutoHide}
 			onMouseEnter={clearAutoHide}
 		>
-			<div className="absolute top-1/2 -translate-y-1/2 right-4 flex items-center gap-4 text-neutral-500">
+			<div className="al__password-field__actions">
 				<button
-					className="w-6 h-6"
+					className="al__password-field__toggle"
 					onClick={toggle}
 					onMouseEnter={clearAutoHide}
 					title={showPassword ? "Hide password" : "Show password"}
@@ -50,10 +52,10 @@ export const PasswordField: React.FC<IPasswordFieldProps> = ({
 				>
 					<Picto
 						icon={showPassword ? "eyeOff" : "eye"}
-						className="w-6 h-6"
+						className="al__password-field__toggle-icon"
 					/>
 					{AutoHide && (
-						<span className="absolute bottom-0 -right-1 text-xs text-neutral-500 p-[2px] leading-[8px] rounded-40 bg-white">
+						<span className="al__password-field__countdown">
 							<CountDown
 								time={autoHideTimeout}
 								text={(time) => time.toString()}

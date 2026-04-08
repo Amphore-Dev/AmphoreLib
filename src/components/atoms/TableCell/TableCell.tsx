@@ -309,8 +309,8 @@ const TableCellInner = <T,>(props: ITableCellProps<T>) => {
 									? picto(item)
 									: picto
 							}
-							className="w-4 h-4"
-							wrapperClassName="w-4 h-4"
+							className="al__table-cell__picto"
+							wrapperClassName="al__table-cell__picto"
 						/>
 					)}
 					{genCellBody}

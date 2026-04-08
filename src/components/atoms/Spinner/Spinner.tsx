@@ -2,6 +2,8 @@ import React from "react";
 
 import { cn } from "@utils/cn";
 
+import "./Spinner.scss";
+
 export interface ISpinner {
 	className?: string;
 	size?: number;
@@ -18,17 +20,15 @@ export const Spinner: React.FC<ISpinner> = ({
 	return (
 		<span
 			className={cn([
-				"flex w-fit items-center gap-x-4 gap-y-2",
+				"al__spinner",
+				inline && "al__spinner--inline",
 				className,
-				inline ? "flex-row" : "flex-col",
 			])}
 			role="status"
 		>
 			<svg
 				aria-hidden="true"
-				className={cn([
-					"animate-spin fill-primary-500 text-neutral-200 dark:fill-primary-300 dark:text-neutral-600",
-				])}
+				className="al__spinner__icon"
 				style={{ width: `${size}rem`, height: `${size}rem` }}
 				viewBox="0 0 100 101"
 				fill="none"
@@ -43,11 +43,7 @@ export const Spinner: React.FC<ISpinner> = ({
 					fill="currentFill"
 				/>
 			</svg>
-			{text ? (
-				<span className="text-center text-sm dark:text-neutral-200">
-					{text}
-				</span>
-			) : null}
+			{text ? <span className="al__spinner__text">{text}</span> : null}
 		</span>
 	);
 };

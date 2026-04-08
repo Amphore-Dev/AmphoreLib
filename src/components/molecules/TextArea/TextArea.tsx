@@ -79,29 +79,29 @@ export const TextArea: React.FC<ITextAreaProps> = ({
 			props.placeholder !== undefined ? props.placeholder : label,
 		value: currentValue,
 		className: cn([
-			"bg-transparent h-10 w-full pt-0 mt-6 px-5 pb-6 text-sm outline-none min-h-[200px] max-h-[400px] min-w-full",
+			"al__textarea__input",
 			meta?.error && meta.touched
-				? "border-error-500"
-				: "focus:border-primary-500",
-			props.disabled && "text-neutral-400",
+				? "al__textarea__input--error"
+				: "al__textarea__input--focus",
+			props.disabled && "al__textarea__input--disabled",
 			props.className,
 		]),
 	};
 
 	return (
-		<div>
+		<div className="al__textarea">
 			<div
 				className={cn([
-					"flex relative rounded-3xl border-2 border-neutral-300 bg-white overflow-visible",
-					props.disabled && "bg-neutral-100",
+					"al__textarea__container",
+					props.disabled && "al__textarea__container--disabled",
 				])}
 			>
 				<label
 					className={cn([
-						"pointer-events-none absolute left-0 px-5 top-5 z-[1] text-neutral-400 opacity-0 duration-300 w-full rounded-t-3xl",
+						"al__textarea__label",
 						(!!currentValue?.length || alwaysShowLabel) &&
-							"top-0 text-xs text-neutral-400 !opacity-100 pt-2",
-						props.disabled && "text-neutral-300 bg-neutral-100",
+							"al__textarea__label--visible",
+						props.disabled && "al__textarea__label--disabled",
 					])}
 				>
 					{label}
@@ -130,13 +130,14 @@ export const TextArea: React.FC<ITextAreaProps> = ({
 
 				{children}
 			</div>
-			<div className="flex mt-1 text-neutral-400 text-xs text-left px-5">
+			<div className="al__textarea__footer">
 				{props.required && <div>Required</div>}
 				{!!props.maxLength && (
 					<span
 						className={cn([
-							"ml-auto pointer-events-none",
-							props.disabled && "text-neutral-300",
+							"al__textarea__char-count",
+							props.disabled &&
+								"al__textarea__char-count--disabled",
 						])}
 					>
 						{currentValue?.length || 0}/{props.maxLength}

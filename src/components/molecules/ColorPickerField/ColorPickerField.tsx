@@ -10,6 +10,8 @@ import {
 } from "@components/atoms";
 import { cn } from "@utils/index";
 
+import "./ColorPickerField.scss";
+
 export interface IColorPickerFieldProps
 	extends PropsWithChildren,
 		IColorPickerProps {
@@ -38,7 +40,7 @@ export const ColorPickerField: React.FC<IColorPickerFieldProps> = ({
 			style={{
 				backgroundColor: props.value,
 			}}
-			className="w-8 h-8 border rounded-md"
+			className="al__color-picker-field__preview"
 		/>
 	);
 
@@ -51,10 +53,14 @@ export const ColorPickerField: React.FC<IColorPickerFieldProps> = ({
 			{...tooltipProps}
 			isOpen={isOpen}
 			setIsOpen={setIsOpen}
-			content={<div className="w-fit">{content}</div>}
+			content={
+				<div className="al__color-picker-field__tooltip-content">
+					{content}
+				</div>
+			}
 			trigger="click"
 			closeOnLeave={true}
-			className={cn(["w-fit", tooltipProps.className])}
+			className={cn(["al__color-picker-field", tooltipProps.className])}
 		>
 			<div ref={pickerRef}>
 				<ColorPicker {...props} className={className} />

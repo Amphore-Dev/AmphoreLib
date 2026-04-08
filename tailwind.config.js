@@ -93,12 +93,13 @@ module.exports = {
 			},
 
 			fontSize: {
-				"paragraph-03": "10px",
-				"paragraph-02": "12px",
-				"paragraph-01": "16px",
-				"heading-03": "20px",
-				"heading-02": "25px",
-				"heading-01": "30px",
+				xs: ["0.625rem", "0.875rem"],
+				s: ["0.75rem", "1rem"],
+				m: ["0.875rem", "1.125rem"],
+				l: ["1rem", "1.25rem"],
+				xl: ["1.125rem", "1.375rem"],
+				"2xl": ["1.25rem", "1.5rem"],
+				"3xl": ["1.5rem", "1.75rem"],
 			},
 
 			fontWeight: {

@@ -1,0 +1,37 @@
+.al__confirm-modal {
+	min-width: 90% !important;
+
+	@media (min-width: 640px) {
+		min-width: 70% !important;
+	}
+
+	@media (min-width: 768px) {
+		min-width: 0 !important;
+	}
+
+	@apply dark:bg-neutral-800 dark:text-white;
+
+	& > div:first-child {
+		@apply dark:bg-neutral-800 dark:text-white;
+	}
+
+	.al__confirm-modal__content {
+		@apply flex flex-col gap-m text-left;
+	}
+
+	.al__confirm-modal__text {
+		@apply mb-5;
+	}
+
+	.al__confirm-modal__actions {
+		@apply flex flex-wrap-reverse justify-end gap-4;
+
+		& > * {
+			@apply w-full;
+
+			@media (min-width: 640px) {
+				@apply w-auto;
+			}
+		}
+	}
+}

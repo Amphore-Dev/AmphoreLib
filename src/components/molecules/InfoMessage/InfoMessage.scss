@@ -1,4 +1,14 @@
 [data-info-message] {
+	@apply flex items-center gap-2 rounded-md p-2 text-xs;
+
+	[data-info-message-picto] {
+		@apply h-8 w-8;
+	}
+
+	.al__info-message__content {
+		@apply overflow-hidden;
+	}
+
 	&.type- {
 		&success {
 			@apply bg-success-100 text-success-600;

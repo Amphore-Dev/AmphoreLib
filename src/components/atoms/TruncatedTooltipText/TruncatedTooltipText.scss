@@ -1,0 +1,11 @@
+.al__truncated-text {
+	@apply block max-w-full overflow-hidden text-ellipsis whitespace-nowrap;
+
+	&.al__truncated-text--button {
+		@apply cursor-default;
+	}
+}
+
+.al__truncated-tooltip {
+	@apply whitespace-nowrap;
+}

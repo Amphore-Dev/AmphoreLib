@@ -2,6 +2,8 @@ import React, { useRef } from "react";
 
 import { IPoint } from "../../../types/point";
 
+import "./Canvas.scss";
+
 // extends canvas props without the onLoad and onTouchMove using Omit
 export interface ICanvasProps
 	extends Omit<
@@ -159,13 +161,11 @@ export const Canvas: React.FC<ICanvasProps> = ({
 	});
 
 	return (
-		<div className="relative h-full w-full">
-			{showDebug && (
-				<pre className="debug absolute left-0 top-0 z-10 text-left text-white" />
-			)}
+		<div className="al__canvas">
+			{showDebug && <pre className="al__canvas__debug" />}
 			<canvas
 				ref={canvasRef}
-				className="h-full w-full"
+				className="al__canvas__element"
 				onTouchMoveCapture={(event: ICanvasTouch) =>
 					handleTouch(event, true)
 				}

@@ -55,6 +55,10 @@
 				}
 			}
 
+			.al__table-cell__picto {
+				@apply h-4 w-4;
+			}
+
 			.cell-body {
 				@apply flex flex-col overflow-hidden leading-5;
 

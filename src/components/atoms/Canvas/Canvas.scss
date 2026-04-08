@@ -1,0 +1,11 @@
+.al__canvas {
+	@apply relative h-full w-full;
+
+	.al__canvas__debug {
+		@apply absolute left-0 top-0 z-10 text-left text-white;
+	}
+
+	.al__canvas__element {
+		@apply h-full w-full;
+	}
+}

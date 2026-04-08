@@ -1,0 +1,11 @@
+.al__color-picker-field {
+	@apply w-fit;
+
+	.al__color-picker-field__preview {
+		@apply h-8 w-8 rounded-md border;
+	}
+
+	.al__color-picker-field__tooltip-content {
+		@apply w-fit;
+	}
+}

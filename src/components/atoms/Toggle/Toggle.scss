@@ -24,7 +24,7 @@
 		@apply bottom-0 left-0 right-0 top-0 rounded-xl bg-neutral-200 transition-[transform,background-color] duration-300 ease-in-out;
 
 		&::before {
-			@apply shadow-xs absolute bottom-0.5 left-0.5 z-0 h-4 w-4 rounded-full bg-white transition-[transform,background-color] duration-300 ease-in-out;
+			@apply absolute bottom-0.5 left-0.5 z-0 h-4 w-4 rounded-full bg-white shadow-xs transition-[transform,background-color] duration-300 ease-in-out;
 			content: "";
 		}
 

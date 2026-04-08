@@ -1,0 +1,15 @@
+.al__time-wheel {
+	@apply relative flex h-10 w-20 flex-col items-center overflow-hidden;
+
+	.al__time-wheel__track {
+		@apply absolute flex flex-col transition-transform;
+
+		&.al__time-wheel__track--snapping {
+			@apply duration-300;
+		}
+	}
+
+	.al__time-wheel__item {
+		@apply flex h-10 items-center justify-center text-lg;
+	}
+}

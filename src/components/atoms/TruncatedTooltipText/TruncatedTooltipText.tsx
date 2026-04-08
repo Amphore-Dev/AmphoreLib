@@ -5,6 +5,8 @@ import { Placement } from "@floating-ui/react";
 import { Tooltip } from "@components/index";
 import { cn } from "@utils/index";
 
+import "./TruncatedTooltipText.scss";
+
 interface TruncatedTooltipTextProps {
 	children: React.ReactNode;
 	className?: string;
@@ -27,13 +29,7 @@ export const TruncatedTooltipText: React.FC<TruncatedTooltipTextProps> = ({
 	}, [children]);
 
 	const content = (
-		<span
-			ref={spanRef}
-			className={cn([
-				"text-ellipsis overflow-hidden whitespace-nowrap block max-w-full",
-				className,
-			])}
-		>
+		<span ref={spanRef} className={cn(["al__truncated-text", className])}>
 			{children}
 		</span>
 	);
@@ -42,14 +38,14 @@ export const TruncatedTooltipText: React.FC<TruncatedTooltipTextProps> = ({
 		return (
 			<Tooltip
 				buttonClassName={cn([
-					"user-event-none cursor-default text-ellipsis overflow-hidden whitespace-nowrap block max-w-full",
+					"al__truncated-text al__truncated-text--button",
 					className,
 				])}
 				content={content}
 				floatingProps={{
 					placement,
 				}}
-				className="whitespace-nowrap"
+				className="al__truncated-tooltip"
 			>
 				{children}
 			</Tooltip>

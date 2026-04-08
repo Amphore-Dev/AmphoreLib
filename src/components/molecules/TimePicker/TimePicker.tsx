@@ -12,14 +12,15 @@ import {
 } from "@components/atoms";
 import { cn } from "@utils/index";
 
+import "./TimePicker.scss";
+
 export interface ITimePickerProps extends Omit<ITextFieldProps, "onChange"> {
 	value?: string;
 	onChange?: (time: string) => void;
 	minutesStep?: number;
 }
 
-const inputClasses =
-	"!p-0 text-center appearance-textfield !w-[2rem] h-auto bg-transparent focus:text-primary-600 !rounded-none py-1 !outline-none  !border-transparent focus:!border-b-primary-500";
+const inputClasses = "al__time-picker__input";
 
 export const TimePicker: React.FC<ITimePickerProps> = ({
 	value = format(new Date(), "HH:mm"),
@@ -118,21 +119,17 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 	}, [Hours, Minutes]);
 
 	return (
-		<div className="w-full min-w-fit">
-			<div className="relative flex items-center justify-between w-full border-2 border-neutral-300 p-4 py-2 pb-[6px] rounded-[3rem] gap-2">
+		<div className="al__time-picker">
+			<div className="al__time-picker__inner">
 				<label
 					className={cn([
-						"pointer-events-none absolute left-5 top-1/2 max-w-[calc(100%-2rem)] -translate-y-1/2 rounded-lg text-neutral-500 opacity-0 duration-300",
-						"top-[2px] -translate-y-0 text-xs text-neutral-400 opacity-100",
-						props.disabled && "text-neutral-300",
+						"al__time-picker__label",
+						props.disabled && "al__time-picker__label--disabled",
 					])}
 				>
 					{label}
 				</label>
-				<div
-					className="flex items-center mt-[10px]"
-					ref={fieldsContRef}
-				>
+				<div className="al__time-picker__fields" ref={fieldsContRef}>
 					<TextField
 						type="number"
 						value={Hours.slice(-2)}
@@ -146,7 +143,7 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 							e.currentTarget.select();
 						}}
 					/>
-					<div className="mb-1">:</div>
+					<div className="al__time-picker__separator">:</div>
 					<TextField
 						type="number"
 						value={Minutes.slice(-2)}
@@ -170,14 +167,12 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 					icon="clock"
 					onClick={focusFirst}
 					color="text-neutral-400"
-					className="w-6 h-6 text-neutral-400 hover:text-neutral-500"
+					className="al__time-picker__icon"
 				/>
 			</div>
 			{/* </Popover> */}
 			{props.required && (
-				<div className="text-xs text-left ml-5 text-neutral-500 mt-1">
-					Required
-				</div>
+				<div className="al__time-picker__required">Required</div>
 			)}
 			{!!props.name && (
 				<ErrorMessage name={props.name}>

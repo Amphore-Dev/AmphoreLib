@@ -1,3 +1,54 @@
 [data-al-textarea]::-webkit-resizer {
 	@apply border-2 border-dotted border-neutral-300 border-l-transparent border-t-transparent;
 }
+
+.al__textarea {
+	.al__textarea__container {
+		@apply relative flex overflow-visible rounded-3xl border-2 border-neutral-300 bg-white;
+
+		&.al__textarea__container--disabled {
+			@apply bg-neutral-100;
+		}
+	}
+
+	.al__textarea__label {
+		@apply pointer-events-none absolute left-0 top-5 z-[1] w-full rounded-t-3xl px-5 text-neutral-400 opacity-0 duration-300;
+
+		&.al__textarea__label--visible {
+			@apply top-0 pt-2 text-xs;
+			opacity: 1 !important;
+		}
+
+		&.al__textarea__label--disabled {
+			@apply bg-neutral-100 text-neutral-300;
+		}
+	}
+
+	.al__textarea__input {
+		@apply mt-6 h-10 max-h-[400px] min-h-[200px] w-full min-w-full bg-transparent px-5 pb-6 pt-0 text-sm outline-none;
+
+		&.al__textarea__input--error {
+			@apply border-error-500;
+		}
+
+		&.al__textarea__input--focus {
+			@apply focus:border-primary-500;
+		}
+
+		&.al__textarea__input--disabled {
+			@apply text-neutral-400;
+		}
+	}
+
+	.al__textarea__footer {
+		@apply mt-1 flex px-5 text-left text-xs text-neutral-400;
+
+		.al__textarea__char-count {
+			@apply pointer-events-none ml-auto;
+
+			&.al__textarea__char-count--disabled {
+				@apply text-neutral-300;
+			}
+		}
+	}
+}

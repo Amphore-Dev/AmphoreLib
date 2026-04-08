@@ -4,6 +4,8 @@ import { Button, IModalProps, Modal } from "../../atoms";
 
 import { cn } from "@utils/cn";
 
+import "./ConfirmModal.scss";
+
 export interface IConfirmModalCallback {
 	onConfirm: () => Promise<any> | any;
 	onCancel?: () => void;
@@ -65,18 +67,16 @@ export const ConfirmModal: React.FC<IConfirmModalProps> = (
 	return (
 		<Modal
 			size={props.size ?? "s"}
-			className={cn([
-				"ConfirmModal !min-w-[90%] sm:!min-w-[70%] md:!min-w-0",
-				"dark:bg-neutral-800 dark:text-white dark:[&>div:first-child]:bg-neutral-800 dark:[&>div:first-child]:text-white",
-				props.className,
-			])}
+			className={cn(["ConfirmModal al__confirm-modal", props.className])}
 			title={props.title}
 			{...props}
 			onClose={onClose}
 		>
-			<div className="gap-m flex flex-col text-left">
-				<div className="mb-5">{props.children ?? props.text}</div>
-				<div className="flex flex-wrap-reverse justify-end gap-4 [&>*]:w-full sm:[&>*]:w-auto">
+			<div className="al__confirm-modal__content">
+				<div className="al__confirm-modal__text">
+					{props.children ?? props.text}
+				</div>
+				<div className="al__confirm-modal__actions">
 					{props.buttons?.length ? (
 						props.buttons.map((button, key) => {
 							return (
