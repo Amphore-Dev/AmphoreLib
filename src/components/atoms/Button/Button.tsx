@@ -11,7 +11,7 @@ import "./Button.scss";
 
 export interface IButtonProps
 	extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-	children: React.ReactNode;
+	children?: React.ReactNode;
 	color?:
 		| "black"
 		| "white"
