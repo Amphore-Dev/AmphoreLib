@@ -13,6 +13,7 @@ export interface IRangeProps
 	onChange?: (value: number) => void;
 	className?: string;
 	trackClassName?: string;
+	centered?: boolean;
 }
 
 export const Range: React.FC<IRangeProps> = ({
@@ -24,9 +25,14 @@ export const Range: React.FC<IRangeProps> = ({
 	disabled,
 	className,
 	trackClassName,
+	centered = false,
 	...props
 }) => {
 	const percent = ((value - min) / (max - min)) * 100;
+	const centerPercent = (((min + max) / 2 - min) / (max - min)) * 100;
+
+	const fillLeft = centered ? Math.min(percent, centerPercent) : 0;
+	const fillWidth = centered ? Math.abs(percent - centerPercent) : percent;
 
 	const handleChange = useCallback(
 		(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,7 +52,7 @@ export const Range: React.FC<IRangeProps> = ({
 			<div className={cn(["al__range__track", trackClassName])}>
 				<div
 					className="al__range__fill"
-					style={{ width: `${percent}%` }}
+					style={{ left: `${fillLeft}%`, width: `${fillWidth}%` }}
 				/>
 			</div>
 			<input
