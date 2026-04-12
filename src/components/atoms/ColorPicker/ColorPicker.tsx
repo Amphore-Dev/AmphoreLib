@@ -24,8 +24,8 @@ export const ColorPicker: React.FC<IColorPickerProps> = (props) => {
 		>
 			<ReactGPicker
 				format="hex"
-				{...props}
 				defaultColors={PICKER_DEFAULT_COLORS}
+				{...props}
 			/>
 		</div>
 	);
