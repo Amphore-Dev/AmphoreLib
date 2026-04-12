@@ -20,3 +20,4 @@ export * from "./Badge/Badge";
 export * from "./TableHeaderCell/TableHeaderCell";
 export * from "./TableCell/TableCell";
 export * from "./Range/Range";
+export * from "./Grid/Grid";
