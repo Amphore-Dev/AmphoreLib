@@ -104,7 +104,7 @@
 	}
 
 	.info-message {
-		@apply mt-2;
+		@apply mt-2 whitespace-break-spaces;
 
 		&.with-required {
 			@apply mt-1;

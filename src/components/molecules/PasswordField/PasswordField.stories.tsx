@@ -1,9 +1,10 @@
 import React from "react";
 
 import { StoryFn } from "@storybook/react";
-import { Formik } from "formik";
+import { Form, Formik } from "formik";
 import * as yup from "yup";
 
+import { Button } from "../../atoms";
 import { PasswordField, IPasswordFieldProps } from "./PasswordField";
 
 export default {
@@ -75,15 +76,32 @@ const Template: StoryFn<IPasswordFieldProps> = ({ ...args }) => {
 const TemplateWithFormik: StoryFn<IPasswordFieldProps> = ({ ...args }) => {
 	return (
 		<Formik
-			initialValues={{}}
+			initialValues={{
+				password: "",
+			}}
 			validationSchema={() =>
 				yup.object().shape({
-					password: yup.string().required(),
+					password: yup
+						.string()
+						.min(
+							6,
+							"Password must be at least 6 characters\nAt least one uppercase letter\nAt least one lowercase letter\nAt least one number"
+						)
+						.required("Password is required"),
 				})
 			}
 			onSubmit={() => {}}
 		>
-			<PasswordField {...args} />
+			{() => {
+				return (
+					<Form>
+						<PasswordField {...args} />
+						<Button type="submit" className="mt-2">
+							Submit
+						</Button>
+					</Form>
+				);
+			}}
 		</Formik>
 	);
 };

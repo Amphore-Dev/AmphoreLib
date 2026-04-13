@@ -39,7 +39,11 @@ export const InfoMessage: React.FC<IInfoMessageProps> = ({
 			])}
 		>
 			{withIcon && (
-				<Picto icon={getIcon()} className="" data-info-message-picto />
+				<Picto
+					icon={getIcon()}
+					wrapperClassName="al__info-message__picto"
+					data-info-message-picto
+				/>
 			)}
 			<span className="al__info-message__content">{children}</span>
 		</div>
