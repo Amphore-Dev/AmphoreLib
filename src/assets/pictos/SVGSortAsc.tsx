@@ -8,6 +8,8 @@ const SvgSortAsc = (props: SVGProps<SVGSVGElement>) => (
 		id="sort-asc_svg__Calque_1"
 		x={0}
 		y={0}
+		width={24}
+		height={24}
 		viewBox="0 0 72 72"
 		stroke="currentColor"
 		{...props}

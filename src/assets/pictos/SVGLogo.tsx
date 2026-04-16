@@ -9,6 +9,8 @@ const SvgLogo = (props: SVGProps<SVGSVGElement>) => (
 		viewBox="0 0 792.16 1944.66"
 		stroke="currentColor"
 		fill="currentColor"
+		width={24}
+		height={24}
 		{...props}
 	>
 		<defs>
