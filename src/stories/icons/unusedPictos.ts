@@ -20,8 +20,6 @@ import { default as Award } from "../../assets/pictos/SVGAward";
 import { default as BarChart2 } from "../../assets/pictos/SVGBarChart2";
 import { default as Battery } from "../../assets/pictos/SVGBattery";
 import { default as BatteryCharging } from "../../assets/pictos/SVGBatteryCharging";
-import { default as Bell } from "../../assets/pictos/SVGBell";
-import { default as BellOff } from "../../assets/pictos/SVGBellOff";
 import { default as Bluetooth } from "../../assets/pictos/SVGBluetooth";
 import { default as Bold } from "../../assets/pictos/SVGBold";
 import { default as Book } from "../../assets/pictos/SVGBook";
@@ -81,7 +79,6 @@ import { default as Feather } from "../../assets/pictos/SVGFeather";
 import { default as Figma } from "../../assets/pictos/SVGFigma";
 import { default as FileText } from "../../assets/pictos/SVGFileText";
 import { default as Film } from "../../assets/pictos/SVGFilm";
-import { default as Flag } from "../../assets/pictos/SVGFlag";
 import { default as Framer } from "../../assets/pictos/SVGFramer";
 import { default as Frown } from "../../assets/pictos/SVGFrown";
 import { default as Gift } from "../../assets/pictos/SVGGift";
@@ -215,8 +212,6 @@ export const UnusedPictos = {
 	BarChart2: BarChart2,
 	Battery: Battery,
 	BatteryCharging: BatteryCharging,
-	Bell: Bell,
-	BellOff: BellOff,
 	Bluetooth: Bluetooth,
 	Bold: Bold,
 	Book: Book,
@@ -276,7 +271,6 @@ export const UnusedPictos = {
 	Figma: Figma,
 	FileText: FileText,
 	Film: Film,
-	Flag: Flag,
 	Framer: Framer,
 	Frown: Frown,
 	Gift: Gift,

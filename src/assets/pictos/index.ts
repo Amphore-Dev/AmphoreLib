@@ -15,6 +15,9 @@ export { default as Users } from "../../assets/pictos/SVGUsers";
 export { default as Target } from "../../assets/pictos/SVGTarget";
 
 export { default as Activity } from "../../assets/pictos/SVGActivity";
+export { default as Bell } from "./SVGBell";
+export { default as Flag } from "./SVGFlag";
+export { default as BellOff } from "./SVGBellOff";
 export { default as Briefcase } from "./SVGBriefcase";
 export { default as AlertCircle } from "./SVGAlertCircle";
 export { default as AlertTriangle } from "./SVGAlertTriangle";

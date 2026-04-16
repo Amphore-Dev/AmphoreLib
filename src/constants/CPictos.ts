@@ -1,5 +1,7 @@
 import {
 	Activity,
+	Bell,
+	BellOff,
 	AlertCircle,
 	AlertTriangle,
 	Archive,
@@ -26,6 +28,7 @@ import {
 	FileMinus,
 	FilePlus,
 	File,
+	Flag,
 	Filter,
 	FolderMinus,
 	FolderPlus,
@@ -96,6 +99,8 @@ export type TPictos = {
 export const Pictos = {
 	logo: Logo,
 	activity: Activity,
+	bell: Bell,
+	bellOff: BellOff,
 	add: Plus,
 	addCircle: PlusCircle,
 	alert: AlertCircle,
@@ -125,6 +130,7 @@ export const Pictos = {
 	file: File,
 	fileMinus: FileMinus,
 	filePlus: FilePlus,
+	flag: Flag,
 	filter: Filter,
 	folder: Folder,
 	folderMinus: FolderMinus,
