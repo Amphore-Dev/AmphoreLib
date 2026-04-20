@@ -13,3 +13,4 @@ export * from "./ColorPickerField/ColorPickerField";
 export * from "./TableHeader/TableHeader";
 export * from "./TableRow/TableRow";
 export * from "./TabBar/TabBar";
+export * from "./ToolBar/ToolBar";

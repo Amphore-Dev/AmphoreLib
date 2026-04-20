@@ -4,6 +4,8 @@ import { StoryFn } from "@storybook/react";
 
 import { Range, IRangeProps } from "./Range";
 
+import { cn } from "@utils/cn";
+
 export default {
 	title: "Components/Atoms/Range",
 	component: Range,
@@ -86,4 +88,43 @@ Centered.args = {
 	min: -50,
 	max: 50,
 	value: 0,
+};
+
+const HideParentTemplate: StoryFn<IRangeProps> = (args) => {
+	const [value, setValue] = useState(args.value ?? 40);
+
+	const parentRef = React.useRef<HTMLDivElement>(null);
+	const inputRef = React.useRef<HTMLInputElement>(null);
+	const [isDragging, setIsDragging] = React.useState(false);
+
+	return (
+		<div
+			className={cn([
+				"parent-cont bg-neutral-500 p-4 rounded",
+				isDragging && "bg-opacity-0",
+			])}
+			ref={parentRef}
+		>
+			<div className="w-64 bg-neutral-800 p-4 rounded" ref={inputRef}>
+				<Range
+					centered={false}
+					{...args}
+					value={value}
+					onChange={setValue}
+					onMouseDown={(e) => {
+						setIsDragging(true);
+					}}
+					onMouseUp={(e) => {
+						setIsDragging(false);
+					}}
+				/>
+				<div className="mt-2 text-sm text-neutral-500">{value}</div>
+			</div>
+		</div>
+	);
+};
+
+export const HideParentOnDrag = HideParentTemplate.bind({});
+HideParentOnDrag.args = {
+	...Default.args,
 };

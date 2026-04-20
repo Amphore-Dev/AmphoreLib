@@ -47,6 +47,7 @@ export interface ITooltipProps extends PropsWithChildren {
 	container?: ReactNode | boolean;
 	arrow?: boolean;
 	ref?: React.Ref<HTMLDivElement>;
+	containerRef?: React.Ref<HTMLDivElement>;
 	tabIndex?: number;
 	buttonClassName?: string;
 }
@@ -71,8 +72,9 @@ export const Tooltip = forwardRef<HTMLDivElement, ITooltipProps>(
 			setIsOpen,
 			portal,
 			tabIndex = 0,
+			containerRef,
 		},
-		ref // 👈 ici maintenant
+		ref
 	) => {
 		const isHover = trigger === "hover";
 		const [IsOpen, SetIsOpen] = useState(false);
@@ -168,7 +170,16 @@ export const Tooltip = forwardRef<HTMLDivElement, ITooltipProps>(
 				{isOpenValue && (
 					<Wrapper>
 						<Container
-							ref={refs.setFloating}
+							ref={(node: HTMLDivElement | null) => {
+								refs.setFloating(node);
+								if (typeof containerRef === "function") {
+									containerRef(node);
+								} else if (containerRef) {
+									(
+										containerRef as React.MutableRefObject<HTMLDivElement | null>
+									).current = node;
+								}
+							}}
 							{...getFloatingProps()}
 							style={floatingStyles}
 							className={cn([
