@@ -73,7 +73,7 @@ export const TextField: React.FC<ITextFieldProps> = ({
 	}, [value]);
 
 	const currentValue = getFieldValue();
-	const hasError = !!meta?.error && meta.touched;
+	const hasError = !!meta?.error && meta?.touched;
 	const hasPictoOrLoading = !!picto || isLoading;
 	const isDisabled = !!props.disabled;
 	const showCharLimit =

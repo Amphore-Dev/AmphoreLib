@@ -19,7 +19,7 @@ export const SelectContainer: React.FC<any> = ({ children, ...props }) => {
 	return (
 		<components.SelectContainer {...props}>
 			{children}
-			{meta?.error && (
+			{meta?.error && meta?.touched && (
 				<InfoMessage
 					type="error"
 					className={cn([!props.required ? "mt-2" : "mt-1"])}

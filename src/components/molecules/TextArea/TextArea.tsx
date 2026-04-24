@@ -80,7 +80,7 @@ export const TextArea: React.FC<ITextAreaProps> = ({
 		value: currentValue,
 		className: cn([
 			"al__textarea__input",
-			meta?.error && meta.touched
+			meta?.error && meta?.touched
 				? "al__textarea__input--error"
 				: "al__textarea__input--focus",
 			props.disabled && "al__textarea__input--disabled",
