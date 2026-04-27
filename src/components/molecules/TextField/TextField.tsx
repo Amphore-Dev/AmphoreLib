@@ -113,7 +113,7 @@ export const TextField: React.FC<ITextFieldProps> = ({
 					}
 					value={currentValue}
 					className={cn([
-						"textfield-input",
+						"textfield-input appearance-textfield",
 						!!currentValue && "has-value",
 						hasError && "error",
 						isDisabled && "disabled",
