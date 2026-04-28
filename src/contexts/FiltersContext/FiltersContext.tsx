@@ -58,7 +58,7 @@ export function createFiltersContext<
 	}) => {
 		const _defaultFilters = applyDefaults(defaultFilters, DEFAULT_FILTERS);
 
-		const [filters, setFilters] = React.useState<T>(() => {
+		const [filters, _setFilters] = React.useState<T>(() => {
 			const raw = sessionStorage.getItem(storageKey);
 			const saved = raw
 				? (JSON.parse(raw) as Partial<T>)
@@ -75,9 +75,21 @@ export function createFiltersContext<
 			return result;
 		});
 
-		React.useEffect(() => {
-			sessionStorage.setItem(storageKey, JSON.stringify(filters));
-		}, [filters, storageKey]);
+		const setFilters = React.useCallback<
+			React.Dispatch<React.SetStateAction<T>>
+		>(
+			(action) => {
+				_setFilters((prev) => {
+					const next =
+						typeof action === "function"
+							? (action as (prev: T) => T)(prev)
+							: action;
+					sessionStorage.setItem(storageKey, JSON.stringify(next));
+					return next;
+				});
+			},
+			[storageKey]
+		);
 
 		const value = React.useMemo(
 			() => ({
