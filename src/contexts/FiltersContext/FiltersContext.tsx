@@ -60,8 +60,19 @@ export function createFiltersContext<
 
 		const [filters, setFilters] = React.useState<T>(() => {
 			const raw = sessionStorage.getItem(storageKey);
-			const saved = raw ? (JSON.parse(raw) as Partial<T>) : {};
-			return { ..._defaultFilters, ...saved } as T;
+			const saved = raw
+				? (JSON.parse(raw) as Partial<T>)
+				: ({} as Partial<T>);
+			const result = { ..._defaultFilters } as T;
+			for (const key of Object.keys(_defaultFilters) as (keyof T)[]) {
+				if (key in saved) {
+					result[key] = {
+						...(_defaultFilters[key] as object),
+						...(saved[key] as object),
+					} as T[keyof T];
+				}
+			}
+			return result;
 		});
 
 		React.useEffect(() => {
