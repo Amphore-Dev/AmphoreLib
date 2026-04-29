@@ -2,7 +2,7 @@
 	display: grid;
 	grid-column: 1 / -1;
 	grid-template-columns: subgrid;
-	@apply border-b border-neutral-200 -outline-offset-2 dark:border-neutral-700;
+	@apply gap-6 border-b border-neutral-200 -outline-offset-2 dark:border-neutral-700;
 
 	&.clickable {
 		cursor: pointer;
