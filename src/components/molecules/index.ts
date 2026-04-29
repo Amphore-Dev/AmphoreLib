@@ -1,4 +1,7 @@
 export * from "./ConfirmModal/ConfirmModal";
+export * from "./DescriptionList/DescriptionList";
+export * from "./FieldRenderer/FieldRenderer";
+export * from "./SectionCard/SectionCard";
 export * from "./DatePicker/DatePicker";
 export * from "./HeadBar/HeadBar";
 export * from "./InfoMessage/InfoMessage";
@@ -14,3 +17,4 @@ export * from "./TableHeader/TableHeader";
 export * from "./TableRow/TableRow";
 export * from "./TabBar/TabBar";
 export * from "./ToolBar/ToolBar";
+export * from "./ActiveFilters/ActiveFilters";

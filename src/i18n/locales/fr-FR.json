@@ -1,3 +1,31 @@
 {
-	"global": {}
+	"global": {
+		"save": "Enregistrer",
+		"cancel": "Annuler",
+		"delete": "Supprimer",
+		"edit": "Modifier",
+		"add": "Ajouter",
+		"close": "Fermer",
+		"back": "Retour"
+	},
+	"search": {
+		"label": "Rechercher..."
+	},
+	"results": {
+		"no_results": "Aucun résultat trouvé",
+		"count_one": "{{count}} résultat",
+		"count_other": "{{count}} résultats"
+	},
+	"filters": {
+		"apply": "Voir les résultats",
+		"reset": "Réinitialiser",
+		"resetFilters": "Réinitialiser les filtres",
+		"selected_one": "1 filtre sélectionné",
+		"selected_other": "{{count}} filtres sélectionnés",
+		"title": "Filtres",
+		"filter": "Filtrer",
+		"types": {
+			"period": "Période"
+		}
+	}
 }

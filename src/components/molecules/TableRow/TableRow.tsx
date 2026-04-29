@@ -38,7 +38,7 @@ function TableRowInner<T>({
 			const isColumnClickable =
 				typeof column.clickable === "function"
 					? column.clickable(item)
-					: column.clickable ?? !!column.onClick;
+					: (column.clickable ?? !!column.onClick);
 
 			const value = column.value
 				? typeof column.value === "function"
@@ -49,7 +49,7 @@ function TableRowInner<T>({
 			const isSelectable =
 				typeof column.selectable === "function"
 					? column.selectable(item)
-					: column.selectable ?? false;
+					: (column.selectable ?? false);
 
 			return (
 				<TableCell

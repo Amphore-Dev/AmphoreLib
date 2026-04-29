@@ -1,0 +1,43 @@
+.al__card {
+	@apply rounded-md p-xl;
+
+	&--has-header {
+		@apply flex flex-col p-0;
+	}
+
+	&--has-border {
+		@apply border border-neutral-500;
+	}
+
+	&--white {
+		@apply bg-white;
+	}
+
+	&--grey {
+		@apply bg-neutral-50;
+	}
+
+	&__header {
+		@apply flex items-center justify-between rounded-t-md bg-neutral-50 px-xl py-l text-black;
+
+		&__title {
+			@apply text-l font-semibold;
+		}
+
+		&__info-wrapper {
+			@apply flex items-center gap-1;
+		}
+
+		&__picto {
+			@apply h-4 w-4;
+		}
+
+		&__text {
+			@apply text-s font-medium;
+		}
+	}
+
+	&__content {
+		@apply p-xl;
+	}
+}

@@ -1,3 +1,5 @@
+export { default as Refresh } from "../../assets/pictos/SVGRefreshCcw";
+
 export { default as ZoomIn } from "../../assets/pictos/SVGZoomIn";
 export { default as ZoomOut } from "../../assets/pictos/SVGZoomOut";
 export { default as Save } from "../../assets/pictos/SVGSave";
@@ -44,6 +46,7 @@ export { default as Eye } from "./SVGEye";
 export { default as FileMinus } from "./SVGFileMinus";
 export { default as FilePlus } from "./SVGFilePlus";
 export { default as File } from "./SVGFile";
+export { default as FileText } from "./SVGFileText";
 export { default as Filter } from "./SVGFilter";
 export { default as FolderMinus } from "./SVGFolderMinus";
 export { default as FolderPlus } from "./SVGFolderPlus";
@@ -77,6 +80,7 @@ export { default as Search } from "./SVGSearch";
 export { default as Send } from "./SVGSend";
 export { default as Settings } from "./SVGSettings";
 export { default as Share } from "./SVGShare";
+export { default as Sliders } from "./SVGSliders";
 export { default as Slash } from "./SVGSlash";
 export { default as SortAsc } from "./SVGSortAsc";
 export { default as SortDesc } from "./SVGSortDesc";

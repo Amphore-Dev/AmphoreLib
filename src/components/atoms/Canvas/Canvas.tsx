@@ -5,11 +5,10 @@ import { IPoint } from "../../../types/point";
 import "./Canvas.scss";
 
 // extends canvas props without the onLoad and onTouchMove using Omit
-export interface ICanvasProps
-	extends Omit<
-		React.CanvasHTMLAttributes<HTMLCanvasElement>,
-		"onLoad" | "onTouchMove" | "onTouch" | "onResize"
-	> {
+export interface ICanvasProps extends Omit<
+	React.CanvasHTMLAttributes<HTMLCanvasElement>,
+	"onLoad" | "onTouchMove" | "onTouch" | "onResize"
+> {
 	onLoad?: (
 		canvas: HTMLCanvasElement,
 		context: CanvasRenderingContext2D
@@ -29,7 +28,8 @@ export interface ICanvasProps
 }
 
 export interface ICanvasTouch
-	extends React.TouchEvent<HTMLCanvasElement>,
+	extends
+		React.TouchEvent<HTMLCanvasElement>,
 		React.MouseEvent<HTMLCanvasElement> {
 	nativeEvent: any;
 }

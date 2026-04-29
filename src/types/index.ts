@@ -7,4 +7,5 @@ export * from "./TGrid";
 
 export * from "./TFields";
 export * from "./TFiltersContext";
+export * from "./TFiltersModal";
 export * from "./TSearchParams";

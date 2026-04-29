@@ -13,8 +13,7 @@ import { cn } from "@utils/index";
 import "./ColorPickerField.scss";
 
 export interface IColorPickerFieldProps
-	extends PropsWithChildren,
-		IColorPickerProps {
+	extends PropsWithChildren, IColorPickerProps {
 	className?: string;
 	tooltipProps?: ITooltipProps;
 }

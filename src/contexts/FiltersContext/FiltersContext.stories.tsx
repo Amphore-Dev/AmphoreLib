@@ -59,7 +59,8 @@ const Template: StoryFn = ({ adapterHook }) => {
 							<td>
 								<h2>Component A</h2>
 								<p>
-									<b>Set</b> values for <b>planning</b> filters
+									<b>Set</b> values for <b>planning</b>{" "}
+									filters
 								</p>
 								<PlanningFiltersSetter />
 							</td>

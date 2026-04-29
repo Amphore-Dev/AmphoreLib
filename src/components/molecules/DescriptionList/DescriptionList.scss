@@ -1,0 +1,48 @@
+.al__description-list {
+	@apply flex flex-col gap-1;
+
+	&--clickable {
+		@apply w-fit cursor-pointer;
+	}
+
+	&__label {
+		@apply text-s font-medium text-neutral-600;
+	}
+
+	&__required-text {
+		@apply w-fit text-red-500;
+	}
+
+	&__info-wrapper {
+		@apply flex items-center gap-1;
+	}
+
+	&__link {
+		@apply pointer-events-none w-fit p-0 text-m text-black no-underline;
+
+		&--underlined {
+			@apply text-primary-500 underline;
+		}
+
+		&--with-href {
+			@apply pointer-events-auto;
+		}
+	}
+
+	&__picto {
+		@apply h-4 w-4 text-black;
+
+		&--clickable {
+			@apply text-primary-500;
+		}
+	}
+
+	&__text {
+		word-break: break-word;
+		@apply w-fit text-m font-medium text-black;
+	}
+
+	&__button {
+		@apply w-fit p-0;
+	}
+}

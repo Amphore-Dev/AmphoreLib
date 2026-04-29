@@ -9,8 +9,7 @@ import { cn } from "@utils/cn";
 
 import "./Button.scss";
 
-export interface IButtonProps
-	extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface IButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 	children?: React.ReactNode;
 	color?:
 		| "black"
@@ -25,6 +24,7 @@ export interface IButtonProps
 	disabled?: boolean;
 	isLoading?: boolean;
 	picto?: TPictoName | Partial<IPictoProps>;
+	label?: string;
 }
 
 export const Button: React.FC<IButtonProps> = ({
@@ -37,6 +37,7 @@ export const Button: React.FC<IButtonProps> = ({
 	type = "button",
 	className = "",
 	picto,
+	label,
 	...props
 }) => {
 	const classNames = cn([
@@ -64,7 +65,7 @@ export const Button: React.FC<IButtonProps> = ({
 					])}
 				/>
 			)}
-			{children}
+			{label ?? children}
 		</button>
 	);
 };

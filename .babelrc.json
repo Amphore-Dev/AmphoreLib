@@ -18,13 +18,17 @@
 			{
 				"root": ".",
 				"alias": {
+					"@": "./src",
 					"@assets": "./src/assets",
 					"@components": "./src/components",
 					"@hooks": "./src/hooks",
 					"@contexts": "./src/contexts",
 					"@constants": "./src/constants",
 					"@interfaces": "./src/types",
-					"@utils": "./src/utils"
+					"@utils": "./src/utils",
+					"@styles": "./src/styles",
+					"@i18n": "./src/i18n",
+					"@hoc": "./src/hoc"
 				}
 			}
 		]

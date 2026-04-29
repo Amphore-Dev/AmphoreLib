@@ -4,8 +4,10 @@ import { cn } from "@utils/cn";
 
 import "./Range.scss";
 
-export interface IRangeProps
-	extends Omit<InputHTMLAttributes<HTMLInputElement>, "onChange"> {
+export interface IRangeProps extends Omit<
+	InputHTMLAttributes<HTMLInputElement>,
+	"onChange"
+> {
 	min?: number;
 	max?: number;
 	step?: number;

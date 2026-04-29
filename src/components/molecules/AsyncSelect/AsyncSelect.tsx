@@ -15,7 +15,9 @@ export interface IAsyncSelectProps<
 	OptionType,
 	IsMulti extends boolean = false,
 	GroupType extends GroupBase<OptionType> = GroupBase<OptionType>,
-> extends AsyncProps<OptionType, IsMulti, GroupType>,
+>
+	extends
+		AsyncProps<OptionType, IsMulti, GroupType>,
 		ISelectProps<OptionType, IsMulti, GroupType> {
 	onChange?: (value: OnChangeValue<OptionType, IsMulti>) => void;
 }

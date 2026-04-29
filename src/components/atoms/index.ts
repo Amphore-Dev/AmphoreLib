@@ -1,5 +1,9 @@
 export * from "./Button/Button";
 export * from "./Canvas/Canvas";
+export * from "./Card/Card";
+export * from "./Divider/Divider";
+export * from "./Link/Link";
+export * from "./TruncatedTooltipText/TruncatedTooltipText";
 export * from "./Checkbox/Checkbox";
 export * from "./CountDown/CountDown";
 export * from "./LoremIpsum/LoremIpsum";
@@ -22,3 +26,6 @@ export * from "./TableCell/TableCell";
 export * from "./Range/Range";
 export * from "./Grid/Grid";
 export * from "./Tab/Tab";
+export * from "./InputErrorMessage/InputErrorMessage";
+export * from "./InputSearch/InputSearch";
+export * from "./Chip/Chip";

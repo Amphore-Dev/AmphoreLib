@@ -14,7 +14,8 @@ import { cn } from "@utils/cn";
 import "./TextArea.scss";
 
 export interface ITextAreaProps
-	extends React.TextareaHTMLAttributes<HTMLTextAreaElement>,
+	extends
+		React.TextareaHTMLAttributes<HTMLTextAreaElement>,
 		PropsWithChildren {
 	label?: string;
 	alwaysShowLabel?: boolean;

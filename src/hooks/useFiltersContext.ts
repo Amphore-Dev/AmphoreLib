@@ -1,6 +1,7 @@
 import { useContext, useEffect, useRef } from "react";
 
 import { FiltersCtxValue } from "@contexts/FiltersContext/FiltersContext";
+
 import {
 	IUseFiltersContext,
 	TFiltersContextOptions,

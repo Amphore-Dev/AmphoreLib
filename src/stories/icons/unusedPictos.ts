@@ -77,7 +77,6 @@ import { default as Facebook } from "../../assets/pictos/SVGFacebook";
 import { default as FastForward } from "../../assets/pictos/SVGFastForward";
 import { default as Feather } from "../../assets/pictos/SVGFeather";
 import { default as Figma } from "../../assets/pictos/SVGFigma";
-import { default as FileText } from "../../assets/pictos/SVGFileText";
 import { default as Film } from "../../assets/pictos/SVGFilm";
 import { default as Framer } from "../../assets/pictos/SVGFramer";
 import { default as Frown } from "../../assets/pictos/SVGFrown";
@@ -145,7 +144,6 @@ import { default as Sidebar } from "../../assets/pictos/SVGSidebar";
 import { default as SkipBack } from "../../assets/pictos/SVGSkipBack";
 import { default as SkipForward } from "../../assets/pictos/SVGSkipForward";
 import { default as Slack } from "../../assets/pictos/SVGSlack";
-import { default as Sliders } from "../../assets/pictos/SVGSliders";
 import { default as Smile } from "../../assets/pictos/SVGSmile";
 import { default as Speaker } from "../../assets/pictos/SVGSpeaker";
 import { default as Square } from "../../assets/pictos/SVGSquare";
@@ -269,7 +267,6 @@ export const UnusedPictos = {
 	FastForward: FastForward,
 	Feather: Feather,
 	Figma: Figma,
-	FileText: FileText,
 	Film: Film,
 	Framer: Framer,
 	Frown: Frown,
@@ -341,7 +338,6 @@ export const UnusedPictos = {
 	SkipBack: SkipBack,
 	SkipForward: SkipForward,
 	Slack: Slack,
-	Sliders: Sliders,
 	Smile: Smile,
 	Speaker: Speaker,
 	Square: Square,

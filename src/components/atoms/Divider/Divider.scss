@@ -1,0 +1,11 @@
+.al__divider {
+	@apply box-border rounded-sm bg-neutral-300;
+
+	&--vertical {
+		@apply h-full w-px min-w-px py-2;
+	}
+
+	&--horizontal {
+		@apply h-px min-h-px w-full px-2;
+	}
+}

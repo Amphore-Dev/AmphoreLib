@@ -1,174 +1,223 @@
-import React, {
-	PropsWithChildren,
-	useContext,
-	useEffect,
-	useState,
-} from "react";
+import React, { FormEvent, forwardRef, useId, useRef } from "react";
 
-import { ErrorMessage, Field, FormikContext, useField } from "formik";
+import { TPictoName } from "@constants/CPictos";
+import { MaskitoOptions } from "@maskito/core";
+import { useMaskito } from "@maskito/react";
 
-import { InfoMessage } from "../InfoMessage/InfoMessage";
-import { IPictoProps, Picto, Spinner } from "@components/atoms";
-import { TPictoName } from "@constants/index";
-import { cn } from "@utils/index";
+import {
+	IWithFormikWrapperProps,
+	withFormikWrapper,
+} from "@hooks/useFormikField";
+
+import CharCounter from "./CharCounter";
+import { IPictoProps, Picto, Tooltip } from "@components/atoms";
+
+import { cn } from "@utils/cn";
 
 import "./TextField.scss";
 
 export interface ITextFieldProps
-	extends React.InputHTMLAttributes<HTMLInputElement>,
-		PropsWithChildren {
+	extends Omit<
+			React.InputHTMLAttributes<HTMLInputElement>,
+			"onChange" | "value" | "pattern"
+		>,
+		IWithFormikWrapperProps<string | null, HTMLInputElement> {
+	type?: string;
+	value?: string | null;
+	onChange?: (
+		value: string | null,
+		e?: React.ChangeEvent<HTMLInputElement> | FormEvent<HTMLInputElement>
+	) => void;
+	className?: string;
+	wrapperClassName?: string;
+	formWrapperClassName?: string;
+	disabled?: boolean;
 	label?: string;
-	alwaysShowLabel?: boolean;
-	getValue?: (currentValue: unknown) => unknown;
-	autoDetectFormik?: boolean;
-	picto?: TPictoName;
-	pictoProps?: IPictoProps;
-	onPictoClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
-	isLoading?: boolean;
-	size?: "s" | "m";
+	labelClassName?: string;
+	required?: boolean;
+	info?: string;
+	name?: string;
+	error?: string;
+	picto?: Partial<IPictoProps> & {
+		icon: TPictoName;
+		className?: string;
+		onClick?: (
+			e: React.MouseEvent<
+				HTMLButtonElement | HTMLDivElement | HTMLInputElement
+			>
+		) => void;
+	};
+	pattern?: MaskitoOptions;
+	hasDefaultBorder?: boolean;
+	allowedCharacters?: RegExp;
+	hideError?: boolean;
+	updateFormikValue?: boolean;
+	isClearable?: boolean;
+	maxLength?: number;
+	showCharCounter?: boolean;
 }
 
-export const TextField: React.FC<ITextFieldProps> = ({
-	value,
-	label = "",
-	alwaysShowLabel = false,
-	type = "text",
-	children,
-	getValue,
-	autoDetectFormik = true,
-	picto,
-	pictoProps,
-	onPictoClick,
-	isLoading = false,
-	size = "m",
-	...props
-}) => {
-	const isInForm = autoDetectFormik && !!useContext(FormikContext);
-	const Wrapper = isInForm ? Field : "input";
+export const TextField = forwardRef<HTMLInputElement, ITextFieldProps>(
+	(
+		{
+			type = "text",
+			value,
+			onChange,
+			className = "",
+			wrapperClassName = "",
+			labelClassName = "",
+			disabled = false,
+			label,
+			required = false,
+			info,
+			name,
+			error,
+			picto,
+			pattern,
+			hasDefaultBorder = true,
+			isClearable = true,
+			maxLength,
+			showCharCounter = false,
+			...props
+		},
+		ref
+	) => {
+		const inputId = useId();
+		const localInputRef = useRef<HTMLInputElement>(null);
+		const maskInputRef = pattern && useMaskito({ options: pattern });
+		const combinedRef = ref || localInputRef;
 
-	const [field, meta, helpers] =
-		props.name && isInForm
-			? useField(props.name)
-			: [undefined, undefined, undefined];
-
-	const [Value, setValue] =
-		useState<React.InputHTMLAttributes<HTMLInputElement>["value"]>("");
-
-	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) =>
-		isInForm && field
-			? helpers.setValue(event.target.value)
-			: setValue(event.target.value);
-
-	const getFieldValue = () => {
-		const fieldValue = (isInForm && field ? field.value : Value) || "";
-		return getValue ? getValue(fieldValue) : fieldValue;
-	};
-
-	useEffect(() => {
-		if (value !== undefined && !isInForm && value !== Value) {
-			if (typeof value === "string" && props.maxLength)
-				setValue(value.slice(0, props.maxLength));
-			else setValue(value);
-		}
-	}, [value]);
-
-	const currentValue = getFieldValue();
-	const hasError = !!meta?.error && meta?.touched;
-	const hasPictoOrLoading = !!picto || isLoading;
-	const isDisabled = !!props.disabled;
-	const showCharLimit =
-		!!props.maxLength &&
-		props.maxLength > 0 &&
-		type !== "number" &&
-		typeof currentValue !== "number";
-
-	return (
-		<div className={cn(["al__textfield"])}>
-			<div
-				className={cn([
-					"textfield-wrapper",
-					(!!label || showCharLimit) && "has-label",
-					size,
-				])}
-			>
-				{!!label && (
-					<label
-						className={cn([
-							!!currentValue || alwaysShowLabel ? "active" : "",
-							isDisabled ? "disabled" : "",
-						])}
-					>
-						{label}
-					</label>
-				)}
-
-				<Wrapper
-					onChange={handleChange}
-					{...props}
+		return (
+			<div className={cn(["al__input--wrapper group", wrapperClassName])}>
+				<input
+					ref={(el: HTMLInputElement | null) => {
+						if (el) {
+							maskInputRef?.(el); // Apply mask
+							if (
+								combinedRef &&
+								typeof combinedRef !== "function"
+							) {
+								(
+									combinedRef as React.MutableRefObject<HTMLInputElement | null>
+								).current = el;
+							}
+						}
+					}}
 					type={type}
-					placeholder={
-						props.placeholder !== undefined
-							? props.placeholder
-							: label
-					}
-					value={currentValue}
+					onChange={(e) => {
+						onChange?.(e?.target?.value, e);
+					}}
 					className={cn([
-						"textfield-input appearance-textfield",
-						!!currentValue && "has-value",
-						hasError && "error",
-						isDisabled && "disabled",
-						hasPictoOrLoading && "has-picto",
-						props.className,
+						"al__input peer",
+						error && "al__input--error",
+						hasDefaultBorder && "al__input--has-default-border",
+						className,
 					])}
+					disabled={disabled}
+					name={name}
+					id={props.id || inputId}
+					maxLength={maxLength}
+					{...props}
+					placeholder={""}
+					value={value ?? ""}
 				/>
-
-				{!isLoading && !!picto && (
-					<Picto
-						icon={picto}
-						onClick={onPictoClick}
-						{...pictoProps}
-						className={cn([
-							"picto",
-							onPictoClick && "clickable",
-							pictoProps?.className,
-						])}
-					/>
-				)}
-
-				{isLoading && (
-					<Spinner
-						className={cn(["spinner", pictoProps?.className])}
-					/>
-				)}
-
-				{showCharLimit && (
-					<span
-						className={cn(["char-limit", isDisabled && "disabled"])}
-					>
-						{currentValue?.length || 0}/{props.maxLength}
-					</span>
-				)}
-
-				{children}
-			</div>
-
-			{props.required && <div className="required">Required</div>}
-
-			{!!props.name && isInForm && (
-				<ErrorMessage name={props.name}>
-					{(msg: string) => (
-						<InfoMessage
-							type="error"
-							className={cn([
-								"info-message",
-								props.required && "with-required",
-							])}
-						>
-							{msg}
-						</InfoMessage>
+				<label
+					className={cn([
+						"al__input__label",
+						!!value && "al__input__label--floating",
+						required && "al__input__label--required",
+						labelClassName,
+						"whitespace-nowrap overflow-hidden text-ellipsis",
+					])}
+					htmlFor={name}
+				>
+					{label}{" "}
+					{!!maxLength && showCharCounter && (
+						<span>
+							(
+							<CharCounter
+								maxLength={maxLength}
+								length={value?.length}
+							/>
+							)
+						</span>
 					)}
-				</ErrorMessage>
-			)}
-		</div>
-	);
-};
+				</label>
+				{!!value && !disabled && !props.readOnly && isClearable && (
+					<Picto
+						icon={"cross"}
+						tabIndex={-1}
+						wrapperClassName={cn([
+							"al__input__icon al__input__icon--absolute al__input--peer",
+							error && "al__input__icon--error",
+						])}
+						onClick={() => {
+							if (disabled) return;
+							if (
+								combinedRef &&
+								"current" in combinedRef &&
+								combinedRef.current
+							) {
+								combinedRef.current.value = "";
+								combinedRef.current.dispatchEvent(
+									new Event("input", { bubbles: true })
+								);
+							}
+							onChange?.(null);
+						}}
+					/>
+				)}
+				{(!value || disabled) && info && (
+					<Tooltip
+						tabIndex={-1}
+						content={
+							<Picto
+								icon={"info"}
+								className={cn(["al__input__icon"])}
+								wrapperClassName={
+									error && "al__input__icon--error"
+								}
+							/>
+						}
+						buttonClassName={cn([
+							"al__input--peer",
+							"al__input__icon--absolute",
+						])}
+						floatingProps={{
+							placement: "top",
+						}}
+						portal={true}
+					>
+						<div className="al__input__info">{info}</div>
+					</Tooltip>
+				)}
+				{picto && (!value || !isClearable) && (
+					<Picto
+						tabIndex={-1}
+						wrapperClassName={cn([
+							"al__input__icon al__input__icon--absolute al__input--peer",
+						])}
+						className={cn([
+							error && "al__input__icon--error",
+							picto.className,
+						])}
+						{...picto}
+						onClick={(e) => {
+							if (!disabled) {
+								picto.onClick?.(e);
+							}
+						}}
+					/>
+				)}
+			</div>
+		);
+	}
+);
+
+TextField.displayName = "TextField";
+
+export const Input = withFormikWrapper<
+	ITextFieldProps,
+	HTMLInputElement,
+	string | null
+>(TextField);

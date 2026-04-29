@@ -1,0 +1,24 @@
+.al__chip {
+	@apply flex cursor-pointer items-center justify-center gap-1 rounded-xl bg-primary-50 px-l py-s text-s text-primary-600;
+
+	&:focus,
+	&:focus-visible {
+		@apply shadow-[inset_0_0_0_2px_var(--color-primary-600)] outline-none;
+	}
+
+	&:hover {
+		@apply bg-primary-600 text-primary-50;
+	}
+
+	&--picto {
+		@apply h-4 w-4;
+	}
+
+	&.al__chip--disabled {
+		@apply cursor-default bg-neutral-100 text-neutral-600;
+
+		&:focus {
+			@apply shadow-none;
+		}
+	}
+}

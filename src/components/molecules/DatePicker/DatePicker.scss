@@ -194,29 +194,29 @@
 	}
 
 	.react-datepicker__day--in-selecting-range:not(
-			.react-datepicker__day--in-range,
-			.react-datepicker__month-text--in-range,
-			.react-datepicker__quarter-text--in-range,
-			.react-datepicker__year-text--in-range
-		),
+		.react-datepicker__day--in-range,
+		.react-datepicker__month-text--in-range,
+		.react-datepicker__quarter-text--in-range,
+		.react-datepicker__year-text--in-range
+	),
 	.react-datepicker__month-text--in-selecting-range:not(
-			.react-datepicker__day--in-range,
-			.react-datepicker__month-text--in-range,
-			.react-datepicker__quarter-text--in-range,
-			.react-datepicker__year-text--in-range
-		),
+		.react-datepicker__day--in-range,
+		.react-datepicker__month-text--in-range,
+		.react-datepicker__quarter-text--in-range,
+		.react-datepicker__year-text--in-range
+	),
 	.react-datepicker__quarter-text--in-selecting-range:not(
-			.react-datepicker__day--in-range,
-			.react-datepicker__month-text--in-range,
-			.react-datepicker__quarter-text--in-range,
-			.react-datepicker__year-text--in-range
-		),
+		.react-datepicker__day--in-range,
+		.react-datepicker__month-text--in-range,
+		.react-datepicker__quarter-text--in-range,
+		.react-datepicker__year-text--in-range
+	),
 	.react-datepicker__year-text--in-selecting-range:not(
-			.react-datepicker__day--in-range,
-			.react-datepicker__month-text--in-range,
-			.react-datepicker__quarter-text--in-range,
-			.react-datepicker__year-text--in-range
-		) {
+		.react-datepicker__day--in-range,
+		.react-datepicker__month-text--in-range,
+		.react-datepicker__quarter-text--in-range,
+		.react-datepicker__year-text--in-range
+	) {
 		@apply bg-primary-200;
 	}
 

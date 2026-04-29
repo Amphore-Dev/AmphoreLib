@@ -4,8 +4,10 @@ import { cn } from "@utils/cn";
 
 import "./Toggle.scss";
 
-export interface IToggleProps
-	extends Omit<InputHTMLAttributes<HTMLInputElement>, "onChange"> {
+export interface IToggleProps extends Omit<
+	InputHTMLAttributes<HTMLInputElement>,
+	"onChange"
+> {
 	label: string;
 	className?: string;
 	labelClassName?: string;

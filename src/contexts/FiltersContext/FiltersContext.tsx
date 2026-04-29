@@ -1,17 +1,17 @@
 import * as React from "react";
 
 import { DEFAULT_FILTERS } from "@constants/CFiltersContext";
+
 import {
 	IUseFiltersContext,
 	TFieldRendererMap,
 	TFiltersContextOptions,
 	TFiltersSlice,
 } from "@interfaces/TFiltersContext";
-
 import { ISearchParamsAdapter } from "@interfaces/TSearchParams";
 
-import { useStandaloneSearchParams } from "@hooks/useStandaloneSearchParams";
 import { useFiltersContext } from "@hooks/useFiltersContext";
+import { useStandaloneSearchParams } from "@hooks/useStandaloneSearchParams";
 
 import { applyDefaults } from "@utils/UFiltersContext";
 

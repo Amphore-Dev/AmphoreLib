@@ -1,113 +1,65 @@
-.al__textfield {
-	.textfield-wrapper {
-		@apply relative rounded-[2rem];
+input.al__input:not(:placeholder-shown) + label {
+	@apply top-[15%] pl-[18px] text-s;
+}
 
-		label {
-			@apply pointer-events-none absolute left-5 top-1/2 max-w-[calc(100%-2rem)] -translate-y-1/2 rounded-lg text-neutral-500 opacity-0 transition-all duration-300 dark:text-neutral-400;
-
-			&.active {
-				@apply top-2 translate-y-0 text-xs text-neutral-400 opacity-100 dark:text-neutral-400;
-			}
-
-			&.disabled {
-				@apply text-neutral-300 dark:text-neutral-600;
-			}
-		}
-
-		.textfield-input {
-			@apply h-4 w-full rounded-[2rem] border-2 border-neutral-300 px-5 pb-6 pt-6 text-sm outline-none transition-colors duration-500 dark:border-neutral-600 dark:bg-neutral-800 dark:text-white;
-
-			&.has-value {
-				@apply pb-4 pt-8;
-			}
-
-			&:focus {
-				@apply border-primary-500 dark:border-primary-400;
-			}
-
-			&.error {
-				@apply border-error-500;
-			}
-
-			&.disabled {
-				@apply bg-neutral-100 text-neutral-400 dark:bg-neutral-700 dark:text-neutral-500;
-			}
-
-			&.has-picto {
-				@apply pr-[3.25rem];
-			}
-		}
-
-		&:not(.has-label) .textfield-input {
-			@apply pt-6;
-
-			&.has-value {
-				@apply pb-6 pt-6;
-			}
-		}
-
-		&.s {
-			.textfield-input {
-				@apply pb-5 pt-5 text-xs;
-
-				&.has-value {
-					@apply pb-3 pt-7;
-				}
-			}
-
-			&:not(.has-label) .textfield-input {
-				@apply pt-4;
-
-				&.has-value {
-					@apply pb-4 pt-4;
-				}
-			}
-
-			label {
-				@apply left-5 top-1/2;
-
-				&.active {
-					@apply top-2 text-xs;
-				}
-			}
-
-			.picto,
-			.spinner {
-				@apply right-3 h-6 w-6;
-			}
-
-			.char-limit {
-				@apply right-4 top-1.5;
-			}
-		}
-
-		.picto,
-		.spinner {
-			@apply absolute right-4 top-1/2 h-7 w-7 -translate-y-1/2 text-neutral-400 dark:text-neutral-500;
-
-			&.clickable:hover {
-				@apply text-neutral-500 dark:text-neutral-300;
-			}
-		}
-
-		.char-limit {
-			@apply pointer-events-none absolute right-6 top-2 text-xs text-neutral-400 dark:text-neutral-500;
-
-			&.disabled {
-				@apply text-neutral-300 dark:text-neutral-600;
-			}
-		}
+.al__input {
+	&--wrapper {
+		@apply relative overflow-hidden;
 	}
 
-	.required {
-		@apply ml-5 mt-1 text-left text-xs text-neutral-500 dark:text-neutral-400;
+	@apply rounded-full border-2 border-solid border-transparent;
+
+	&--has-default-border {
+		@apply border-neutral-300;
 	}
 
-	.info-message {
-		@apply mt-2 whitespace-break-spaces;
+	@apply w-full rounded-[100px] pb-1.5 pl-4 pr-12 pt-5 text-m;
 
-		&.with-required {
-			@apply mt-1;
-		}
+	@apply outline-primary-500 hover:border-primary-500 focus:border-primary-500 focus-visible:border-primary-500 focus-visible:outline-0 group-hover:border-primary-500;
+
+	@apply disabled:cursor-default disabled:border-neutral-300 disabled:bg-neutral-100 disabled:focus-visible:border-neutral-300 disabled:group-hover:border-neutral-300;
+
+	&--error {
+		@apply border-error-500 outline-error-500 hover:border-error-500 focus:border-error-500 focus-visible:border-error-500 group-hover:border-error-500;
+	}
+}
+
+.al__input__label {
+	@apply pointer-events-none absolute left-0 top-4 w-[calc(100%-2.5rem)] pl-4 text-m font-medium text-neutral-600 transition-all duration-200 ease-in-out;
+
+	// Active state
+	&--floating {
+		@apply top-[15%] pl-[18px] text-s;
+	}
+
+	&--required::after {
+		content: "*";
+		@apply text-error-500;
+	}
+
+	// When input focused or hover
+	.peer:focus ~ &,
+	.peer:not(:disabled):hover ~ & {
+		@apply top-[15%] pl-[18px] text-s;
+	}
+}
+
+.al__input__info {
+	@apply text-center font-normal;
+}
+
+.al__input--peer {
+	@apply text-neutral-600 hover:text-primary-500 peer-hover:text-primary-500 peer-focus:text-primary-500 peer-disabled:cursor-default peer-disabled:text-neutral-600;
+}
+
+.al__input__icon {
+	@apply h-6 w-6;
+
+	&--absolute {
+		@apply absolute right-4 top-1/2 translate-y-[-50%];
+	}
+
+	&--error {
+		@apply text-error-500 hover:text-error-500;
 	}
 }
