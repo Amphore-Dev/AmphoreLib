@@ -1,5 +1,8 @@
 [data-ras-table-row] {
-	@apply border-b border-neutral-200 -outline-offset-2 last:border-none dark:border-neutral-700;
+	display: grid;
+	grid-column: 1 / -1;
+	grid-template-columns: subgrid;
+	@apply border-b border-neutral-200 -outline-offset-2 dark:border-neutral-700;
 
 	&.clickable {
 		cursor: pointer;
@@ -11,26 +14,10 @@
 
 	&.selected {
 		@apply bg-primary-50 dark:bg-primary-950;
-
-		& > td {
-			@apply bg-primary-50 dark:bg-primary-950;
-		}
-
-		&:hover {
-			@apply bg-primary-50 dark:bg-primary-950;
-
-			& > td {
-				@apply bg-primary-50 dark:bg-primary-950;
-			}
-		}
 	}
 
-	&:hover {
+	&:not(.disabled):hover {
 		@apply bg-neutral-50 dark:bg-neutral-800;
-
-		& > td {
-			@apply bg-neutral-50 dark:bg-neutral-800;
-		}
 	}
 
 	&:focus-visible {

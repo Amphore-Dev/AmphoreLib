@@ -1,4 +1,4 @@
-import React, { ForwardedRef, forwardRef, memo, useMemo } from "react";
+import React, { memo, useMemo } from "react";
 
 import { UseFloatingOptions } from "@floating-ui/react";
 
@@ -17,29 +17,22 @@ export interface ITableRowProps<T = unknown> {
 	onClick?: (item: T) => void;
 	columns: TTableColumn<T>[];
 	className?: string;
-	style?: React.CSSProperties;
 	selected?: boolean;
 	onSelect?: (item: T) => void;
-	cellSpacing?: string;
 	itemsActionsStrategy?: UseFloatingOptions["strategy"];
 }
 
-function TableRowInner<T>(
-	{
-		isClickable = false,
-		isDisabled = false,
-		item,
-		onClick,
-		columns,
-		className,
-		style,
-		selected,
-		onSelect,
-		cellSpacing = "1rem",
-		itemsActionsStrategy,
-	}: ITableRowProps<T>,
-	ref: ForwardedRef<HTMLTableRowElement>
-) {
+function TableRowInner<T>({
+	isClickable = false,
+	isDisabled = false,
+	item,
+	onClick,
+	columns,
+	className,
+	selected,
+	onSelect,
+	itemsActionsStrategy,
+}: ITableRowProps<T>) {
 	const cells = useMemo(() => {
 		return columns.map((column, colIndex) => {
 			const isColumnClickable =
@@ -94,12 +87,8 @@ function TableRowInner<T>(
 					}
 					value={value}
 					item={item}
-					size={column.size}
 					disabled={isDisabled}
 					checked={selected}
-					marginRight={
-						colIndex < columns.length - 1 ? cellSpacing : undefined
-					}
 					itemsActionsStrategy={itemsActionsStrategy}
 				/>
 			);
@@ -107,9 +96,9 @@ function TableRowInner<T>(
 	}, [columns, item, isDisabled, selected]);
 
 	return (
-		<tr
-			ref={ref}
+		<div
 			data-ras-table-row
+			role="row"
 			className={cn([
 				"group",
 				isClickable && "clickable",
@@ -126,18 +115,10 @@ function TableRowInner<T>(
 			onClick={isClickable ? () => onClick?.(item) : undefined}
 			tabIndex={isClickable ? 0 : undefined}
 			data-disabled={isDisabled}
-			style={style}
 		>
 			{cells}
-		</tr>
+		</div>
 	);
 }
 
-const ForwardedTableRowInner = forwardRef(TableRowInner) as <T>(
-	props: ITableRowProps<T> & { ref?: ForwardedRef<HTMLTableRowElement> }
-) => React.ReactElement | null;
-
-// Wrap dans React.memo
-export const TableRow = memo(
-	ForwardedTableRowInner
-) as typeof ForwardedTableRowInner;
+export const TableRow = memo(TableRowInner) as typeof TableRowInner;

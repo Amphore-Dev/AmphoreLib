@@ -39,14 +39,7 @@ export const TableHeader = <T,>({
 
 	const handleSelectAll = (checked: boolean, column: TTableColumn<T>) => {
 		const selectableItems = getSelectableItems(column);
-
-		if (selectableItems && selectableItems.length > 0) {
-			const selectedItems = checked ? selectableItems : [];
-
-			onSelect?.(selectedItems);
-		} else {
-			onSelect?.([]);
-		}
+		onSelect?.(checked && selectableItems.length ? selectableItems : []);
 	};
 
 	const isAllSelected = (column: TTableColumn<T>) => {
@@ -54,39 +47,34 @@ export const TableHeader = <T,>({
 		if (selectableItems.length === 0) return false;
 
 		if (getItemId) {
-			const selectedItemIds = selectedItems.map(getItemId);
-			const selectableItemIds = selectableItems.map(getItemId);
-			return (
-				selectableItemIds.length > 0 &&
-				selectableItemIds.every((id) => selectedItemIds.includes(id))
-			);
+			const selectedIds = selectedItems.map(getItemId);
+			return selectableItems
+				.map(getItemId)
+				.every((id) => selectedIds.includes(id));
 		}
-		return selectableItems?.length === selectedItems?.length;
+		return selectableItems.length === selectedItems.length;
 	};
 
 	return (
-		<thead data-ras-table-header>
-			<tr>
-				{columns.map((column, index) => (
-					<TableHeaderCell
-						isAllSelected={isAllSelected}
-						key={index}
-						{...column}
-						column={column}
-						sortDirection={
-							sortKey === column.value ? sortDirection : undefined
+		<div data-ras-table-header role="row">
+			{columns.map((column, index) => (
+				<TableHeaderCell
+					isAllSelected={isAllSelected}
+					key={index}
+					{...column}
+					column={column}
+					sortDirection={
+						sortKey === column.value ? sortDirection : undefined
+					}
+					onSelect={handleSelectAll}
+					onSort={(direction) => {
+						if (column.sortable) {
+							onSort?.(column.name, direction);
 						}
-						onSelect={handleSelectAll}
-						onSort={(direction) => {
-							if (column.sortable) {
-								onSort?.(column.name, direction);
-							}
-						}}
-						size={column.size}
-						className={column.headerClassName ?? cellsClassName}
-					/>
-				))}
-			</tr>
-		</thead>
+					}}
+					className={column.headerClassName ?? cellsClassName}
+				/>
+			))}
+		</div>
 	);
 };

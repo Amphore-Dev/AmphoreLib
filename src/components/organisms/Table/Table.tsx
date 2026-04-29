@@ -1,10 +1,4 @@
-import React, {
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import { UseFloatingOptions } from "@floating-ui/react";
 
@@ -37,10 +31,8 @@ export interface ITableProps<T = unknown> {
 	hasMore?: boolean;
 	onSelect?: (items: T[], item: T) => void;
 	selected?: T[];
-	cellSpacing?: "1rem" | "0.5rem" | "0.25rem" | "0";
 	canClickToLoadMore?: boolean;
 	itemsActionsStrategy?: UseFloatingOptions["strategy"];
-	equalizeRowsHeight?: boolean;
 }
 
 export const Table = <T,>({
@@ -62,53 +54,32 @@ export const Table = <T,>({
 	getItemKey,
 	onSelect,
 	selected,
-	cellSpacing = "1rem",
 	headerClassName,
 	canClickToLoadMore = false,
 	itemsActionsStrategy,
-	equalizeRowsHeight = false,
 }: ITableProps<T>) => {
 	const [sortDirection, setSortDirection] = useState<TSortDirection>();
 	const [sortKey, setSortKey] = useState("");
 	const containerRef = useRef<HTMLDivElement>(null);
-	const [SelectedItems, setSelectedItems] = useState<T[]>([]);
+	const [selectedItems, setSelectedItems] = useState<T[]>([]);
 
-	const rowRefs = useRef<(HTMLTableRowElement | null)[]>([]);
-	const [maxRowHeight, setMaxRowHeight] = useState<number | undefined>(
-		undefined
-	);
-
-	const getItemId = (item: T) => {
-		if (getItemKey) {
-			return getItemKey(item);
-		}
-		return item["id" as keyof T] as string | number;
-	};
+	const getItemId = (item: T): string | number =>
+		getItemKey
+			? getItemKey(item)
+			: (item["id" as keyof T] as string | number);
 
 	const handleSelect = useCallback(
 		(item: T) => {
-			if (onSelect) {
-				setSelectedItems((prevSelectedItems) => {
-					let newSelectedItems = [...prevSelectedItems];
-
-					const isAlreadySelected = newSelectedItems.some(
-						(selectedItem) =>
-							getItemId(selectedItem) === getItemId(item)
-					);
-
-					if (isAlreadySelected) {
-						newSelectedItems = newSelectedItems.filter(
-							(selectedItem) =>
-								getItemId(selectedItem) !== getItemId(item)
-						);
-					} else {
-						newSelectedItems.push(item);
-					}
-
-					onSelect(newSelectedItems, item);
-					return newSelectedItems;
-				});
-			}
+			if (!onSelect) return;
+			setSelectedItems((prev) => {
+				const id = getItemId(item);
+				const exists = prev.some((s) => getItemId(s) === id);
+				const next = exists
+					? prev.filter((s) => getItemId(s) !== id)
+					: [...prev, item];
+				onSelect(next, item);
+				return next;
+			});
 		},
 		[onSelect, getItemKey]
 	);
@@ -116,9 +87,7 @@ export const Table = <T,>({
 	const handleMultipleSelect = useCallback(
 		(items: T[]) => {
 			setSelectedItems(items);
-			if (onSelect) {
-				onSelect(items, items[0]);
-			}
+			onSelect?.(items, items[0]);
 		},
 		[onSelect]
 	);
@@ -129,13 +98,13 @@ export const Table = <T,>({
 
 		const handleScroll = () => {
 			const { scrollTop, scrollHeight, clientHeight } = container;
-			const threshold = 1 - loadMoreThreshold;
-
-			// Scroll visible bottom
-			const scrollBottom = scrollTop + clientHeight;
-			const triggerPoint = scrollHeight - clientHeight * threshold;
-
-			if (scrollBottom >= triggerPoint && hasMore && !isLoading) {
+			const triggerPoint =
+				scrollHeight - clientHeight * (1 - loadMoreThreshold);
+			if (
+				scrollTop + clientHeight >= triggerPoint &&
+				hasMore &&
+				!isLoading
+			) {
 				onLoadMore();
 			}
 		};
@@ -145,116 +114,83 @@ export const Table = <T,>({
 	}, [onLoadMore, loadMoreThreshold, isLoading, hasMore]);
 
 	useEffect(() => {
-		if (onSelect) {
-			setSelectedItems(selected || []);
-		}
+		if (onSelect) setSelectedItems(selected ?? []);
 	}, [selected, onSelect]);
 
-	useEffect(() => {
-		if (!equalizeRowsHeight) return;
-
-		const rowsHeights = rowRefs.current.map(
-			(ref) => ref?.offsetHeight || 0
-		);
-
-		if (!rowsHeights.length) return;
-
-		const tallestHeight = Math.max(...rowsHeights);
-		setMaxRowHeight(tallestHeight);
-	}, [items, equalizeRowsHeight]);
-
-	const columnsWithResolvedSize = useMemo(() => columns, [columns]);
+	const gridTemplateColumns = [
+		...columns.map((col) => col.width ?? "auto"),
+		"1fr",
+	].join(" ");
 
 	return (
-		<div ref={containerRef} data-ras-table>
-			<table>
-				<TableHeader
-					columns={columnsWithResolvedSize}
-					sortKey={sortKey}
-					sortDirection={sortDirection}
-					onSort={(key: string, direction: TSortDirection) => {
-						setSortKey(key);
-						setSortDirection(direction);
-						onSort?.(key, direction);
-					}}
-					items={items}
-					cellsClassName={headerClassName}
-					onSelect={handleMultipleSelect}
-					selectedItems={SelectedItems}
-					getItemId={getItemId}
-				/>
-				<tbody>
-					{items.map((item, index) => {
-						const key = getItemKey ? getItemKey(item) : index;
+		<div
+			ref={containerRef}
+			data-ras-table
+			role="grid"
+			style={{ gridTemplateColumns }}
+		>
+			<TableHeader
+				columns={columns}
+				sortKey={sortKey}
+				sortDirection={sortDirection}
+				onSort={(key, direction) => {
+					setSortKey(key);
+					setSortDirection(direction);
+					onSort?.(key, direction);
+				}}
+				items={items}
+				cellsClassName={headerClassName}
+				onSelect={handleMultipleSelect}
+				selectedItems={selectedItems}
+				getItemId={getItemId}
+			/>
+			{items.map((item, index) => {
+				const key = getItemKey ? getItemKey(item) : index;
+				const isClickable =
+					typeof isRowClickable === "function"
+						? isRowClickable(item)
+						: !!onRowClick;
+				const isDisabled =
+					typeof isRowDisabled === "function"
+						? isRowDisabled(item)
+						: false;
+				const isSelected = selectedItems.some(
+					(s) => getItemId(s) === getItemId(item)
+				);
 
-						const isClickable =
-							typeof isRowClickable === "function"
-								? isRowClickable(item)
-								: !!onRowClick;
-
-						const isDisabled =
-							typeof isRowDisabled === "function"
-								? isRowDisabled(item)
-								: false;
-
-						const isSelected = !!SelectedItems?.find(
-							(selectedItem) => {
-								if (getItemKey) {
-									return getItemKey(selectedItem) === key;
-								}
-							}
-						);
-						return (
-							<TableRow
-								ref={(el) => (rowRefs.current[index] = el)}
-								key={key}
-								item={item}
-								columns={columnsWithResolvedSize}
-								onClick={isClickable ? onRowClick : undefined}
-								isClickable={isClickable}
-								isDisabled={isDisabled}
-								className={
-									typeof rowClassName === "function"
-										? cn([rowClassName(item)])
-										: (rowClassName as string)
-								}
-								selected={isSelected}
-								onSelect={(item: T) => handleSelect(item)}
-								cellSpacing={cellSpacing}
-								itemsActionsStrategy={itemsActionsStrategy}
-								style={
-									equalizeRowsHeight && maxRowHeight
-										? { height: maxRowHeight }
-										: undefined
-								}
-							/>
-						);
-					})}
-
-					<tr>
-						<td colSpan={columns.length} className="footer">
-							{!isLoading &&
-								!hasMore &&
-								!items?.length &&
-								noDataMessage}
-							{!isLoading && canClickToLoadMore && hasMore && (
-								<button
-									className="load-more"
-									onClick={onLoadMore}
-									disabled={!hasMore}
-								>
-									{clickToLoadMoreMessage}
-								</button>
-							)}
-							{isLoading && <Spinner text={loadingMessage} />}
-							{!hasMore &&
-								!isLoading &&
-								!!items?.length &&
-								endOfListMessage}
-						</td>
-					</tr>
-				</tbody>
-			</table>
+				return (
+					<TableRow
+						key={key}
+						item={item}
+						columns={columns}
+						onClick={isClickable ? onRowClick : undefined}
+						isClickable={isClickable}
+						isDisabled={isDisabled}
+						className={
+							typeof rowClassName === "function"
+								? cn([rowClassName(item)])
+								: (rowClassName as string)
+						}
+						selected={isSelected}
+						onSelect={handleSelect}
+						itemsActionsStrategy={itemsActionsStrategy}
+					/>
+				);
+			})}
+			<div data-ras-table-footer>
+				{!isLoading && !hasMore && !items?.length && noDataMessage}
+				{!isLoading && canClickToLoadMore && hasMore && (
+					<button
+						className="load-more"
+						onClick={onLoadMore}
+						disabled={!hasMore}
+					>
+						{clickToLoadMoreMessage}
+					</button>
+				)}
+				{isLoading && <Spinner text={loadingMessage} />}
+				{!hasMore && !isLoading && !!items?.length && endOfListMessage}
+			</div>
 		</div>
 	);
 };

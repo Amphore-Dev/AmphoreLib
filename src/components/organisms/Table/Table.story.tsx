@@ -80,7 +80,6 @@ const COLUMNS: TTableColumn<TStoryExempleItem>[] = [
 			}
 			return undefined;
 		},
-		size: 6,
 	},
 	{
 		value: "button",
@@ -230,6 +229,27 @@ export const TwoColumns = Template.bind({});
 TwoColumns.args = {
 	columns: [
 		{
+			title: "actions",
+			name: "actions",
+			itemActions: [
+				{
+					label: "View Details",
+					icon: "info",
+					onClick: (item) => alert(`Details for ${item.name}`),
+				},
+				{
+					label: "Edit",
+					icon: "edit",
+					onClick: (item) => alert(`Edit clicked for ${item.name}`),
+				},
+				{
+					label: "Delete",
+					icon: "delete",
+					onClick: (item) => alert(`Delete clicked for ${item.name}`),
+				},
+			],
+		},
+		{
 			title: "Name",
 			value: "name",
 			name: "name",
@@ -284,7 +304,6 @@ LoadMore.args = {
 	loadingMessage: "Loading more items...",
 	noDataMessage: "No data available",
 	endOfListMessage: "End of list",
-	cellSpacing: "0.5rem",
 };
 
 export const LoadMoreWithBiggerContainer = (
@@ -324,7 +343,6 @@ LoadMoreWithBiggerContainer.args = {
 	loadingMessage: "Loading more items...",
 	noDataMessage: "No data available",
 	endOfListMessage: "End of list",
-	cellSpacing: "0.5rem",
 };
 
 export const GlobalHeaderClassName = Template.bind({});
@@ -484,7 +502,6 @@ EqualizeRowsHeight.args = {
 			},
 		},
 	],
-	equalizeRowsHeight: true,
 };
 
 export const TruncatedValue = (args: ITableProps<TStoryExempleItem>) => {
@@ -507,4 +524,74 @@ TruncatedValue.args = {
 			className: "!w-[100px]",
 		},
 	],
+};
+
+export const WithColumnSizes = Template.bind({});
+WithColumnSizes.storyName = "Column widths (px / fr / minmax)";
+WithColumnSizes.args = {
+	columns: [
+		{
+			name: "select",
+			value: "select",
+			selectable: (item: TStoryExempleItem) => !item.isOut,
+			width: "48px",
+		},
+		{
+			title: "Name",
+			name: "name",
+			value: "name",
+			sortable: true,
+			description: (item: TStoryExempleItem) =>
+				item.isOut ? "Out of office" : undefined,
+			badge: (item: TStoryExempleItem) => {
+				if (item.isNew) return "New";
+				if (item.isOut) return { label: "Out", color: "warning" };
+				return undefined;
+			},
+			width: "4fr",
+		},
+		{
+			title: "Contact",
+			name: "contact",
+			value: (item: TStoryExempleItem) => item.phone || item.email,
+			picto: (item: TStoryExempleItem) =>
+				item.phone ? "phoneOutgoing" : item.email ? "mail" : undefined,
+			clickable: (item: TStoryExempleItem) =>
+				!!item.phone || !!item.email,
+			width: "minmax(140px, 1fr)",
+		},
+		{
+			title: "Country",
+			name: "country",
+			value: "country",
+			sortable: true,
+			width: "120px",
+		},
+		{
+			title: "Occupation",
+			name: "occupation",
+			value: "occupation",
+			sortable: true,
+		},
+		{
+			name: "actions",
+			value: "actions",
+			itemActions: [
+				{
+					label: "Edit",
+					icon: "edit",
+					onClick: (item: TStoryExempleItem) =>
+						alert(`Edit ${item.name}`),
+					hidden: (item: TStoryExempleItem) => !!item.isOut,
+				},
+				{
+					label: "Delete",
+					icon: "delete",
+					onClick: (item: TStoryExempleItem) =>
+						alert(`Delete ${item.name}`),
+				},
+			],
+			width: "48px",
+		},
+	] as TTableColumn<TStoryExempleItem>[],
 };

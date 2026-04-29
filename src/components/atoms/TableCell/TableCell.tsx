@@ -30,14 +30,12 @@ const TableCellInner = <T,>(props: ITableCellProps<T>) => {
 		onSelect,
 		selectable,
 		button,
-		size,
 		className,
 		item = {} as T,
 		checked,
 		picto,
 		disabled,
 		isSelectCell,
-		marginRight,
 		showOnHover = undefined,
 		itemsActionsStrategy,
 	} = props;
@@ -182,18 +180,7 @@ const TableCellInner = <T,>(props: ITableCellProps<T>) => {
 	}, [props.clickable, item, onClick]);
 
 	return (
-		<td
-			data-ras-table-cell-wrapper
-			style={{
-				paddingRight: marginRight,
-				...(size
-					? {
-							width: `${(100 / 12) * size}%`,
-							minWidth: `${(100 / 12) * size}%`,
-						}
-					: {}),
-			}}
-		>
+		<div data-ras-table-cell-wrapper role="gridcell">
 			<div
 				ref={refs.cell}
 				className={className}
@@ -340,7 +327,7 @@ const TableCellInner = <T,>(props: ITableCellProps<T>) => {
 					)}
 				</div>
 			</div>
-		</td>
+		</div>
 	);
 };
 

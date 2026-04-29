@@ -1,15 +1,10 @@
 [data-ras-table] {
 	@apply relative h-full overflow-auto;
+	display: grid;
+	align-content: start;
 
-	table {
-		@apply relative min-w-full table-fixed overflow-visible;
-
-		tbody {
-			@apply relative z-0;
-		}
-
-		.footer {
-			@apply place-items-center pt-4 text-center text-neutral-500 dark:text-neutral-400;
-		}
+	[data-ras-table-footer] {
+		grid-column: 1 / -1;
+		@apply place-items-center pt-4 text-center text-neutral-500 dark:text-neutral-400;
 	}
 }

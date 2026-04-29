@@ -1,7 +1,6 @@
 import { TPictoName } from "@constants/CPictos";
 import { UseFloatingOptions } from "@floating-ui/react";
 
-import { TGridSize } from "./TGrid";
 import { IButtonProps, ITagProps } from "@components/atoms";
 
 export type TSortDirection = "asc" | "desc" | "none" | undefined;
@@ -55,12 +54,10 @@ export type TTableCell<T> = {
 	button?: Omit<IButtonProps, "onClick"> & {
 		onClick?: (item: T, e: React.MouseEvent | React.KeyboardEvent) => void;
 	};
-	size?: TGridSize;
 	className?: string | ((item: T) => string);
 	item?: T;
 	picto?: TPictoName | ((item: T) => TPictoName | undefined);
 	disabled?: boolean;
-	marginRight?: string;
 	itemsActionsStrategy?: UseFloatingOptions["strategy"];
 };
 
@@ -74,7 +71,7 @@ export type TTableColumn<T> = TTableCell<T> & {
 	onSort?: (key: string, direction: TSortDirection) => void;
 	className?: string | ((rowProps: T) => string);
 	headerClassName?: string;
-	size?: TGridSize; // total must be equal to 12
+	width?: string;
 	showOnHover?: boolean;
 	render?: React.ReactNode | ((props: TTableCell<T>) => React.ReactNode);
 };
