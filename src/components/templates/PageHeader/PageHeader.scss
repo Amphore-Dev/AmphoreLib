@@ -2,7 +2,7 @@
 	@apply flex w-full flex-col flex-wrap;
 
 	&__back-button {
-		@apply mb-4 p-0 text-l text-black no-underline;
+		@apply -ml-1 mb-4 p-0 text-l text-neutral-500 no-underline hover:text-black;
 
 		&__picto {
 			@apply -ml-1 h-6 w-6;
