@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { StoryFn } from "@storybook/react";
 import { Form, Formik } from "formik";
@@ -69,8 +69,15 @@ export default {
 	},
 };
 
-const Template: StoryFn<IPasswordFieldProps> = ({ ...args }) => {
-	return <PasswordField {...args} />;
+const Template: StoryFn<IPasswordFieldProps> = ({ value, ...args }) => {
+	const [localValue, setLocalValue] = useState(value ?? "");
+	return (
+		<PasswordField
+			{...args}
+			value={localValue}
+			onChange={(newValue) => setLocalValue(newValue ?? "")}
+		/>
+	);
 };
 
 const TemplateWithFormik: StoryFn<IPasswordFieldProps> = ({ ...args }) => {
@@ -95,7 +102,7 @@ const TemplateWithFormik: StoryFn<IPasswordFieldProps> = ({ ...args }) => {
 			{() => {
 				return (
 					<Form>
-						<PasswordField {...args} />
+						<PasswordField {...args} name="password" />
 						<Button type="submit" className="mt-2">
 							Submit
 						</Button>

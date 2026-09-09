@@ -78,6 +78,7 @@ export const TextField = forwardRef<HTMLInputElement, ITextFieldProps>(
 			isClearable = true,
 			maxLength,
 			showCharCounter = false,
+			children,
 			...props
 		},
 		ref
@@ -150,6 +151,7 @@ export const TextField = forwardRef<HTMLInputElement, ITextFieldProps>(
 						wrapperClassName={cn([
 							"al__input__icon al__input__icon--absolute al__input--peer",
 							error && "al__input__icon--error",
+							children && "al__input__icon--offset",
 						])}
 						onClick={() => {
 							if (disabled) return;
@@ -209,6 +211,7 @@ export const TextField = forwardRef<HTMLInputElement, ITextFieldProps>(
 						}}
 					/>
 				)}
+				{children}
 			</div>
 		);
 	}

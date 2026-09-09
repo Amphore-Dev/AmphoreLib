@@ -62,4 +62,8 @@ input.al__input:not(:placeholder-shown) + label {
 	&--error {
 		@apply text-error-500 hover:text-error-500;
 	}
+
+	&--offset {
+		@apply right-12;
+	}
 }
