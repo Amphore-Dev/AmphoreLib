@@ -10,7 +10,7 @@ import {
 } from "@hooks/useFormikField";
 
 import CharCounter from "./CharCounter";
-import { IPictoProps, Picto, Tooltip } from "@components/atoms";
+import { IPictoProps, Picto, Spinner, Tooltip } from "@components/atoms";
 
 import { cn } from "@utils/cn";
 
@@ -19,7 +19,7 @@ import "./TextField.scss";
 export interface ITextFieldProps
 	extends Omit<
 			React.InputHTMLAttributes<HTMLInputElement>,
-			"onChange" | "value" | "pattern"
+			"onChange" | "value" | "pattern" | "size"
 		>,
 		IWithFormikWrapperProps<string | null, HTMLInputElement> {
 	type?: string;
@@ -55,6 +55,8 @@ export interface ITextFieldProps
 	isClearable?: boolean;
 	maxLength?: number;
 	showCharCounter?: boolean;
+	size?: "s" | "m";
+	isLoading?: boolean;
 }
 
 export const TextField = forwardRef<HTMLInputElement, ITextFieldProps>(
@@ -78,6 +80,8 @@ export const TextField = forwardRef<HTMLInputElement, ITextFieldProps>(
 			isClearable = true,
 			maxLength,
 			showCharCounter = false,
+			size = "m",
+			isLoading = false,
 			children,
 			...props
 		},
@@ -89,7 +93,13 @@ export const TextField = forwardRef<HTMLInputElement, ITextFieldProps>(
 		const combinedRef = ref || localInputRef;
 
 		return (
-			<div className={cn(["al__input--wrapper group", wrapperClassName])}>
+			<div
+				className={cn([
+					"al__input--wrapper group",
+					`al__input--wrapper--${size}`,
+					wrapperClassName,
+				])}
+			>
 				<input
 					ref={(el: HTMLInputElement | null) => {
 						if (el) {
@@ -110,6 +120,7 @@ export const TextField = forwardRef<HTMLInputElement, ITextFieldProps>(
 					}}
 					className={cn([
 						"al__input peer",
+						`al__input--${size}`,
 						error && "al__input--error",
 						hasDefaultBorder && "al__input--has-default-border",
 						className,
@@ -144,14 +155,18 @@ export const TextField = forwardRef<HTMLInputElement, ITextFieldProps>(
 						</span>
 					)}
 				</label>
-				{!!value && !disabled && !props.readOnly && isClearable && (
+				{!isLoading &&
+					!!value &&
+					!disabled &&
+					!props.readOnly &&
+					isClearable && (
 					<Picto
 						icon={"cross"}
 						tabIndex={-1}
 						wrapperClassName={cn([
 							"al__input__icon al__input__icon--absolute al__input--peer",
 							error && "al__input__icon--error",
-							children && "al__input__icon--offset",
+							!!children && "al__input__icon--offset",
 						])}
 						onClick={() => {
 							if (disabled) return;
@@ -193,7 +208,7 @@ export const TextField = forwardRef<HTMLInputElement, ITextFieldProps>(
 						<div className="al__input__info">{info}</div>
 					</Tooltip>
 				)}
-				{picto && (!value || !isClearable) && (
+				{!isLoading && picto && (!value || !isClearable) && (
 					<Picto
 						tabIndex={-1}
 						wrapperClassName={cn([
@@ -209,6 +224,14 @@ export const TextField = forwardRef<HTMLInputElement, ITextFieldProps>(
 								picto.onClick?.(e);
 							}
 						}}
+					/>
+				)}
+				{isLoading && (
+					<Spinner
+						size={size === "s" ? 1 : 1.5}
+						className={cn([
+							"al__input__icon al__input__icon--absolute",
+						])}
 					/>
 				)}
 				{children}

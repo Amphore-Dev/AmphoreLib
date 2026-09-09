@@ -84,6 +84,17 @@ export default {
 				type: "text",
 			},
 		},
+		size: {
+			control: {
+				type: "radio",
+			},
+			options: ["s", "m"],
+		},
+		isLoading: {
+			control: {
+				type: "boolean",
+			},
+		},
 	},
 	parameters: {
 		controls: {
@@ -96,6 +107,8 @@ export default {
 				"error",
 				"maxLength",
 				"allowedCharacters",
+				"size",
+				"isLoading",
 				"...",
 			],
 		},
@@ -233,6 +246,50 @@ export const DisabledWithInfo: StoryFn<ITextFieldProps> = (args) => {
 				onChange={(value) => setValue(value)}
 				disabled
 				info="This is some information about the input"
+			/>
+		</div>
+	);
+};
+
+export const Sizes: StoryFn = () => {
+	const [mValue, setMValue] = useState<string | null>("");
+	const [sValue, setSValue] = useState<string | null>("");
+
+	return (
+		<div className="flex flex-row items-start gap-8 mr-auto">
+			<TextField
+				label="Default (m)"
+				size="m"
+				value={mValue}
+				onChange={(value) => setMValue(value)}
+			/>
+			<TextField
+				label="Compact (s)"
+				size="s"
+				value={sValue}
+				onChange={(value) => setSValue(value)}
+			/>
+		</div>
+	);
+};
+
+export const Loading: StoryFn = () => {
+	const [value, setValue] = useState<string | null>("");
+
+	return (
+		<div className="flex flex-row items-start gap-8 mr-auto">
+			<TextField
+				label="Loading"
+				value={value}
+				onChange={(value) => setValue(value)}
+				isLoading
+			/>
+			<TextField
+				label="Loading (s)"
+				size="s"
+				value={value}
+				onChange={(value) => setValue(value)}
+				isLoading
 			/>
 		</div>
 	);

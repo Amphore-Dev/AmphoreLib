@@ -42,7 +42,7 @@ export interface IWithFormikWrapperProps<
 export const withFormikWrapper = <
 	P extends Omit<
 		React.InputHTMLAttributes<T>,
-		"onChange" | "pattern" | "value"
+		"onChange" | "pattern" | "value" | "size"
 	> &
 		IWithFormikWrapperProps<Value | null, T>,
 	T extends HTMLElement = HTMLInputElement,
