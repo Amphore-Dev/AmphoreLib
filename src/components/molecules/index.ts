@@ -8,6 +8,7 @@ export * from "./InfoMessage/InfoMessage";
 export * from "./LanguageSwitcher/LanguageSwitcher";
 export * from "./PasswordField/PasswordField";
 export * from "./TextField/TextField";
+export * from "./NumberInput/NumberInput";
 export * from "./TextArea/TextArea";
 export * from "./Select/Select";
 export * from "./AsyncSelect/AsyncSelect";

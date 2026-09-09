@@ -27,8 +27,17 @@ input.al__input:not(:placeholder-shown) + label {
 		@apply pb-1.5 pl-4 pr-12 pt-5 text-m;
 	}
 
+	// Label overlays the field as a placeholder for size s (no floating,
+	// see .al__input--wrapper--s), so it doesn't need extra top padding
+	// reserved for it — the field can be taller.
 	&--s {
-		@apply pb-1 pl-3 pr-10 pt-3 text-s;
+		@apply py-2 pl-3 pr-10 text-m;
+	}
+
+	&--no-label {
+		&.al__input--m {
+			@apply py-3.5;
+		}
 	}
 }
 
@@ -41,12 +50,20 @@ input.al__input:not(:placeholder-shown) + label {
 		@apply right-10;
 	}
 
-	.al__input__label {
-		@apply top-2.5 text-s;
+	// Size s label acts like a plain placeholder: no floating on
+	// focus/hover, it just disappears once the field is filled.
+	.al__input__label,
+	.peer:focus ~ .al__input__label,
+	.peer:not(:disabled):hover ~ .al__input__label {
+		@apply top-2.5 pl-3 text-s;
+	}
 
-		&--floating {
-			@apply top-[8%] pl-[14px] text-xs;
-		}
+	// transition-none here: visibility is a discrete property, so with the
+	// base label's transition-all it only flips after the 200ms duration,
+	// showing the label overlapping the typed value for a moment.
+	input.al__input:not(:placeholder-shown) + .al__input__label,
+	.al__input__label--floating {
+		@apply invisible transition-none;
 	}
 }
 

@@ -17,7 +17,8 @@ import { cn } from "@utils/cn";
 import "./TextField.scss";
 
 export interface ITextFieldProps
-	extends Omit<
+	extends
+		Omit<
 			React.InputHTMLAttributes<HTMLInputElement>,
 			"onChange" | "value" | "pattern" | "size"
 		>,
@@ -77,7 +78,7 @@ export const TextField = forwardRef<HTMLInputElement, ITextFieldProps>(
 			picto,
 			pattern,
 			hasDefaultBorder = true,
-			isClearable = true,
+			isClearable = false,
 			maxLength,
 			showCharCounter = false,
 			size = "m",
@@ -121,6 +122,7 @@ export const TextField = forwardRef<HTMLInputElement, ITextFieldProps>(
 					className={cn([
 						"al__input peer",
 						`al__input--${size}`,
+						!label && "al__input--no-label",
 						error && "al__input--error",
 						hasDefaultBorder && "al__input--has-default-border",
 						className,
@@ -133,57 +135,59 @@ export const TextField = forwardRef<HTMLInputElement, ITextFieldProps>(
 					placeholder={""}
 					value={value ?? ""}
 				/>
-				<label
-					className={cn([
-						"al__input__label",
-						!!value && "al__input__label--floating",
-						required && "al__input__label--required",
-						labelClassName,
-						"whitespace-nowrap overflow-hidden text-ellipsis",
-					])}
-					htmlFor={name}
-				>
-					{label}{" "}
-					{!!maxLength && showCharCounter && (
-						<span>
-							(
-							<CharCounter
-								maxLength={maxLength}
-								length={value?.length}
-							/>
-							)
-						</span>
-					)}
-				</label>
+				{!!label && (
+					<label
+						className={cn([
+							"al__input__label",
+							!!value && "al__input__label--floating",
+							required && "al__input__label--required",
+							labelClassName,
+							"whitespace-nowrap overflow-hidden text-ellipsis",
+						])}
+						htmlFor={name}
+					>
+						{label}{" "}
+						{!!maxLength && showCharCounter && (
+							<span>
+								(
+								<CharCounter
+									maxLength={maxLength}
+									length={value?.length}
+								/>
+								)
+							</span>
+						)}
+					</label>
+				)}
 				{!isLoading &&
 					!!value &&
 					!disabled &&
 					!props.readOnly &&
 					isClearable && (
-					<Picto
-						icon={"cross"}
-						tabIndex={-1}
-						wrapperClassName={cn([
-							"al__input__icon al__input__icon--absolute al__input--peer",
-							error && "al__input__icon--error",
-							!!children && "al__input__icon--offset",
-						])}
-						onClick={() => {
-							if (disabled) return;
-							if (
-								combinedRef &&
-								"current" in combinedRef &&
-								combinedRef.current
-							) {
-								combinedRef.current.value = "";
-								combinedRef.current.dispatchEvent(
-									new Event("input", { bubbles: true })
-								);
-							}
-							onChange?.(null);
-						}}
-					/>
-				)}
+						<Picto
+							icon={"cross"}
+							tabIndex={-1}
+							wrapperClassName={cn([
+								"al__input__icon al__input__icon--absolute al__input--peer",
+								error && "al__input__icon--error",
+								!!children && "al__input__icon--offset",
+							])}
+							onClick={() => {
+								if (disabled) return;
+								if (
+									combinedRef &&
+									"current" in combinedRef &&
+									combinedRef.current
+								) {
+									combinedRef.current.value = "";
+									combinedRef.current.dispatchEvent(
+										new Event("input", { bubbles: true })
+									);
+								}
+								onChange?.(null);
+							}}
+						/>
+					)}
 				{(!value || disabled) && info && (
 					<Tooltip
 						tabIndex={-1}

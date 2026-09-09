@@ -145,7 +145,6 @@ Error.args = {
 export const HideError = Template.bind({});
 HideError.args = {
 	...Error.args,
-	hideError: true,
 };
 
 export const Required = Template.bind({});
@@ -207,15 +206,12 @@ export const Controlled: StoryFn = () => {
 				value={value}
 				onChange={(value) => setValue(value)}
 				error={"Champ requis"}
-				errorInputProps={{
-					className: "text-end",
-				}}
 			/>
 		</div>
 	);
 };
 
-export const NotClearable: StoryFn = () => {
+export const Clearable: StoryFn = () => {
 	const [value, setValue] = useState<string | null>("");
 
 	return (
@@ -229,7 +225,7 @@ export const NotClearable: StoryFn = () => {
 					onClick: () => alert("Calling..."),
 					className: "!text-blue-600",
 				}}
-				isClearable={false}
+				isClearable={true}
 			/>
 		</div>
 	);

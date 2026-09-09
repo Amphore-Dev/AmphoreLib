@@ -1,13 +1,12 @@
-import { useContext } from "react";
 import React, {
+	useContext,
 	forwardRef,
 	ForwardRefExoticComponent,
 	PropsWithoutRef,
 	RefAttributes,
 } from "react";
 
-import { FormikContext, useField } from "formik";
-import { ErrorMessage } from "formik";
+import { FormikContext, useField, ErrorMessage } from "formik";
 
 import {
 	IInputErrorMessageProps,
@@ -58,6 +57,7 @@ export const withFormikWrapper = <
 				hideError = false,
 				updateFormikValue = true,
 				allowedCharacters,
+				errorInputProps,
 				...props
 			},
 			ref
@@ -161,7 +161,7 @@ export const withFormikWrapper = <
 												>
 													{
 														<InputErrorMessage
-															{...props.errorInputProps}
+															{...errorInputProps}
 														>
 															{m}
 														</InputErrorMessage>
@@ -170,7 +170,7 @@ export const withFormikWrapper = <
 											))
 										) : (
 											<InputErrorMessage
-												{...props.errorInputProps}
+												{...errorInputProps}
 											>
 												{msg}
 											</InputErrorMessage>
@@ -178,9 +178,7 @@ export const withFormikWrapper = <
 									}}
 								</ErrorMessage>
 								{!meta?.error && props.error && (
-									<InputErrorMessage
-										{...props.errorInputProps}
-									>
+									<InputErrorMessage {...errorInputProps}>
 										{props.error}
 									</InputErrorMessage>
 								)}
@@ -211,7 +209,7 @@ export const withFormikWrapper = <
 				>
 					<BaseComponent {...simpleProps} />
 					{!hideError && (
-						<InputErrorMessage {...props.errorInputProps}>
+						<InputErrorMessage {...errorInputProps}>
 							{props.error}
 						</InputErrorMessage>
 					)}

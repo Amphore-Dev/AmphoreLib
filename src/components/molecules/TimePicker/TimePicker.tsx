@@ -20,7 +20,7 @@ export interface ITimePickerProps extends Omit<ITextFieldProps, "onChange"> {
 	minutesStep?: number;
 }
 
-const inputClasses = "al__time-picker__input";
+const inputClasses = "al__time-picker__input appearance-textfield";
 
 export const TimePicker: React.FC<ITimePickerProps> = ({
 	value = format(new Date(), "HH:mm"),
