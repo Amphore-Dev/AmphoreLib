@@ -1,124 +1,110 @@
-import React, { memo, useMemo } from "react";
-
-import { UseFloatingOptions } from "@floating-ui/react";
+import React from "react";
 
 import { TTableColumn } from "@interfaces/TTable";
 
-import { TableCell } from "@components/atoms";
+import { Checkbox, Picto, Td, TruncatedTooltipText } from "@components/atoms";
 
 import { cn } from "@utils/cn";
 
-import "./TableRow.scss";
-
-export interface ITableRowProps<T = unknown> {
-	isClickable?: boolean;
-	isDisabled?: boolean;
+export interface ITableRowProps<T> {
 	item: T;
-	onClick?: (item: T) => void;
 	columns: TTableColumn<T>[];
+	onClick?: (item: T, event: React.MouseEvent) => void;
+	onContextMenu?: (
+		item: T,
+		event: React.MouseEvent,
+		fromButton?: boolean
+	) => void;
+	onToggleSelect?: (event: React.MouseEvent) => void;
 	className?: string;
-	selected?: boolean;
-	onSelect?: (item: T) => void;
-	itemsActionsStrategy?: UseFloatingOptions["strategy"];
+	selectable?: boolean;
+	isSelected?: boolean;
+	rowKey?: React.Key;
 }
 
-function TableRowInner<T>({
-	isClickable = false,
-	isDisabled = false,
+export const TableRow = <T,>({
 	item,
-	onClick,
 	columns,
+	onClick,
+	onContextMenu,
+	onToggleSelect,
 	className,
-	selected,
-	onSelect,
-	itemsActionsStrategy,
-}: ITableRowProps<T>) {
-	const cells = useMemo(() => {
-		return columns.map((column, colIndex) => {
-			const isColumnClickable =
-				typeof column.clickable === "function"
-					? column.clickable(item)
-					: (column.clickable ?? !!column.onClick);
-
-			const value = column.value
-				? typeof column.value === "function"
-					? column.value(item)
-					: (item[column.value as keyof T] as string | number)
-				: undefined;
-
-			const isSelectable =
-				typeof column.selectable === "function"
-					? column.selectable(item)
-					: (column.selectable ?? false);
-
-			return (
-				<TableCell
-					key={colIndex}
-					{...column}
-					clickable={isColumnClickable}
-					onClick={
-						isColumnClickable
-							? (item, e) => {
-									if (isClickable) {
-										e.stopPropagation();
-									}
-									column.onClick?.(item, e);
-								}
-							: undefined
-					}
-					onSelect={
-						isSelectable
-							? column.onSelect &&
-								typeof column.onSelect === "function"
-								? (state, item, e) =>
-										column.onSelect?.(state, item, e)
-								: (_, item) => onSelect?.(item)
-							: undefined
-					}
-					isSelectCell={
-						column.isSelectCell ||
-						!!column.onSelect ||
-						!!column.selectable
-					}
-					className={
-						typeof column.className === "function"
-							? column.className(item)
-							: column.className
-					}
-					value={value}
-					item={item}
-					disabled={isDisabled}
-					checked={selected}
-					itemsActionsStrategy={itemsActionsStrategy}
-				/>
-			);
-		});
-	}, [columns, item, isDisabled, selected]);
-
+	selectable,
+	isSelected,
+	rowKey,
+}: ITableRowProps<T>) => {
 	return (
 		<div
-			data-ras-table-row
 			role="row"
-			className={cn([
-				"group",
-				isClickable && "clickable",
-				isDisabled && "disabled",
-				selected && "selected",
-				className,
-			])}
-			onKeyDown={(e) => {
-				if (isClickable && (e.key === "Enter" || e.key === " ")) {
-					e.preventDefault();
-					onClick?.(item);
-				}
-			}}
-			onClick={isClickable ? () => onClick?.(item) : undefined}
-			tabIndex={isClickable ? 0 : undefined}
-			data-disabled={isDisabled}
+			data-row-key={rowKey}
+			style={{ display: "contents" }}
+			data-selected={isSelected || undefined}
+			className={cn(["group", onClick && "cursor-pointer", className])}
+			onClick={onClick ? (e) => onClick(item, e) : undefined}
+			onContextMenu={
+				onContextMenu
+					? (e) => {
+							e.preventDefault();
+							onContextMenu(item, e);
+						}
+					: undefined
+			}
 		>
-			{cells}
+			{selectable && (
+				<Td className="justify-center" key="select">
+					<Checkbox
+						checked={!!isSelected}
+						// react requires an onChange on a controlled checkbox;
+						// the actual selection logic lives in onClick below so
+						// it can read shiftKey/ctrlKey/metaKey. Don't
+						// preventDefault the click — doing so stops the
+						// browser's native toggle, which is also what lets
+						// React correctly re-sync the DOM `checked` property
+						// on the next render (without it, the checkbox can
+						// visually lag a click behind the real selection).
+						onChange={() => {}}
+						onClick={(e) => {
+							e.stopPropagation();
+							onToggleSelect?.(e);
+						}}
+					/>
+				</Td>
+			)}
+			{columns.map((col) => {
+				if (col.key === "contextMenu" && onContextMenu) {
+					return (
+						<Td className="relative" key="contextMenu">
+							<button
+								type="button"
+								className="absolute left-0 top-0 flex h-full w-full items-center justify-center opacity-0 group-hover:opacity-100"
+								onClick={(e) => {
+									e.stopPropagation();
+									onContextMenu(item, e, true);
+								}}
+							>
+								<Picto icon="more" />
+							</button>
+						</Td>
+					);
+				}
+				return (
+					<Td
+						key={col.key}
+						onClick={col.onClick ? () => col.onClick!(item) : undefined}
+					>
+						{typeof col.before === "function"
+							? col.before(item)
+							: undefined}
+						<TruncatedTooltipText>
+							{col.render
+								? col.render(item)
+								: String(item[col.key as keyof T] ?? "")}
+						</TruncatedTooltipText>
+					</Td>
+				);
+			})}
+
+			<Td />
 		</div>
 	);
-}
-
-export const TableRow = memo(TableRowInner) as typeof TableRowInner;
+};

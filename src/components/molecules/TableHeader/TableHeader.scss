@@ -1,7 +1,0 @@
-[data-ras-table-header] {
-	display: grid;
-	grid-column: 1 / -1;
-	grid-template-columns: subgrid;
-	@apply sticky top-0 z-10 gap-6 bg-white dark:bg-neutral-900;
-	@apply shadow-[0_1px_0_0_rgb(210,211,219)] dark:shadow-[0_1px_0_0_rgb(64,65,79)];
-}

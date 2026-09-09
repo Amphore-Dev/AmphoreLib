@@ -1,597 +1,174 @@
-import React, { Children, useMemo, useState } from "react";
+// stories for Table component
+import React from "react";
 
-import { StoryFn, StoryObj } from "@storybook/react";
+import { StoryFn } from "@storybook/react";
 
-import { TSortDirection, TTableColumn } from "@interfaces/TTable";
+import { TTableColumn } from "@interfaces/TTable";
 
-import { ITableProps, Table } from "./Table";
-import { genUsersDataSet } from "./TableStoryUtils";
+import { Table } from "./Table";
 
 export default {
 	title: "Components/Organisms/Table",
 	component: Table,
-	args: {
-		onRowClick: undefined,
-	},
 };
 
-type TStoryExempleItem = {
+type TUser = {
 	id: number;
 	name: string;
-	age: number;
-	country: string;
-	city: string;
-	occupation: string;
-	isNew?: boolean;
-	phone?: string;
-	email?: string;
-	isOut?: boolean;
+	email: string;
+	role: "admin" | "member";
 };
 
-type TTableStory = StoryObj<ITableProps<TStoryExempleItem>>;
+const USERS: TUser[] = Array.from({ length: 40 }).map((_, index) => ({
+	id: index + 1,
+	name: `User ${index + 1}`,
+	email: `user${index + 1}@amphore.dev`,
+	role: index % 5 === 0 ? "admin" : "member",
+}));
 
-const COLUMNS: TTableColumn<TStoryExempleItem>[] = [
-	{
-		selectable: (item) => !item.isOut,
-		value: "select",
-		name: "select",
-	},
-	{
-		value: "actions",
-		name: "actions",
-		itemActions: [
-			{
-				label: "View Details",
-				icon: "info",
-				onClick: (item) => alert(`Details for ${item.name}`),
-				disabled: (item) => !!item.isOut,
-			},
-			{
-				label: "Edit",
-				icon: "edit",
-				onClick: (item) => alert(`Edit clicked for ${item.name}`),
-				hidden: (item) => !!item.isOut,
-			},
-			{
-				label: "Delete",
-				icon: "delete",
-				onClick: (item) => alert(`Delete clicked for ${item.name}`),
-				hidden: (item) => !!item.isOut,
-			},
-		],
-	},
-	{
-		title: "Name",
-		value: "name",
-		name: "name",
-		description: (item) =>
-			item.isOut ? "This user is out of the office" : undefined,
-		sortable: true,
-		className: (item) => (item.isOut ? "text-red-500" : "text-neutral-900"),
-		badge: (item) => {
-			if (item.isNew) {
-				return "New";
-			}
-			if (item.isOut) {
-				return {
-					label: "Out",
-					color: "warning",
-				};
-			}
-			return undefined;
-		},
-	},
-	{
-		value: "button",
-		name: "click-button",
-		clickable: (item) => !item.isOut,
-		button: {
-			children: "View",
-			onClick: (item) => alert("Button clicked for " + item.name),
-			size: "s",
-		},
-	},
-	{
-		title: "Contact",
-		name: "contact",
-		value: (item) => item.phone || item.email,
-		picto: (item) =>
-			item.phone || item.email
-				? item.phone
-					? "phoneOutgoing"
-					: "mail"
-				: undefined,
-		className: "text-primary-500 max-w-[150px]",
-		clickable: (item) => !!item.phone || !!item.email,
-		onClick: (item) => {
-			const link = item.phone
-				? `tel:${item.phone}`
-				: `mailto:${item.email}`;
-			const a = document.createElement("a");
-			a.href = link;
-			a.click();
-			a.remove();
-		},
-	},
-	{
-		title: "Age",
-		name: "age",
-		value: "age",
-		sortable: true,
-	},
-	{
-		title: "Country",
-		name: "country",
-		value: "country",
-		sortable: true,
-	},
-	{
-		title: "City",
-		name: "city",
-		value: "city",
-		sortable: true,
-	},
-	{
-		title: "Occupation",
-		name: "occupation",
-		value: "occupation",
-		sortable: true,
-	},
-	{
-		title: "HoverMe",
-		name: "hover-me",
-		value: "hover me",
-		showOnHover: true,
-		button: {
-			children: "Hover me",
-			size: "s",
-			onClick: (item) => alert(`Hover button clicked for ${item.name}`),
-		},
-	},
+const columns: TTableColumn<TUser>[] = [
+	{ key: "name", label: "Name", sortable: true },
+	{ key: "email", label: "Email", sortable: true },
+	{ key: "role", label: "Role", sortable: true },
 ];
 
-const ITEMS: TStoryExempleItem[] = genUsersDataSet(100);
+export const Base: StoryFn = () => (
+	<div className="h-96">
+		<Table columns={columns} items={USERS} getItemKey={(item) => item.id} />
+	</div>
+);
 
-const Template: StoryFn<ITableProps<TStoryExempleItem>> = (args) => {
-	const [Sort, setSort] = useState<{
-		sortKey: keyof TStoryExempleItem;
-		sortDirection: TSortDirection;
-	}>({
-		sortKey: "name",
-		sortDirection: "asc",
-	});
+export const Loading: StoryFn = () => (
+	<div className="h-96">
+		<Table
+			columns={columns}
+			items={[]}
+			getItemKey={(item) => item.id}
+			isLoading
+		/>
+	</div>
+);
 
-	const sortedItems = useMemo(() => {
-		return [...ITEMS].sort((a, b) => {
-			if (a[Sort.sortKey] === b[Sort.sortKey]) {
-				return 0;
-			}
-			const aValue = a[Sort.sortKey] || "";
-			const bValue = b[Sort.sortKey] || "";
+export const Empty: StoryFn = () => (
+	<div className="h-96">
+		<Table columns={columns} items={[]} getItemKey={(item) => item.id} />
+	</div>
+);
 
-			if (aValue < bValue) {
-				return Sort.sortDirection === "asc" ? -1 : 1;
-			}
-			if (aValue > bValue) {
-				return Sort.sortDirection === "asc" ? 1 : -1;
-			}
-			return 0;
-		});
-	}, [Sort]);
+export const Selectable: StoryFn = () => {
+	const [selectedKeys, setSelectedKeys] = React.useState<
+		Set<string | number>
+	>(new Set());
 
 	return (
-		<div className="w-full h-[500px] relative overflow-hidden">
+		<div className="h-96">
+			<p className="mb-2 text-sm">
+				{selectedKeys.size} selected — checkbox only, shift/ctrl-click
+				range & toggle work from the checkbox too
+			</p>
 			<Table
-				items={sortedItems}
-				{...args}
-				onSort={(key, direction) => {
-					setSort({
-						sortKey: key as keyof TStoryExempleItem,
-						sortDirection: direction,
-					});
-				}}
-				onSelect={(selectedItems) => {
-					console.warn("PROP Selected items:", selectedItems);
-				}}
-				columns={args.columns ?? COLUMNS}
+				columns={columns}
+				items={USERS}
+				getItemKey={(item) => item.id}
+				selectable
+				selectedKeys={selectedKeys}
+				setSelectedKeys={setSelectedKeys}
+			/>
+		</div>
+	);
+};
+
+export const SelectOnClickToggle: StoryFn = () => {
+	const [selectedKeys, setSelectedKeys] = React.useState<
+		Set<string | number>
+	>(new Set());
+
+	return (
+		<div className="h-96">
+			<p className="mb-2 text-sm">
+				{selectedKeys.size} selected — clicking anywhere on the row
+				toggles it, keeps the rest (selectionMode=&quot;toggle&quot;,
+				the default)
+			</p>
+			<Table
+				columns={columns}
+				items={USERS}
+				getItemKey={(item) => item.id}
+				selectable
+				selectOnClick
+				selectedKeys={selectedKeys}
+				setSelectedKeys={setSelectedKeys}
+			/>
+		</div>
+	);
+};
+
+export const SelectOnClickExclusive: StoryFn = () => {
+	const [selectedKeys, setSelectedKeys] = React.useState<
+		Set<string | number>
+	>(new Set());
+
+	return (
+		<div className="h-96">
+			<p className="mb-2 text-sm">
+				{selectedKeys.size} selected — plain click replaces the
+				selection, Ctrl/Cmd-click toggles additively, Shift-click
+				range-selects (selectionMode=&quot;exclusive&quot;)
+			</p>
+			<Table
+				columns={columns}
+				items={USERS}
+				getItemKey={(item) => item.id}
+				selectable
+				selectOnClick
+				selectionMode="exclusive"
+				selectedKeys={selectedKeys}
+				setSelectedKeys={setSelectedKeys}
+			/>
+		</div>
+	);
+};
+
+export const WithRowActions: StoryFn = () => (
+	<div className="h-96">
+		<Table
+			columns={columns}
+			items={USERS}
+			getItemKey={(item) => item.id}
+			rowActions={[
+				{
+					label: "Edit",
+					icon: "edit",
+					onClick: (item) => alert(`Editing ${item.name}`),
+				},
+				{
+					label: "Delete",
+					icon: "trash",
+					onClick: (item) => alert(`Deleting ${item.name}`),
+					disabled: (item) => item.role === "admin",
+				},
+			]}
+		/>
+	</div>
+);
+
+export const HidableColumns: StoryFn = () => {
+	const withHiding: TTableColumn<TUser>[] = [
+		{ key: "name", label: "Name", sortable: true },
+		{ key: "email", label: "Email", sortable: true },
+		{ key: "role", label: "Role", sortable: true, hidden: true },
+	];
+
+	return (
+		<div className="h-96">
+			<p className="mb-2 text-sm">
+				Right-click any column header to toggle visibility
+			</p>
+			<Table
+				columns={withHiding}
+				items={USERS}
 				getItemKey={(item) => item.id}
 			/>
 		</div>
 	);
-};
-
-export const Default: TTableStory = Template.bind({});
-
-export const WithRowClick = Template.bind({});
-WithRowClick.args = {
-	onRowClick: (item) => {
-		alert(`Row clicked: ${JSON.stringify(item)}`);
-	},
-	items: genUsersDataSet(10),
-};
-
-export const Loading = Template.bind({});
-Loading.args = {
-	isLoading: true,
-	loadingMessage: "Chargement des utilisateurs...",
-	noDataMessage: "No data available",
-	items: [],
-};
-
-export const NoData = Template.bind({});
-NoData.args = {
-	isLoading: false,
-	noDataMessage: "No data available",
-	items: [],
-};
-
-export const TwoColumns = Template.bind({});
-TwoColumns.args = {
-	columns: [
-		{
-			title: "actions",
-			name: "actions",
-			itemActions: [
-				{
-					label: "View Details",
-					icon: "info",
-					onClick: (item) => alert(`Details for ${item.name}`),
-				},
-				{
-					label: "Edit",
-					icon: "edit",
-					onClick: (item) => alert(`Edit clicked for ${item.name}`),
-				},
-				{
-					label: "Delete",
-					icon: "delete",
-					onClick: (item) => alert(`Delete clicked for ${item.name}`),
-				},
-			],
-		},
-		{
-			title: "Name",
-			value: "name",
-			name: "name",
-			sortable: true,
-		},
-		{
-			title: "Age",
-			value: "age",
-			name: "age",
-			sortable: true,
-		},
-	],
-	items: genUsersDataSet(10),
-	onRowClick: (item) => {
-		alert(`Row clicked: ${JSON.stringify(item)}`);
-	},
-};
-
-export const LoadMore = (args: ITableProps<TStoryExempleItem>) => {
-	const [items, setItems] = useState<TStoryExempleItem[]>(
-		genUsersDataSet(20)
-	);
-	const [hasMore, setHasMore] = useState(true);
-
-	const handleLoadMore = () => {
-		console.debug("Load more items triggered");
-		if (items.length >= 100) {
-			setHasMore(false);
-			return;
-		}
-		const newItems = genUsersDataSet(20);
-		setItems((prev) => [...prev, ...newItems]);
-	};
-
-	return (
-		<div className="w-full h-[500px] relative overflow-hidden">
-			<Table
-				{...args}
-				items={items}
-				hasMore={hasMore}
-				onLoadMore={handleLoadMore}
-				onRowClick={(item) => {
-					alert(`Row clicked: ${JSON.stringify(item)}`);
-				}}
-			/>
-		</div>
-	);
-};
-LoadMore.args = {
-	columns: COLUMNS,
-	isLoading: false,
-	loadingMessage: "Loading more items...",
-	noDataMessage: "No data available",
-	endOfListMessage: "End of list",
-};
-
-export const LoadMoreWithBiggerContainer = (
-	args: ITableProps<TStoryExempleItem>
-) => {
-	const [items, setItems] = useState<TStoryExempleItem[]>(genUsersDataSet(5));
-	const [hasMore, setHasMore] = useState(true);
-
-	const handleLoadMore = () => {
-		console.debug("Load more items triggered");
-		if (items.length >= 100) {
-			setHasMore(false);
-			return;
-		}
-		const newItems = genUsersDataSet(20);
-		setItems((prev) => [...prev, ...newItems]);
-	};
-
-	return (
-		<div className="w-full h-[600px] relative overflow-hidden">
-			<Table
-				{...args}
-				items={items}
-				hasMore={hasMore}
-				onLoadMore={handleLoadMore}
-				onRowClick={(item) => {
-					alert(`Row clicked: ${JSON.stringify(item)}`);
-				}}
-			/>
-		</div>
-	);
-};
-
-LoadMoreWithBiggerContainer.args = {
-	columns: COLUMNS,
-	isLoading: false,
-	loadingMessage: "Loading more items...",
-	noDataMessage: "No data available",
-	endOfListMessage: "End of list",
-};
-
-export const GlobalHeaderClassName = Template.bind({});
-GlobalHeaderClassName.args = {
-	columns: COLUMNS.map((col) => ({
-		...col,
-		headerClassName: col.name === "name" ? "text-blue-500" : undefined,
-	})),
-	headerClassName:
-		"text-red-500 text-lg bg-neutral-100 !font-[1000] border-2 border-red-500",
-};
-
-GlobalHeaderClassName.storyName =
-	"Global headerClassName and Column headerClassName Override";
-
-export const DynamicItemActions = Template.bind({});
-DynamicItemActions.args = {
-	columns: [
-		{
-			title: "Gen ItemActions With function",
-			name: "custom-item-actions",
-			description: "All actions generated from a function",
-			itemActions: (item) =>
-				!item.isOut && [
-					{
-						label: "View Details",
-						icon: "info",
-						onClick: (item) => alert(`Details for ${item.name}`),
-						disabled: item.isOut,
-					},
-				],
-		},
-		{
-			title: "Dynamic Item Actions with disabled and hidden props",
-			name: "custom-item-actions",
-			description: "actions displayed or hidden based on item state",
-			itemActions: [
-				{
-					label: "View Details",
-					icon: "info",
-					onClick: (item) => alert(`Details for ${item.name}`),
-					disabled: (item) => !!item.isOut,
-				},
-				{
-					label: "Edit",
-					icon: "edit",
-					onClick: (item) => alert(`Edit clicked for ${item.name}`),
-					hidden: (item) => !!item.isOut,
-				},
-				{
-					label: "Delete",
-					icon: "delete",
-					onClick: (item) => alert(`Delete clicked for ${item.name}`),
-					hidden: (item) => !!item.isOut,
-				},
-			],
-		},
-		{
-			title: "Name",
-			value: "name",
-			name: "name",
-			description: (item) =>
-				item.isOut ? "This user is out of the office" : undefined,
-			sortable: true,
-			badge: (item) => {
-				if (item.isNew) {
-					return "New";
-				}
-				if (item.isOut) {
-					return {
-						label: "Out",
-						color: "warning",
-					};
-				}
-				return undefined;
-			},
-			size: 6,
-		},
-	],
-};
-
-export const EqualizeRowsHeight = (args: ITableProps<TStoryExempleItem>) => {
-	const genUsers = (count: number, startIndex: number) => {
-		return Array.from({ length: count }, (_, i) => {
-			const id = startIndex + i + 1;
-
-			const isOut = id > 20 ? Math.random() < 0.3 : false;
-
-			return {
-				id,
-				name: `User ${id}`,
-				age: 20 + (id % 30),
-				country: ["France", "Germany", "Spain", "Italy", "Netherlands"][
-					id % 5
-				],
-				city: ["Paris", "Berlin", "Madrid", "Rome", "Amsterdam"][
-					id % 5
-				],
-				occupation: [
-					"Engineer",
-					"Designer",
-					"Teacher",
-					"Developer",
-					"Doctor",
-				][id % 5],
-				isNew: id % 2 === 0,
-				email: `user${id}@example.com`,
-				phone: `+33 6 ${String(id).padStart(2, "0")} 00 00 00`,
-				isOut,
-			};
-		});
-	};
-
-	const [items, setItems] = useState<TStoryExempleItem[]>(genUsers(20, 0));
-	const [hasMore, setHasMore] = useState(true);
-
-	const handleLoadMore = () => {
-		if (items.length >= 100) {
-			setHasMore(false);
-			return;
-		}
-
-		const newItems = genUsers(20, items.length);
-		setItems((prev) => [...prev, ...newItems]);
-	};
-
-	return (
-		<div className="w-full h-[600px] relative overflow-hidden">
-			<Table
-				{...args}
-				items={items}
-				hasMore={hasMore}
-				onLoadMore={handleLoadMore}
-				onRowClick={(item) => {
-					alert(`Row clicked: ${JSON.stringify(item)}`);
-				}}
-			/>
-		</div>
-	);
-};
-
-EqualizeRowsHeight.args = {
-	columns: [
-		{
-			title: "Column",
-			render: ({ item }) => {
-				return item.isOut ? (
-					<div className="flex flex-col">
-						<span>{item.name}</span>
-						<span className="text-sm text-gray-500">
-							{item.email}
-						</span>
-					</div>
-				) : (
-					<div>{item.name}</div>
-				);
-			},
-		},
-	],
-};
-
-export const TruncatedValue = (args: ITableProps<TStoryExempleItem>) => {
-	return (
-		<Table
-			{...args}
-			items={ITEMS}
-			onRowClick={(item) => {
-				alert(`Row clicked: ${JSON.stringify(item)}`);
-			}}
-		/>
-	);
-};
-
-TruncatedValue.args = {
-	columns: [
-		{
-			title: "Name",
-			value: "name",
-			className: "!w-[100px]",
-		},
-	],
-};
-
-export const WithColumnSizes = Template.bind({});
-WithColumnSizes.storyName = "Column widths (px / fr / minmax)";
-WithColumnSizes.args = {
-	columns: [
-		{
-			name: "select",
-			value: "select",
-			selectable: (item: TStoryExempleItem) => !item.isOut,
-			width: "48px",
-		},
-		{
-			title: "Name",
-			name: "name",
-			value: "name",
-			sortable: true,
-			description: (item: TStoryExempleItem) =>
-				item.isOut ? "Out of office" : undefined,
-			badge: (item: TStoryExempleItem) => {
-				if (item.isNew) return "New";
-				if (item.isOut) return { label: "Out", color: "warning" };
-				return undefined;
-			},
-			width: "4fr",
-		},
-		{
-			title: "Contact",
-			name: "contact",
-			value: (item: TStoryExempleItem) => item.phone || item.email,
-			picto: (item: TStoryExempleItem) =>
-				item.phone ? "phoneOutgoing" : item.email ? "mail" : undefined,
-			clickable: (item: TStoryExempleItem) =>
-				!!item.phone || !!item.email,
-			width: "minmax(140px, 1fr)",
-		},
-		{
-			title: "Country",
-			name: "country",
-			value: "country",
-			sortable: true,
-			width: "120px",
-		},
-		{
-			title: "Occupation",
-			name: "occupation",
-			value: "occupation",
-			sortable: true,
-		},
-		{
-			name: "actions",
-			value: "actions",
-			itemActions: [
-				{
-					label: "Edit",
-					icon: "edit",
-					onClick: (item: TStoryExempleItem) =>
-						alert(`Edit ${item.name}`),
-					hidden: (item: TStoryExempleItem) => !!item.isOut,
-				},
-				{
-					label: "Delete",
-					icon: "delete",
-					onClick: (item: TStoryExempleItem) =>
-						alert(`Delete ${item.name}`),
-				},
-			],
-			width: "48px",
-		},
-	] as TTableColumn<TStoryExempleItem>[],
 };
