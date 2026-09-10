@@ -5,9 +5,11 @@
 	// components' overlays (e.g. an open select menu) in the host project.
 	isolation: isolate;
 
-	// Match the TextField --m box so date and time inputs share one height
+	// Fixed height so the box matches a TextField --m (48px) exactly: the
+	// inner number inputs bring their own height, so padding would stack and
+	// make the field taller than the date input.
 	.al__time-picker__inner {
-		@apply relative flex w-full items-center gap-2 rounded-[3rem] border-2 border-neutral-300 px-4 pb-1.5 pr-12 pt-5 dark:border-neutral-600;
+		@apply relative flex h-12 w-full items-center gap-2 rounded-[3rem] border-2 border-neutral-300 px-4 pr-12 dark:border-neutral-600;
 	}
 
 	.al__time-picker__label {
@@ -19,7 +21,7 @@
 	}
 
 	.al__time-picker__fields {
-		@apply flex items-center;
+		@apply mt-3 flex items-center;
 	}
 
 	.al__time-picker__separator {
