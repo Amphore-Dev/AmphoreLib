@@ -61,7 +61,10 @@ export const DatePicker: React.FC<IDatePickerProps> = ({
 			? useField(props.name)
 			: [undefined, undefined, undefined];
 
-	const CurrentValue = field?.value?.date ?? field?.value ?? selected;
+	// Full field value (Date for a date picker, IWeek for a week picker)
+	const FieldValue = field?.value ?? selected;
+	// Date used by react-datepicker's `selected` (extract the week's date)
+	const CurrentValue = field?.value?.date ?? FieldValue;
 
 	const handleChange = (
 		date: Date | null,
@@ -156,6 +159,7 @@ export const DatePicker: React.FC<IDatePickerProps> = ({
 								weekPicker={weekPicker}
 								isInForm={isInForm}
 								formatInputValue={formatInputValue}
+								rawValue={FieldValue}
 								label={label}
 								placeholder={placeholder}
 							/>
@@ -185,6 +189,7 @@ interface IDatePickerFieldProps extends ITextFieldProps {
 	weekPicker?: boolean;
 	isInForm?: boolean;
 	formatInputValue?: (date: IDate) => string;
+	rawValue?: IDate;
 	placeholder?: string;
 	label?: string;
 }
@@ -195,6 +200,7 @@ const DatePickerField = forwardRef(
 			weekPicker,
 			isInForm,
 			formatInputValue,
+			rawValue,
 			placeholder,
 			label,
 			...props
@@ -208,6 +214,9 @@ const DatePickerField = forwardRef(
 					placeholder={placeholder}
 					{...(!isInForm ? { ...props } : {})}
 					name={props.name}
+					// Display the selected value even in form mode, where the raw
+					// TextField isn't Formik-wrapped and never receives it otherwise.
+					value={rawValue as unknown as string}
 					getValue={(value) => {
 						if (formatInputValue)
 							return formatInputValue(value as IDate);
@@ -216,7 +225,9 @@ const DatePickerField = forwardRef(
 							const week = value as IWeek;
 							return `${week.start ? format(week.start, "yyyy/MM/dd") : ""} - ${week.end ? format(week.end, "yyyy/MM/dd") : ""}`;
 						}
-						return value;
+						if (value instanceof Date)
+							return format(value, "dd/MM/yyyy");
+						return value as string;
 					}}
 					onBlur={() => {}}
 					onClick={(e) => {

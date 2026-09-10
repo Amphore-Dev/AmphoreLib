@@ -7,13 +7,18 @@
 }
 
 .DatePickerPopper {
+	// Keep the calendar above sticky/positioned UI (react-datepicker defaults
+	// the popper to z-index: 1, which ties with common sticky bars).
+	z-index: 60;
+
 	.react-datepicker {
 		--background-color: white;
 		--font-color: inherit;
 		background-color: var(--background-color);
 		color: var(--font-color);
 		border: 3px solid var(--background-color);
-		font-family: "DM Sans";
+		// Inherit the host app font instead of hardcoding one
+		font-family: inherit;
 		font-size: 0.9rem;
 		@apply shadow-lg;
 

@@ -28,12 +28,12 @@ interface IDatePickerStoryProps extends IDatePickerProps {
 const Template: StoryFn<IDatePickerStoryProps> = (args) => {
 	if (!args.formiked)
 		return (
-			<div className="min-h-[300px] text-center ">
-				<DatePicker {...args} className="border-2 text-center" />
+			<div className="min-h-[300px]">
+				<DatePicker {...args} />
 			</div>
 		);
 	return (
-		<div className="min-h-[300px] text-center ">
+		<div className="min-h-[300px]">
 			<Formik
 				initialValues={{
 					field: "",
@@ -51,10 +51,7 @@ const Template: StoryFn<IDatePickerStoryProps> = (args) => {
 				{({}) => {
 					return (
 						<Form>
-							<DatePicker
-								{...args}
-								className="border-2 text-center"
-							/>
+							<DatePicker {...args} />
 						</Form>
 					);
 				}}

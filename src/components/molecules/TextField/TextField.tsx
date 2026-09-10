@@ -25,6 +25,8 @@ export interface ITextFieldProps
 		IWithFormikWrapperProps<string | null, HTMLInputElement> {
 	type?: string;
 	value?: string | null;
+	/** Transforms the raw (possibly non-string) value into the displayed string */
+	getValue?: (value: unknown) => string | null;
 	onChange?: (
 		value: string | null,
 		e?: React.ChangeEvent<HTMLInputElement> | FormEvent<HTMLInputElement>
@@ -65,6 +67,7 @@ export const TextField = forwardRef<HTMLInputElement, ITextFieldProps>(
 		{
 			type = "text",
 			value,
+			getValue,
 			onChange,
 			className = "",
 			wrapperClassName = "",
@@ -89,6 +92,7 @@ export const TextField = forwardRef<HTMLInputElement, ITextFieldProps>(
 		ref
 	) => {
 		const inputId = useId();
+		const displayValue = getValue ? getValue(value) : value;
 		const localInputRef = useRef<HTMLInputElement>(null);
 		const maskInputRef = pattern && useMaskito({ options: pattern });
 		const combinedRef = ref || localInputRef;
@@ -133,13 +137,13 @@ export const TextField = forwardRef<HTMLInputElement, ITextFieldProps>(
 					maxLength={maxLength}
 					{...props}
 					placeholder={""}
-					value={value ?? ""}
+					value={displayValue ?? ""}
 				/>
 				{!!label && (
 					<label
 						className={cn([
 							"al__input__label",
-							!!value && "al__input__label--floating",
+							!!displayValue && "al__input__label--floating",
 							required && "al__input__label--required",
 							labelClassName,
 							"whitespace-nowrap overflow-hidden text-ellipsis",
