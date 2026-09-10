@@ -18,6 +18,9 @@
 	}
 
 	[class$="-menu"] {
+		// react-select defaults the menu to z-index: 1, which lets absolute
+		// input labels of sibling fields paint over it. Keep the menu on top.
+		z-index: 20;
 		@apply dark:bg-neutral-800 dark:text-white;
 	}
 
