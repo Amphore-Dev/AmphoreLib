@@ -3,6 +3,9 @@
 }
 
 .al__textarea {
+	// Contain the internal label z-index within the component
+	isolation: isolate;
+
 	.al__textarea__container {
 		@apply relative flex overflow-visible rounded-3xl border-2 border-neutral-300 bg-white dark:border-neutral-600 dark:bg-neutral-800;
 

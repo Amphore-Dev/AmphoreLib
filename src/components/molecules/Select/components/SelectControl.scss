@@ -1,6 +1,10 @@
 .al__select-ctrl {
 	@apply relative;
 
+	// Contain the label z-index within the control (the menu is a separate
+	// react-select node, so it still overlays normally).
+	isolation: isolate;
+
 	.al__select-ctrl__label {
 		@apply pointer-events-none absolute top-1/2 z-10 max-w-[calc(100%-2rem)] -translate-y-1/2 rounded-lg text-neutral-500 opacity-0 duration-300 dark:text-neutral-400;
 
