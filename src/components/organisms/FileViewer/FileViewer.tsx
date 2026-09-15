@@ -1,15 +1,5 @@
 import React, { Suspense, lazy, useEffect, useMemo, useState } from "react";
 
-// Vite-specific `?url` import. This is only a *fallback* — see the guard
-// below — because it's unreliable here specifically: a library build
-// (this lib's own `vite build --lib`) has no fixed "site root" to resolve
-// a worker asset against, so Vite inlines it as a `data:` URI instead of
-// emitting a real file. A worker script loaded from `data:` can't resolve
-// its own internal dynamic import and fails at runtime. A consumer's own
-// app-mode Vite build resolves this same `?url` import correctly, which is
-// exactly why the guard below lets a consumer's own value win.
-import pdfWorkerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url";
-
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
 import { cn } from "@utils/cn";
@@ -22,24 +12,34 @@ import { Spinner } from "../../atoms/Spinner/Spinner";
 
 import styles from "./FileViewer.module.scss";
 
-// `react-pdf` and `pdfjs-dist` are peer dependencies (optional — only a
-// consumer that actually renders a PDF through this component needs them
-// installed) and a multi-hundred-KB dependency besides, so this stays
-// lazy: no other code-splitting boundary would keep it out of the main
-// bundle otherwise. Vite/Rollup emits it as its own chunk, fetched only
-// the first time a `FileViewer` actually renders a PDF.
-let workerConfigured = false;
+// `react-pdf` and `pdfjs-dist` are peer dependencies, external to this
+// lib's own build (see vite.config.ts) — a consumer that renders a PDF
+// through this component needs them installed, and gets `import("react-pdf")`
+// resolved against *their own* copy, not one bundled in here. That's not
+// just about weight: it's what makes the workerSrc check below see a value
+// the consumer set themselves — bundling a separate copy in here would
+// give this component its own, unreachable module instance instead.
+//
+// This component itself never sets a workerSrc: there's no build-time
+// resolution of the worker asset that works reliably across every
+// consumer's bundler (a library build has no fixed "site root" to resolve
+// it against — Vite's own lib mode, for one, inlines it as a `data:` URI,
+// which fails: a worker script loaded from `data:` can't resolve its own
+// internal dynamic import). Configure it in your own app instead, the same
+// way react-pdf itself expects: `pdfjs.GlobalWorkerOptions.workerSrc = ...`
+// (e.g. Vite: `import workerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url"`)
+// before this component's first render. Skipped if already set, so this
+// runs once even across repeated PDF renders.
+let workerChecked = false;
 const PdfDocument = lazy(() =>
 	import("react-pdf").then((mod) => {
-		if (!workerConfigured) {
-			// Respect a worker src the consumer's own app already set (see
-			// this file's own comment above `pdfWorkerSrc` for why) —
-			// `pdfWorkerSrc` is only a fallback for a consumer that hasn't
-			// configured one.
+		if (!workerChecked) {
 			if (!mod.pdfjs.GlobalWorkerOptions.workerSrc) {
-				mod.pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerSrc;
+				console.warn(
+					"FileViewer: pdfjs.GlobalWorkerOptions.workerSrc is not set — configure it in your own app before rendering a PDF. See FileViewer's own source comment for how."
+				);
 			}
-			workerConfigured = true;
+			workerChecked = true;
 		}
 		return { default: mod.Document };
 	})
@@ -135,9 +135,10 @@ const inferType = (src: File | string): TFileViewerType | undefined => {
  * To render a PDF, install `pdfjs-dist` + `react-pdf` yourself and, before
  * this component's first render, set `pdfjs.GlobalWorkerOptions.workerSrc`
  * to your own bundler-resolved worker URL (e.g. Vite: `import workerSrc
- * from "pdfjs-dist/build/pdf.worker.min.mjs?url"`). This component only
- * falls back to its own bundled worker path when you haven't — that
- * fallback is best-effort and can fail depending on your bundler.
+ * from "pdfjs-dist/build/pdf.worker.min.mjs?url"`). This component sets no
+ * default of its own — there's no worker path this lib's own build can
+ * resolve reliably across every consumer's bundler — and only warns (once)
+ * if you haven't; a PDF render fails without it.
  */
 export const FileViewer: React.FC<IFileViewerProps> = ({
 	src,

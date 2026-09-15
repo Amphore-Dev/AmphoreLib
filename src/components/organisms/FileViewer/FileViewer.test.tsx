@@ -46,9 +46,6 @@ vi.mock("react-pdf", () => ({
 	),
 	pdfjs: { GlobalWorkerOptions: {} },
 }));
-vi.mock("pdfjs-dist/build/pdf.worker.min.mjs?url", () => ({
-	default: "blob:fake-worker",
-}));
 
 describe("FileViewer", () => {
 	beforeEach(() => {

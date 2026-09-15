@@ -43,8 +43,18 @@ export default defineConfig({
 		},
 		sourcemap: true,
 		rollupOptions: {
-			// Never bundle peer deps into the lib output.
-			external: ["react", "react-dom", "react/jsx-runtime"],
+			// Never bundle peer deps into the lib output. react-pdf/pdfjs-dist
+			// matter beyond just weight here: FileViewer needs the consumer's
+			// own pdfjs-dist instance (the *same* module singleton) to read a
+			// workerSrc the consumer configured — bundling a separate copy in
+			// here would make that impossible, see FileViewer.tsx's own comment.
+			external: [
+				"react",
+				"react-dom",
+				"react/jsx-runtime",
+				"react-pdf",
+				"pdfjs-dist",
+			],
 			output: {
 				globals: {
 					react: "React",
