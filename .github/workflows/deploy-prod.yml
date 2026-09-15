@@ -24,20 +24,16 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
-            # No `registry-url` here on purpose: setting it makes setup-node
-            # write a `//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}`
-            # line into .npmrc regardless of whether NODE_AUTH_TOKEN is set —
-            # with no token secret (the whole point of OIDC), that line still
-            # gets written with an empty/placeholder value, and npm sees *a*
-            # classic auth line configured, so it never attempts the OIDC
-            # exchange at all and publishes with a bad, empty credential
-            # instead (a 404, not 401/403 — the registry won't even confirm
-            # a scoped package exists to an unauthenticated request). npm's
-            # own default registry is already npmjs.com; publishConfig in
-            # package.json covers the "public access" part.
+            # registry-url IS required here — npm's own canonical Trusted
+            # Publishing example keeps it (docs.npmjs.com/trusted-publishers)
+            # despite it being blamed for a *different*, since-fixed
+            # setup-node regression (actions/setup-node#1551) where a stray
+            # NODE_AUTH_TOKEN alongside it broke OIDC. We don't set that
+            # var, so this is the canonical, correct setup.
             - uses: actions/setup-node@v6
               with:
                   node-version: "22.x"
+                  registry-url: "https://registry.npmjs.org"
 
             - name: Install Yarn 4.14.1
               run: |
