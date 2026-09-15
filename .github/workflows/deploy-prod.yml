@@ -12,6 +12,10 @@ permissions:
     # GitHub Actions exchanges this workflow's identity for a short-lived
     # publish credential, verified against the "Trusted Publisher" configured
     # on the npmjs.com package settings (repo + this exact workflow file).
+    # actions/setup-node@v6 is what actually performs the handshake — v4
+    # silently doesn't, and npm publish then falls back to no credential
+    # at all (a 404, not a 401/403 — the registry won't even confirm a
+    # scoped package exists to an unauthenticated request).
     id-token: write
 
 jobs:
@@ -24,7 +28,7 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
-            - uses: actions/setup-node@v4
+            - uses: actions/setup-node@v6
               with:
                   node-version: "22.x"
                   registry-url: "https://registry.npmjs.org"
@@ -37,8 +41,9 @@ jobs:
             - run: yarn install --immutable
             - run: yarn build
 
-            # Node's bundled npm may predate OIDC Trusted Publishing support
-            # (needs npm >=11.5.1) — bump it just for the publish step.
+            # setup-node@v6 negotiates the OIDC handshake, but npm itself
+            # still needs to be >=11.5.1 to use the resulting credential —
+            # Node's bundled npm may predate that. Bump it just for publish.
             - run: npm install -g npm@latest
 
             - run: npm publish

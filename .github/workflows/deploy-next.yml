@@ -18,7 +18,7 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
-            - uses: actions/setup-node@v4
+            - uses: actions/setup-node@v6
               with:
                   node-version: "22.x"
                   registry-url: "https://registry.npmjs.org"
@@ -31,8 +31,9 @@ jobs:
             - run: yarn install --immutable
             - run: yarn build
 
-            # Node's bundled npm may predate OIDC Trusted Publishing support
-            # (needs npm >=11.5.1) — bump it just for the publish step.
+            # setup-node@v6 negotiates the OIDC handshake, but npm itself
+            # still needs to be >=11.5.1 to use the resulting credential —
+            # Node's bundled npm may predate that. Bump it just for publish.
             - run: npm install -g npm@latest
 
             - run: npm publish --tag next
