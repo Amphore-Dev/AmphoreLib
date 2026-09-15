@@ -1,4 +1,4 @@
-import React, { Children, isValidElement } from "react";
+import React, { Children, HTMLAttributes, isValidElement } from "react";
 
 import { cn } from "@utils/cn";
 
@@ -6,7 +6,7 @@ import { FlexGridItem } from "./FlexGridItem";
 
 import styles from "./FlexGrid.module.scss";
 
-export interface IFlexGridProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface IFlexGridProps extends HTMLAttributes<HTMLDivElement> {
 	/** Number of columns. Omit for a free-flowing layout (no fixed column count, items just wrap at `minItemWidth`) — `span` has no effect without a column count to size against. */
 	columns?: number;
 	minItemWidth?: string;

@@ -91,9 +91,7 @@ describe("EditableCard", () => {
 				values={{ title: "", note: "" }}
 			/>
 		);
-		expect(screen.getAllByRole("button", { name: "Add" })).toHaveLength(
-			2
-		);
+		expect(screen.getAllByRole("button", { name: "Add" })).toHaveLength(2);
 	});
 
 	it("enters edit mode on the Edit button", () => {

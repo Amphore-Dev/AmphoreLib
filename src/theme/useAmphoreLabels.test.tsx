@@ -66,9 +66,9 @@ describe("useAmphoreLabels", () => {
 				</AmphoreDefaultsContext.Provider>
 			),
 		});
-		expect(
-			result.current.resolve("removeLabel", "Discard", "remove")
-		).toBe("Discard");
+		expect(result.current.resolve("removeLabel", "Discard", "remove")).toBe(
+			"Discard"
+		);
 	});
 
 	it("resolves end-to-end through real rendering", () => {
@@ -79,6 +79,8 @@ describe("useAmphoreLabels", () => {
 				<Badge onRemove={() => {}}>MYD-1</Badge>
 			</AmphoreDefaultsContext.Provider>
 		);
-		expect(screen.getByRole("button", { name: "Retirer" })).toBeInTheDocument();
+		expect(
+			screen.getByRole("button", { name: "Retirer" })
+		).toBeInTheDocument();
 	});
 });

@@ -91,7 +91,11 @@ describe("SidePanel", () => {
 		it("renders nothing when closed, by default — same as desktop", () => {
 			setMatchMedia(true);
 			render(
-				<SidePanel open={false} onOpenChange={() => {}} title="Tâche #42">
+				<SidePanel
+					open={false}
+					onOpenChange={() => {}}
+					title="Tâche #42"
+				>
 					<p>Détails</p>
 				</SidePanel>
 			);

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { HTMLAttributes } from "react";
 
 import { cn } from "@utils/cn";
 
@@ -8,7 +8,7 @@ import styles from "./Title.module.scss";
 
 export type TTitleLevel = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 
-export interface ITitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
+export interface ITitleProps extends HTMLAttributes<HTMLHeadingElement> {
 	/** Semantic heading tag rendered. Defaults to "h1". */
 	as?: TTitleLevel;
 	/** Visual size, independent of `as` — lets you keep correct heading order (no skipped levels) while styling a heading like a different one. Defaults to `as`. */

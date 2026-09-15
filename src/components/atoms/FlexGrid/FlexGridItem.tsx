@@ -1,10 +1,10 @@
-import React from "react";
+import React, { HTMLAttributes } from "react";
 
 import { cn } from "@utils/cn";
 
 import styles from "./FlexGrid.module.scss";
 
-export interface IFlexGridItemProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface IFlexGridItemProps extends HTMLAttributes<HTMLDivElement> {
 	/** Number of columns this item spans. Only meaningful inside a `FlexGrid` with a fixed `columns` count. Defaults to 1. */
 	span?: number;
 	className?: string;

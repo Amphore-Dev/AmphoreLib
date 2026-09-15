@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { FileViewer } from "./FileViewer";
 
 // react-pdf needs a real canvas/worker to actually decode a PDF — out of
 // scope for a unit test of this component's own toolbar wiring (zoom,
@@ -21,8 +23,8 @@ vi.mock("react-pdf", () => ({
 		onLoadSuccess?: (doc: { numPages: number }) => void;
 		onLoadError?: () => void;
 	}) => {
-		const [failed, setFailed] = React.useState(false);
-		React.useEffect(() => {
+		const [failed, setFailed] = useState(false);
+		useEffect(() => {
 			// "broken" in the source is this suite's own signal to simulate a
 			// failed load instead of a successful one — there's no real PDF
 			// parsing happening here to fail on its own.
@@ -47,8 +49,6 @@ vi.mock("react-pdf", () => ({
 vi.mock("pdfjs-dist/build/pdf.worker.min.mjs?url", () => ({
 	default: "blob:fake-worker",
 }));
-
-import { FileViewer } from "./FileViewer";
 
 describe("FileViewer", () => {
 	beforeEach(() => {

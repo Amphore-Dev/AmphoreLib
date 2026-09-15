@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -26,7 +26,7 @@ describe("Radio", () => {
 
 	it("behaves as a native radio group when sharing a name", async () => {
 		const Group = () => {
-			const [value, setValue] = React.useState("day");
+			const [value, setValue] = useState("day");
 			return (
 				<>
 					<Radio

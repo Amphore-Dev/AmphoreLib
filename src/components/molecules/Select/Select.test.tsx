@@ -430,9 +430,7 @@ describe("Select", () => {
 				/>
 			);
 			expect(screen.getByText("Acme")).toBeInTheDocument();
-			expect(
-				screen.queryByText("Select...")
-			).not.toBeInTheDocument();
+			expect(screen.queryByText("Select...")).not.toBeInTheDocument();
 		});
 
 		it("without getOptionValue, a different-reference-but-same-id value is NOT recognized as selected (the === default)", () => {

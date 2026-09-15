@@ -56,7 +56,9 @@ describe("TodoList", () => {
 	});
 
 	it("hides drag handles when reorderable is false", () => {
-		render(<TodoList items={items} onChange={() => {}} reorderable={false} />);
+		render(
+			<TodoList items={items} onChange={() => {}} reorderable={false} />
+		);
 		expect(
 			screen.queryByRole("button", { name: /^Move/i })
 		).not.toBeInTheDocument();

@@ -18,9 +18,7 @@ describe("PasswordField", () => {
 	});
 
 	it("renders a password input by default", () => {
-		render(
-			<PasswordField value="" onChange={() => {}} label="Password" />
-		);
+		render(<PasswordField value="" onChange={() => {}} label="Password" />);
 		expect(screen.getByLabelText("Password")).toHaveAttribute(
 			"type",
 			"password"
@@ -35,9 +33,7 @@ describe("PasswordField", () => {
 				label="Password"
 			/>
 		);
-		fireEvent.click(
-			screen.getByRole("button", { name: "Show password" })
-		);
+		fireEvent.click(screen.getByRole("button", { name: "Show password" }));
 		expect(screen.getByLabelText("Password")).toHaveAttribute(
 			"type",
 			"text"
@@ -52,8 +48,7 @@ describe("PasswordField", () => {
 				label="Password"
 			/>
 		);
-		const toggle = () =>
-			screen.getByRole("button", { name: /password/i });
+		const toggle = () => screen.getByRole("button", { name: /password/i });
 		fireEvent.click(toggle());
 		fireEvent.click(toggle());
 		expect(screen.getByLabelText("Password")).toHaveAttribute(
@@ -71,9 +66,7 @@ describe("PasswordField", () => {
 				autoHideSeconds={3}
 			/>
 		);
-		fireEvent.click(
-			screen.getByRole("button", { name: "Show password" })
-		);
+		fireEvent.click(screen.getByRole("button", { name: "Show password" }));
 		const input = screen.getByLabelText("Password");
 		expect(input).toHaveAttribute("type", "text");
 
@@ -94,9 +87,7 @@ describe("PasswordField", () => {
 				autoHideSeconds={3}
 			/>
 		);
-		fireEvent.click(
-			screen.getByRole("button", { name: "Show password" })
-		);
+		fireEvent.click(screen.getByRole("button", { name: "Show password" }));
 		const input = screen.getByLabelText("Password");
 		const wrapper = getFieldWrapper(input);
 		fireEvent.mouseLeave(wrapper);
@@ -116,9 +107,7 @@ describe("PasswordField", () => {
 				autoHide={false}
 			/>
 		);
-		fireEvent.click(
-			screen.getByRole("button", { name: "Show password" })
-		);
+		fireEvent.click(screen.getByRole("button", { name: "Show password" }));
 		const input = screen.getByLabelText("Password");
 		fireEvent.mouseLeave(getFieldWrapper(input));
 		act(() => vi.advanceTimersByTime(10000));

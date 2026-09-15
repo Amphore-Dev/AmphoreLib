@@ -106,9 +106,7 @@ export const getDefaultValueDisplay = (
 				Array.isArray(value) ? value : value ? [value] : []
 			).filter(Boolean) as File[];
 			if (!files.length) return undefined;
-			return files.length === 1
-				? files[0].name
-				: `${files.length} files`;
+			return files.length === 1 ? files[0].name : `${files.length} files`;
 		}
 
 		default:

@@ -1,4 +1,4 @@
-import React from "react";
+import { createRef } from "react";
 
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -75,7 +75,7 @@ describe("Tooltip", () => {
 	});
 
 	it("preserves the trigger's own ref alongside the tooltip's", () => {
-		const ref = React.createRef<HTMLButtonElement>();
+		const ref = createRef<HTMLButtonElement>();
 		render(
 			<Tooltip content="Astuce">
 				<button type="button" ref={ref}>

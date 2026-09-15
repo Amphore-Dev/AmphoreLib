@@ -45,7 +45,9 @@ describe("TodoItem", () => {
 	it("calls onRemove when the remove button is clicked", () => {
 		const onRemove = vi.fn();
 		render(<TodoItem text="À retirer" onRemove={onRemove} />);
-		fireEvent.click(screen.getByRole("button", { name: "Remove: À retirer" }));
+		fireEvent.click(
+			screen.getByRole("button", { name: "Remove: À retirer" })
+		);
 		expect(onRemove).toHaveBeenCalled();
 	});
 

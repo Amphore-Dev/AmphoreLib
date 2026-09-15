@@ -1,10 +1,10 @@
-import React from "react";
+import React, { HTMLAttributes } from "react";
 
 import { cn } from "@utils/cn";
 
 import styles from "./Grid.module.scss";
 
-export interface IGridProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface IGridProps extends HTMLAttributes<HTMLDivElement> {
 	/** Number of columns. Omit for a free-flowing layout (no fixed column count, items just auto-fill at `minItemWidth`). */
 	columns?: number;
 	minItemWidth?: string;

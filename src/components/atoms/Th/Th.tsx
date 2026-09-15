@@ -1,4 +1,4 @@
-import React from "react";
+import React, { HTMLAttributes } from "react";
 
 import { cn } from "@utils/cn";
 
@@ -8,7 +8,7 @@ import { Picto } from "../Picto/Picto";
 
 import styles from "./Th.module.scss";
 
-export interface IThProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface IThProps extends HTMLAttributes<HTMLDivElement> {
 	sortable?: boolean;
 	sortDirection?: TSortDirection;
 	onSort?: () => void;

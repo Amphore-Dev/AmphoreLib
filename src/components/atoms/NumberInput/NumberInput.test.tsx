@@ -110,9 +110,7 @@ describe("NumberInput", () => {
 				max={5}
 			/>
 		);
-		expect(
-			screen.getByRole("button", { name: "Increase" })
-		).toBeDisabled();
+		expect(screen.getByRole("button", { name: "Increase" })).toBeDisabled();
 		expect(
 			screen.getByRole("button", { name: "Decrease" })
 		).not.toBeDisabled();
@@ -128,9 +126,7 @@ describe("NumberInput", () => {
 			/>
 		);
 		expect(screen.getByLabelText("Quantité")).toBeDisabled();
-		expect(
-			screen.getByRole("button", { name: "Increase" })
-		).toBeDisabled();
+		expect(screen.getByRole("button", { name: "Increase" })).toBeDisabled();
 		expect(screen.getByRole("button", { name: "Decrease" })).toBeDisabled();
 	});
 

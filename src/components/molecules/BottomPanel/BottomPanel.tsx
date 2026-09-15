@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
 
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
@@ -10,7 +10,7 @@ import { Card } from "../../atoms/Card/Card";
 
 import styles from "./BottomPanel.module.scss";
 
-export interface IBottomPanelProps extends React.PropsWithChildren {
+export interface IBottomPanelProps extends PropsWithChildren {
 	/** Controlled — same convention as Modal/ConfirmModal. `false` doesn't unmount the panel, it docks it to `minHeight` (a peeking handle, not gone) — for a version that's fully gone, don't render this at all. */
 	open: boolean;
 	onOpenChange: (open: boolean) => void;

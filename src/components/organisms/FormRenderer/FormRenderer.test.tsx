@@ -115,9 +115,7 @@ describe("FormRenderer", () => {
 			showResetFieldButton: true,
 			formikCtxOverride: { values: { title: "" } },
 		});
-		expect(
-			screen.getByRole("button", { name: "Reset" })
-		).toBeDisabled();
+		expect(screen.getByRole("button", { name: "Reset" })).toBeDisabled();
 	});
 
 	it("uses a deep-equal dirty-check, not JSON.stringify's key-order sensitivity", () => {
@@ -136,9 +134,7 @@ describe("FormRenderer", () => {
 			// would (wrongly) call this dirty; isEqual correctly does not.
 			formikCtxOverride: { values: { range: { b: 2, a: 1 } } },
 		});
-		expect(
-			screen.getByRole("button", { name: "Reset" })
-		).toBeDisabled();
+		expect(screen.getByRole("button", { name: "Reset" })).toBeDisabled();
 	});
 
 	it("calls the field's onReset, or falls back to setFieldValue with the default", () => {

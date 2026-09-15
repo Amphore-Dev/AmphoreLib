@@ -1,4 +1,4 @@
-import React from "react";
+import React, { AnchorHTMLAttributes } from "react";
 
 import { cn } from "@utils/cn";
 
@@ -10,7 +10,7 @@ import styles from "./Link.module.scss";
 
 export type TLinkUnderline = "always" | "hover" | "none";
 
-export interface ILinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+export interface ILinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
 	color?: TColor;
 	underline?: TLinkUnderline;
 	/** Adds target="_blank" rel="noopener noreferrer" and a trailing icon. */

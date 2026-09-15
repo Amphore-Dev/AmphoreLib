@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { cloneElement, useState } from "react";
 
 import {
 	flip,
@@ -69,7 +69,7 @@ export const Tooltip: React.FC<ITooltipProps> = ({
 	const childRef = (children as unknown as { ref?: React.Ref<unknown> }).ref;
 	const mergedRef = useMergeRefs([refs.setReference, childRef ?? null]);
 
-	const trigger = React.cloneElement(
+	const trigger = cloneElement(
 		children,
 		getReferenceProps({ ...children.props, ref: mergedRef })
 	);

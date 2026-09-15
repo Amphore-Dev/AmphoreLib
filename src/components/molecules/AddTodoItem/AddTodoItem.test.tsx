@@ -36,6 +36,8 @@ describe("AddTodoItem", () => {
 
 	it("uses a custom placeholder", () => {
 		render(<AddTodoItem onAdd={() => {}} placeholder="Nouvelle tâche…" />);
-		expect(screen.getByPlaceholderText("Nouvelle tâche…")).toBeInTheDocument();
+		expect(
+			screen.getByPlaceholderText("Nouvelle tâche…")
+		).toBeInTheDocument();
 	});
 });

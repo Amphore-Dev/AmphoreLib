@@ -170,19 +170,13 @@ describe("Tabs", () => {
 
 		it("shows both scroll arrows once the tablist overflows", () => {
 			render(<Tabs items={ITEMS} value="day" onChange={() => {}} />);
-			expect(
-				screen.getByLabelText("Scroll left")
-			).toBeInTheDocument();
-			expect(
-				screen.getByLabelText("Scroll right")
-			).toBeInTheDocument();
+			expect(screen.getByLabelText("Scroll left")).toBeInTheDocument();
+			expect(screen.getByLabelText("Scroll right")).toBeInTheDocument();
 		});
 
 		it("left arrow starts disabled (already scrolled fully left)", () => {
 			render(<Tabs items={ITEMS} value="day" onChange={() => {}} />);
-			expect(
-				screen.getByLabelText("Scroll left")
-			).toBeDisabled();
+			expect(screen.getByLabelText("Scroll left")).toBeDisabled();
 		});
 
 		it("clicking an arrow doesn't throw and doesn't select a tab", () => {

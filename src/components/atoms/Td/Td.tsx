@@ -1,10 +1,10 @@
-import React from "react";
+import React, { HTMLAttributes } from "react";
 
 import { cn } from "@utils/cn";
 
 import styles from "./Td.module.scss";
 
-export interface ITdProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface ITdProps extends HTMLAttributes<HTMLDivElement> {
 	/** Pins the cell to an edge while the row scrolls horizontally. */
 	sticky?: "left" | "right";
 	className?: string;

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { PropsWithChildren } from "react";
 
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
@@ -14,7 +14,7 @@ import { BottomPanel, IBottomPanelProps } from "../BottomPanel/BottomPanel";
 
 import styles from "./SidePanel.module.scss";
 
-export interface ISidePanelProps extends React.PropsWithChildren {
+export interface ISidePanelProps extends PropsWithChildren {
 	/** Controlled — same convention as Modal/ConfirmModal. */
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
