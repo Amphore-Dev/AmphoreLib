@@ -31,7 +31,17 @@ export default {
 
     typescript: {
 		reactDocgen: "react-docgen-typescript",
-		reactDocgenTypescriptOptions: {},
+		reactDocgenTypescriptOptions: {
+			// Under a strict tsconfig, docgen reports every optional prop as
+			// "string | undefined" / "TSize | undefined"... — Storybook can't
+			// map that to a control and falls back to an `object` control on
+			// every optional prop that has no hand-written argType. Strip the
+			// `undefined` so plain string/boolean/number props get their own
+			// control, and expand literal-union aliases (TSize, TColor, a
+			// component's own variant type) into radio/select controls.
+			shouldRemoveUndefinedFromOptional: true,
+			shouldExtractLiteralValuesFromEnum: true,
+		},
 	},
 
     // Vite handles .module.scss natively — same behavior as the lib build

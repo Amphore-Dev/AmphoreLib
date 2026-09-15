@@ -8,6 +8,7 @@ import { TLabel, TSize } from "@interfaces/index";
 
 import { Button } from "../../atoms/Button/Button";
 import { Input } from "../../atoms/Input/Input";
+import { TextArea } from "../../atoms/TextArea/TextArea";
 
 import styles from "./AddTodoItem.module.scss";
 
@@ -17,6 +18,8 @@ export interface IAddTodoItemProps {
 	placeholder?: TLabel;
 	/** Defaults to "Add" (or `common.add`/`AddTodoItem.buttonLabel` from the nearest AmphoreProvider). */
 	buttonLabel?: TLabel;
+	/** Types into an auto-growing `TextArea` instead of an `Input` — Enter still submits, Shift+Enter inserts a newline. Pair with `TodoList.multiline` so the added rows can display what was typed. Defaults to false. */
+	multiline?: boolean;
 	size?: TSize;
 	className?: string;
 }
@@ -41,6 +44,7 @@ export const AddTodoItem: React.FC<IAddTodoItemProps> = ({
 	onAdd,
 	placeholder: placeholderProp,
 	buttonLabel: buttonLabelProp,
+	multiline = false,
 	size,
 	className = "",
 }) => {
@@ -56,21 +60,39 @@ export const AddTodoItem: React.FC<IAddTodoItemProps> = ({
 		setDraft("");
 	};
 
+	// Shared by both fields — Enter submits; Shift+Enter is left to the
+	// TextArea for a newline (a plain Input has none to insert anyway).
+	const handleKeyDown = (e: React.KeyboardEvent) => {
+		if (e.key === "Enter" && !e.shiftKey) {
+			e.preventDefault();
+			submit();
+		}
+	};
+
 	return (
 		<div className={cn([styles.row, className])}>
-			<Input
-				value={draft}
-				onChange={setDraft}
-				placeholder={placeholder}
-				size={size}
-				wrapperClassName={styles.input}
-				onKeyDown={(e) => {
-					if (e.key === "Enter") {
-						e.preventDefault();
-						submit();
-					}
-				}}
-			/>
+			{multiline ? (
+				<TextArea
+					value={draft}
+					onChange={setDraft}
+					placeholder={placeholder}
+					size={size}
+					autoGrow
+					rows={1}
+					resizable={false}
+					wrapperClassName={styles.input}
+					onKeyDown={handleKeyDown}
+				/>
+			) : (
+				<Input
+					value={draft}
+					onChange={setDraft}
+					placeholder={placeholder}
+					size={size}
+					wrapperClassName={styles.input}
+					onKeyDown={handleKeyDown}
+				/>
+			)}
 			<Button variant="outline" size={size} onClick={submit} picto="add">
 				{buttonLabel}
 			</Button>

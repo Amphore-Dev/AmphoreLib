@@ -6,7 +6,7 @@ import { StoryFn } from "@storybook/react";
 import { IPasswordFieldProps, PasswordField } from "./PasswordField";
 
 export default {
-	title: "Components/Atoms/PasswordField",
+	title: "Components/Molecules/PasswordField",
 	component: PasswordField,
 	argTypes: {
 		size: sizeArgType,

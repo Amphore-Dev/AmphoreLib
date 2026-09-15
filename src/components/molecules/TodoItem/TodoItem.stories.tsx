@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 
-import { StoryFn } from "@storybook/react";
-
 import { sizeArgType } from "@stories/StoriesArgs";
+import { StoryFn } from "@storybook/react";
 
 import { Badge } from "@components/atoms";
 
@@ -15,6 +14,10 @@ export default {
 		size: sizeArgType,
 		text: { control: "text" },
 		removeLabel: { control: "text" },
+		multiline: { control: "boolean" },
+		editable: { control: "boolean" },
+		removable: { control: "boolean" },
+		dragging: { control: "boolean" },
 	},
 };
 
@@ -36,6 +39,12 @@ export const WithBeforeSlot = Template.bind({});
 WithBeforeSlot.args = {
 	...Base.args,
 	before: <Badge color="neutral">MYD-15898</Badge>,
+};
+
+export const SingleLine = Template.bind({});
+SingleLine.args = {
+	text: "A long task description that gets clipped with an ellipsis instead of wrapping onto a second line",
+	multiline: false,
 };
 
 export const ReadOnly = Template.bind({});

@@ -18,10 +18,8 @@ import type { TBadgeLabels } from "../components/atoms/Badge/Badge";
 import type { TInputLabels } from "../components/atoms/Input/Input";
 import type { TInputFileLabels } from "../components/atoms/InputFile/InputFile";
 import type { TNumberInputLabels } from "../components/atoms/NumberInput/NumberInput";
-import type { TPasswordFieldLabels } from "../components/atoms/PasswordField/PasswordField";
 import type { TSpinnerLabels } from "../components/atoms/Spinner/Spinner";
 import type { TTimePickerLabels } from "../components/atoms/TimePicker/TimePicker";
-import type { TActiveFiltersLabels } from "../components/molecules/ActiveFilters/ActiveFilters";
 import type { TAddTodoItemLabels } from "../components/molecules/AddTodoItem/AddTodoItem";
 import type { TBottomPanelLabels } from "../components/molecules/BottomPanel/BottomPanel";
 import type { TBreadcrumbLabels } from "../components/molecules/Breadcrumb/Breadcrumb";
@@ -29,16 +27,18 @@ import type { TConfirmModalLabels } from "../components/molecules/ConfirmModal/C
 import type { TDatePickerLabels } from "../components/molecules/DatePicker/DatePicker";
 import type { THeadBarLabels } from "../components/molecules/HeadBar/HeadBar";
 import type { TModalLabels } from "../components/molecules/Modal/Modal";
+import type { TPasswordFieldLabels } from "../components/molecules/PasswordField/PasswordField";
 import type { TSelectLabels } from "../components/molecules/Select/Select";
 import type { TSidePanelLabels } from "../components/molecules/SidePanel/SidePanel";
 import type { TTabsLabels } from "../components/molecules/Tabs/Tabs";
 import type { TTodoItemLabels } from "../components/molecules/TodoItem/TodoItem";
-import type { TTodoListLabels } from "../components/molecules/TodoList/TodoList";
+import type { TActiveFiltersLabels } from "../components/organisms/ActiveFilters/ActiveFilters";
 import type { TEditableCardLabels } from "../components/organisms/EditableCard/EditableCard";
 import type { TFileViewerLabels } from "../components/organisms/FileViewer/FileViewer";
 import type { TFiltersModalLabels } from "../components/organisms/FiltersModal/FiltersModal";
 import type { TFormRendererLabels } from "../components/organisms/FormRenderer/FormRenderer";
 import type { TTableLabels } from "../components/organisms/Table/Table";
+import type { TTodoListLabels } from "../components/organisms/TodoList/TodoList";
 import type { TPageHeaderLabels } from "../components/templates/PageHeader/PageHeader";
 
 /**

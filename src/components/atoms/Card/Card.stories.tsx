@@ -12,6 +12,8 @@ export default {
 	argTypes: {
 		elevation: { control: "select", options: [undefined, 1, 2, 3, 4, 5] },
 		noPadding: { control: { type: "boolean" } },
+		bordered: { control: { type: "boolean" } },
+		shadow: { control: "object" },
 	},
 };
 
@@ -26,6 +28,35 @@ const Template: StoryFn<ICardProps> = (args) => (
 
 export const Base = Template.bind({});
 Base.args = {};
+
+/**
+ * `shadow` sets the base geometry — `x`/`y` the light direction, `blur` the
+ * softness (default 2× `y`); `elevation` scales all of it.
+ */
+export const Shadow = () => (
+	<div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
+		{[
+			{ x: 0, y: 1 },
+			{ x: 2, y: 2 },
+			{ x: -2, y: 2 },
+			{ x: 0, y: -1 },
+			{ x: 0, y: 0, blur: 1 },
+			{ y: 1, blur: 8 },
+			{ y: 1, blur: 0 },
+		].map((shadow) => (
+			<Card
+				key={JSON.stringify(shadow)}
+				elevation={3}
+				shadow={shadow}
+				style={{ width: 140 }}
+			>
+				<span style={{ fontSize: 12, opacity: 0.6 }}>
+					{JSON.stringify(shadow)}
+				</span>
+			</Card>
+		))}
+	</div>
+);
 
 export const Elevated = Template.bind({});
 Elevated.args = { elevation: 3 };

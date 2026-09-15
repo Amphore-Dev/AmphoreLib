@@ -4,9 +4,9 @@ import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
 import type { TLabel } from "@interfaces/index";
 
-import { CountDown } from "../CountDown/CountDown";
-import { IInputProps, Input } from "../Input/Input";
-import { Picto } from "../Picto/Picto";
+import { CountDown } from "../../atoms/CountDown/CountDown";
+import { IInputProps, Input } from "../../atoms/Input/Input";
+import { Picto } from "../../atoms/Picto/Picto";
 
 import styles from "./PasswordField.module.scss";
 

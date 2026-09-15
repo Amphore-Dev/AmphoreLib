@@ -1,4 +1,11 @@
-import React, { Suspense, lazy, useEffect, useMemo, useState } from "react";
+import React, {
+	Suspense,
+	lazy,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
@@ -59,6 +66,8 @@ export interface IFileViewerProps {
 	src: File | string;
 	/** Used as the downloaded filename, and in the "unsupported format" message. Inferred from `src.name` for a `File`, from the last path segment for a URL. */
 	name?: string;
+	/** PDF only. `true` (default) stacks every page in one scrollable column — the pager scrolls to a page and the counter follows the scroll. `false` renders one page at a time, the pager swapping it. */
+	continuous?: boolean;
 	/** All user-facing strings — a prop per string, defaulting to English (or `FileViewer.<key>` from the nearest AmphoreProvider — see useAmphoreLabels), no commonKey for any of them (each is a compound phrase, not one of the bare action verbs in `common`). */
 	zoomOutLabel?: TLabel;
 	zoomInLabel?: TLabel;
@@ -143,6 +152,7 @@ const inferType = (src: File | string): TFileViewerType | undefined => {
 export const FileViewer: React.FC<IFileViewerProps> = ({
 	src,
 	name,
+	continuous = true,
 	zoomOutLabel: zoomOutLabelProp,
 	zoomInLabel: zoomInLabelProp,
 	resetZoomLabel: resetZoomLabelProp,
@@ -209,6 +219,72 @@ export const FileViewer: React.FC<IFileViewerProps> = ({
 
 	const zoomPercent = useMemo(() => Math.round(scale * 100), [scale]);
 
+	// Continuous mode: every page is in the DOM at once, so "current page"
+	// is whichever one fills most of the viewport — tracked by an
+	// IntersectionObserver rooted on the viewport rather than by the pager
+	// alone, so scrolling by hand keeps the counter honest. The pager then
+	// just scrolls the target page into view and lets the observer settle
+	// `page`. Guarded: jsdom has neither IntersectionObserver nor
+	// scrollIntoView.
+	const viewportRef = useRef<HTMLDivElement>(null);
+	const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
+	useEffect(() => {
+		if (
+			!continuous ||
+			!numPages ||
+			typeof IntersectionObserver === "undefined"
+		)
+			return;
+		const ratios = new Map<Element, number>();
+		const observer = new IntersectionObserver(
+			(entries) => {
+				for (const entry of entries) {
+					ratios.set(entry.target, entry.intersectionRatio);
+				}
+				let best: Element | null = null;
+				let bestRatio = 0;
+				ratios.forEach((ratio, el) => {
+					if (ratio > bestRatio) {
+						best = el;
+						bestRatio = ratio;
+					}
+				});
+				if (!best) return;
+				const index = pageRefs.current.indexOf(best as HTMLDivElement);
+				if (index >= 0) setPage(index + 1);
+			},
+			{
+				root: viewportRef.current,
+				threshold: [0, 0.25, 0.5, 0.75, 1],
+			}
+		);
+		pageRefs.current.slice(0, numPages).forEach((el) => {
+			if (el) observer.observe(el);
+		});
+		return () => observer.disconnect();
+	}, [continuous, numPages]);
+
+	// Scrolls the viewport itself, not `scrollIntoView` — that one walks
+	// *every* scrollable ancestor (the page/window included) to bring the
+	// target into view, so paging a viewer sat mid-page would also yank the
+	// whole page around it. Offset measured relative to the viewport, minus
+	// its own padding so the page top lands clear of the edge.
+	const goToPage = (n: number) => {
+		setPage(n);
+		if (!continuous) return;
+		const viewport = viewportRef.current;
+		const target = pageRefs.current[n - 1];
+		if (!viewport || !target || typeof viewport.scrollTo !== "function")
+			return;
+		const padding = parseFloat(getComputedStyle(viewport).paddingTop) || 0;
+		const top =
+			viewport.scrollTop +
+			target.getBoundingClientRect().top -
+			viewport.getBoundingClientRect().top -
+			padding;
+		viewport.scrollTo({ top, behavior: "smooth" });
+	};
+
 	return (
 		<div className={cn([styles.viewer, className])}>
 			<div className={styles.toolbar}>
@@ -251,7 +327,7 @@ export const FileViewer: React.FC<IFileViewerProps> = ({
 						<button
 							type="button"
 							className={styles.toolButton}
-							onClick={() => setPage((p) => Math.max(1, p - 1))}
+							onClick={() => goToPage(Math.max(1, page - 1))}
 							disabled={page <= 1}
 							aria-label={previousPageLabel}
 						>
@@ -268,7 +344,7 @@ export const FileViewer: React.FC<IFileViewerProps> = ({
 							type="button"
 							className={styles.toolButton}
 							onClick={() =>
-								setPage((p) => Math.min(numPages, p + 1))
+								goToPage(Math.min(numPages, page + 1))
 							}
 							disabled={page >= numPages}
 							aria-label={nextPageLabel}
@@ -293,7 +369,7 @@ export const FileViewer: React.FC<IFileViewerProps> = ({
 				)}
 			</div>
 
-			<div className={styles.viewport}>
+			<div ref={viewportRef} className={styles.viewport}>
 				{resolvedType === "image" && resolvedUrl && (
 					<img
 						src={resolvedUrl}
@@ -323,12 +399,37 @@ export const FileViewer: React.FC<IFileViewerProps> = ({
 								</InfoMessage>
 							}
 						>
-							<PdfPage
-								pageNumber={page}
-								scale={scale}
-								renderTextLayer={false}
-								renderAnnotationLayer={false}
-							/>
+							{continuous && numPages ? (
+								<div className={styles.pages}>
+									{Array.from(
+										{ length: numPages },
+										(_, i) => (
+											<div
+												key={i}
+												ref={(el) => {
+													pageRefs.current[i] = el;
+												}}
+											>
+												<PdfPage
+													pageNumber={i + 1}
+													scale={scale}
+													renderTextLayer={false}
+													renderAnnotationLayer={
+														false
+													}
+												/>
+											</div>
+										)
+									)}
+								</div>
+							) : (
+								<PdfPage
+									pageNumber={page}
+									scale={scale}
+									renderTextLayer={false}
+									renderAnnotationLayer={false}
+								/>
+							)}
 						</PdfDocument>
 					</Suspense>
 				)}

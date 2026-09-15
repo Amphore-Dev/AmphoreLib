@@ -18,6 +18,7 @@ export default {
 		// single upload), never the bare `File` `FileViewer.src` expects —
 		// the Template below unwraps it.
 		src: { control: { type: "file", accept: "image/*,application/pdf" } },
+		continuous: { control: "boolean" },
 		zoomOutLabel: { control: "text" },
 		zoomInLabel: { control: "text" },
 		resetZoomLabel: { control: "text" },
@@ -54,6 +55,14 @@ Image.args = {
 export const Pdf = Template.bind({});
 Pdf.args = {
 	src: makeSamplePdfFile("rapport.pdf"),
+};
+
+// One page at a time, the pager swapping it — instead of the default
+// stacked column.
+export const PdfSinglePage = Template.bind({});
+PdfSinglePage.args = {
+	src: makeSamplePdfFile("rapport.pdf"),
+	continuous: false,
 };
 
 export const PdfError = Template.bind({});

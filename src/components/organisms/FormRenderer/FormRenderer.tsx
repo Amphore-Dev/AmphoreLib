@@ -26,7 +26,7 @@ import {
 	TLooseFieldRendererMap,
 } from "@interfaces/index";
 
-import { FieldRenderer } from "../../molecules/FieldRenderer/FieldRenderer";
+import { FieldRenderer } from "../FieldRenderer/FieldRenderer";
 
 import styles from "./FormRenderer.module.scss";
 

@@ -7,7 +7,7 @@ import { cn } from "@utils/cn";
 
 import { TLabel, TSize } from "@interfaces/index";
 
-import { TodoItem } from "../TodoItem/TodoItem";
+import { TodoItem } from "../../molecules/TodoItem/TodoItem";
 
 import styles from "./TodoList.module.scss";
 
@@ -26,6 +26,8 @@ export interface ITodoListProps {
 	editable?: boolean;
 	/** Forwarded to every row. Defaults to true. */
 	removable?: boolean;
+	/** Forwarded to every row — see `TodoItem.multiline`. Defaults to true. */
+	multiline?: boolean;
 	/** Shows drag handles and wires pointer + arrow-key reordering. Defaults to true. */
 	reorderable?: boolean;
 	/** aria-label for each row's drag handle. Defaults to "Move (up/down arrows)" (or `TodoList.moveLabel` from the nearest AmphoreProvider — see useAmphoreLabels). No effect without `reorderable`. */
@@ -51,6 +53,7 @@ export const TodoList: React.FC<ITodoListProps> = ({
 	onChange,
 	editable = true,
 	removable = true,
+	multiline = false,
 	reorderable = true,
 	moveLabel: moveLabelProp,
 	size: sizeProp,
@@ -141,6 +144,7 @@ export const TodoList: React.FC<ITodoListProps> = ({
 					before={item.before}
 					editable={editable}
 					removable={removable}
+					multiline={multiline}
 					size={size}
 					dragging={dragIndex === index}
 					onTextChange={(text) => handleTextChange(index, text)}

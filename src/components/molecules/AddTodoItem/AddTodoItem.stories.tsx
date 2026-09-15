@@ -1,8 +1,7 @@
 import React from "react";
 
-import { StoryFn } from "@storybook/react";
-
 import { sizeArgType } from "@stories/StoriesArgs";
+import { StoryFn } from "@storybook/react";
 
 import { AddTodoItem, IAddTodoItemProps } from "./AddTodoItem";
 
@@ -11,6 +10,7 @@ export default {
 	component: AddTodoItem,
 	argTypes: {
 		size: sizeArgType,
+		multiline: { control: "boolean" },
 	},
 };
 
@@ -23,6 +23,13 @@ const Template: StoryFn<IAddTodoItemProps> = (args) => (
 export const Base = Template.bind({});
 Base.args = {
 	onAdd: (text: string) => console.log("onAdd", text),
+};
+
+export const Multiline = Template.bind({});
+Multiline.args = {
+	...Base.args,
+	multiline: true,
+	placeholder: "Add… (Shift+Enter for a new line)",
 };
 
 export const CustomLabels = Template.bind({});

@@ -25,6 +25,12 @@
 	// here since nothing in this field is position: sticky.
 	overflow: hidden;
 	padding-right: 0;
+
+	&[data-after] {
+		.steppers {
+			border-right: 1px solid var(--amp-color-border);
+		}
+	}
 }
 
 .input {
@@ -44,7 +50,25 @@
 	display: flex;
 	flex-direction: column;
 	align-self: stretch;
+	// `stretch` only fills the field's content box; cancelling the field's
+	// vertical padding makes the column (and its left border) run edge to
+	// edge, top to bottom.
+	margin-block: calc(-1 * var(--_field-pad-y));
 	border-left: 1px solid var(--amp-color-border);
+	// Hidden at rest, revealed on hover / keyboard focus — keeps the field
+	// reading like a plain input until it's being interacted with. Touch
+	// devices have no hover, so there they stay visible.
+	opacity: 0;
+	transition: opacity 0.15s ease;
+
+	.field:hover &,
+	.field:focus-within & {
+		opacity: 1;
+	}
+
+	@media (hover: none) {
+		opacity: 1;
+	}
 }
 
 .stepper {
@@ -52,7 +76,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 1.5rem;
+	width: 1rem;
 	padding: 0;
 	border: none;
 	background: transparent;
@@ -99,7 +123,6 @@
 	display: flex;
 	align-items: center;
 	padding-right: var(--amp-space-2);
-	padding-left: var(--amp-space-1);
 	color: var(--amp-color-sub);
 	font-size: 0.8125rem;
 	white-space: nowrap;

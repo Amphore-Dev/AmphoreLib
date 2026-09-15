@@ -33,7 +33,14 @@
 	border: none;
 	padding: 0;
 	color: var(--amp-color-sub);
+	opacity: 0.5;
 	cursor: grab;
+
+	.row:hover &,
+	&:focus-visible,
+	.row[data-dragging="true"] & {
+		opacity: 1;
+	}
 
 	&:active {
 		cursor: grabbing;
@@ -82,6 +89,15 @@
 	}
 }
 
+// Single line: clip instead of wrapping. `display: block` since a <button>
+// is inline-block by default and text-overflow needs a block container.
+.row[data-multiline="false"] .text {
+	display: block;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
 span.text {
 	cursor: default;
 
@@ -109,10 +125,24 @@ span.text {
 	border: none;
 	padding: 0;
 	color: var(--amp-color-sub);
+	opacity: 0;
 	cursor: pointer;
 
-	&:hover {
+	// Revealed on row hover; keyboard users still reach it (focus-visible),
+	// and touch devices have no hover so it stays visible there.
+	.row:hover &,
+	&:focus-visible {
+		opacity: 0.6;
+	}
+
+	&:hover,
+	&:focus-visible {
 		color: var(--amp-color-danger);
+		opacity: 1;
+	}
+
+	@media (hover: none) {
+		opacity: 0.5;
 	}
 
 	&:focus-visible {

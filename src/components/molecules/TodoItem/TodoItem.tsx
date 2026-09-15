@@ -6,6 +6,7 @@ import { cn } from "@utils/cn";
 
 import { TLabel, TSize } from "@interfaces/index";
 
+import { Input } from "../../atoms/Input/Input";
 import { Picto } from "../../atoms/Picto/Picto";
 import { TextArea } from "../../atoms/TextArea/TextArea";
 
@@ -21,6 +22,8 @@ export interface ITodoItemProps {
 	editable?: boolean;
 	/** Shows the remove (×) button. Defaults to true. */
 	removable?: boolean;
+	/** Lets the text wrap over several lines, and edit in an auto-growing `TextArea` (Shift+Enter for a newline). `false` keeps the row to one line — the text is clipped with an ellipsis and edited in a plain `Input`. Defaults to true. */
+	multiline?: boolean;
 	/** Renders the drag handle when passed, spread onto its `<button>` — TodoList wires the actual pointer/keyboard behavior; omit to render without one (a non-reorderable list, or a single item used standalone). */
 	dragHandleProps?: React.ButtonHTMLAttributes<HTMLButtonElement>;
 	/** Visual state while this row is being dragged — set by TodoList, not read from here. */
@@ -48,6 +51,7 @@ export const TodoItem: React.FC<ITodoItemProps> = ({
 	onRemove,
 	editable = true,
 	removable = true,
+	multiline = false,
 	dragHandleProps,
 	dragging = false,
 	removeLabel: removeLabelProp,
@@ -60,19 +64,19 @@ export const TodoItem: React.FC<ITodoItemProps> = ({
 	const { resolve } = useAmphoreLabels("TodoItem");
 	const removeLabel = resolve("removeLabel", removeLabelProp, "remove");
 
-	// TextArea isn't a `forwardRef` component, so the only way to reach the
-	// real <textarea> is through its wrapper — same reasoning as Select's
-	// own `useEffect`-driven focus (see its comment): the user just clicked
-	// to edit, moving focus into the field they're about to type into is
-	// expected, not disorienting, jsx-a11y/no-autofocus notwithstanding.
+	// Neither TextArea nor Input is a `forwardRef` component, so the only
+	// way to reach the real field is through its wrapper — same reasoning
+	// as Select's own `useEffect`-driven focus (see its comment): the user
+	// just clicked to edit, moving focus into the field they're about to
+	// type into is expected, not disorienting, jsx-a11y/no-autofocus
+	// notwithstanding.
 	useEffect(() => {
 		if (!editing) return;
-		const textarea = editorRef.current?.querySelector("textarea");
-		textarea?.focus();
-		textarea?.setSelectionRange(
-			textarea.value.length,
-			textarea.value.length
-		);
+		const field = editorRef.current?.querySelector<
+			HTMLTextAreaElement | HTMLInputElement
+		>("textarea, input");
+		field?.focus();
+		field?.setSelectionRange(field.value.length, field.value.length);
 	}, [editing]);
 
 	const startEdit = () => {
@@ -89,11 +93,24 @@ export const TodoItem: React.FC<ITodoItemProps> = ({
 
 	const cancel = () => setEditing(false);
 
+	// Shared by both editors — Enter commits (Shift+Enter is left to the
+	// TextArea for a newline; a plain Input has no newline to insert anyway).
+	const handleEditorKeyDown = (e: React.KeyboardEvent) => {
+		if (e.key === "Enter" && !e.shiftKey) {
+			e.preventDefault();
+			commit();
+		} else if (e.key === "Escape") {
+			e.preventDefault();
+			cancel();
+		}
+	};
+
 	return (
 		<li
 			className={cn([styles.row, className])}
 			data-size={size}
 			data-dragging={dragging || undefined}
+			data-multiline={multiline}
 		>
 			{dragHandleProps && (
 				<button
@@ -109,25 +126,28 @@ export const TodoItem: React.FC<ITodoItemProps> = ({
 
 			{editing ? (
 				<div ref={editorRef} className={styles.editorWrapper}>
-					<TextArea
-						value={draft}
-						onChange={setDraft}
-						autoGrow
-						rows={1}
-						resizable={false}
-						hideError
-						className={styles.editor}
-						onBlur={commit}
-						onKeyDown={(e) => {
-							if (e.key === "Enter" && !e.shiftKey) {
-								e.preventDefault();
-								commit();
-							} else if (e.key === "Escape") {
-								e.preventDefault();
-								cancel();
-							}
-						}}
-					/>
+					{multiline ? (
+						<TextArea
+							value={draft}
+							onChange={setDraft}
+							autoGrow
+							rows={1}
+							resizable={false}
+							hideError
+							className={styles.editor}
+							onBlur={commit}
+							onKeyDown={handleEditorKeyDown}
+						/>
+					) : (
+						<Input
+							value={draft}
+							onChange={setDraft}
+							hideError
+							className={styles.editor}
+							onBlur={commit}
+							onKeyDown={handleEditorKeyDown}
+						/>
+					)}
 				</div>
 			) : editable ? (
 				<button

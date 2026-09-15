@@ -113,14 +113,26 @@ describe("FileViewer", () => {
 		).toBeInTheDocument();
 	});
 
-	it("shows page navigation only once the pdf has loaded, and steps through pages", async () => {
+	it("renders every page stacked by default (continuous), the counter starting at 1", async () => {
 		const file = new File(["a"], "report.pdf", {
 			type: "application/pdf",
 		});
 		render(<FileViewer src={file} />);
 		expect(await screen.findByText("1 / 3")).toBeInTheDocument();
+		expect(screen.getAllByTestId("pdf-page")).toHaveLength(3);
+		expect(screen.getByText("page 3 at 1x")).toBeInTheDocument();
+	});
+
+	it("with continuous={false}, shows page navigation only once the pdf has loaded, and steps through pages one at a time", async () => {
+		const file = new File(["a"], "report.pdf", {
+			type: "application/pdf",
+		});
+		render(<FileViewer src={file} continuous={false} />);
+		expect(await screen.findByText("1 / 3")).toBeInTheDocument();
+		expect(screen.getAllByTestId("pdf-page")).toHaveLength(1);
 		fireEvent.click(screen.getByRole("button", { name: "Next page" }));
 		expect(screen.getByText("page 2 at 1x")).toBeInTheDocument();
+		expect(screen.queryByText("page 1 at 1x")).not.toBeInTheDocument();
 	});
 
 	it("zooms in and out within bounds", () => {

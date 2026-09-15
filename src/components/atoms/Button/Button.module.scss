@@ -185,6 +185,10 @@
 }
 
 .spinner {
+	// No global box-sizing reset — without this the 2px border would add
+	// 4px on top of ICON_SIZE and push the row 2px taller than the text
+	// line-height, so the button would grow while isLoading.
+	box-sizing: border-box;
 	border-radius: 50%;
 	border: 2px solid currentColor;
 	border-top-color: transparent;

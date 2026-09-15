@@ -50,4 +50,64 @@ describe("Card", () => {
 		expect(card).toHaveClass("custom");
 		expect(card).toHaveAttribute("aria-label", "Ma carte");
 	});
+
+	it("sets data-bordered only when bordered", () => {
+		const { rerender } = render(
+			<Card data-testid="card" elevation={2}>
+				Contenu
+			</Card>
+		);
+		expect(screen.getByTestId("card")).not.toHaveAttribute("data-bordered");
+		rerender(
+			<Card data-testid="card" elevation={2} bordered>
+				Contenu
+			</Card>
+		);
+		expect(screen.getByTestId("card")).toHaveAttribute(
+			"data-bordered",
+			"true"
+		);
+	});
+
+	it("exposes shadow as px CSS vars, merged with a custom style", () => {
+		render(
+			<Card
+				data-testid="card"
+				elevation={2}
+				shadow={{ x: -2, y: 0, blur: 0 }}
+				style={{ width: 120 }}
+			>
+				Contenu
+			</Card>
+		);
+		const card = screen.getByTestId("card");
+		expect(card.style.getPropertyValue("--_shadow-x")).toBe("-2px");
+		expect(card.style.getPropertyValue("--_shadow-y")).toBe("0px");
+		expect(card.style.getPropertyValue("--_shadow-blur")).toBe("0px");
+		expect(card.style.width).toBe("120px");
+	});
+
+	it("only sets the shadow vars given, leaving the rest to CSS defaults", () => {
+		render(
+			<Card data-testid="card" elevation={2} shadow={{ blur: 8 }}>
+				Contenu
+			</Card>
+		);
+		const card = screen.getByTestId("card");
+		expect(card.style.getPropertyValue("--_shadow-x")).toBe("");
+		expect(card.style.getPropertyValue("--_shadow-y")).toBe("");
+		expect(card.style.getPropertyValue("--_shadow-blur")).toBe("8px");
+	});
+
+	it("leaves shadow vars unset without shadow", () => {
+		render(
+			<Card data-testid="card" elevation={2}>
+				Contenu
+			</Card>
+		);
+		const card = screen.getByTestId("card");
+		expect(card.style.getPropertyValue("--_shadow-x")).toBe("");
+		expect(card.style.getPropertyValue("--_shadow-y")).toBe("");
+		expect(card.style.getPropertyValue("--_shadow-blur")).toBe("");
+	});
 });

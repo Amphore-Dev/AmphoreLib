@@ -7,7 +7,7 @@ import { Formik } from "formik";
 import { FieldRenderer, IFieldRendererProps } from "./FieldRenderer";
 
 export default {
-	title: "Components/Molecules/FieldRenderer",
+	title: "Components/Organisms/FieldRenderer",
 	component: FieldRenderer,
 	argTypes: {
 		value: { control: "text" },

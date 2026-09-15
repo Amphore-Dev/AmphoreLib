@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { sizeArgType } from "@stories/StoriesArgs";
+import { sizeArgType, pictoArgType } from "@stories/StoriesArgs";
 import { StoryFn } from "@storybook/react";
 
 import { TSelectOption } from "@interfaces/index";
@@ -32,6 +32,7 @@ export default {
 	argTypes: {
 		size: sizeArgType,
 		debounce: { control: "number" },
+		picto: pictoArgType,
 	},
 };
 

@@ -55,20 +55,29 @@
 	// below (font-size/line-height are inherited, and field-text no longer
 	// sets its own), so a field's text slot always matches its wrapper's
 	// size regardless of which element (input/span/textarea) it's on.
+	//
+	// The vertical padding is also exposed as `--_field-pad-y` so a slot
+	// that must reach the field's top/bottom edges through that padding
+	// (NumberInput's steppers) can cancel it with a negative margin.
+	padding: var(--_field-pad-y) var(--_field-pad-x);
+
 	&[data-size="sm"] {
-		padding: var(--amp-space-1) var(--amp-space-2);
+		--_field-pad-y: var(--amp-space-1);
+		--_field-pad-x: var(--amp-space-2);
 		font-size: 0.75rem;
 		line-height: 1.25rem;
 	}
 
 	&[data-size="md"] {
-		padding: var(--amp-space-2) var(--amp-space-2);
+		--_field-pad-y: var(--amp-space-2);
+		--_field-pad-x: var(--amp-space-2);
 		font-size: 0.84375rem;
 		line-height: 1.5rem;
 	}
 
 	&[data-size="lg"] {
-		padding: var(--amp-space-3) var(--amp-space-3);
+		--_field-pad-y: var(--amp-space-3);
+		--_field-pad-x: var(--amp-space-3);
 		font-size: 0.9375rem;
 		line-height: 1.75rem;
 	}

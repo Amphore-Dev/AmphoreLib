@@ -7,7 +7,7 @@ import { IUseFiltersContext, TFiltersModalGroup } from "@interfaces/index";
 import { ActiveFilters, IActiveFiltersProps } from "./ActiveFilters";
 
 export default {
-	title: "Components/Molecules/ActiveFilters",
+	title: "Components/Organisms/ActiveFilters",
 	component: ActiveFilters,
 	argTypes: {
 		className: { control: "text" },

@@ -6,7 +6,7 @@ import { StoryFn } from "@storybook/react";
 import { IInputSearchProps, InputSearch } from "./InputSearch";
 
 export default {
-	title: "Components/Atoms/InputSearch",
+	title: "Components/Molecules/InputSearch",
 	component: InputSearch,
 	argTypes: {
 		size: sizeArgType,

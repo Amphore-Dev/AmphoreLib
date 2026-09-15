@@ -75,10 +75,10 @@ export const DEFAULT_CONFIG: TThemeConfig = {
 		whiteTint: "#f0f0f0",
 		surface: "#fafafb",
 		card: "#ffffff",
-		border: "#d7dade",
+		border: "#e5e5e5",
 		ink: "#1a1d21",
 		sub: "#6b7178",
-		ghostBg: "#eef0f2",
+		ghostBg: "#f6f7f9",
 	},
 	// sm was 0.125rem — identical to the "sharp" preset's own sm, so any
 	// component using -radius-sm looked "sharp" even under the plain

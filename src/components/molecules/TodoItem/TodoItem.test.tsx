@@ -26,6 +26,23 @@ describe("TodoItem", () => {
 		expect(onTextChange).toHaveBeenCalledWith("Nouveau texte");
 	});
 
+	it("edits in a single-line input when multiline is false", () => {
+		const onTextChange = vi.fn();
+		render(
+			<TodoItem
+				text="Ancien texte"
+				multiline={false}
+				onTextChange={onTextChange}
+			/>
+		);
+		fireEvent.click(screen.getByText("Ancien texte"));
+		const editor = screen.getByDisplayValue("Ancien texte");
+		expect(editor.tagName).toBe("INPUT");
+		fireEvent.change(editor, { target: { value: "Nouveau texte" } });
+		fireEvent.keyDown(editor, { key: "Enter" });
+		expect(onTextChange).toHaveBeenCalledWith("Nouveau texte");
+	});
+
 	it("cancels the edit on Escape without calling onTextChange", () => {
 		const onTextChange = vi.fn();
 		render(<TodoItem text="Ancien texte" onTextChange={onTextChange} />);

@@ -2,14 +2,13 @@ import React, { useState } from "react";
 
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
+import { Button, IButtonProps } from "@components/atoms";
+import { IInputSearchProps, InputSearch, Tabs } from "@components/molecules";
 import {
-	Button,
-	IButtonProps,
-	IInputSearchProps,
-	InputSearch,
-} from "@components/atoms";
-import { ActiveFilters, Tabs } from "@components/molecules";
-import { FiltersModal, IFiltersModalProps } from "@components/organisms";
+	ActiveFilters,
+	FiltersModal,
+	IFiltersModalProps,
+} from "@components/organisms";
 
 import { genGroups } from "@utils/UFormGroups";
 import { cn } from "@utils/cn";

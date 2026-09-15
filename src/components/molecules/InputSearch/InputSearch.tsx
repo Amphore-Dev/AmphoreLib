@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 
-import { IInputProps, Input } from "../Input/Input";
+import { IInputProps, Input } from "../../atoms/Input/Input";
 
 export interface IInputSearchProps extends Omit<
 	IInputProps,

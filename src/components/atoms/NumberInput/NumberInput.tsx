@@ -55,6 +55,18 @@ const clamp = (n: number, min?: number, max?: number) => {
 	return result;
 };
 
+/** Fraction digits of `n` as written — 0.25 -> 2, 1 -> 0. */
+const fractionDigits = (n: number) => {
+	const [, frac = ""] = String(n).split(".");
+	return frac.length;
+};
+
+/** Avoids 0.1 + 0.2 = 0.30000000000000004 when stepping by a decimal. */
+const roundTo = (n: number, digits: number) => {
+	const f = 10 ** digits;
+	return Math.round(n * f) / f;
+};
+
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 /**
@@ -88,6 +100,7 @@ export const NumberInput: React.FC<INumberInputProps> = ({
 	id,
 	increaseLabel: increaseLabelProp,
 	decreaseLabel: decreaseLabelProp,
+	onKeyDown,
 	...props
 }) => {
 	const { size: defaultSize } = useAmphoreDefaults();
@@ -185,10 +198,33 @@ export const NumberInput: React.FC<INumberInputProps> = ({
 		commit(Number.isNaN(parsed) ? null : clamp(parsed, min, max));
 	};
 
+	const stepFrom = (base: number, direction: 1 | -1) =>
+		roundTo(
+			base + direction * step,
+			Math.max(fractionDigits(base), fractionDigits(step))
+		);
+
 	const step_ = (direction: 1 | -1) => {
 		if (disabled) return;
 		const base = value ?? 0;
-		commit(clamp(base + direction * step, min, max));
+		commit(clamp(stepFrom(base, direction), min, max));
+	};
+
+	// ArrowUp/ArrowDown step like a native `type="number"` would — the
+	// plain-text input lost that for free. Steps from what's typed so far
+	// (not the last committed `value`), and stays in the raw editing form
+	// since the field is still focused; blur will format it.
+	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+		onKeyDown?.(e);
+		if (e.defaultPrevented || disabled) return;
+		if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+		e.preventDefault();
+		const direction = e.key === "ArrowUp" ? 1 : -1;
+		const typed = text === "" || text === "-" ? NaN : parseRaw(text);
+		const base = Number.isNaN(typed) ? (value ?? 0) : typed;
+		const next = clamp(stepFrom(base, direction), min, max);
+		setText(toRaw(next));
+		onChange(next);
 	};
 
 	return (
@@ -206,6 +242,7 @@ export const NumberInput: React.FC<INumberInputProps> = ({
 				data-color={color}
 				data-disabled={disabled || undefined}
 				data-invalid={!!error || undefined}
+				data-after={!!after || undefined}
 			>
 				<input
 					{...props}
@@ -221,6 +258,7 @@ export const NumberInput: React.FC<INumberInputProps> = ({
 					onChange={handleChange}
 					onFocus={handleFocus}
 					onBlur={handleBlur}
+					onKeyDown={handleKeyDown}
 				/>
 
 				<div className={styles.steppers}>

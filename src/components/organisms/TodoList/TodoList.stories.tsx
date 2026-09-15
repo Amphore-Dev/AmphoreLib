@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 
-import { StoryFn } from "@storybook/react";
-
 import { sizeArgType } from "@stories/StoriesArgs";
+import { StoryFn } from "@storybook/react";
 
 import { Badge } from "@components/atoms";
 import { AddTodoItem } from "@components/molecules";
@@ -10,13 +9,17 @@ import { AddTodoItem } from "@components/molecules";
 import { TodoList, ITodoListProps, TTodoItem } from "./TodoList";
 
 export default {
-	title: "Components/Molecules/TodoList",
+	title: "Components/Organisms/TodoList",
 	component: TodoList,
 	argTypes: {
 		size: sizeArgType,
 		items: { control: false },
 		onChange: { control: false },
 		moveLabel: { control: "text" },
+		multiline: { control: "boolean" },
+		editable: { control: "boolean" },
+		removable: { control: "boolean" },
+		reorderable: { control: "boolean" },
 	},
 	parameters: {
 		docs: { story: { height: "320px" } },
@@ -40,10 +43,18 @@ const seed: TTodoItem[] = [
 const Template: StoryFn<ITodoListProps> = (args) => {
 	const [items, setItems] = useState(args.items ?? seed);
 	return (
-		<div style={{ maxWidth: 480, display: "flex", flexDirection: "column", gap: 12 }}>
+		<div
+			style={{
+				maxWidth: 480,
+				display: "flex",
+				flexDirection: "column",
+				gap: 12,
+			}}
+		>
 			<TodoList {...args} items={items} onChange={setItems} />
 			<AddTodoItem
-				onAdd={(text) =>
+				multiline={args.multiline}
+				onAdd={(text: string) =>
 					setItems((prev) => [
 						...prev,
 						{ id: String(Date.now()), text },

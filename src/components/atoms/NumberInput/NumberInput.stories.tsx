@@ -43,7 +43,7 @@ export const Empty = Template.bind({});
 Empty.args = { label: "Quantity", value: null, placeholder: "0" };
 
 export const WithUnit = Template.bind({});
-WithUnit.args = { label: "Subscription length", value: 25.29, after: "d" };
+WithUnit.args = { label: "Subscription length", value: 25.29, after: "Days" };
 
 export const LocaleFormatting = Template.bind({});
 LocaleFormatting.args = {

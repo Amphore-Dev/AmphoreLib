@@ -25,6 +25,18 @@ describe("AddTodoItem", () => {
 		expect(onAdd).toHaveBeenCalledWith("Via le bouton");
 	});
 
+	it("types into a textarea when multiline — Enter submits, Shift+Enter does not", () => {
+		const onAdd = vi.fn();
+		render(<AddTodoItem onAdd={onAdd} multiline />);
+		const field = screen.getByPlaceholderText("Add…");
+		expect(field.tagName).toBe("TEXTAREA");
+		fireEvent.change(field, { target: { value: "Nouvelle tâche" } });
+		fireEvent.keyDown(field, { key: "Enter", shiftKey: true });
+		expect(onAdd).not.toHaveBeenCalled();
+		fireEvent.keyDown(field, { key: "Enter" });
+		expect(onAdd).toHaveBeenCalledWith("Nouvelle tâche");
+	});
+
 	it("does not call onAdd for an empty or blank draft", () => {
 		const onAdd = vi.fn();
 		render(<AddTodoItem onAdd={onAdd} />);

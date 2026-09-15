@@ -4,7 +4,8 @@ import { StoryFn } from "@storybook/react";
 
 import { useAmphoreDefaults } from "@theme/index";
 
-import { InputSearch, Picto } from "@components/atoms";
+import { Picto } from "@components/atoms";
+import { InputSearch } from "@components/molecules";
 import { ColorPickerField } from "@components/molecules";
 
 import { Pictos, TPictoName } from "@constants/index";
