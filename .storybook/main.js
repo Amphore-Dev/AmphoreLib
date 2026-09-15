@@ -38,6 +38,18 @@ export default {
     // (vite.config.ts), so aliases are kept in sync manually here.
     async viteFinal(config) {
 		config.resolve ??= {};
+		// FileViewer's own `import("react-pdf")` (dynamic) and preview.tsx's
+		// `import { pdfjs } from "react-pdf"` (static) otherwise resolve to
+		// two separate module instances in the built bundle — each with its
+		// own GlobalWorkerOptions object — so preview.tsx's workerSrc
+		// assignment never reaches the one FileViewer actually reads.
+		// Force a single shared instance, same purpose this Vite option
+		// exists for.
+		config.resolve.dedupe = [
+			...(config.resolve.dedupe ?? []),
+			"react-pdf",
+			"pdfjs-dist",
+		];
 		config.resolve.alias = {
 			...config.resolve.alias,
 			"@": path.resolve(__dirname, "../src"),
@@ -51,6 +63,24 @@ export default {
 			"@interfaces": path.resolve(__dirname, "../src/types"),
 			"@stories": path.resolve(__dirname, "../src/stories"),
 		};
+
+		// `resolve.dedupe` (above) only fixes module *resolution* identity —
+		// it doesn't stop Rollup from still emitting react-pdf/pdfjs-dist
+		// into more than one physical chunk file when reached from several
+		// separate dynamic-import call sites (FileViewer's own lazy import,
+		// used both from the plain story/canvas bundle and, independently,
+		// from addon-docs' own live-preview chunk for the same story) —
+		// two files means two runtime instances again, dedupe or not.
+		// Force it into one named chunk so every entry point shares it.
+		config.build ??= {};
+		config.build.rollupOptions ??= {};
+		config.build.rollupOptions.output ??= {};
+		config.build.rollupOptions.output.manualChunks = (id) => {
+			if (/node_modules\/(react-pdf|pdfjs-dist)\//.test(id)) {
+				return "pdf-vendor";
+			}
+		};
+
 		return config;
 	},
 

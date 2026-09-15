@@ -1,4 +1,6 @@
 import React from "react";
+import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+import { pdfjs } from "react-pdf";
 import { create } from "storybook/theming";
 
 import { AmphoreProvider } from "../src/theme/AmphoreProvider";
@@ -42,6 +44,12 @@ const darkTheme = create({
 const commons = {
 	brandTitle: "Amphore Lib",
 };
+
+// FileViewer's own PDF story needs this configured by its consumer — see
+// FileViewer.tsx's own comment. Storybook builds src/ directly (not this
+// lib's own `vite build --lib`), so the `?url` import above resolves to a
+// real, working asset here — same as it does in any other consumer app.
+pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
 export const parameters = {
 	actions: {
