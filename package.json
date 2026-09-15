@@ -1,6 +1,6 @@
 {
 	"name": "@amphore-dev/amphore-lib",
-	"version": "1.0.1",
+	"version": "1.1.0",
 	"main": "lib/index.js",
 	"module": "lib/index.esm.js",
 	"types": "lib/index.d.ts",
@@ -37,8 +37,18 @@
 		"picto": "node scripts/convert-svg.js"
 	},
 	"peerDependencies": {
+		"pdfjs-dist": "4.8.69",
 		"react": ">=18.0.0 <20.0.0",
-		"react-dom": ">=18.0.0 <20.0.0"
+		"react-dom": ">=18.0.0 <20.0.0",
+		"react-pdf": "^9.2.1"
+	},
+	"peerDependenciesMeta": {
+		"pdfjs-dist": {
+			"optional": true
+		},
+		"react-pdf": {
+			"optional": true
+		}
 	},
 	"devDependencies": {
 		"@storybook/addon-a11y": "^10.6.0",
@@ -71,9 +81,11 @@
 		"eslint-plugin-react": "^7.37.5",
 		"eslint-plugin-react-hooks": "^4.6.2",
 		"jsdom": "^26.0.0",
+		"pdfjs-dist": "4.8.69",
 		"prettier": "^3.3.3",
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1",
+		"react-pdf": "^9.2.1",
 		"sass": "^1.77.8",
 		"storybook": "^10.6.0",
 		"storybook-dark-mode": "^5.0.0",
@@ -92,9 +104,7 @@
 		"date-fns": "^4.4.0",
 		"formik": "^2.4.9",
 		"lodash": "^4.18.1",
-		"pdfjs-dist": "4.8.69",
 		"react-day-picker": "10.0.1",
-		"react-gcolor-picker": "^1.3.3",
-		"react-pdf": "^9.2.1"
+		"react-gcolor-picker": "^1.3.3"
 	}
 }

@@ -1,10 +1,13 @@
 import React, { Suspense, lazy, useEffect, useMemo, useState } from "react";
 
-// Vite-specific `?url` import — resolves to the built asset's URL instead
-// of its (non-existent, at runtime) module contents. This alone doesn't
-// pull pdfjs-dist's own module graph into the bundle (Vite emits the
-// worker file as its own asset either way) — it's the `react-pdf` import
-// below that does, which is why that one is dynamic.
+// Vite-specific `?url` import. This is only a *fallback* — see the guard
+// below — because it's unreliable here specifically: a library build
+// (this lib's own `vite build --lib`) has no fixed "site root" to resolve
+// a worker asset against, so Vite inlines it as a `data:` URI instead of
+// emitting a real file. A worker script loaded from `data:` can't resolve
+// its own internal dynamic import and fails at runtime. A consumer's own
+// app-mode Vite build resolves this same `?url` import correctly, which is
+// exactly why the guard below lets a consumer's own value win.
 import pdfWorkerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
@@ -19,17 +22,23 @@ import { Spinner } from "../../atoms/Spinner/Spinner";
 
 import styles from "./FileViewer.module.scss";
 
-// `react-pdf` (and the pdfjs-dist engine it pulls in) is a multi-hundred-KB
-// dependency that every consumer of this lib would otherwise pay for on
-// import, even ones who never render a PDF — this single entry point has
-// no other code-splitting boundary. Lazy-loading it here keeps it out of
-// the main bundle entirely; Vite/Rollup emits it as its own chunk, fetched
-// only the first time a `FileViewer` actually renders a PDF.
+// `react-pdf` and `pdfjs-dist` are peer dependencies (optional — only a
+// consumer that actually renders a PDF through this component needs them
+// installed) and a multi-hundred-KB dependency besides, so this stays
+// lazy: no other code-splitting boundary would keep it out of the main
+// bundle otherwise. Vite/Rollup emits it as its own chunk, fetched only
+// the first time a `FileViewer` actually renders a PDF.
 let workerConfigured = false;
 const PdfDocument = lazy(() =>
 	import("react-pdf").then((mod) => {
 		if (!workerConfigured) {
-			mod.pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerSrc;
+			// Respect a worker src the consumer's own app already set (see
+			// this file's own comment above `pdfWorkerSrc` for why) —
+			// `pdfWorkerSrc` is only a fallback for a consumer that hasn't
+			// configured one.
+			if (!mod.pdfjs.GlobalWorkerOptions.workerSrc) {
+				mod.pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerSrc;
+			}
 			workerConfigured = true;
 		}
 		return { default: mod.Document };
@@ -117,11 +126,18 @@ const inferType = (src: File | string): TFileViewerType | undefined => {
  * this inside one of those (or full-page, or inline) is their call, made
  * once outside, not baked in here.
  *
- * PDF rendering is `react-pdf` (a real dependency — no dep-free way to
+ * PDF rendering is `react-pdf` (a peer dependency — no dep-free way to
  * decode/paint a PDF), loaded lazily (see above). Text/annotation layers
  * are off: this is a viewer with its own toolbar, not a document a user
  * selects text out of, and skipping them avoids importing react-pdf's
  * extra layer CSS entirely.
+ *
+ * To render a PDF, install `pdfjs-dist` + `react-pdf` yourself and, before
+ * this component's first render, set `pdfjs.GlobalWorkerOptions.workerSrc`
+ * to your own bundler-resolved worker URL (e.g. Vite: `import workerSrc
+ * from "pdfjs-dist/build/pdf.worker.min.mjs?url"`). This component only
+ * falls back to its own bundled worker path when you haven't — that
+ * fallback is best-effort and can fail depending on your bundler.
  */
 export const FileViewer: React.FC<IFileViewerProps> = ({
 	src,

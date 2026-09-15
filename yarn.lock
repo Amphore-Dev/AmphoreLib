@@ -66,8 +66,15 @@ __metadata:
     vite-plugin-dts: "npm:^5.1.0"
     vitest: "npm:^3.0.7"
   peerDependencies:
+    pdfjs-dist: 4.8.69
     react: ">=18.0.0 <20.0.0"
     react-dom: ">=18.0.0 <20.0.0"
+    react-pdf: ^9.2.1
+  peerDependenciesMeta:
+    pdfjs-dist:
+      optional: true
+    react-pdf:
+      optional: true
   languageName: unknown
   linkType: soft
 
