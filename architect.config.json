@@ -1,8 +1,0 @@
-{
-	"language": "react-typescript",
-	"outputDir": "src",
-	"plugins": [
-		"@amphore-dev/architect-plugin-react",
-		"@amphore-dev/architect-atomic-structure"
-	]
-}

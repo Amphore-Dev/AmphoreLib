@@ -1,85 +1,68 @@
-import React from "react";
+import React, { useState } from "react";
 
+import { sizeArgType } from "@stories/StoriesArgs";
 import { StoryFn } from "@storybook/react";
-import { Form, Formik } from "formik";
-import * as Yup from "yup";
+
+import { TSelectOption } from "@interfaces/index";
 
 import { AsyncSelect, IAsyncSelectProps } from "./AsyncSelect";
+
+const ALL_USERS = [
+	"Alice Johnson",
+	"Bob Martin",
+	"Charlie Brown",
+	"Diane Petit",
+	"Emile Ross",
+	"Fatima Nasser",
+];
+
+const fakeFetch = (query: string): Promise<TSelectOption[]> =>
+	new Promise((resolve) => {
+		setTimeout(() => {
+			const results = ALL_USERS.filter((name) =>
+				name.toLowerCase().includes(query.toLowerCase())
+			);
+			resolve(results.map((name) => ({ value: name, label: name })));
+		}, 600);
+	});
 
 export default {
 	title: "Components/Molecules/AsyncSelect",
 	component: AsyncSelect,
+	argTypes: {
+		size: sizeArgType,
+		debounce: { control: "number" },
+	},
 };
 
-const mockedOptions = [
-	{ value: "chocolate", label: "Chocolate" },
-	{ value: "strawberry", label: "Strawberry" },
-	{ value: "vanilla", label: "Vanilla" },
-];
-
-const fetchOptions = (inputValue: string) => {
-	return new Promise((resolve) => {
-		setTimeout(() => {
-			resolve(
-				mockedOptions.filter((option) =>
-					option.label
-						.toLowerCase()
-						.includes(inputValue.toLowerCase())
-				)
-			);
-		}, 1000);
-	});
-};
-
-export const Template: StoryFn<any> = (args) => {
-	if (!args.formiked)
-		return (
-			<div className="h-[250px]">
-				<AsyncSelect {...args} label="OKOKOK" />
-			</div>
-		);
-
+const Template: StoryFn<IAsyncSelectProps> = (args) => {
+	const [value, setValue] = useState<string | null>(null);
 	return (
-		<Formik
-			initialValues={{ select: "" }}
-			onSubmit={() => {}}
-			validationSchema={Yup.object().shape({
-				select: Yup.object().required("Required"),
-			})}
-		>
-			{({ values, errors }) => {
-				return (
-					<Form className="h-[250px]">
-						<AsyncSelect
-							isClearable
-							{...args}
-							label="OKOKOK"
-							name="select"
-						/>
-					</Form>
-				);
-			}}
-		</Formik>
+		<AsyncSelect
+			{...args}
+			value={value}
+			onChange={(v) => setValue(v as string | null)}
+		/>
 	);
 };
 
 export const Base = Template.bind({});
-
 Base.args = {
-	isMulti: false,
-	loadOptions: fetchOptions,
-	defaultOptions: true,
-	isClearable: true,
+	label: "User",
+	placeholder: "Search for a user...",
+	loadOptions: fakeFetch,
 };
 
-export const Formiked = Template.bind({});
-Formiked.args = {
-	...Template.args,
-	formiked: true,
+export const SlowDebounce = Template.bind({});
+SlowDebounce.args = {
+	label: "User (800ms debounce)",
+	loadOptions: fakeFetch,
+	debounce: 800,
 };
 
-export const Multiple = Template.bind({});
-Multiple.args = {
-	...Base.args,
-	isMulti: true,
+export const WithError = Template.bind({});
+WithError.args = {
+	label: "User",
+	loadOptions: fakeFetch,
+	error: "Selection required",
 };

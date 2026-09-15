@@ -1,95 +1,86 @@
-import React, { InputHTMLAttributes, useCallback } from "react";
+import React, { useId } from "react";
 
 import { cn } from "@utils/cn";
 
-import "./Toggle.scss";
+import { InputErrorMessage } from "../InputErrorMessage/InputErrorMessage";
+
+import styles from "./Toggle.module.scss";
 
 export interface IToggleProps extends Omit<
-	InputHTMLAttributes<HTMLInputElement>,
-	"onChange"
+	React.InputHTMLAttributes<HTMLInputElement>,
+	"onChange" | "checked"
 > {
-	label: string;
+	checked?: boolean;
+	onChange?: (
+		checked: boolean,
+		e: React.ChangeEvent<HTMLInputElement>
+	) => void;
+	label?: string;
+	error?: string;
+	hideError?: boolean;
 	className?: string;
-	labelClassName?: string;
-	onChange: (checked: boolean) => void;
+	wrapperClassName?: string;
 }
 
+/**
+ * V2 Toggle — fully controlled (checked/onChange only), no ambient
+ * form-library awareness. Single fixed size and color (primary), same
+ * reasoning as Checkbox/Radio: not a place consumers need visual variants.
+ * Native <input type="checkbox" role="switch">, visually hidden under a
+ * styled track+thumb — standard switch-replacement pattern.
+ */
 export const Toggle: React.FC<IToggleProps> = ({
-	className,
-	labelClassName,
-	name,
-	disabled,
-	label,
-	checked,
+	checked = false,
 	onChange,
+	label,
+	error,
+	hideError = false,
+	disabled = false,
+	className = "",
+	wrapperClassName = "",
+	id,
+	...props
 }) => {
-	const wrapperClassNames = cn([
-		"amphorelib__toggle",
-		disabled && "amphorelib__toggle--disabled",
-		className,
-	]);
+	const generatedId = useId();
+	const inputId = id ?? generatedId;
+	const errorId = `${inputId}-error`;
 
-	const labelClassNames = cn([
-		"text-m text-black font-medium cursor-pointer",
-		labelClassName,
-		disabled && "text-neutral-600 cursor-default",
-	]);
-
-	const thumbClassNames = cn([
-		"amphorelib__toggle__thumb",
-		checked && !disabled && "amphorelib__toggle__thumb--checked",
-		checked && disabled && "amphorelib__toggle__thumb--checked--disabled",
-	]);
-
-	const sliderClassNames = cn([
-		"amphorelib__toggle__slider",
-		checked && "amphorelib__toggle__slider--checked",
-		disabled && "bg-neutral-100",
-	]);
-
-	const onChangeCallback = useCallback(
-		(
-			e:
-				| React.MouseEvent<HTMLDivElement>
-				| React.KeyboardEvent<HTMLDivElement>
-				| React.ChangeEvent<HTMLInputElement>
-		) => {
-			e.preventDefault();
-			e.stopPropagation();
-			if (!disabled) {
-				onChange(!checked);
-			}
-		},
-		[disabled, onChange, checked]
-	);
+	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		onChange?.(e.target.checked, e);
+	};
 
 	return (
-		<div
-			className={wrapperClassNames}
-			role="button"
-			tabIndex={disabled ? -1 : 0}
-			onClick={onChangeCallback}
-			onKeyUp={(event) => {
-				if (event.key === "Enter") {
-					onChangeCallback(event);
-				}
-			}}
-		>
-			<div className={thumbClassNames}>
-				<input
-					type="checkbox"
-					name={name}
-					id={name}
-					disabled={disabled}
-					tabIndex={-1}
-					checked={checked}
-					onChange={onChangeCallback}
-				/>
-				<span className={sliderClassNames} />
-			</div>
-			<label htmlFor={name} className={labelClassNames}>
-				{label}
+		<div className={cn([styles.wrapper, wrapperClassName])}>
+			<label
+				className={styles.row}
+				data-disabled={disabled || undefined}
+				htmlFor={inputId}
+			>
+				<span className={styles.trackWrapper}>
+					<input
+						{...props}
+						id={inputId}
+						type="checkbox"
+						role="switch"
+						className={cn([styles.input, className])}
+						checked={checked}
+						disabled={disabled}
+						aria-describedby={
+							error && !hideError ? errorId : undefined
+						}
+						onChange={handleChange}
+					/>
+					<span className={styles.track} data-checked={checked}>
+						<span className={styles.thumb} />
+					</span>
+				</span>
+
+				{label && <span className={styles.label}>{label}</span>}
 			</label>
+
+			{!hideError && (
+				<InputErrorMessage id={errorId}>{error}</InputErrorMessage>
+			)}
 		</div>
 	);
 };

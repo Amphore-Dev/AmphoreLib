@@ -1,20 +1,15 @@
-export interface ISearchParamsAdapterOptions {
-	replace?: boolean; // true = replaceState (default), false = pushState
-}
-
+/**
+ * Router-agnostic URL search-params adapter — `createFiltersContext`'s
+ * `Provider` reads/writes URL state through this interface, never a
+ * specific router. The default implementation
+ * (`useStandaloneSearchParams`) works over plain `window.location`/
+ * `history`; an app using react-router (or anything else) can supply its
+ * own adapter with the same shape via the `adapterHook` prop.
+ */
 export interface ISearchParamsAdapter {
-	getParam: (key: string) => string | null;
-	getAll: () => URLSearchParams;
+	getParam: (key: string) => string | undefined;
 	setParams: (
-		updater: URLSearchParams | ((prev: URLSearchParams) => URLSearchParams),
-		options?: ISearchParamsAdapterOptions
+		updater: (prev: URLSearchParams) => URLSearchParams,
+		options?: { replace?: boolean }
 	) => void;
-}
-
-export interface TLocation<State = unknown> {
-	state: State;
-	key: string;
-	pathname: string;
-	search: string;
-	hash: string;
 }

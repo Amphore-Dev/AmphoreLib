@@ -1,92 +1,64 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { StoryFn } from "@storybook/react";
 
-import { Radio, IRadioProps } from "./Radio";
+import { IRadioProps, Radio } from "./Radio";
 
 export default {
 	title: "Components/Atoms/Radio",
 	component: Radio,
 	argTypes: {
-		checked: {
-			control: "boolean",
-		},
-		disabled: {
-			control: "boolean",
-		},
-
-		label: {
-			control: "text",
-		},
-		"...": {
-			description: "All default checkbox props",
-			control: {
-				disable: true,
-			},
-		},
-	},
-	parameters: {
-		controls: {
-			include: ["checked", "disabled", "label", "..."],
-		},
+		disabled: { control: { type: "boolean" } },
 	},
 };
 
 const Template: StoryFn<IRadioProps> = (args) => {
-	const [checked, setChecked] = React.useState("1");
-
-	return (
-		<>
-			<Radio
-				{...args}
-				checked={checked === "1"}
-				onChange={() => {
-					setChecked("1");
-				}}
-				label={args.label?.length ? args.label : "Option 1"}
-			/>
-			<Radio
-				{...args}
-				checked={checked === "2"}
-				onChange={() => {
-					setChecked("2");
-				}}
-				label="Option 2"
-			/>
-			<Radio
-				{...args}
-				checked={checked === "3"}
-				onChange={() => {
-					setChecked("3");
-				}}
-				label="Option 3"
-			/>
-		</>
-	);
+	const [checked, setChecked] = useState(!!args.checked);
+	return <Radio {...args} checked={checked} onChange={setChecked} />;
 };
 
 export const Base = Template.bind({});
-
 Base.args = {
-	disabled: false,
+	label: "Day",
 };
 
 export const Checked = Template.bind({});
-
 Checked.args = {
+	label: "Week",
 	checked: true,
 };
 
-export const Disabled = Template.bind({});
+export const Group = () => {
+	const [value, setValue] = useState<"day" | "week" | "month">("week");
 
-Disabled.args = {
-	checked: false,
-	disabled: true,
+	return (
+		<div
+			style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
+		>
+			{(["day", "week", "month"] as const).map((option) => (
+				<Radio
+					key={option}
+					name="display"
+					label={
+						{ day: "Day", week: "Week", month: "Month" }[option]
+					}
+					checked={value === option}
+					onChange={() => setValue(option)}
+				/>
+			))}
+		</div>
+	);
 };
 
-export const CheckedDisabled = Template.bind({});
-
-CheckedDisabled.args = {
-	checked: true,
-	disabled: true,
+export const WithError = Template.bind({});
+WithError.args = {
+	label: "I agree",
+	error: "Selection required",
 };
+
+export const Disabled = () => (
+	<div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+		<Radio label="Disabled unchecked" onChange={() => {}} disabled />
+		<Radio label="Disabled checked" checked onChange={() => {}} disabled />
+	</div>
+);

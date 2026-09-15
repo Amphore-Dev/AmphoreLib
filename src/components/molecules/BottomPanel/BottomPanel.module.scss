@@ -1,0 +1,58 @@
+.panel {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 1000;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	border-radius: var(--amp-radius-lg) var(--amp-radius-lg) 0 0;
+	font-family: var(--amp-font);
+	transition: height 0.25s ease;
+
+	// No transition while actively dragging — the height already tracks the
+	// pointer 1:1 every frame; animating on top of that lags behind it.
+	&[data-dragging="true"] {
+		transition: none;
+	}
+}
+
+.handle {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 2.75rem;
+	padding: 0;
+	background: none;
+	border: none;
+	cursor: grab;
+	// Without this, a touch-drag on the handle also scrolls/bounces the
+	// page underneath on iOS/Android — the handle owns the gesture instead.
+	touch-action: none;
+
+	&:active {
+		cursor: grabbing;
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--amp-color-primary);
+		outline-offset: -2px;
+	}
+}
+
+.grip {
+	width: 2.5rem;
+	height: 0.25rem;
+	border-radius: var(--amp-radius-full);
+	background: var(--amp-color-border);
+}
+
+.content {
+	flex: 1;
+	overflow: auto;
+	padding: var(--amp-card-padding);
+	padding-top: 0;
+}

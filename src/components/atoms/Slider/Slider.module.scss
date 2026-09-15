@@ -1,0 +1,135 @@
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: var(--amp-space-1);
+	font-family: var(--amp-font);
+}
+
+.head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--amp-space-2);
+}
+
+.label {
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: var(--amp-color-ink);
+}
+
+.required {
+	color: var(--amp-color-danger);
+	margin-left: 0.125rem;
+}
+
+.value {
+	font-size: 0.75rem;
+	font-variant-numeric: tabular-nums;
+	color: var(--amp-color-sub);
+}
+
+.field {
+	position: relative;
+	display: flex;
+	align-items: center;
+	width: 100%;
+
+	// Whole scale shifted up (bigger overall): old md's height is the new
+	// sm, old lg's height is the new md, lg gets a genuinely new, even
+	// larger value — thumbs trimmed slightly smaller relative to their
+	// track at every tier.
+	--_track-h: 0.5rem;
+	--_thumb: 1.3125rem;
+	--_color: var(--amp-color-primary);
+
+	&[data-size="sm"] {
+		--_track-h: 0.375rem;
+		--_thumb: 1.0625rem;
+	}
+
+	&[data-size="lg"] {
+		--_track-h: 0.625rem;
+		--_thumb: 1.4375rem;
+	}
+
+	&[data-color="danger"] {
+		--_color: var(--amp-color-danger);
+	}
+	&[data-color="success"] {
+		--_color: var(--amp-color-success);
+	}
+	&[data-color="warning"] {
+		--_color: var(--amp-color-warning);
+	}
+	&[data-color="info"] {
+		--_color: var(--amp-color-info);
+	}
+	&[data-color="neutral"] {
+		--_color: var(--amp-color-neutral);
+	}
+	&[data-color="black"] {
+		--_color: var(--amp-color-black);
+	}
+	&[data-color="white"] {
+		--_color: var(--amp-color-white);
+	}
+
+	&[data-disabled="true"] {
+		cursor: not-allowed;
+		opacity: 0.5;
+	}
+
+	&:focus-within .track {
+		outline: 2px solid var(--_color);
+		outline-offset: 2px;
+	}
+}
+
+.track {
+	position: relative;
+	width: 100%;
+	height: var(--_track-h);
+	border-radius: var(--amp-radius-full);
+	background: var(--amp-color-border);
+	overflow: visible;
+}
+
+.fill {
+	position: absolute;
+	inset-block: 0;
+	min-width: var(--_track-h);
+	border-radius: var(--amp-radius-full);
+	background: var(--_color);
+}
+
+.thumb {
+	position: absolute;
+	top: 50%;
+	translate: -50% -50%;
+	width: var(--_thumb);
+	height: var(--_thumb);
+	border-radius: 50%;
+	background: var(--_color);
+	border: 2px solid var(--amp-color-white);
+	box-shadow: 0 0 0 1px var(--amp-color-border);
+	pointer-events: none;
+}
+
+// The real range input — invisible, sits on top of the track/fill/thumb
+// visuals and does all the actual work (drag, keyboard, focus, a11y).
+.input {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	opacity: 0;
+	cursor: pointer;
+	appearance: none;
+	-webkit-appearance: none;
+
+	&:disabled {
+		cursor: not-allowed;
+	}
+}

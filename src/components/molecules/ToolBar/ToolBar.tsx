@@ -1,147 +1,106 @@
-import React, { useMemo, useRef } from "react";
+import React from "react";
 
-import { TPictoName } from "@constants/CPictos";
-import { Middleware, offset } from "@floating-ui/react";
+import { TPictoName } from "@constants/index";
 
-import { Picto } from "../../atoms/Picto/Picto";
-import { Popover } from "../../atoms/Popover/Popover";
-import { ITooltipProps, Tooltip } from "../../atoms/Tooltip/Tooltip";
-
+import { getPicto } from "@utils/UPicto";
 import { cn } from "@utils/cn";
 
-import "./ToolBar.scss";
+import type { IPictoProps } from "../../atoms/Picto/Picto";
+import { Picto } from "../../atoms/Picto/Picto";
+import { Popover } from "../Popover/Popover";
+import { Tooltip } from "../Tooltip/Tooltip";
 
-function centerOnAnchor(anchorRef: React.RefObject<HTMLElement>): Middleware {
-	return {
-		name: "centerOnAnchor",
-		fn: ({ rects }) => {
-			const anchor = anchorRef.current;
-			if (!anchor) return {};
-			const { left, width } = anchor.getBoundingClientRect();
-			return { x: left + width / 2 - rects.floating.width / 2 };
-		},
-	};
-}
+import styles from "./ToolBar.module.scss";
 
-export interface IToolBarItem {
+export interface TToolBarItem {
 	id: string;
 	label: string;
-	picto?: TPictoName;
-	component?: React.FC<{ isActive?: boolean }>;
-	popover?:
-		| React.ReactNode
-		| ((ref: React.RefObject<HTMLDivElement>) => React.ReactNode);
-	tooltipProps?: Partial<Omit<ITooltipProps, "content">>;
-	className?: string;
+	/** Leading icon (see Picto) — an icon name, or an `IPictoProps` object to pass other Picto props. */
+	picto?: TPictoName | IPictoProps;
 	onClick?: () => void;
+	/** Opens this content in a Popover on click instead of firing onClick. */
+	popoverContent?: React.ReactNode;
 	disabled?: boolean;
 }
 
 export interface IToolBarProps {
-	items: IToolBarItem[];
+	items: TToolBarItem[];
+	/** Which item's popover is open (only meaningful for items with `popoverContent`). */
 	activeItem?: string;
 	onChange?: (id: string | undefined) => void;
+	/** Toolbar's own position on screen — flips popover/tooltip placement so it opens away from the edge. Defaults to "bottom". */
 	position?: "top" | "bottom";
 	className?: string;
 }
 
-const ToolBarItemContent: React.FC<{
-	item: IToolBarItem;
-	isActive?: boolean;
-}> = ({ item, isActive }) => {
-	if (item.component) {
-		const Comp = item.component;
-		return <Comp isActive={isActive} />;
-	}
-	if (item.picto) {
-		return <Picto icon={item.picto} className="al__toolbar__btn-icon" />;
-	}
-	return <span className="al__toolbar__btn-label">{item.label}</span>;
-};
-
+/**
+ * V2 ToolBar — a row of icon/label buttons, data-driven (`items`). v1's
+ * version had a custom floating-ui middleware to center a popover under
+ * its anchor, a portal, and a `component`/`popover(ref)` render-prop
+ * escape hatch — dropped all of it: Popover's own flip/shift already
+ * handles collision, no portal per this lib's standing convention, and a
+ * plain `popoverContent` node covers the same need without the render-prop
+ * indirection.
+ *
+ * A popover item's trigger uses a native `title` for the hover hint
+ * (not Tooltip) — Tooltip isn't `forwardRef`, so nesting it as Popover's
+ * direct child would silently break Popover's own ref (see memory:
+ * any Popover/Tooltip/Dropdown trigger must forward its ref).
+ */
 export const ToolBar: React.FC<IToolBarProps> = ({
 	items,
 	activeItem,
 	onChange,
 	position = "bottom",
-	className,
+	className = "",
 }) => {
-	const toolbarRef = useRef<HTMLDivElement>(null);
-	const popOverRef = React.useRef<HTMLDivElement>(null);
-	const centerMiddleware = useMemo(() => centerOnAnchor(toolbarRef), []);
+	const placement = position === "top" ? "bottom" : "top";
 
 	return (
-		<div
-			ref={toolbarRef}
-			className={cn([
-				"al__toolbar",
-				`al__toolbar--${position}`,
-				className,
-			])}
-		>
+		<div className={cn([styles.bar, className])}>
 			{items.map((item) => {
 				const isActive = activeItem === item.id;
 
-				if (item.popover) {
-					const {
-						floatingProps: tooltipFloatingProps,
-						...restTooltipProps
-					} = item.tooltipProps ?? {};
+				const buttonContent = item.picto ? (
+					<Picto {...getPicto(item.picto)} className={styles.icon} />
+				) : (
+					<span>{item.label}</span>
+				);
 
+				if (item.popoverContent) {
 					return (
 						<Popover
-							key={`${item.id}-${isActive ? "active" : "inactive"}`}
-							portal
-							containerRef={(node) => {
-								popOverRef.current = node;
-							}}
-							content={
-								<ToolBarItemContent
-									item={item}
-									isActive={isActive}
-								/>
-							}
-							isOpen={isActive}
-							setIsOpen={(open) =>
+							key={item.id}
+							open={isActive}
+							onOpenChange={(open) =>
 								onChange?.(open ? item.id : undefined)
 							}
-							buttonClassName={cn([
-								"al__toolbar__btn",
-								isActive && "al__toolbar__btn--active",
-								item.disabled && "al__toolbar__btn--disabled",
-								item.className,
-							])}
-							{...restTooltipProps}
-							floatingProps={{
-								strategy: "fixed",
-								placement:
-									position === "top" ? "bottom" : "top",
-								middleware: [
-									offset({
-										mainAxis: 8,
-										alignmentAxis: 0,
-									}),
-									centerMiddleware,
-									...(tooltipFloatingProps?.middleware ?? []),
-								],
-								...tooltipFloatingProps,
-							}}
+							placement={placement}
+							disabled={item.disabled}
+							content={item.popoverContent}
 						>
-							{typeof item.popover === "function"
-								? item.popover(popOverRef)
-								: item.popover}
+							<button
+								type="button"
+								className={cn([
+									styles.button,
+									isActive && styles.active,
+								])}
+								disabled={item.disabled}
+								aria-label={item.label}
+								title={item.label}
+							>
+								{buttonContent}
+							</button>
 						</Popover>
 					);
 				}
 
-				return (
+				const button = (
 					<button
-						key={item.id}
 						type="button"
 						className={cn([
-							"al__toolbar__btn",
-							isActive && "al__toolbar__btn--active",
-							item.className,
+							styles.button,
+							isActive && styles.active,
 						])}
 						onClick={() => {
 							item.onClick?.();
@@ -149,10 +108,22 @@ export const ToolBar: React.FC<IToolBarProps> = ({
 						}}
 						disabled={item.disabled}
 						aria-label={item.label}
-						title={item.label}
+						aria-pressed={isActive}
 					>
-						<ToolBarItemContent item={item} isActive={isActive} />
+						{buttonContent}
 					</button>
+				);
+
+				return item.picto ? (
+					<Tooltip
+						key={item.id}
+						content={item.label}
+						placement={placement}
+					>
+						{button}
+					</Tooltip>
+				) : (
+					<React.Fragment key={item.id}>{button}</React.Fragment>
 				);
 			})}
 		</div>

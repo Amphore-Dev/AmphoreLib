@@ -1,0 +1,37 @@
+.flexGrid {
+	display: flex;
+	flex-wrap: wrap;
+
+	// Effective column width: whichever is bigger between the min width a
+	// consumer asked for and the computed even-split width when `columns`
+	// is set — lets items shrink to fit a fixed column count but never
+	// below `minItemWidth` (falls back to just `minItemWidth` without a
+	// fixed column count).
+	--_col-size: max(var(--_item-min-width), var(--_item-width, 0px));
+}
+
+.item {
+	flex: 1 1 var(--_col-size);
+	// Without this, a flex item's automatic minimum width is its content's
+	// min-content size (per spec, since `overflow` here is the default
+	// `visible`) — unbreakable-text content wider than `--_col-size` (a
+	// long filename, say) then refuses to shrink below that width no
+	// matter how tight the row gets, overflowing the FlexGrid (and
+	// whatever scrolls it, e.g. a Modal body) instead of being
+	// clipped/ellipsized by whatever the child itself already does for
+	// overflow. Doesn't affect the minItemWidth-driven wrap/sizing itself
+	// — that's decided by `flex-basis` (`--_col-size`) above, not by this
+	// floor.
+	min-width: 0;
+	display: inline-grid;
+	// `.item`'s own min-width:0 above only fixes it as a *flex* child of
+	// `.flexGrid` — it's also an *inline-grid* container for whatever
+	// single child it wraps, and a grid's implicit `auto` track has the
+	// exact same min-content floor problem, one level deeper: unbreakable
+	// content inside that child still refuses to shrink below its own
+	// min-content, even though `.item` itself now can. `minmax(0, 1fr)`
+	// removes that floor on the track itself instead of relying on every
+	// consumer's own root element to redeclare min-width:0 to fix the same
+	// class of bug.
+	grid-template-columns: minmax(0, 1fr);
+}

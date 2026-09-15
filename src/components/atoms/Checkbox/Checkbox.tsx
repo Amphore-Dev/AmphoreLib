@@ -1,121 +1,118 @@
-import React, {
-	forwardRef,
-	InputHTMLAttributes,
-	useId,
-	useRef,
-	useImperativeHandle,
-} from "react";
+import React, { useEffect, useId, useRef } from "react";
 
 import { cn } from "@utils/cn";
 
-import "./Checkbox.scss";
+import { InputErrorMessage } from "../InputErrorMessage/InputErrorMessage";
 
-export interface ICheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
+import styles from "./Checkbox.module.scss";
+
+export interface ICheckboxProps extends Omit<
+	React.InputHTMLAttributes<HTMLInputElement>,
+	"onChange" | "checked"
+> {
+	checked?: boolean;
+	/** Renders a dash instead of a check, and reports as neither checked nor unchecked. Purely visual — doesn't change `checked`. */
 	indeterminate?: boolean;
-	label?: string | React.ReactNode;
+	onChange?: (
+		checked: boolean,
+		e: React.ChangeEvent<HTMLInputElement>
+	) => void;
+	label?: string;
+	error?: string;
+	hideError?: boolean;
 	className?: string;
-	labelClassName?: string;
 	wrapperClassName?: string;
 }
 
-export const Checkbox = forwardRef<HTMLInputElement, ICheckboxProps>(
-	(
-		{
-			label,
-			indeterminate,
-			className,
-			labelClassName,
-			wrapperClassName,
-			...props
-		},
-		ref
-	) => {
-		const parentRef = useRef<HTMLDivElement>(null);
-		const inputRef = useRef<HTMLInputElement>(null);
-		const autoId = props.id ?? useId();
+/**
+ * V2 Checkbox — fully controlled (checked/onChange only), no ambient
+ * form-library awareness. Single fixed size and color (primary) by design:
+ * unlike Button/Input, a checkbox isn't a place consumers reach for visual
+ * variants — keep the surface small.
+ */
+export const Checkbox: React.FC<ICheckboxProps> = ({
+	checked = false,
+	indeterminate = false,
+	onChange,
+	label,
+	error,
+	hideError = false,
+	disabled = false,
+	className = "",
+	wrapperClassName = "",
+	id,
+	...props
+}) => {
+	const generatedId = useId();
+	const inputId = id ?? generatedId;
+	const errorId = `${inputId}-error`;
+	const inputRef = useRef<HTMLInputElement>(null);
 
-		// 👉 expose la ref du <input> vers l'extérieur
-		useImperativeHandle(ref, () => inputRef.current as HTMLInputElement);
+	useEffect(() => {
+		if (inputRef.current) {
+			inputRef.current.indeterminate = indeterminate;
+		}
+	}, [indeterminate]);
 
-		const handleKeyDown = (
-			event: React.KeyboardEvent<HTMLInputElement>
-		) => {
-			if (event.key === "Enter") {
-				event.preventDefault();
-				inputRef.current?.click();
-			} else if (event.key === "Tab") {
-				const container = parentRef.current?.parentElement;
-				if (!container) return;
+	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		onChange?.(e.target.checked, e);
+	};
 
-				const checkboxes = Array.from(
-					container.querySelectorAll<HTMLInputElement>(
-						"input[data-checkbox]:not(:disabled)"
-					)
-				);
-
-				const currentIndex = checkboxes.indexOf(inputRef.current!);
-
-				if (event.shiftKey) {
-					if (currentIndex > 0) {
-						event.preventDefault();
-						checkboxes[currentIndex - 1]?.focus();
-					}
-				} else {
-					if (currentIndex < checkboxes.length - 1) {
-						event.preventDefault();
-						checkboxes[currentIndex + 1]?.focus();
-					}
-				}
-			}
-		};
-
-		const blurCapture = {
-			onBlurCapture: () => {
-				parentRef.current?.removeAttribute("data-mouse-down");
-			},
-			onMouseUpCapture: () => {
-				parentRef.current?.setAttribute("data-mouse-down", "true");
-			},
-		};
-
-		return (
-			<div
-				ref={parentRef}
-				className={cn([
-					"amphorelib__checkbox",
-					props.disabled && "disabled",
-					!!label && "withLabel",
-					wrapperClassName,
-				])}
-				data-amphore-lib-checkbox
-				{...blurCapture}
+	return (
+		<div className={cn([styles.wrapper, wrapperClassName])}>
+			<label
+				className={styles.row}
+				data-disabled={disabled || undefined}
+				htmlFor={inputId}
 			>
-				<input
-					ref={inputRef}
-					id={autoId}
-					data-checkbox
-					data-indeterminate={indeterminate}
-					type="checkbox"
-					onKeyDown={handleKeyDown}
-					{...props}
-					className={cn(["amphorelib__checkbox-input", className])}
-					{...blurCapture}
-				/>
-				{label && (
-					<label
-						htmlFor={autoId}
-						className={cn([
-							"amphorelib__checkbox-label",
-							labelClassName,
-						])}
-						{...blurCapture}
+				<span className={styles.boxWrapper}>
+					<input
+						{...props}
+						ref={inputRef}
+						id={inputId}
+						type="checkbox"
+						className={cn([styles.input, className])}
+						checked={checked}
+						disabled={disabled}
+						aria-invalid={!!error}
+						aria-describedby={
+							error && !hideError ? errorId : undefined
+						}
+						onChange={handleChange}
+					/>
+					<span
+						className={styles.box}
+						data-checked={checked || indeterminate}
 					>
-						{label}
-					</label>
-				)}
-			</div>
-		);
-	}
-);
+						{indeterminate ? (
+							<span className={styles.dash} />
+						) : (
+							checked && (
+								<svg
+									className={styles.check}
+									viewBox="0 0 16 16"
+									fill="none"
+									aria-hidden
+								>
+									<path
+										d="M3.5 8.5L6.5 11.5L12.5 4.5"
+										stroke="currentColor"
+										strokeWidth={2}
+										strokeLinecap="round"
+										strokeLinejoin="round"
+									/>
+								</svg>
+							)
+						)}
+					</span>
+				</span>
 
-Checkbox.displayName = "Checkbox";
+				{label && <span className={styles.label}>{label}</span>}
+			</label>
+
+			{!hideError && (
+				<InputErrorMessage id={errorId}>{error}</InputErrorMessage>
+			)}
+		</div>
+	);
+};

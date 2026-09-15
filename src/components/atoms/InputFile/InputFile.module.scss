@@ -1,0 +1,253 @@
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: var(--amp-space-1);
+	font-family: var(--amp-font);
+}
+
+// The card is the one element that clips — preview and footer are both
+// always inside it, never absolutely positioned over one another, so
+// nothing can bleed past the rounded corners (see InputFile.tsx's own
+// note on the bug this replaces).
+.card {
+	position: relative;
+	border: 1px solid var(--amp-color-border);
+	border-radius: var(--amp-radius-lg);
+	background: var(--amp-color-card);
+	overflow: hidden;
+
+	&:not([data-filled]):hover {
+		border-color: var(--amp-color-primary);
+	}
+}
+
+.cardDragover {
+	border-color: var(--amp-color-primary);
+}
+
+.cardDisabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.cardInvalid {
+	border-color: var(--amp-color-danger);
+}
+
+.label {
+	// No global box-sizing:border-box reset in this lib — without it,
+	// `width: 100%` here plus the horizontal orientation's own `padding`
+	// (below) add up to *more* than 100% of the card (content-box: padding
+	// is extra, on top of the width), overflowing past the card's clipped
+	// edge — that was the actual bug, not the width:100% itself (which is
+	// still needed to pin the remove button to the card's right edge).
+	// border-box makes the padding eat into the 100% instead.
+	box-sizing: border-box;
+	display: flex;
+	width: 100%;
+	height: 100%;
+	cursor: pointer;
+}
+
+.cardDisabled .label {
+	cursor: not-allowed;
+}
+
+// ---- vertical: preview on top, footer below, both full-width ----
+.card[data-orientation="vertical"] {
+	.label {
+		flex-direction: column;
+	}
+
+	.preview {
+		width: 100%;
+		aspect-ratio: 4 / 3;
+	}
+
+	&[data-size="sm"] .preview {
+		aspect-ratio: 1 / 1;
+	}
+
+	.footer {
+		border-top: 1px solid var(--amp-color-border);
+	}
+}
+
+// ---- horizontal: fixed-size thumbnail, footer fills the rest of the row ----
+.card[data-orientation="horizontal"] {
+	.label {
+		align-items: center;
+		gap: var(--amp-space-2);
+		padding: var(--amp-space-2);
+	}
+
+	// Base case: no file yet — the placeholder (icon + text) fills the
+	// whole row (no footer to share it with). `flex: 1 1 auto` (not just
+	// the shorthand `1`, and set unconditionally rather than behind
+	// `:not([data-filled])`) so growing to fill the row is the default,
+	// and the `[data-filled]` rule below only has to override it, instead
+	// of two rules racing to control the same axis. `min-height` matches
+	// the filled thumbnail's own fixed size per `[data-size]` below —
+	// same numbers, so the row's total height (label padding + this)
+	// stays identical whether a file is picked or not, and actually
+	// scales with `size` in the empty state too (previously a flat
+	// 2.5rem regardless of size, unrelated to any of the three filled
+	// sizes).
+	.preview {
+		flex: 1 1 auto;
+		min-width: 0;
+		min-height: 2.75rem;
+		border-radius: var(--amp-radius-md);
+	}
+
+	&[data-size="sm"] .preview {
+		min-height: 2rem;
+	}
+
+	&[data-size="lg"] .preview {
+		min-height: 3.5rem;
+	}
+
+	// Once filled: fixed-size square thumbnail instead. Without this
+	// override the empty-state placeholder got squeezed into the same
+	// tiny square (as small as 2rem) and its text clipped mid-word
+	// against `overflow: hidden` — that's why the un-filled rule above
+	// must win by default, not the other way around.
+	&[data-filled] .preview {
+		flex: 0 0 auto;
+		background: none;
+		border-radius: var(--amp-radius-md);
+		overflow: hidden;
+	}
+
+	&[data-filled][data-size="sm"] .preview {
+		width: 2rem;
+		height: 2rem;
+	}
+
+	&[data-filled][data-size="md"] .preview {
+		width: 2.75rem;
+		height: 2.75rem;
+	}
+
+	&[data-filled][data-size="lg"] .preview {
+		width: 3.5rem;
+		height: 3.5rem;
+	}
+
+	// Zeroed entirely, not just padding-right: the base `.footer` rule's
+	// own padding stacked on top of `.label`'s row padding (already
+	// applied once to the whole row), making the footer's rendered
+	// height independent of — and often taller than — the preview's
+	// per-size height, so a filled row ended up taller than its empty
+	// counterpart at "sm"/"md" (only "lg" happened to still match, its
+	// thumbnail being taller than the footer's inflated height). Preview
+	// is the only child meant to drive the row's height in horizontal
+	// mode; `.label`'s own `gap` already spaces footer from preview.
+	.footer {
+		flex: 1;
+		min-width: 0;
+		padding: 0;
+	}
+}
+
+.preview {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.placeholder {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--amp-space-1);
+	color: var(--amp-color-sub);
+	padding: var(--amp-space-2);
+	text-align: center;
+}
+
+.card[data-orientation="horizontal"] .placeholder {
+	flex-direction: row;
+	padding: 0;
+	min-width: 0;
+	width: 100%;
+}
+
+.card[data-orientation="horizontal"] .placeholderText {
+	min-width: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.uploadPicto {
+	width: 1.25rem;
+	height: 1.25rem;
+	flex-shrink: 0;
+}
+
+.placeholderText {
+	font-size: 0.8125rem;
+}
+
+.required {
+	color: var(--amp-color-danger);
+	margin-left: 0.125rem;
+}
+
+// ---- footer: name(+size) + remove, never overlapping the preview ----
+.footer {
+	display: flex;
+	align-items: center;
+	gap: var(--amp-space-2);
+	padding: var(--amp-space-2);
+	min-width: 0;
+}
+
+.info {
+	display: flex;
+	flex-direction: column;
+	gap: 0.0625rem;
+	min-width: 0;
+	flex: 1;
+}
+
+.fileName {
+	font-size: 0.8125rem;
+	font-weight: 600;
+	color: var(--amp-color-ink);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.fileSize {
+	font-size: 0.6875rem;
+	color: var(--amp-color-sub);
+}
+
+.remove {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.75rem;
+	height: 1.75rem;
+	border: none;
+	border-radius: var(--amp-radius-full);
+	background: transparent;
+	color: var(--amp-color-sub);
+	cursor: pointer;
+
+	&:hover:not(:disabled) {
+		background: var(--amp-color-ghost-bg);
+		color: var(--amp-color-ink);
+	}
+
+	&:disabled {
+		cursor: not-allowed;
+		opacity: 0.5;
+	}
+}

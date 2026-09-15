@@ -1,0 +1,85 @@
+.spinner {
+	display: inline-block;
+	flex-shrink: 0;
+	border-radius: 50%;
+	border: 2px solid var(--_color-tint, currentColor);
+	border-top-color: var(--_color, currentColor);
+	animation: amp-spinner-spin 1.5s linear infinite;
+
+	&[data-size="sm"] {
+		width: 0.875rem;
+		height: 0.875rem;
+		border-width: 2px;
+	}
+
+	&[data-size="md"] {
+		width: 1.25rem;
+		height: 1.25rem;
+		border-width: 2px;
+	}
+
+	&[data-size="lg"] {
+		width: 1.75rem;
+		height: 1.75rem;
+		border-width: 3px;
+	}
+
+	&[data-color="primary"] {
+		--_color: var(--amp-color-primary);
+		--_color-tint: var(--amp-color-primary-tint);
+	}
+
+	&[data-color="danger"] {
+		--_color: var(--amp-color-danger);
+		--_color-tint: var(--amp-color-danger-tint);
+	}
+
+	&[data-color="success"] {
+		--_color: var(--amp-color-success);
+		--_color-tint: var(--amp-color-success-tint);
+	}
+
+	&[data-color="warning"] {
+		--_color: var(--amp-color-warning);
+		--_color-tint: var(--amp-color-warning-tint);
+	}
+
+	&[data-color="info"] {
+		--_color: var(--amp-color-info);
+		--_color-tint: var(--amp-color-info-tint);
+	}
+
+	&[data-color="neutral"] {
+		--_color: var(--amp-color-neutral);
+		--_color-tint: var(--amp-color-neutral-tint);
+	}
+
+	&[data-color="black"] {
+		--_color: var(--amp-color-black);
+		--_color-tint: var(--amp-color-black-tint);
+	}
+
+	&[data-color="white"] {
+		--_color: var(--amp-color-white);
+		--_color-tint: var(--amp-color-white-tint);
+	}
+}
+
+@keyframes amp-spinner-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+// Visually hidden but still announced by screen readers (role="status" text).
+.srOnly {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}

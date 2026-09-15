@@ -1,0 +1,7 @@
+.list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--amp-space-1);
+	width: 100%;
+	font-family: var(--amp-font);
+}

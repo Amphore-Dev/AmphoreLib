@@ -2,19 +2,33 @@ name: ⚡︎ Publish Preprod Package
 
 on: [workflow_dispatch]
 
+permissions:
+    contents: read
+    # Required for npm Trusted Publishing (OIDC) — no NPM_TOKEN secret needed,
+    # see deploy-prod.yml's own comment for the full explanation.
+    id-token: write
+
 jobs:
     build:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
-            # Setup .npmrc file to publish to npm
+
             - uses: actions/setup-node@v4
               with:
-                  node-version: "20.x"
-                  registry-url: "https://npm.pkg.github.com"
-            - run: npm install
-            - run: npm run build
-            - run: npm ci
-            - run: npm publish --registry=https://npm.pkg.github.com --tag next
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+                  node-version: "22.x"
+                  registry-url: "https://registry.npmjs.org"
+
+            - name: Install Yarn 4.14.1
+              run: |
+                  corepack enable
+                  corepack prepare yarn@4.14.1 --activate
+
+            - run: yarn install --immutable
+            - run: yarn build
+
+            # Node's bundled npm may predate OIDC Trusted Publishing support
+            # (needs npm >=11.5.1) — bump it just for the publish step.
+            - run: npm install -g npm@latest
+
+            - run: npm publish --tag next

@@ -1,0 +1,260 @@
+{/* Fields.mdx */}
+
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Concepts/Fields" />
+
+# Fields system
+
+The **Fields** system describes forms in a **declarative, typed, and reusable** way, with dynamic rendering via `FieldRenderer`. Formik stays the only form-lib integration, and strictly at the
+`FieldRenderer`/`FormRenderer`/`FiltersModal`/`EditableCard` level — never inside the atoms themselves (`Input`, `Select`, `Toggle`...), which stay 100% controlled (`value`/`onChange`) and have no awareness of Formik at all.
+
+Used by:
+- `FormRenderer` (+ `FormRendererWithFormik`)
+- `EditableCard`
+- `FiltersModal`
+- any future component based on field configuration
+
+---
+
+## Principle
+
+A form is defined via a configuration:
+
+```ts
+const fields: TField[] = [
+  {
+    name: "status",
+    type: "select",
+    label: "Status",
+    options: [
+      { label: "Active", value: "active" },
+      { label: "Inactive", value: "inactive" },
+    ],
+  },
+  {
+    name: "search",
+    type: "input",
+    label: "Search",
+    placeholder: "Name...",
+  },
+];
+```
+
+Then rendered automatically (typically via `FormRenderer`, which also handles groups/labels/reset — see below):
+
+```tsx
+fields.map((fieldProps) => (
+  <FieldRenderer key={fieldProps.name} {...fieldProps} />
+));
+```
+
+The renderer is selected automatically based on the `type` property.
+
+---
+
+## Available types
+
+- `input`: text field (`Input`)
+- `number`: numeric field (`NumberInput`)
+- `textarea`: multi-line text (`TextArea`)
+- `select`: dropdown list (`Select`)
+- `date`: date picker (`DatePicker`, `Date` value)
+- `period`: from/to period with presets (`PeriodFilter`)
+- `time`: time picker (`TimePicker`, `"HH:mm"` value)
+- `timeRange`: from/to time range (`TimeRangeFilter`)
+- `checkbox`: multiple selection (`CheckboxFilter`)
+- `radio`: single selection (`RadioFilter`)
+- `toggle`: switch (`Toggle`)
+- `file`: file upload (`FilesField`, one or more `InputFile`)
+
+No `quantity` type (`InputQuantity` doesn't exist in this version of the lib) and no dedicated `NumberField` component — `NumberInput` is already controlled/clean, unlike the old version which needed an intermediate component to work around an ambient-Formik coupling bug.
+
+Typing is centralized via:
+
+```ts
+export type TFieldType = keyof TFieldPropsByType;
+```
+
+Each type exposes its specific props via `TFieldPropsByType`.
+
+---
+
+## Structure of a Field
+
+```ts
+type TField = {
+  name: string;
+  type: TFieldType;
+  label?: string | ((values, isEditing) => string);
+
+  // behavior
+  defaultValue?: unknown;
+  resetOnApply?: boolean;
+  getFieldValue?: (values) => unknown;
+  onReset?: (formikCtx) => void;
+  hidden?: boolean | ((values, isEditing) => boolean);
+  order?: (values, isEditing) => number;
+
+  // render override
+  renderer?: (props) => JSX.Element;
+
+  // read-mode value rendering (EditableCard)
+  displayProps?: {
+    info?: {
+      text: React.ReactNode;
+      picto?: TPictoName | IPictoProps;
+      onClick?: (props) => void;
+      maxLines?: number;
+    };
+    action?: {
+      label: string;
+      picto?: TPictoName | IPictoProps;
+      buttonProps?: IButtonProps;
+      onClick?: (props) => void;
+    };
+  };
+
+  // + props specific to the type's component
+};
+```
+
+### Example with a `period`-type field
+
+```ts
+{
+  name: "period",
+  type: "period",
+  label: "Period",
+  from: { label: "From" },
+  to: { label: "To" },
+  showPresets: true,
+  resetOnApply: true,
+}
+```
+
+---
+
+## Field groups
+
+Fields can be organized into groups:
+
+```ts
+const groups: TFieldsGroup[] = [
+  {
+    title: "General",
+    columns: 2, // optional, columns for this group (default: the form's own)
+    fields: [
+      { name: "search", type: "input" },
+      { name: "type", type: "select", options: [] },
+      { name: "date", type: "date" },
+    ],
+  },
+  {
+    title: "Filters",
+    fields: [{ name: "status", type: "select", options: [] }],
+  },
+];
+```
+
+Usage:
+
+```tsx
+<FormRenderer fields={groups} />
+```
+
+If a plain `TField[]` array is given, a single group is created automatically (`genGroups`, `src/utils/UFormGroups.ts`).
+
+---
+
+## Dynamic fields
+
+The configuration can be a function depending on Formik context:
+
+```ts
+const fields = (formikCtx: FormikProps<TValues>, isEditing: boolean): TField[] => [
+  {
+    name: "status",
+    type: "select",
+    options: getStatusOptions(formikCtx.values.type),
+  },
+];
+```
+
+---
+
+## Custom rendering
+
+Three levels of override, from most specific to most global:
+
+### 1. At the field level (`renderer`)
+
+```ts
+{
+  name: "custom",
+  type: "input",
+  renderer: (props) => {
+    const { value, formik } = props;
+    return (
+      <MyCustomInput
+        value={value}
+        onChange={(next) => formik.setFieldValue("custom", next)}
+      />
+    );
+  },
+}
+```
+
+### 2. At the component level (`fieldsRenderers`)
+
+```tsx
+<FormRenderer
+  fields={fields}
+  fieldsRenderers={{ input: (props) => <MyInput {...props} /> }}
+/>
+```
+
+```tsx
+<EditableCard
+  fields={fields}
+  fieldsRenderers={{ input: (props) => <MyInput {...props} /> }}
+/>
+```
+
+### 3. At the `FiltersContext` level (`fieldRenderers`)
+
+Only usable by filter-related components (`FiltersModal`, `ActiveFilters`) — guarantees global consistency for an app's filter fields.
+
+```tsx
+<FiltersProvider defaultFilters={CDEFAULT_FILTERS} fieldRenderers={{
+  input: (props) => <MyInput {...props} />,
+}}>
+  {children}
+</FiltersProvider>
+```
+
+---
+
+## Formik integration
+
+Each field is bound to Formik via its `name` property, at the `FieldRenderer` level only (never in the underlying atom — see this page's intro).
+
+Value transformation:
+
+```ts
+{ name: "amount", type: "input", getFieldValue: (values) => Number(values.amount) }
+```
+
+Reset handling:
+
+```ts
+{ name: "status", type: "select", onReset: (formikCtx) => formikCtx.setFieldValue("status", null) }
+```
+
+---
+
+## Sync / async handling (apply / submit)
+
+Callbacks (`onSubmit`, `onApply`) can be sync or async — normalized via `Promise.resolve(...)`, which guarantees consistent behavior (the modal closes only once processing has finished).
+
+See also: [Concepts/FiltersContext](?path=/docs/concepts-filterscontext--docs), `FormRenderer`, `FiltersModal`, `EditableCard`, `FieldRenderer`.

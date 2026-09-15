@@ -1,49 +1,55 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
-import { t } from "i18next";
+import { cn } from "@utils/cn";
+
+import styles from "./CountDown.module.scss";
 
 export interface ICountDownProps {
-	time?: number;
-	text?: string | ((time: number) => string);
-	handleEnd: () => void;
+	/** Starting value, in seconds. Defaults to 15. Resets the countdown when changed. */
+	seconds?: number;
+	/** Rendered text. A string with a "{time}" placeholder, or a function given the seconds left. Defaults to "{time} s". */
+	text?: string | ((secondsLeft: number) => string);
+	/** Called once, when the countdown reaches 0. */
+	onEnd: () => void;
+	className?: string;
 }
 
+/**
+ * V2 CountDown — v1's version used `setInterval` re-created every tick
+ * (its effect depended on the ticking value itself) and pulled in i18next
+ * for its default text; this one chains a single `setTimeout` per second
+ * via a `secondsLeft` effect dependency (no repeated interval churn), and
+ * `onEnd` is read from a ref so its identity changing doesn't restart the
+ * countdown. No i18next — this lib's UI strings are French-only, plain
+ * template text instead.
+ */
 export const CountDown: React.FC<ICountDownProps> = ({
-	time,
+	seconds = 15,
 	text,
-	handleEnd,
+	onEnd,
+	className = "",
 }) => {
-	const [Time, setTime] = React.useState(time ?? 15);
+	const [secondsLeft, setSecondsLeft] = useState(seconds);
+	const onEndRef = useRef(onEnd);
+	onEndRef.current = onEnd;
 
 	useEffect(() => {
-		setTime(time ?? 15);
-	}, [time]);
+		setSecondsLeft(seconds);
+	}, [seconds]);
 
 	useEffect(() => {
-		let intervalId: NodeJS.Timeout;
-
-		if (Time > 0) {
-			intervalId = setInterval(() => {
-				if (Time === 1) {
-					setTimeout(() => {
-						handleEnd();
-					}, 10);
-				}
-				setTime((time) => time - 1);
-			}, 1000);
+		if (secondsLeft <= 0) {
+			onEndRef.current();
+			return;
 		}
+		const id = setTimeout(() => setSecondsLeft((s) => s - 1), 1000);
+		return () => clearTimeout(id);
+	}, [secondsLeft]);
 
-		return () => {
-			clearInterval(intervalId);
-		};
-	}, [Time, handleEnd]);
+	const label =
+		typeof text === "function"
+			? text(secondsLeft)
+			: (text ?? "{time} s").replace("{time}", String(secondsLeft));
 
-	const generateText = () => {
-		if (typeof text === "string")
-			return text.replace("{time}", Time.toString());
-		if (typeof text === "function") return text(Time);
-		return t("countdown.seconds", { count: Time });
-	};
-
-	return generateText();
+	return <span className={cn([styles.countdown, className])}>{label}</span>;
 };

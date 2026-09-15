@@ -1,5 +1,6 @@
-import { TFiltersSlice, TParamsCodecs } from "@interfaces/TFiltersContext";
+import { TFiltersSlice, TParamsCodecs } from "@interfaces/index";
 
+/** Merges `DEFAULTS` under every slice in `map`, letting each slice's own values override. */
 export function applyDefaults<M extends Record<string, object>>(
 	map: M,
 	DEFAULTS: TFiltersSlice<object>
@@ -9,11 +10,12 @@ export function applyDefaults<M extends Record<string, object>>(
 		out[k] = {
 			...DEFAULTS,
 			...map[k],
-		};
+		} as TFiltersSlice<M[typeof k]>;
 	});
 	return out;
 }
 
+/** Keeps only the keys `defaultSliceFilters` declares — drops any stale/unknown key a saved slice might carry. */
 export const cleanSlice = <S extends object>(
 	defaultSliceFilters = {} as S,
 	sliceFilters = {} as S
@@ -26,6 +28,7 @@ export const cleanSlice = <S extends object>(
 	return out;
 };
 
+/** Encodes a filters slice into URL params, using each key's codec (`true` = raw value, or a `{get,set,key}` accessor). Only declared keys are emitted. */
 export const genFiltersParams = <S extends TFiltersSlice<object>>(
 	filters: S,
 	paramsCodecs?: Partial<TParamsCodecs<S>>

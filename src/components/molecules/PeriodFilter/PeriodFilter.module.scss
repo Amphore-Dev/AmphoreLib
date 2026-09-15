@@ -1,0 +1,27 @@
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: var(--amp-space-2);
+}
+
+.pickers {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--amp-space-2);
+	flex-wrap: wrap;
+}
+
+.presets {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--amp-space-1);
+	flex-grow: 1;
+
+	& > button {
+		flex-grow: 1;
+	}
+}
+
+.rangeType {
+	margin-top: var(--amp-space-1);
+}

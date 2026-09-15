@@ -1,0 +1,64 @@
+{/* Introduction.mdx */}
+
+import { Meta } from "@storybook/addon-docs/blocks";
+
+import logo from "../assets/logo.png";
+
+<Meta title="Introduction" />
+
+<img src={logo} alt="" height="150" style={{ marginBottom: "0.5rem" }} />
+
+A React component library built around three rules: every component is
+**fully controlled** (no ambient form-library magic), every visual choice
+flows through **CSS custom properties** you can override from one place,
+and every component ships its own story so the whole catalog is
+browsable and testable right here.
+
+```bash
+npm install @amphore-dev/amphore-lib
+```
+
+```tsx
+import { AmphoreProvider, Button, Input } from "@amphore-dev/amphore-lib";
+import "@amphore-dev/amphore-lib/lib/style.css";
+
+function App() {
+	const [name, setName] = useState("");
+
+	return (
+		<AmphoreProvider config={{ colors: { primary: "#e2673f" } }}>
+			<Input label="Name" value={name} onChange={setName} />
+			<Button>Save</Button>
+		</AmphoreProvider>
+	);
+}
+```
+
+## Find your way around
+
+- **Components** — every atom, molecule, organism and template, each
+  with live controls, a props table, and every documented state.
+- **Concepts** — [Fields](/docs/concepts-fields--docs),
+  [FiltersContext](/docs/concepts-filterscontext--docs) and
+  [Pictos](/docs/concepts-pictos--docs): how the bigger, consumer-facing
+  systems fit together.
+- **Configuration** — the
+  [Theme Configuration](/docs/configuration-theme-configuration--docs)
+  playground: every `AmphoreProvider` config option, live, with the
+  resulting config to copy.
+- **Directives** — the engineering conventions every component in this
+  library follows (theming, sizing, controlled components, floating
+  overlays, accessibility, structure, verification) — read these before
+  contributing a new one.
+
+## Dark mode, out of the box
+
+Every story on this Storybook renders in both themes — flip between them
+with the sun/moon icon in the toolbar above, or pin `theme="light"` /
+`"dark"` on your own `AmphoreProvider`. See the **Directives/Theming**
+page for how the dark palette differs from the light one inverted.
+
+---
+
+MIT licensed. Source and issues on
+[GitHub](https://github.com/Amphore-Dev/AmphoreLib).

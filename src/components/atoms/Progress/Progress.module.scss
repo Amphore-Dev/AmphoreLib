@@ -1,0 +1,92 @@
+.wrapper {
+	display: flex;
+	align-items: center;
+	gap: var(--amp-space-2);
+	font-family: var(--amp-font);
+}
+
+.track {
+	flex: 1;
+	position: relative;
+	overflow: hidden;
+	border-radius: var(--amp-radius-full);
+	background: var(--amp-color-ghost-bg);
+
+	&[data-size="sm"] {
+		height: 0.375rem;
+	}
+
+	&[data-size="md"] {
+		height: 0.5rem;
+	}
+
+	&[data-size="lg"] {
+		height: 0.75rem;
+	}
+
+	&[data-color="primary"] {
+		--_color: var(--amp-color-primary);
+	}
+
+	&[data-color="danger"] {
+		--_color: var(--amp-color-danger);
+	}
+
+	&[data-color="success"] {
+		--_color: var(--amp-color-success);
+	}
+
+	&[data-color="warning"] {
+		--_color: var(--amp-color-warning);
+	}
+
+	&[data-color="info"] {
+		--_color: var(--amp-color-info);
+	}
+
+	&[data-color="neutral"] {
+		--_color: var(--amp-color-neutral);
+	}
+
+	&[data-color="black"] {
+		--_color: var(--amp-color-black);
+	}
+
+	&[data-color="white"] {
+		--_color: var(--amp-color-white);
+	}
+}
+
+.bar {
+	height: 100%;
+	background: var(--_color);
+	border-radius: inherit;
+	transition: width 0.2s ease;
+}
+
+// Indeterminate: the bar's own width is fixed (via animation) instead of
+// tracking a real value, sliding back and forth to signal "in progress,
+// duration unknown" rather than a measurable amount.
+.track[data-indeterminate="true"] .bar {
+	position: absolute;
+	width: 40%;
+	transition: none;
+	animation: amp-progress-indeterminate 2s ease-in-out infinite;
+}
+
+@keyframes amp-progress-indeterminate {
+	0% {
+		left: -40%;
+	}
+
+	100% {
+		left: 100%;
+	}
+}
+
+.value {
+	flex-shrink: 0;
+	font-size: 0.75rem;
+	font-variant-numeric: tabular-nums;
+	color: var(--amp-color-sub);
+}

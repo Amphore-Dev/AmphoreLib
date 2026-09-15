@@ -1,255 +1,152 @@
-import React, { forwardRef, useContext, useLayoutEffect } from "react";
+import React, { useId, useState } from "react";
 
-import { FormikContext, useField } from "formik";
+import { DayPicker, type Locale } from "react-day-picker";
+import { enGB } from "react-day-picker/locale";
+import "react-day-picker/style.css";
 
-import { endOfWeek, format, startOfWeek } from "date-fns";
-import { fr } from "date-fns/locale/fr";
-import ReactDatePicker, {
-	DatePickerProps,
-	registerLocale,
-} from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
+import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
-import { ITextFieldProps, TextField } from "../TextField/TextField";
-import { cn } from "@utils/index";
+import { cn } from "@utils/cn";
 
-import "./DatePicker.scss";
-import "./TimePicker.scss";
+import { TColor, TLabel, TSize } from "@interfaces/index";
 
-registerLocale("fr", fr);
+import { InputErrorMessage } from "../../atoms/InputErrorMessage/InputErrorMessage";
+import { Picto } from "../../atoms/Picto/Picto";
+import { Popover } from "../Popover/Popover";
 
-export interface IWeek {
-	start: Date;
-	end: Date;
-	date: Date;
-}
+import styles from "./DatePicker.module.scss";
 
-type IDate = Date | IWeek | null;
-
-export interface IDatePickerProps extends Omit<DatePickerProps, "onChange"> {
-	weekPicker?: boolean;
+export interface IDatePickerProps {
+	/** Controlled value — a plain `Date` (local midnight), or `null` for empty. */
+	value: Date | null;
+	onChange: (value: Date | null) => void;
+	min?: Date;
+	max?: Date;
+	/** date-fns locale for month/day names and the trigger's formatted display. Defaults to English (UK) — dd/mm/yyyy, the convention outside the US. */
+	locale?: Locale;
+	/** Defaults to "dd/mm/yyyy" (or `DatePicker.placeholder` from the nearest AmphoreProvider — see useAmphoreLabels). Unrelated to `locale` above: this is the trigger's empty-state text, not the calendar's own date-fns locale. */
+	placeholder?: TLabel;
 	label?: string;
-	placeholder?: string;
-	onChange?: (
-		date: IDate,
-		event?: React.MouseEvent<HTMLElement> | React.KeyboardEvent<HTMLElement>
-	) => void;
-	onMonthChange?: (date: Date) => void;
-	formatInputValue?: (date: IDate) => string;
-	type?: "date" | "time";
+	error?: string;
+	hideError?: boolean;
+	size?: TSize;
+	color?: TColor;
+	disabled?: boolean;
+	required?: boolean;
+	className?: string;
+	wrapperClassName?: string;
 }
 
+/** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
+export type TDatePickerLabels = Pick<IDatePickerProps, "placeholder">;
+
+/**
+ * V2 DatePicker — controlled, `value` is a plain `Date` (not a string).
+ * Trigger is a text-like field (same _field.scss box as Input/Select);
+ * the grid is react-day-picker, restyled via its own --rdp-* vars, opened
+ * in a `Popover`.
+ */
 export const DatePicker: React.FC<IDatePickerProps> = ({
+	value,
 	onChange,
-	weekPicker,
-	onMonthChange,
-	selected,
-	className,
-	formatInputValue,
-	placeholder,
+	min,
+	max,
+	locale = enGB,
+	placeholder: placeholderProp,
 	label,
-	type,
-	...props
+	error,
+	hideError = false,
+	size: sizeProp,
+	color = "primary",
+	disabled = false,
+	required = false,
+	className = "",
+	wrapperClassName = "",
 }) => {
-	const isInForm = !!useContext(FormikContext);
+	const { size: defaultSize } = useAmphoreDefaults();
+	const size = sizeProp ?? defaultSize ?? "md";
+	const generatedId = useId();
+	const errorId = `${generatedId}-error`;
+	const [open, setOpen] = useState(false);
+	const { resolve } = useAmphoreLabels("DatePicker");
+	const placeholder = resolve("placeholder", placeholderProp);
 
-	const isInitied = React.useRef(false);
-	const calendarRef = React.useRef<HTMLDivElement>(null);
+	const formatted = value
+		? new Intl.DateTimeFormat(locale.code, {
+				day: "2-digit",
+				month: "2-digit",
+				year: "numeric",
+			}).format(value)
+		: "";
 
-	const [field, , helpers] =
-		props.name && isInForm
-			? useField(props.name)
-			: [undefined, undefined, undefined];
-
-	// Full field value (Date for a date picker, IWeek for a week picker)
-	const FieldValue = field?.value ?? selected;
-	// Date used by react-datepicker's `selected` (extract the week's date)
-	const CurrentValue = field?.value?.date ?? FieldValue;
-
-	const handleChange = (
-		date: Date | null,
-		event?: React.MouseEvent<HTMLElement> | React.KeyboardEvent<HTMLElement>
-	) => {
-		const hasField = isInForm && field;
-
-		if (hasField && !weekPicker) {
-			helpers.setValue(date);
-		}
-
-		if (!onChange) return;
-		if (!weekPicker) return onChange(date, event);
-		if (!date) return onChange(null);
-
-		// handle week picker
-		const start = startOfWeek(date, { weekStartsOn: 1 }); // Set week start (0 = Sunday, 1 = Monday, etc.)
-		const end = endOfWeek(date, { weekStartsOn: 1 });
-
-		if (hasField) helpers.setValue({ start, end, date });
-		if (onChange) return onChange({ start, end, date });
+	const handleSelect = (next: Date | undefined) => {
+		onChange(next ?? null);
+		setOpen(false);
 	};
-
-	const Wrapper = weekPicker ? "div" : React.Fragment;
-
-	const resetAndGetActiveWeek = () => {
-		if (!weekPicker || isInitied.current) return;
-		const activeWeek = calendarRef.current?.querySelector(
-			".react-datepicker__day--selected"
-		);
-
-		calendarRef.current
-			?.querySelectorAll(".react-datepicker__week")
-			.forEach((a: Element) => {
-				a.classList.remove("ActiveWeek");
-			});
-
-		return activeWeek;
-	};
-
-	const handleMonthChange = (date: Date) => {
-		if (weekPicker) {
-			const activeWeek = resetAndGetActiveWeek();
-			if (
-				CurrentValue &&
-				format(date, "yyyy-dd-mm") ===
-					format(CurrentValue, "yyyy-dd-mm")
-			)
-				activeWeek
-					?.closest(".react-datepicker__week")
-					?.classList.add("ActiveWeek");
-		}
-		onMonthChange?.(date);
-	};
-
-	/* initial active week */
-	useLayoutEffect(() => {
-		const activeWeek = resetAndGetActiveWeek();
-
-		activeWeek
-			?.closest(".react-datepicker__week")
-			?.classList.add("ActiveWeek");
-	});
 
 	return (
-		<Wrapper
-			{...(Wrapper === "div"
-				? {
-						className: cn([weekPicker && "WeekPicker"]),
-						ref: calendarRef,
-					}
-				: {})}
-		>
-			{type === "time" ? (
-				<TextField type="time" data-al-input />
-			) : (
-				<>
-					{/* @ts-expect-error: ReactDatePicker is not typed correctly */}
-					<ReactDatePicker
-						{...props}
-						placeholderText={placeholder}
-						onChange={(date, event) => handleChange(date, event)}
-						locale="fr"
-						onMonthChange={handleMonthChange}
-						dateFormat="dd/MM/yyyy"
-						className={cn(["DatePicker", className])}
-						wrapperClassName="DatePickerWrapper"
-						popperClassName="DatePickerPopper"
-						selected={CurrentValue}
-						customInput={
-							<DatePickerField
-								weekPicker={weekPicker}
-								isInForm={isInForm}
-								formatInputValue={formatInputValue}
-								rawValue={FieldValue}
-								label={label}
-								placeholder={placeholder}
-							/>
-						}
-						onCalendarOpen={() => {
-							if (!weekPicker) return;
-							const activeWeek = resetAndGetActiveWeek();
-
-							activeWeek
-								?.closest(".react-datepicker__week")
-								?.classList.add("ActiveWeek");
-						}}
-						onCalendarClose={() => {
-							resetAndGetActiveWeek();
-							setTimeout(() => {
-								if (field) helpers.setTouched(true);
-							}, 10);
-						}}
-					/>
-				</>
+		<div className={cn([styles.wrapper, wrapperClassName])}>
+			{label && (
+				<label className={styles.label} htmlFor={generatedId}>
+					{label}
+					{required && <span className={styles.required}>*</span>}
+				</label>
 			)}
-		</Wrapper>
+
+			<Popover
+				open={disabled ? false : open}
+				onOpenChange={setOpen}
+				placement="bottom-start"
+				disabled={disabled}
+				content={
+					<DayPicker
+						className={styles.calendar}
+						styles={{
+							chevron: { width: "0.875rem", height: "0.875rem" },
+						}}
+						mode="single"
+						locale={locale}
+						selected={value ?? undefined}
+						defaultMonth={value ?? undefined}
+						onSelect={handleSelect}
+						disabled={[
+							...(min ? [{ before: min }] : []),
+							...(max ? [{ after: max }] : []),
+						]}
+						// DayPicker's own prop, not raw DOM autofocus.
+						// eslint-disable-next-line jsx-a11y/no-autofocus
+						autoFocus
+					/>
+				}
+			>
+				<button
+					type="button"
+					id={generatedId}
+					className={cn([styles.field, className])}
+					data-size={size}
+					data-color={color}
+					data-disabled={disabled || undefined}
+					data-invalid={!!error || undefined}
+					disabled={disabled}
+					aria-haspopup="dialog"
+					aria-describedby={error && !hideError ? errorId : undefined}
+				>
+					<Picto icon="calendar" className={styles.picto} />
+					<span
+						className={cn([
+							styles.value,
+							!value && styles.placeholder,
+						])}
+					>
+						{formatted || placeholder}
+					</span>
+				</button>
+			</Popover>
+
+			{!hideError && (
+				<InputErrorMessage id={errorId}>{error}</InputErrorMessage>
+			)}
+		</div>
 	);
 };
-
-interface IDatePickerFieldProps extends ITextFieldProps {
-	weekPicker?: boolean;
-	isInForm?: boolean;
-	formatInputValue?: (date: IDate) => string;
-	rawValue?: IDate;
-	placeholder?: string;
-	label?: string;
-}
-
-const DatePickerField = forwardRef(
-	(
-		{
-			weekPicker,
-			isInForm,
-			formatInputValue,
-			rawValue,
-			placeholder,
-			label,
-			...props
-		}: IDatePickerFieldProps,
-		ref: React.Ref<HTMLDivElement>
-	) => {
-		return (
-			<div ref={ref}>
-				<TextField
-					label={label}
-					placeholder={placeholder}
-					{...(!isInForm ? { ...props } : {})}
-					name={props.name}
-					// Display the selected value even in form mode, where the raw
-					// TextField isn't Formik-wrapped and never receives it otherwise.
-					value={rawValue as unknown as string}
-					getValue={(value) => {
-						if (formatInputValue)
-							return formatInputValue(value as IDate);
-						if (!value) return "";
-						if (weekPicker) {
-							const week = value as IWeek;
-							return `${week.start ? format(week.start, "yyyy/MM/dd") : ""} - ${week.end ? format(week.end, "yyyy/MM/dd") : ""}`;
-						}
-						if (value instanceof Date)
-							return format(value, "dd/MM/yyyy");
-						return value as string;
-					}}
-					onBlur={() => {}}
-					onClick={(e) => {
-						e.preventDefault();
-						e.stopPropagation();
-						props.onClick?.(e);
-					}}
-					picto="calendar"
-					onPictoClick={(e) => {
-						e.preventDefault();
-						e.stopPropagation();
-						props.onClick?.(e);
-					}}
-					pictoProps={{
-						color: "text-neutral-400",
-						className: "!w-6 !h-6",
-					}}
-					readOnly
-				/>
-			</div>
-		);
-	}
-);
-
-DatePickerField.displayName = "DatePickerField";

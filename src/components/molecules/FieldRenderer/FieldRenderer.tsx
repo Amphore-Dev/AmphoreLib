@@ -1,4 +1,23 @@
-import React, { FC } from "react";
+import React from "react";
+
+import { FormikContextType, useFormikContext } from "formik";
+
+import {
+	Input,
+	NumberInput,
+	TextArea,
+	TimePicker,
+	Toggle,
+} from "@components/atoms";
+import {
+	CheckboxFilter,
+	DatePicker,
+	FilesField,
+	PeriodFilter,
+	RadioFilter,
+	Select,
+	TimeRangeFilter,
+} from "@components/molecules";
 
 import {
 	TBaseField,
@@ -6,84 +25,186 @@ import {
 	TFieldRendererMap,
 	TFieldType,
 	TLooseFieldRendererMap,
-} from "@/types";
-import { useFormikContext } from "formik";
+} from "@interfaces/index";
 
-import { Select } from "../Select/Select";
-import { TextArea } from "../TextArea/TextArea";
-import { TextField } from "../TextField/TextField";
-import { TimePicker } from "../TimePicker/TimePicker";
-import { CheckboxFilter } from "./FieldsModels/CheckboxFilter/CheckboxFilter";
-import { RadioFilter } from "./FieldsModels/RadioFilter/RadioFilter";
-import { Toggle } from "@components/atoms";
-
-interface IFieldRendererProps extends TBaseField<
-	string,
-	TFieldType,
-	{ valueDisplay?: (values: object) => React.ReactNode }
-> {
+export interface IFieldRendererProps extends TBaseField<string, TFieldType> {
 	customRenderers?: TLooseFieldRendererMap;
-	displayProps?: object; // Props supplémentaires à passer au composant d'affichage en mode lecture seule
+	/** Formik context, forwarded by FormRenderer — used to build default per-type onChange handlers. */
+	formik?: FormikContextType<object>;
+	/** Forwarded to the underlying field so an external `<label htmlFor>` (FormRenderer's own header) can target it. Not the field's own visible label — see `TBaseField.label` / FormRenderer's `showFieldLabels` for that. */
+	id?: string;
+	disabled?: boolean;
+	/** Runtime value for this field, computed by FormRenderer from `formik.values`. */
+	value?: unknown;
 }
 
-export const FieldRenderer: FC<IFieldRendererProps> = ({
+/**
+ * V2 FieldRenderer — a `type -> component` map, the one place in this
+ * system that touches Formik directly (to build a default `onChange` per
+ * type when the field descriptor doesn't provide its own). Every mapped
+ * component is otherwise a plain controlled V2 component — no
+ * `withFormikWrapper`-style ambient coupling anywhere below this layer (see
+ * memory/react-library-fields-audit.md).
+ */
+export const FieldRenderer: React.FC<IFieldRendererProps> = ({
 	customRenderers,
 	renderer,
-	valueDisplay: _valueDisplay, // suppressions des props spécifiques à l'affichage qui ne sont pas utilisées dans ce composant
-	displayProps: _displayProps,
+	valueDisplay: _valueDisplay,
 	addOnEmptyValue: _addOnEmptyValue,
+	displayLabel: _displayLabel,
+	getFieldValue: _getFieldValue,
+	resetOnApply: _resetOnApply,
+	onReset: _onReset,
+	defaultValue: _defaultValue,
+	showFieldLabel: _showFieldLabel,
+	showResetButton: _showResetButton,
+	wrapperClassName: _wrapperClassName,
+	beforeFieldComponent: _beforeFieldComponent,
+	afterFieldComponent: _afterFieldComponent,
+	order: _order,
+	formik,
 	...props
 }) => {
-	const { setFieldValue, setFieldTouched } = useFormikContext();
+	const formikCtx = useFormikContext<Record<string, unknown>>();
+	const setFieldValue = formik?.setFieldValue ?? formikCtx.setFieldValue;
 
-	if (props.hidden) {
-		return null;
-	}
+	if (props.hidden) return null;
 
 	const renderers: TFieldRendererMap = {
-		select: (props) => (
+		select: ({ onChange, ...fieldProps }) => (
 			<Select
-				menuPosition="fixed"
-				valueAsObject={true}
-				isClearable={true}
-				{...props}
+				isClearable
+				{...fieldProps}
+				onChange={
+					onChange ??
+					((value) => {
+						void setFieldValue(props.name, value);
+					})
+				}
 			/>
 		),
-		time: (props) => <TimePicker {...props} />,
-		input: (props) => <TextField {...props} />,
-		textarea: (props) => <TextArea {...props} />,
-		toggle: ({ onChange, ...props }) => (
+		date: ({ onChange, ...fieldProps }) => (
+			<DatePicker
+				value={null}
+				{...fieldProps}
+				onChange={
+					onChange ??
+					((value) => {
+						void setFieldValue(props.name, value);
+					})
+				}
+			/>
+		),
+		period: (fieldProps) => (
+			<PeriodFilter
+				{...fieldProps}
+				onChange={
+					fieldProps.onChange ??
+					((fieldName, value) => {
+						void setFieldValue(String(fieldName), value);
+					})
+				}
+			/>
+		),
+		time: ({ onChange, ...fieldProps }) => (
+			<TimePicker
+				value={null}
+				{...fieldProps}
+				onChange={
+					onChange ??
+					((value) => {
+						void setFieldValue(props.name, value);
+					})
+				}
+			/>
+		),
+		timeRange: (fieldProps) => (
+			<TimeRangeFilter
+				{...fieldProps}
+				onChange={
+					fieldProps.onChange ??
+					((fieldName, value) => {
+						void setFieldValue(String(fieldName), value);
+					})
+				}
+			/>
+		),
+		input: ({ onChange, ...fieldProps }) => (
+			<Input
+				{...fieldProps}
+				onChange={
+					onChange ??
+					((value) => {
+						void setFieldValue(props.name, value);
+					})
+				}
+			/>
+		),
+		number: ({ onChange, ...fieldProps }) => (
+			<NumberInput
+				value={null}
+				{...fieldProps}
+				onChange={
+					onChange ??
+					((value) => {
+						void setFieldValue(props.name, value);
+					})
+				}
+			/>
+		),
+		textarea: ({ onChange, ...fieldProps }) => (
+			<TextArea
+				{...fieldProps}
+				onChange={
+					onChange ??
+					((value) => {
+						void setFieldValue(props.name, value);
+					})
+				}
+			/>
+		),
+		checkbox: (fieldProps) => (
+			<CheckboxFilter
+				{...fieldProps}
+				onChange={
+					fieldProps.onChange ??
+					((value) => {
+						void setFieldValue(props.name, value);
+					})
+				}
+			/>
+		),
+		radio: (fieldProps) => (
+			<RadioFilter
+				{...fieldProps}
+				onChange={
+					fieldProps.onChange ??
+					((value) => {
+						void setFieldValue(props.name, value);
+					})
+				}
+			/>
+		),
+		toggle: ({ onChange, ...fieldProps }) => (
 			<Toggle
 				checked={!!props.value}
-				{...props}
+				{...fieldProps}
 				onChange={
-					onChange ||
+					onChange ??
 					((checked) => {
-						if (props.name) {
-							setFieldValue(props.name, checked);
-						}
+						void setFieldValue(props.name, checked);
 					})
 				}
 			/>
 		),
-		checkbox: ({ onChange, ...props }) => (
-			<CheckboxFilter
-				{...props}
+		file: (fieldProps) => (
+			<FilesField
+				{...fieldProps}
+				name={fieldProps.name ?? props.name}
 				onChange={
-					onChange ||
-					((name, value) => {
-						setFieldValue(name, value);
-					})
-				}
-			/>
-		),
-		radio: ({ onChange, ...props }) => (
-			<RadioFilter
-				{...props}
-				onChange={
-					onChange ||
-					((name, value) => {
-						setFieldValue(name, value);
+					fieldProps.onChange ??
+					((value) => {
+						void setFieldValue(props.name, value);
 					})
 				}
 			/>
@@ -92,18 +213,17 @@ export const FieldRenderer: FC<IFieldRendererProps> = ({
 
 	function renderByType<K extends TFieldType>(
 		type: K,
-		props: TFieldPropsByType[K]
+		fieldProps: TFieldPropsByType[K]
 	) {
 		const customRenderer = customRenderers?.[String(type)] as
-			| ((props: TFieldPropsByType[K]) => JSX.Element)
+			| ((fieldProps: TFieldPropsByType[K]) => JSX.Element)
 			| undefined;
-		const Renderer =
-			renderer || customRenderer || renderers[type] || renderers.input;
-
-		return Renderer(props);
+		const Renderer = renderer ?? customRenderer ?? renderers[type];
+		return Renderer(fieldProps);
 	}
 
 	const type = (props.type ?? "input") as TFieldType;
+	const fieldProps = props as unknown as TFieldPropsByType[typeof type];
 
-	return renderByType(type, props);
+	return renderByType(type, fieldProps);
 };

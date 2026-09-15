@@ -1,0 +1,128 @@
+.viewer {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	font-family: var(--amp-font);
+}
+
+.toolbar {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: var(--amp-space-3);
+	flex-shrink: 0;
+	padding: var(--amp-space-2);
+	border-bottom: 1px solid var(--amp-color-border);
+}
+
+.group {
+	display: flex;
+	align-items: center;
+	gap: var(--amp-space-1);
+}
+
+.toolButton {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.75rem;
+	height: 1.75rem;
+	border: none;
+	border-radius: var(--amp-radius-sm);
+	background: transparent;
+	color: var(--amp-color-sub);
+	cursor: pointer;
+
+	&:hover:not(:disabled) {
+		background: var(--amp-color-ghost-bg);
+		color: var(--amp-color-ink);
+	}
+
+	&:disabled {
+		opacity: 0.4;
+		cursor: default;
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--amp-color-primary);
+		outline-offset: 2px;
+	}
+}
+
+.toolIcon {
+	width: 1rem;
+	height: 1rem;
+}
+
+.zoomValue {
+	min-width: 3rem;
+	text-align: center;
+	font-size: 0.75rem;
+	color: var(--amp-color-sub);
+	font-variant-numeric: tabular-nums;
+}
+
+// The zoom percentage doubles as a reset-to-100% button — same text
+// styling as `.zoomValue` (both classes together), plus the button reset
+// and interactive states `.zoomValue` alone doesn't need for the plain
+// (non-interactive) page-count span that also uses it.
+.zoomReset {
+	border: none;
+	background: transparent;
+	border-radius: var(--amp-radius-sm);
+	padding: 0.125rem var(--amp-space-1);
+	font-family: inherit;
+	cursor: pointer;
+
+	&:hover:not(:disabled) {
+		background: var(--amp-color-ghost-bg);
+		color: var(--amp-color-ink);
+	}
+
+	&:disabled {
+		cursor: default;
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--amp-color-primary);
+		outline-offset: 2px;
+	}
+}
+
+.download {
+	margin-left: auto;
+	display: inline-flex;
+	align-items: center;
+	gap: var(--amp-space-1);
+	font-size: 0.8125rem;
+	font-weight: 600;
+	color: var(--amp-color-primary);
+	text-decoration: none;
+	padding: 0.25rem var(--amp-space-2);
+	border-radius: var(--amp-radius-sm);
+
+	&:hover {
+		background: var(--amp-color-ghost-bg);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--amp-color-primary);
+		outline-offset: 2px;
+	}
+}
+
+.viewport {
+	flex: 1;
+	min-height: 0;
+	overflow: auto;
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	padding: var(--amp-space-4);
+	background: var(--amp-color-ghost-bg);
+}
+
+.image {
+	max-width: 100%;
+	transform-origin: top center;
+}

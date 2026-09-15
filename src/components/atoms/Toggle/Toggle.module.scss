@@ -1,0 +1,97 @@
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	// Same fix as Checkbox/Radio: without this, .row gets stretched to the
+	// wrapper's full width and the whole line becomes clickable.
+	align-items: flex-start;
+	gap: var(--amp-space-1);
+	font-family: var(--amp-font);
+}
+
+.row {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--amp-space-2);
+	cursor: pointer;
+
+	&[data-disabled="true"] {
+		cursor: not-allowed;
+		opacity: 0.55;
+	}
+}
+
+.trackWrapper {
+	box-sizing: border-box;
+	position: relative;
+	display: inline-flex;
+	flex-shrink: 0;
+	width: 2.25rem;
+	height: 1.25rem;
+}
+
+.input {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	opacity: 0;
+	cursor: inherit;
+
+	// outline+offset instead of a box-shadow halo — same convention as
+	// Button/Input/Checkbox/Radio, draws a real gap instead of faking one.
+	&:focus-visible + .track {
+		outline: 2px solid var(--amp-color-primary);
+		outline-offset: 2px;
+	}
+}
+
+.track {
+	box-sizing: border-box;
+	display: flex;
+	align-items: center;
+	// Always flex-start — the thumb slides via transform below, not by
+	// flipping justify-content. justify-content isn't an animatable CSS
+	// property (it snaps instantly), which is why the switch had no
+	// animation despite .thumb already declaring a transition.
+	justify-content: flex-start;
+	width: 100%;
+	height: 100%;
+	padding: 0.125rem;
+	border-radius: var(--amp-radius-full);
+	background: var(--amp-color-border);
+	transition: background 0.15s ease;
+
+	&[data-checked="true"] {
+		background: var(--amp-color-primary);
+
+		.thumb {
+			// Track inner width (2.25rem - 2 * 0.125rem padding) minus thumb
+			// width (1rem) = 1rem of travel distance.
+			transform: translateX(1rem);
+		}
+	}
+}
+
+.thumb {
+	box-sizing: border-box;
+	width: 1rem;
+	height: 1rem;
+	// Follows the theme's radius preset, same as .track — sharp makes both
+	// square, soft/round keep them circular. Was hardcoded to 50%, so
+	// switching to "sharp" only squared off the track, not the thumb.
+	border-radius: var(--amp-radius-full);
+	background: var(--amp-color-card);
+	transform: translateX(0);
+	transition: transform 0.15s ease;
+
+	@media (prefers-reduced-motion: reduce) {
+		transition: none;
+	}
+}
+
+.label {
+	font-size: 0.84375rem;
+	line-height: 1;
+	color: var(--amp-color-ink);
+}

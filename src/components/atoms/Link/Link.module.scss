@@ -1,0 +1,90 @@
+.link {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 0.25em;
+	font-family: inherit;
+	font-size: inherit;
+	font-weight: 600;
+	cursor: pointer;
+	transition: color 0.15s ease;
+
+	&:hover:not([data-disabled="true"]) {
+		filter: brightness(1.1);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--_color, var(--amp-color-primary));
+		outline-offset: 2px;
+		border-radius: var(--amp-radius-sm);
+	}
+
+	&[data-disabled="true"] {
+		color: var(--amp-color-sub);
+		cursor: not-allowed;
+		pointer-events: none;
+	}
+
+	// ---- color ----
+	&[data-color="primary"] {
+		--_color: var(--amp-color-primary);
+		color: var(--_color);
+	}
+
+	&[data-color="danger"] {
+		--_color: var(--amp-color-danger);
+		color: var(--_color);
+	}
+
+	&[data-color="success"] {
+		--_color: var(--amp-color-success);
+		color: var(--_color);
+	}
+
+	&[data-color="warning"] {
+		--_color: var(--amp-color-warning);
+		color: var(--_color);
+	}
+
+	&[data-color="info"] {
+		--_color: var(--amp-color-info);
+		color: var(--_color);
+	}
+
+	&[data-color="neutral"] {
+		--_color: var(--amp-color-neutral);
+		color: var(--_color);
+	}
+
+	&[data-color="black"] {
+		--_color: var(--amp-color-black);
+		color: var(--_color);
+	}
+
+	&[data-color="white"] {
+		--_color: var(--amp-color-white);
+		color: var(--_color);
+	}
+
+	// ---- underline ----
+	&[data-underline="always"] {
+		text-decoration: underline;
+	}
+
+	&[data-underline="hover"] {
+		text-decoration: none;
+
+		&:hover:not([data-disabled="true"]) {
+			text-decoration: underline;
+		}
+	}
+
+	&[data-underline="none"] {
+		text-decoration: none;
+	}
+}
+
+.icon {
+	flex-shrink: 0;
+	width: 0.875em;
+	height: 0.875em;
+}

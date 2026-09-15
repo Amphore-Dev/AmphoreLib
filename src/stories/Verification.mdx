@@ -1,0 +1,70 @@
+{/* Verification.mdx */}
+
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Directives/Verification" />
+
+# Writing a story, a test, verifying a change
+
+## Story convention
+
+```tsx
+const Template: StoryFn<IButtonProps> = (args) => <Button {...args} />;
+
+export const Base = Template.bind({});
+Base.args = { children: "Button", color: "primary" };
+```
+
+**Always** go through `Template.bind({})` + `.args` — never a function with no args that hardcodes local state and ignores the `args` it receives. Check every story in a new file, not just the first one.
+
+Accepted exception: a demo function with no `Template` when the story shows **several variants at once** rather than one drivable instance (`Divider`'s `Vertical`/`BetweenSections`, `Title`'s `AllLevels`/`Colored`).
+
+`argTypes` only for genuinely controllable primitives (size/color/variant/booleans) — never for `items`/`value`/`onChange` of a data-driven component.
+
+## Shared `StoriesArgs`
+
+`size`/`color`/`picto` repeat identically across some twenty files — factored out into `src/stories/StoriesArgs.ts` (not exported by the lib, see [Directives/Structure](?path=/docs/directives-structure--docs)):
+
+```tsx
+import { colorArgType, pictoArgType, sizeArgType } from "@stories/StoriesArgs";
+
+export default {
+	argTypes: { size: sizeArgType, color: colorArgType, picto: pictoArgType },
+};
+```
+
+A sized component always has a `DefaultSizeFromConfig` story (see [Directives/Sizing](?path=/docs/directives-sizing--docs)). A non-portaled component that fills its own viewport (`Modal`) needs `parameters.docs.story.height` — addon-docs' default iframe height is too short otherwise.
+
+---
+
+## jsdom limitations
+
+No real layout: `getBoundingClientRect`, `scrollWidth`/`clientWidth` are always 0. Behavior that depends on scroll/overflow (`Tabs`'s scroll arrows) can't be tested that way — test what's actually measurable, never fake it.
+
+Nothing without the polyfills already set up in `tests/setup.js`: no `PointerEvent`/`ResizeObserver` without them.
+
+`@tanstack/react-virtual` measures its container's actual rendered size — jsdom always reports 0×0: **virtualized rows never render in a test**, regardless of item count. Test the rest (header, empty/loading state, `grid-template-columns`); actually demonstrate the rest in Storybook.
+
+## Fake timers
+
+A single grouped advance (`vi.advanceTimersByTime(N * 1000)`) doesn't reliably flush a chain of `setTimeout`s driven by a React effect over N ticks — advance once per expected tick (`N` separate calls) instead.
+
+`vi.useFakeTimers()` blocks any component based on floating-ui's `autoUpdate` (`Select`, anything using `whileElementsMounted: autoUpdate`) — a real rAF loop runs internally, so even a plain `userEvent.click` stays blocked. Use real timers with a short/zero debounce in the test instead (see `AsyncSelect.test.tsx`).
+
+---
+
+## Pipeline, on every change
+
+```
+yarn vitest run          # full suite
+npx tsc --noEmit -p tsconfig.json
+eslint --fix (touched files), re-check
+storybook build --quiet  # or dev --ci, grep error/ready
+yarn build               # periodic, not necessarily on every commit
+```
+
+One commit per logical change, a detailed message (root cause, not just the symptom), ending with `Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>`.
+
+---
+
+See also: `StoriesArgs.ts`, `tests/setup.js`, [Directives/Structure](?path=/docs/directives-structure--docs), [Directives/Sizing](?path=/docs/directives-sizing--docs).

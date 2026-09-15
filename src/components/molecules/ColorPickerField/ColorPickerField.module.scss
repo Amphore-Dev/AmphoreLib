@@ -1,0 +1,57 @@
+@use "../../../styles/field" as field;
+
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: var(--amp-space-1);
+	font-family: var(--amp-font);
+}
+
+.label {
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: var(--amp-color-ink);
+}
+
+.required {
+	color: var(--amp-color-danger);
+	margin-left: 0.125rem;
+}
+
+.field {
+	@include field.field-box;
+	width: fit-content;
+	cursor: pointer;
+	text-align: left;
+
+	&[data-disabled="true"] {
+		cursor: not-allowed;
+	}
+}
+
+.swatch {
+	// border-box: the 1px border would otherwise grow the box past its width/height.
+	box-sizing: border-box;
+	flex-shrink: 0;
+	width: 1.125rem;
+	aspect-ratio: 1 / 1;
+	// Fixed length, not a %, so this reads as a "squircle" under some
+	// presets rather than a true circle (accepted, follows the radius preset).
+	border-radius: var(--amp-radius-md);
+	border: 1px solid var(--amp-color-border);
+}
+
+.value {
+	@include field.field-text;
+	font-variant-numeric: tabular-nums;
+	text-transform: uppercase;
+}
+
+// Flush — ColorPicker supplies its own frame, no need for two nested ones.
+.popover {
+	padding: 0;
+	background: transparent;
+	border: none;
+	border-radius: 0;
+	box-shadow: none;
+}

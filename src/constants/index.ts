@@ -1,3 +1,2 @@
-export * from "./Ccolors";
-export * from "./CPictos";
 export * from "./CFiltersContext";
+export * from "./CPictos";

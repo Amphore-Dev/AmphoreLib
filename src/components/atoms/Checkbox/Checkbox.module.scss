@@ -1,0 +1,91 @@
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	// Without this, .row (a flex item here even though it declares its own
+	// display: inline-flex) gets stretched to the wrapper's full width by
+	// the default cross-axis "stretch" — a <label> spanning the whole row
+	// made the entire line clickable, not just the box+text.
+	align-items: flex-start;
+	gap: var(--amp-space-1);
+	font-family: var(--amp-font);
+}
+
+.row {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--amp-space-2);
+	cursor: pointer;
+
+	&[data-disabled="true"] {
+		cursor: not-allowed;
+		opacity: 0.55;
+	}
+}
+
+.boxWrapper {
+	box-sizing: border-box;
+	position: relative;
+	display: inline-flex;
+	flex-shrink: 0;
+	width: 1.0625rem;
+	height: 1.0625rem;
+}
+
+.input {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	opacity: 0;
+	cursor: inherit;
+
+	// outline+offset instead of a box-shadow halo — same convention as
+	// Button/Input, draws a real gap instead of faking one with color.
+	&:focus-visible + .box {
+		outline: 2px solid var(--amp-color-primary);
+		outline-offset: 2px;
+	}
+}
+
+.box {
+	box-sizing: border-box;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+	border: 1.5px solid var(--amp-color-border);
+	border-radius: calc(var(--amp-radius-md) * 0.4);
+	background: var(--amp-color-card);
+	transition:
+		background 0.15s ease,
+		border-color 0.15s ease;
+
+	&[data-checked="true"] {
+		background: var(--amp-color-primary);
+		border-color: var(--amp-color-primary);
+	}
+}
+
+.check {
+	// SVG defaults to display: inline, which can pad its box with
+	// descender/line-gap space — same issue fixed for Picto's wrapper.
+	display: block;
+	width: 70%;
+	height: 70%;
+	color: var(--amp-color-primary-fg);
+}
+
+.dash {
+	width: 55%;
+	height: 2px;
+	background: var(--amp-color-primary-fg);
+	border-radius: 1px;
+}
+
+.label {
+	font-size: 0.84375rem;
+	line-height: 1;
+	color: var(--amp-color-ink);
+}

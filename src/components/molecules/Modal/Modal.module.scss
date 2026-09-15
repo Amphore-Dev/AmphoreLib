@@ -1,0 +1,120 @@
+.overlay {
+	display: flex;
+	// No align-items: center here on purpose — centering the cross axis that
+	// way clips the *start* of an overflowing item (its negative offset
+	// falls outside the scrollable range, so scrolling to the top of an
+	// overflowing panel still showed it cut off, header included). margin:
+	// auto on .panel itself (below) centers the same way when there's room,
+	// but naturally collapses to 0 and top-aligns once it doesn't fit,
+	// keeping the whole thing reachable by scrolling.
+	justify-content: center;
+	padding: var(--amp-space-4);
+	overflow-y: auto;
+	background: rgba(0, 0, 0, 0.45);
+	z-index: 1000;
+}
+
+// Background/radius/shadow come from Card (elevation prop) — this only
+// constrains layout: size (max-width), height, and the flex column that
+// keeps header/footer fixed while .body scrolls internally.
+.panel {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	margin: auto 0;
+	// A floor for the whole panel, not just .body (see below) — a short
+	// screen otherwise let flexbox shrink the panel down to header+footer
+	// with barely any room left for content between them.
+	max-height: calc(100vh - var(--amp-space-6) * 2);
+	font-family: var(--amp-font);
+	outline: none;
+	// Card sets border-radius but nothing clips to it — the sticky header/
+	// footer's own opaque background is a plain rectangle, so without this
+	// it visibly overflows past the rounded corners top and bottom.
+	overflow: hidden;
+
+	&[data-size="sm"] {
+		max-width: 24rem;
+	}
+
+	&[data-size="md"] {
+		max-width: 32rem;
+	}
+
+	&[data-size="lg"] {
+		max-width: 48rem;
+	}
+}
+
+// Sticky rather than just "outside .body's scroll area": with only one
+// short-ish paragraph .body never actually needs to scroll, so instead of
+// depending on that to prove header stays put, position: sticky pins it
+// for real once content does overflow (matches v1's modal header behavior).
+// Needs its own opaque background — sticky content must cover whatever
+// scrolls up underneath it.
+.header {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--amp-space-3);
+	padding: var(--amp-space-4);
+	background: var(--amp-color-card);
+	border-bottom: 1px solid var(--amp-color-border);
+}
+
+.title {
+	margin: 0;
+	font-size: 1.0625rem;
+	font-weight: 700;
+	color: var(--amp-color-ink);
+}
+
+.close {
+	flex-shrink: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.5rem;
+	height: 1.5rem;
+	margin-left: auto;
+	padding: 0;
+	border: none;
+	border-radius: var(--amp-radius-sm);
+	background: transparent;
+	color: var(--amp-color-sub);
+	cursor: pointer;
+
+	&:hover {
+		color: var(--amp-color-ink);
+		background: var(--amp-color-ghost-bg);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--amp-color-primary);
+		outline-offset: 2px;
+	}
+}
+
+.body {
+	flex: 1;
+	overflow-y: auto;
+	padding: var(--amp-space-4);
+	color: var(--amp-color-ink);
+	font-size: 0.9375rem;
+}
+
+.footer {
+	position: sticky;
+	bottom: 0;
+	z-index: 1;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: var(--amp-space-2);
+	padding: var(--amp-space-4);
+	background: var(--amp-color-card);
+	border-top: 1px solid var(--amp-color-border);
+}

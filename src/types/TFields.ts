@@ -1,27 +1,60 @@
-import { TPictoName } from "@constants/CPictos";
 import { FormikContextType } from "formik";
 
-import { IButtonProps, IPictoProps, IToggleProps } from "@components/atoms";
 import {
-	ISelectProps,
+	IButtonProps,
+	IInputProps,
+	INumberInputProps,
+	IPictoProps,
 	ITextAreaProps,
-	ITextFieldProps,
+	IToggleProps,
 	ITimePickerProps,
+} from "@components/atoms";
+import {
+	ICheckboxesFilterProps,
+	IDatePickerProps,
+	IFilesFieldProps,
+	IPeriodFilterProps,
+	IRadioFilterProps,
+	ISelectProps,
+	ITimeRangeFilterProps,
 } from "@components/molecules";
-import { ICheckboxesFilterProps } from "@components/molecules/FieldRenderer/FieldsModels/CheckboxFilter/CheckboxFilter";
-import { IRadioFilterProps } from "@components/molecules/FieldRenderer/FieldsModels/RadioFilter/RadioFilter";
+
+import { TPictoName } from "@constants/index";
+
+/**
+ * `NumberInput`/`DatePicker`/`TimePicker` require `value`/`onChange` on the
+ * real component (stricter than v1's equivalents, which had them optional).
+ * A field *descriptor* never sets them itself — `FieldRenderer` always
+ * injects both — so they're omitted here and re-added as optional, instead
+ * of forcing every descriptor object to redundantly declare them.
+ */
+type TOmitControlled<P> = Omit<P, "value" | "onChange">;
 
 export type TFieldPropsByType<
 	T = unknown,
 	CustomProps extends Record<string, object> = Record<never, never>,
 > = {
 	select: ISelectProps<T>;
-	time: ITimePickerProps;
-	input: ITextFieldProps;
+	date: TOmitControlled<IDatePickerProps> & {
+		value?: Date | null;
+		onChange?: (value: Date | null) => void;
+	};
+	period: IPeriodFilterProps;
+	time: TOmitControlled<ITimePickerProps> & {
+		value?: string | null;
+		onChange?: (value: string | null) => void;
+	};
+	timeRange: ITimeRangeFilterProps;
+	input: IInputProps;
+	number: TOmitControlled<INumberInputProps> & {
+		value?: number | null;
+		onChange?: (value: number | null) => void;
+	};
 	textarea: ITextAreaProps;
 	checkbox: ICheckboxesFilterProps;
 	radio: IRadioFilterProps;
 	toggle: IToggleProps;
+	file: IFilesFieldProps;
 } & CustomProps;
 
 export type TFieldType<
@@ -40,31 +73,43 @@ export type TBaseField<
 	label?:
 		| string
 		| ((values: TFormikContextValues, isEditing: boolean) => string);
+	displayLabel?:
+		| string
+		| React.ReactNode
+		| ((
+				values: TFormikContextValues,
+				isEditing: boolean
+		  ) => string | React.ReactNode);
 	required?: boolean;
+	/** Fully overrides the field's rendering for this one field. */
 	renderer?: (
 		props: TFieldPropsByType<unknown, CustomProps>[Type]
 	) => JSX.Element;
-	valueRenderer?: (values: TFormikContextValues) => React.ReactNode; // Permet de personnaliser complètement l'affichage du champ en mode lecture seule (le champ "renderer" est ignoré dans ce cas)
-	getFieldValue?: (values: TFormikContextValues) => unknown; // Permet de transformer la valeur du champ avant de l'afficher (ex: pour afficher une date au format "DD/MM/YYYY" alors que la valeur est un timestamp)
+	/** Fully overrides the read-only display for this one field (ignores `renderer`). */
+	valueRenderer?: (values: TFormikContextValues) => React.ReactNode;
+	/** Transforms the field's stored value before it's displayed/edited (e.g. a timestamp -> "dd/MM/yyyy"). */
+	getFieldValue?: (values: TFormikContextValues) => unknown;
 	resetOnApply?: boolean;
 	onReset?: (formikCtx: FormikContextType<object>) => void;
 	defaultValue?: unknown;
-	picto?: IPictoProps["icon"] | IPictoProps;
+	picto?: TPictoName | IPictoProps;
 	hidden?:
 		| boolean
 		| ((values: TFormikContextValues, isEditing: boolean) => boolean);
-	addOnEmptyValue?: boolean; // Permet d'ajouter un bouton "+ Ajouter" lorsque la valeur du champ est vide
-	valueDisplay?: (values: TFormikContextValues) => React.ReactNode; // Permet de personnaliser l'affichage de la valeur du champ en mode lecture seule
-	showFieldLabel?: boolean; // Permet de masquer le label du champ
-	showResetButton?: boolean; // Permet d'afficher un bouton de réinitialisation du champ
-	wrapperClassName?: string; // Permet d'ajouter une classe CSS personnalisée au wrapper du champ
+	/** Shows an "+ Ajouter" button in place of an empty value in read-only mode. */
+	addOnEmptyValue?: boolean;
+	valueDisplay?: (values: TFormikContextValues) => React.ReactNode;
+	showFieldLabel?: boolean;
+	showResetButton?: boolean;
+	wrapperClassName?: string;
 	beforeFieldComponent?:
 		| React.ReactNode
-		| ((values: TFormikContextValues) => React.ReactNode); // Permet d'ajouter un composant avant le champ (ex: pour afficher un message de validation personnalisé)
+		| ((values: TFormikContextValues) => React.ReactNode);
 	afterFieldComponent?:
 		| React.ReactNode
-		| ((values: TFormikContextValues) => React.ReactNode); // Permet d'ajouter un composant après le champ (ex: pour afficher un message de validation personnalisé)
-	order?: (values: TFormikContextValues, isEditing: boolean) => number; // Permet de définir l'ordre d'affichage des champs de manière dynamique en fonction de leurs valeurs
+		| ((values: TFormikContextValues) => React.ReactNode);
+	/** Dynamic display order among sibling fields. */
+	order?: (values: TFormikContextValues, isEditing: boolean) => number;
 };
 
 export type TFieldDisplayProps = {
@@ -72,19 +117,13 @@ export type TFieldDisplayProps = {
 	info?: {
 		text: React.ReactNode;
 		textClassName?: string;
-		picto?: TPictoName;
-		pictoClassName?: string;
-		pictoProps?: IPictoProps;
+		picto?: TPictoName | IPictoProps;
 		onClick?: (props?: object) => void;
-		isUnderlined?: boolean;
-		href?: string;
 		maxLines?: number;
 	};
 	action?: {
 		label: string;
-		picto?: TPictoName;
-		pictoClassName?: string;
-		pictoProps?: IPictoProps;
+		picto?: TPictoName | IPictoProps;
 		buttonProps?: IButtonProps;
 		onClick?: (props?: object) => void;
 	};
@@ -112,8 +151,9 @@ export type TField<
 export type TFieldsGroup<T = TField> = {
 	title?: string;
 	fields: T[] | ((isEditing: boolean) => T[]);
-	columns?: number; // nombre de colonnes pour l'affichage des champs de ce groupe (si différent de columns ou editColumns)
-	className?: string; // Permet d'ajouter une classe CSS personnalisée au groupe
+	/** Columns for this group's own field grid, if different from the form's. */
+	columns?: number;
+	className?: string;
 };
 
 export type TFieldRendererMap<

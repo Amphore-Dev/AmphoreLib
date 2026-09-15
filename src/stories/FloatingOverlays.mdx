@@ -1,0 +1,63 @@
+{/* FloatingOverlays.mdx */}
+
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Directives/FloatingOverlays" />
+
+# Floating overlays (Tooltip / Popover / Dropdown / ContextMenu / Select / Modal)
+
+All built on `@floating-ui/react`, with four recurring rules — each one broke a real component before being fixed here.
+
+## Never `FloatingPortal`
+
+`FloatingPortal` portals to the current `document.body` — under Storybook's docs embed, that `document` doesn't share the story's stylesheet: the portaled content renders with none of the theme's CSS (confirmed on `Select` and `Modal`). Rendering stays **inline**:
+
+- `Select`: its dropdown (`position: absolute`) — would remain a portal candidate in another lib, not here.
+- `Modal`: its `FloatingOverlay` is `position: fixed`, already covers the viewport without a portal.
+
+Same rule for `Tooltip`/`Popover`/`Dropdown`/`ContextMenu` — only add a portal facing a real case (an ancestor `overflow: hidden` that actually clips), never as a precaution. Toast/Notification (not built yet) is the only legitimate candidate identified so far (a global queue, independent of any local position).
+
+## A trigger must be `forwardRef`
+
+`Tooltip`/`Popover`/`Dropdown` clone the trigger element and attach floating-ui's ref to it. A trigger component written as a plain `React.FC` silently drops that ref (React warns, never throws) — `refs.setReference` stays `null`, so floating-ui then positions the float at `(0,0)`, overlapping the trigger.
+
+```tsx
+// Always forwardRef if usable as a Tooltip/Popover/Dropdown trigger:
+export const Button = React.forwardRef<HTMLButtonElement, IButtonProps>(
+  (props, ref) => <button ref={ref} {...props} />
+);
+```
+
+`Card` (Modal's panel) and `Button` are both `forwardRef` for this reason — check any other component before using it as a trigger.
+
+## One shared controller for N triggers
+
+A menu triggered by several list elements (a per-row context menu, etc.) is **one single instance** driven by a controller hook — not one instance per trigger:
+
+```tsx
+const menu = useContextMenu<TRow>(); // {state, show(event, data), hide}
+
+<ContextMenu menu={menu} items={(row) => [...]} />
+// in each row:
+<tr onContextMenu={(e) => menu.show(e, row)}>
+```
+
+One instance per row would force a closure per row just to know which one triggered it, and would mount N floating elements whether open or not. `items` accepts `T[] | ((data: T) => T[])`, resolved against whatever `show` received.
+
+## Never swap the wrapper based on state
+
+Never alternate between a "bare element" and an "element wrapped in Tooltip/Popover" based on a condition (`isTruncated ? <Tooltip>...</Tooltip> : <span>...</span>`) — that changes the React node type at that position, so it unmounts/remounts a **new** DOM node the moment the condition flips. If the pointer is already over it at that moment (easy to trigger — hovering while a story settles, or any async condition), the browser never re-fires `mouseenter` on the replacement: the tooltip never opens, silently.
+
+Always render the same wrapper, drive it with its `disabled` prop (every floating component in the lib has one):
+
+```tsx
+<Tooltip disabled={!isTruncated} content={fullText}>
+  <span>{text}</span>
+</Tooltip>
+```
+
+Prefer `useLayoutEffect` over `useEffect` for the measurement that drives this `disabled` (truncation, overflow...) — synchronous before paint, no frame where the wrong state is visible. A real bug found on `TruncatedTooltipText`, not hypothetical.
+
+---
+
+See also: `Tooltip.tsx`, `Popover.tsx`, `Dropdown.tsx`, `ContextMenu.tsx`, `useContextMenu.ts`, [Directives/Accessibility](?path=/docs/directives-accessibility--docs).

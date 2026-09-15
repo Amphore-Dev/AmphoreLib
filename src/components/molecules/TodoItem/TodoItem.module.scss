@@ -1,0 +1,127 @@
+.row {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--amp-space-2);
+	padding: var(--amp-space-2) var(--amp-space-2);
+	font-family: var(--amp-font);
+	background: var(--amp-color-card);
+
+	&:hover {
+		background: var(--amp-color-ghost-bg);
+	}
+
+	&[data-dragging="true"] {
+		background: var(--amp-color-primary-tint);
+	}
+
+	&[data-size="sm"] {
+		padding: var(--amp-space-1) var(--amp-space-2);
+	}
+
+	&[data-size="lg"] {
+		padding: var(--amp-space-3) var(--amp-space-2);
+	}
+}
+
+.handle {
+	flex-shrink: 0;
+	margin-top: 0.125rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: none;
+	border: none;
+	padding: 0;
+	color: var(--amp-color-sub);
+	cursor: grab;
+
+	&:active {
+		cursor: grabbing;
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--amp-color-primary);
+		outline-offset: 2px;
+	}
+}
+
+.handleIcon {
+	width: 1rem;
+	height: 1rem;
+}
+
+.before {
+	flex-shrink: 0;
+	margin-top: 0.0625rem;
+	display: flex;
+	align-items: center;
+}
+
+.text {
+	flex: 1;
+	min-width: 0;
+	text-align: left;
+	background: none;
+	border: none;
+	padding: 0.0625rem 0;
+	margin: 0;
+	font-family: var(--amp-font);
+	font-size: 0.8125rem;
+	line-height: 1.4;
+	color: var(--amp-color-ink);
+	cursor: text;
+
+	&:hover {
+		text-decoration: underline;
+		text-decoration-color: var(--amp-color-border);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--amp-color-primary);
+		outline-offset: 2px;
+	}
+}
+
+span.text {
+	cursor: default;
+
+	&:hover {
+		text-decoration: none;
+	}
+}
+
+.editor {
+	font-size: 0.8125rem;
+}
+
+.editorWrapper {
+	flex: 1;
+	min-width: 0;
+}
+
+.remove {
+	flex-shrink: 0;
+	margin-top: 0.0625rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: none;
+	border: none;
+	padding: 0;
+	color: var(--amp-color-sub);
+	cursor: pointer;
+
+	&:hover {
+		color: var(--amp-color-danger);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--amp-color-primary);
+		outline-offset: 2px;
+	}
+}
+
+.removeIcon {
+	width: 1rem;
+	height: 1rem;
+}

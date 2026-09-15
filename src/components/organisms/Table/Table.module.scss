@@ -1,0 +1,24 @@
+.table {
+	display: grid;
+	align-content: start;
+	width: 100%;
+	height: 100%;
+	// Real-world safety net: react-virtual measures this container's actual
+	// rendered size to decide which rows to mount — if no ancestor gives it
+	// a resolvable height (height:100% needs one, easy to forget), it
+	// measures 0 and silently renders nothing at all, no error. A min-height
+	// guarantees *some* rows show even then; an explicit height/className
+	// from the consumer still wins as usual.
+	min-height: 200px;
+	overflow: auto;
+	font-family: var(--amp-font);
+}
+
+.centerRow {
+	grid-column: 1 / -1;
+	display: flex;
+	justify-content: center;
+	padding: var(--amp-space-5) 0;
+	color: var(--amp-color-sub);
+	font-size: 0.8125rem;
+}

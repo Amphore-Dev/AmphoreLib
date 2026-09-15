@@ -2,17 +2,25 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import { useVirtualizer } from "@tanstack/react-virtual";
 
-import { TSortDirection, TTableColumn, TTableItemAction } from "@interfaces/TTable";
-
-import { Spinner } from "@components/atoms";
-import { ContextMenu } from "@components/molecules/ContextMenu/ContextMenu";
-import { TableHead } from "@components/molecules/TableHead/TableHead";
-import { TableHeadContextMenu } from "@components/molecules/TableHead/TableHeadContextMenu";
-import { TableRow } from "@components/molecules/TableRow/TableRow";
-
-import { useRowActionsMenu } from "@hooks/useRowActionsMenu";
+import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
 import { cn } from "@utils/cn";
+
+import {
+	TLabel,
+	TMenuItem,
+	TSortDirection,
+	TTableColumn,
+	TTableItemAction,
+} from "@interfaces/index";
+
+import { Spinner } from "../../atoms/Spinner/Spinner";
+import { ContextMenu } from "../../molecules/ContextMenu/ContextMenu";
+import { useContextMenu } from "../../molecules/ContextMenu/useContextMenu";
+import { TableHead } from "../../molecules/TableHead/TableHead";
+import { TableRow } from "../../molecules/TableRow/TableRow";
+
+import styles from "./Table.module.scss";
 
 export interface ITableProps<T> {
 	columns: TTableColumn<T>[];
@@ -28,10 +36,13 @@ export interface ITableProps<T> {
 	onSort?: (key: keyof T & string, direction: TSortDirection) => void;
 	onSelectionChange?: (keys: Set<string | number>) => void;
 	rowHeight?: number;
-	noDataMessage?: React.ReactNode;
+	/** Content shown in place of rows when `items` is empty. Defaults to "No data" (or `Table.noDataMessage` from the nearest AmphoreProvider — see useAmphoreLabels). No commonKey — deliberately not shared with any other "no results"-style message elsewhere, even a similar-looking one. */
+	noDataMessage?: TLabel;
 	className?: string;
 	rowClassName?: string | ((item: T) => string);
 	selectable?: boolean;
+	/** Renders the checkbox column when selectable. Set `false` for row-click-only selection with no visible checkbox — pair with `selectOnClick`, otherwise there's no way to select anything. Defaults to true. */
+	showCheckbox?: boolean;
 	selectedKeys?: Set<string | number>;
 	setSelectedKeys?: React.Dispatch<
 		React.SetStateAction<Set<string | number>>
@@ -42,15 +53,14 @@ export interface ITableProps<T> {
 	) => void;
 	initialVisibleColumns?: string[];
 	isLoading?: boolean;
-	tableId?: string;
 	onLoadMore?: () => void;
 	hasMore?: boolean;
 	loadMoreThreshold?: number;
 	/**
 	 * Whether clicking anywhere on the row (not just the checkbox) also
 	 * selects it. Defaults to false: only the checkbox selects. Ignored when
-	 * `onRowClick` is set — a row click then always navigates/fires
-	 * `onRowClick`, selection stays checkbox-only in that case.
+	 * `onRowClick` is set — a row click then always fires `onRowClick`,
+	 * selection stays checkbox-only in that case.
 	 */
 	selectOnClick?: boolean;
 	/**
@@ -63,6 +73,9 @@ export interface ITableProps<T> {
 	selectionMode?: "toggle" | "exclusive";
 }
 
+/** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
+export type TTableLabels = Pick<ITableProps<object>, "noDataMessage">;
+
 function defaultCompare<T>(a: T, b: T, key: keyof T & string): number {
 	const va = a[key];
 	const vb = b[key];
@@ -73,8 +86,16 @@ function defaultCompare<T>(a: T, b: T, key: keyof T & string): number {
 	return String(va).localeCompare(String(vb));
 }
 
+/**
+ * V2 Table — CSS Grid (not a real `<table>`, see Td/Th) + virtualized rows
+ * (`@tanstack/react-virtual`), ported from v1's. Context menus (row actions,
+ * column visibility) rewired from react-contexify's global id registry to
+ * this lib's own `useContextMenu<T>()` controller model: `Table` owns both
+ * controllers directly and passes callbacks down, rather than components
+ * three levels deep reaching a menu by string id.
+ */
 export const Table = <T,>({
-	columns: _columns,
+	columns: columnsProp,
 	items,
 	getItemKey,
 	onRowClick,
@@ -84,34 +105,37 @@ export const Table = <T,>({
 	onSort,
 	onSelectionChange,
 	rowHeight = 36,
-	noDataMessage = "No data available",
-	className,
+	noDataMessage: noDataMessageProp,
+	className = "",
 	rowClassName,
-	selectable: _selectable,
+	selectable: selectableProp,
+	showCheckbox: showCheckboxProp = true,
 	selectedKeys: controlledSelectedKeys,
 	setSelectedKeys: setControlledSelectedKeys,
 	onColumnVisibilityChange,
 	initialVisibleColumns,
-	isLoading,
-	tableId = "al__table",
+	isLoading = false,
 	onLoadMore,
 	hasMore = false,
 	loadMoreThreshold = 4,
 	selectOnClick = false,
 	selectionMode = "toggle",
 }: ITableProps<T>) => {
+	const { resolve } = useAmphoreLabels("Table");
+	const noDataMessage = resolve("noDataMessage", noDataMessageProp);
+
 	const columns = useMemo(() => {
 		if (
 			!rowActions?.length ||
-			_columns.some((col) => col.key === "contextMenu")
+			columnsProp.some((col) => col.key === "contextMenu")
 		) {
-			return _columns;
+			return columnsProp;
 		}
 		return [
-			..._columns,
+			...columnsProp,
 			{ key: "contextMenu", disableHiding: true } as TTableColumn<T>,
 		];
-	}, [_columns, rowActions]);
+	}, [columnsProp, rowActions]);
 
 	const containerRef = useRef<HTMLDivElement>(null);
 	const anchorIndexRef = useRef<number>(-1);
@@ -150,24 +174,39 @@ export const Table = <T,>({
 		? setControlledSelectedKeys!
 		: internalSetSelectedKeys;
 
-	const selectable = _selectable || setControlledSelectedKeys !== undefined;
+	const selectable =
+		selectableProp || setControlledSelectedKeys !== undefined;
+	const showCheckbox = selectable && showCheckboxProp;
 
-	const rowActionsMenuId = `${tableId}-row-actions`;
-	const columnsMenuId = `${tableId}-columns`;
-	const { items: rowActionItems, showFor: showRowActions } =
-		useRowActionsMenu<T>(rowActionsMenuId, rowActions);
+	const rowActionsMenu = useContextMenu<T>();
+	const columnsMenu = useContextMenu<void>();
 
 	const hasContextMenu = !!rowActions?.length || !!onRowContextMenu;
 	const handleRowContextMenu =
 		hasContextMenu || onGlobalContextMenu
 			? (item: T, event: React.MouseEvent) => {
 					if (rowActions?.length) {
-						showRowActions(item, event);
+						rowActionsMenu.show(event, item);
 						return;
 					}
 					onRowContextMenu?.(item, event);
 				}
 			: undefined;
+
+	const rowActionItems = (item: T): TMenuItem[] =>
+		(rowActions ?? []).map((action) => ({
+			label: action.label,
+			picto: action.picto,
+			disabled:
+				typeof action.disabled === "function"
+					? action.disabled(item)
+					: !!action.disabled,
+			hidden:
+				typeof action.hidden === "function"
+					? action.hidden(item)
+					: !!action.hidden,
+			onClick: () => action.onClick(item),
+		}));
 
 	const handleSort = (key: keyof T & string) => {
 		const next: TSortDirection =
@@ -206,9 +245,6 @@ export const Table = <T,>({
 		key: string | number,
 		event: React.MouseEvent
 	) => {
-		// Every click — shift or not — becomes the anchor for the *next*
-		// click, so a click-then-shift-click-then-shift-click chain keeps
-		// extending/shrinking from the last row touched, not the first.
 		const previousAnchor = anchorIndexRef.current;
 		anchorIndexRef.current = index;
 
@@ -216,9 +252,6 @@ export const Table = <T,>({
 			const start = Math.min(previousAnchor, index);
 			const end = Math.max(previousAnchor, index);
 			setSelectedKeys((prev) => {
-				// Adds the range to whatever was already selected — a
-				// shift-click extends the existing selection, it doesn't
-				// replace it.
 				const next = new Set(prev);
 				sortedItems
 					.slice(start, end + 1)
@@ -249,7 +282,6 @@ export const Table = <T,>({
 		});
 	};
 
-	// eslint-disable-next-line react-hooks/incompatible-library
 	const virtualizer = useVirtualizer({
 		count: sortedItems.length,
 		getScrollElement: () => containerRef.current,
@@ -271,7 +303,14 @@ export const Table = <T,>({
 		if (lastItem.index >= sortedItems.length - 1 - loadMoreThreshold) {
 			onLoadMore();
 		}
-	}, [virtualItems, hasMore, isLoading, onLoadMore, loadMoreThreshold, sortedItems.length]);
+	}, [
+		virtualItems,
+		hasMore,
+		isLoading,
+		onLoadMore,
+		loadMoreThreshold,
+		sortedItems.length,
+	]);
 
 	const visibleColumns = useMemo(
 		() =>
@@ -291,7 +330,7 @@ export const Table = <T,>({
 	);
 
 	const gridTemplateColumns = [
-		...(selectable ? ["2.5rem"] : []),
+		...(showCheckbox ? ["2.5rem"] : []),
 		...visibleColumns.map((col) => {
 			const max = col.width ?? "max-content";
 			return col.width
@@ -301,20 +340,7 @@ export const Table = <T,>({
 		"1fr",
 	].join(" ");
 
-	const contextMenuColumns = columns.map((col) =>
-		col.key === "contextMenu"
-			? { ...col, width: "2rem", minWidth: "2rem", disableHiding: true }
-			: { ...col, hidden: hiddenColumns.has(col.key) }
-	);
-
-	const allSelected =
-		sortedItems.length > 0 && selectedKeys.size === sortedItems.length;
-	const someSelected = selectedKeys.size > 0 && !allSelected;
-	const hasMultipleSelected = selectedKeys.size > 1;
-
-	const handleColumnToggle = (
-		key: TTableColumn<T>["key"] & (string | number | symbol)
-	) => {
+	const handleColumnToggle = (key: TTableColumn<T>["key"]) => {
 		setHiddenColumns((prev) => {
 			const next = new Set(prev);
 			if (next.has(key)) next.delete(key);
@@ -324,54 +350,61 @@ export const Table = <T,>({
 		});
 	};
 
+	const columnsMenuItems: TMenuItem[] = columns
+		.filter((col) => col.disableHiding !== true)
+		.map((col) => ({
+			label: col.label || col.key,
+			picto: hiddenColumns.has(col.key) ? undefined : "check",
+			onClick: () => handleColumnToggle(col.key),
+		}));
+
+	const allSelected =
+		sortedItems.length > 0 && selectedKeys.size === sortedItems.length;
+	const someSelected = selectedKeys.size > 0 && !allSelected;
+	const hasMultipleSelected = selectedKeys.size > 1;
+
 	return (
 		<div
 			ref={containerRef}
 			role="grid"
 			style={{ gridTemplateColumns }}
-			className={cn(["al__table grid h-full w-full overflow-auto content-start", className])}
+			className={cn([styles.table, className])}
 		>
 			<TableHead
 				columns={visibleColumns}
 				activeSortKey={activeSortKey}
 				sortDirection={sortDirection}
 				onSort={handleSort}
-				columnsMenuId={columnsMenuId}
-				onContextMenu={handleRowContextMenu}
+				onColumnsContextMenu={(e) => columnsMenu.show(e, undefined)}
+				hasContextMenuColumn={!!handleRowContextMenu}
 				onGlobalContextMenu={
 					onGlobalContextMenu
 						? (event) => onGlobalContextMenu(selectedKeys, event)
 						: undefined
 				}
-				selectable={selectable}
+				selectable={showCheckbox}
 				allSelected={allSelected}
 				someSelected={someSelected}
 				onSelectAll={toggleSelectAll}
 			/>
-			<TableHeadContextMenu
-				id={columnsMenuId}
-				columns={contextMenuColumns}
-				key={gridTemplateColumns}
-				onClick={handleColumnToggle}
-			/>
+
+			<ContextMenu menu={columnsMenu} items={columnsMenuItems} />
 			{!!rowActions?.length && (
-				<ContextMenu id={rowActionsMenuId} items={rowActionItems} />
+				<ContextMenu menu={rowActionsMenu} items={rowActionItems} />
 			)}
+
 			{isLoading ? (
-				<div className="col-span-full mt-4 flex justify-center">
+				<div className={styles.centerRow}>
 					<Spinner />
 				</div>
 			) : sortedItems.length === 0 ? (
-				<div
-					style={{ gridColumn: "1 / -1" }}
-					className="px-3 py-8 text-center text-sm text-neutral-400"
-				>
-					{noDataMessage}
-				</div>
+				<div className={styles.centerRow}>{noDataMessage}</div>
 			) : (
 				<>
 					{paddingTop > 0 && (
-						<div style={{ height: paddingTop, gridColumn: "1 / -1" }} />
+						<div
+							style={{ height: paddingTop, gridColumn: "1 / -1" }}
+						/>
 					)}
 					{virtualItems.map((vRow) => {
 						const item = sortedItems[vRow.index];
@@ -384,7 +417,7 @@ export const Table = <T,>({
 								columns={visibleColumns}
 								onClick={
 									onRowClick
-										? (_item, _e) => onRowClick(item)
+										? (i) => onRowClick(i)
 										: selectable && selectOnClick
 											? (_, e) =>
 													handleSelect(
@@ -396,7 +429,7 @@ export const Table = <T,>({
 								}
 								onContextMenu={
 									hasMultipleSelected && onGlobalContextMenu
-										? (_item, event, fromButton) => {
+										? (i, event, fromButton) => {
 												if (
 													selectedKeys.has(key) &&
 													!fromButton
@@ -407,7 +440,7 @@ export const Table = <T,>({
 													);
 												} else {
 													handleRowContextMenu?.(
-														item,
+														i,
 														event
 													);
 												}
@@ -419,16 +452,12 @@ export const Table = <T,>({
 										? rowClassName(item)
 										: rowClassName
 								}
-								selectable={selectable}
+								selectable={showCheckbox}
 								isSelected={selectedKeys.has(key)}
 								onToggleSelect={
 									selectable
 										? (e) =>
-												handleSelect(
-													vRow.index,
-													key,
-													e
-												)
+												handleSelect(vRow.index, key, e)
 										: undefined
 								}
 							/>

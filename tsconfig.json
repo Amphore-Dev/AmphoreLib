@@ -21,30 +21,20 @@
 			"@assets/*": ["assets/*"],
 			"@components/*": ["components/*"],
 			"@constants/*": ["constants/*"],
-			"@hooks/*": ["hooks/*"],
 			"@contexts/*": ["contexts/*"],
+			"@hooks/*": ["hooks/*"],
 			"@utils/*": ["utils/*"],
+			"@theme/*": ["theme/*"],
 			"@interfaces/*": ["types/*"],
-			"@styles/*": ["styles/*"],
-			"@i18n": ["i18n"],
-			"@hoc/*": ["hoc/*"]
+			"@stories/*": ["stories/*"]
 		}
 	},
-	"include": [
-		"src",
-		"src/i18n.ts",
-		"tests",
-		"./test/setup.js",
-		"./jest-dom.d.ts"
-	],
+	"include": ["src"],
 	"exclude": [
 		"node_modules",
-		"**/Mocks/**",
-		"**/*.story.*",
 		"**/*.stories.*",
 		"**/*.test.*",
 		"**/*.spec.*",
-		"tests/**",
 		".storybook/**",
 		"lib/**"
 	]

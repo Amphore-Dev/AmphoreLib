@@ -3,44 +3,51 @@ import React, { PropsWithChildren } from "react";
 import {
 	Formik,
 	FormikComputedProps,
+	FormikContextType,
 	FormikProps,
 	useFormikContext,
 } from "formik";
-import { t } from "i18next";
+import { isEqual, omit } from "lodash";
+
+import { useAmphoreLabels } from "@theme/useAmphoreLabels";
+
+import { Button, Divider, FlexGrid, IFlexGridProps } from "@components/atoms";
+import { IModalProps, Modal } from "@components/molecules/Modal/Modal";
+
+import { computeModalSize, genGroups, hasValue } from "@utils/UFormGroups";
+import { cn } from "@utils/cn";
 
 import {
 	TEditFields,
 	TFieldRendererMap,
 	TFieldsGroup,
-} from "@interfaces/TFields";
+	TFieldType,
+	TLabel,
+	TLooseFieldRendererMap,
+} from "@interfaces/index";
 
 import { FieldRenderer } from "../../molecules/FieldRenderer/FieldRenderer";
-import { Button, Divider, IGridProps, Modal } from "@components/atoms";
-import { Grid } from "@components/atoms";
 
-import { computeModalSize, genGroups } from "@utils/UEditModal";
-import { cn } from "@utils/cn";
-import { hasValue } from "@utils/objects";
+import styles from "./FormRenderer.module.scss";
 
-import "./FormRenderer.scss";
-
-export interface IModalAction {
-	label?: string;
-	action?: () => void | Promise<void>;
-	disabled?: boolean;
-}
-
-export interface IModal {
-	title?: React.ReactNode;
-	isOpen?: boolean;
-	onClose?: () => void;
-	size?: "s" | "m" | "l";
-	primaryAction?: IModalAction;
-	secondaryAction?: IModalAction;
-}
+/**
+ * Field types for which "required" is shown on the label (as a suffix)
+ * rather than as an asterisk next to it — a checkbox/radio/toggle group or
+ * a two-input range reads better that way. Typed against `TFieldType`
+ * itself (not a loose `string[]` like v1's `REQUIRED_FIELD_ON_LABEL`), so
+ * adding a field type that needs this can't silently be forgotten here.
+ */
+const REQUIRED_FIELD_ON_LABEL: Partial<Record<TFieldType, true>> = {
+	radio: true,
+	checkbox: true,
+	toggle: true,
+	timeRange: true,
+};
 
 export interface IFormRendererProps<K = object>
-	extends Partial<Omit<IModal, "size">>, Omit<IGridProps, "children"> {
+	extends
+		Partial<Omit<IModalProps, "children" | "size">>,
+		Omit<IFlexGridProps, "children" | "onSubmit" | "onReset"> {
 	initialValues?: K;
 	initialTouched?: FormikComputedProps<K>["initialTouched"];
 	onSubmit?: (values: K) => void;
@@ -52,23 +59,30 @@ export interface IFormRendererProps<K = object>
 	fieldsRenderers?: Partial<TFieldRendererMap>;
 	showResetFieldButton?: boolean;
 	showFieldLabels?: boolean;
-	size?: IModal["size"];
+	size?: IModalProps["size"];
+	/** Passed straight through to Formik — the validation library itself (Yup, Zod+adapter...) is the consumer's choice. */
 	validationSchema?: unknown;
+	/** Renders inside a Modal instead of directly in the page. */
 	inModal?: boolean;
-	modalProps?: Partial<IModal>;
+	modalProps?: Partial<IModalProps>;
+	/** Formik context to read fields' current values from — required if `fields` is a function, or to drive per-field resets. */
 	formikCtx?: FormikProps<K>;
-	isSubmitting?: boolean;
+	/** Disables every field (and its individual reset button). Doesn't affect the form's own actions (submit/reset). */
+	disableFields?: boolean;
 	setFieldValue?: FormikProps<K>["setFieldValue"];
 	defaultValues?: Partial<K>;
 	minItemWidth?: string;
-	wrapperGridProps?: Omit<IGridProps, "children">;
+	wrapperGridProps?: Omit<IFlexGridProps, "children">;
+	/** Modal footer labels. Default to "Submit"/"Cancel"/"Reset" (or `common.submit`/`common.cancel`/`common.reset`, or `FormRenderer.submitLabel`/`cancelLabel`/`resetLabel` from the nearest AmphoreProvider — see useAmphoreLabels). `FormRenderer` and `FormRendererWithFormik` share the same `"FormRenderer"` namespace — two views of the same conceptual component. */
+	submitLabel?: TLabel;
+	cancelLabel?: TLabel;
+	resetLabel?: TLabel;
+	title?: string;
 }
-
-const REQUIRED_FIELD_ON_LABEL = ["radio", "checkbox", "toggle"];
 
 export const FormRenderer = <K extends object>({
 	title,
-	isOpen,
+	open,
 	onClose,
 	fields,
 	displayGroupTitles = true,
@@ -82,16 +96,24 @@ export const FormRenderer = <K extends object>({
 	gap = "1rem",
 	minItemWidth = "250px",
 	formikCtx = { values: {} as K } as FormikProps<K>,
-	isSubmitting = false,
+	disableFields,
 	setFieldValue,
 	defaultValues,
 	wrapperGridProps,
+	submitLabel: submitLabelProp,
+	cancelLabel: cancelLabelProp,
+	resetLabel: resetLabelProp,
 }: IFormRendererProps<K>) => {
+	const { resolve } = useAmphoreLabels("FormRenderer");
+	const submitLabel = resolve("submitLabel", submitLabelProp, "submit");
+	const cancelLabel = resolve("cancelLabel", cancelLabelProp, "cancel");
+	const resetLabel = resolve("resetLabel", resetLabelProp, "reset");
+
 	const result =
 		typeof fields === "function" ? fields(formikCtx, true) : fields;
 
 	const groups: TFieldsGroup[] = genGroups(result);
-	const _isSubmitting = isSubmitting || formikCtx.isSubmitting;
+	const fieldsDisabled = disableFields || formikCtx.isSubmitting;
 
 	return (
 		<FormWrapper
@@ -99,15 +121,17 @@ export const FormRenderer = <K extends object>({
 			inModal={inModal}
 			title={title}
 			onClose={onClose}
-			isOpen={isOpen}
+			open={open}
 			modalProps={modalProps}
+			submitLabel={submitLabel}
+			cancelLabel={cancelLabel}
 		>
-			<Grid
-				gap={"1rem"}
-				minItemWidth={"250px"}
+			<FlexGrid
+				gap="1rem"
+				minItemWidth="250px"
 				columns={columns}
 				{...wrapperGridProps}
-				className="al__form-renderer-body"
+				className={styles.body}
 			>
 				{groups.map((group, groupIndex) => {
 					const groupFields =
@@ -117,204 +141,257 @@ export const FormRenderer = <K extends object>({
 
 					const groupColumns = group.columns || columns;
 					let orderIndex = 1;
+
 					return (
 						<div
 							key={group.title ?? groupIndex}
 							className={cn([
-								"al__form-renderer-group",
+								styles.group,
 								groups.length > 1 &&
 									groupBackground &&
-									"al__form-renderer-group--background",
+									styles.groupBackground,
 								group.className,
 							])}
 						>
 							{!!group.title && displayGroupTitles && (
-								<div className="al__form-renderer-group-title-wrapper">
-									<p className="al__form-renderer-group-title">
+								<div className={styles.groupTitleWrapper}>
+									<p className={styles.groupTitle}>
 										{group.title}
 									</p>
 									<Divider />
 								</div>
 							)}
 
-							<Grid
+							<FlexGrid
 								columns={groupColumns}
 								minItemWidth={minItemWidth}
 								gap={gap}
 							>
-								{groupFields.map(
-									(
-										{ hidden, getFieldValue, ...field },
-										filterIndex
-									) => {
-										const isHidden =
-											typeof hidden === "function"
-												? hidden(formikCtx.values, true)
-												: hidden;
-										if (isHidden) return null;
+								{groupFields.map((field, fieldIndex) => {
+									const isHidden =
+										typeof field.hidden === "function"
+											? field.hidden(
+													formikCtx.values,
+													true
+												)
+											: field.hidden;
+									if (isHidden) return null;
 
-										const order =
-											typeof field.order === "function"
-												? field.order(
-														formikCtx.values,
-														true
-													)
-												: orderIndex++;
+									const order =
+										typeof field.order === "function"
+											? field.order(
+													formikCtx.values,
+													true
+												)
+											: orderIndex++;
 
-										const formikFieldValue =
-											formikCtx.values[
-												field.name as keyof K
-											];
+									const formikFieldValue = (
+										formikCtx.values as Record<
+											string,
+											unknown
+										>
+									)[field.name];
 
-										const fieldValue = getFieldValue
-											? getFieldValue(formikCtx.values)
-											: formikFieldValue;
+									const fieldValue = field.getFieldValue
+										? field.getFieldValue(formikCtx.values)
+										: formikFieldValue;
 
-										const fieldDefaultValue =
-											field.defaultValue ??
-											defaultValues?.[
-												field.name as keyof K
-											];
+									const fieldDefaultValue =
+										field.defaultValue ??
+										(
+											defaultValues as
+												| Record<string, unknown>
+												| undefined
+										)?.[field.name];
 
-										const _hasValue =
-											typeof fieldDefaultValue !==
-												"undefined" &&
-											typeof fieldValue !== "undefined"
-												? JSON.stringify(fieldValue) !==
-													JSON.stringify(
-														fieldDefaultValue
-													)
-												: hasValue(fieldValue);
+									const fieldHasDefault =
+										typeof fieldDefaultValue !==
+											"undefined" &&
+										typeof fieldValue !== "undefined";
 
-										const displayedLabel =
-											typeof field.label === "function"
-												? field.label(
-														formikCtx.values,
-														true
-													)
-												: field.label || field.name;
+									const isDirty = fieldHasDefault
+										? !isEqual(
+												fieldValue,
+												fieldDefaultValue
+											)
+										: hasValue(fieldValue);
 
-										const _showResetFieldButton =
-											showResetFieldButton &&
-											field.showResetButton !== false;
+									const fieldLabel =
+										typeof field.label === "function"
+											? field.label(
+													formikCtx.values,
+													true
+												)
+											: field.label || field.name;
 
-										const _showFieldLabels =
-											(field.showFieldLabel !== false &&
-												showFieldLabels) ||
-											field.showFieldLabel === true;
-
-										const beforeFieldComponent =
-											typeof field.beforeFieldComponent ===
+									const displayedLabel = field.displayLabel
+										? typeof field.displayLabel ===
 											"function"
-												? field.beforeFieldComponent(
-														formikCtx.values
-													)
-												: field.beforeFieldComponent;
+											? field.displayLabel(
+													formikCtx.values,
+													true
+												)
+											: field.displayLabel
+										: fieldLabel;
 
-										const afterFieldComponent =
-											typeof field.afterFieldComponent ===
-											"function"
-												? field.afterFieldComponent(
-														formikCtx.values
-													)
-												: field.afterFieldComponent;
+									const showFieldReset =
+										showResetFieldButton &&
+										field.showResetButton !== false;
 
-										return (
+									const showLabel =
+										(field.showFieldLabel !== false &&
+											showFieldLabels) ||
+										field.showFieldLabel === true;
+
+									const beforeFieldComponent =
+										typeof field.beforeFieldComponent ===
+										"function"
+											? field.beforeFieldComponent(
+													formikCtx.values
+												)
+											: field.beforeFieldComponent;
+
+									const afterFieldComponent =
+										typeof field.afterFieldComponent ===
+										"function"
+											? field.afterFieldComponent(
+													formikCtx.values
+												)
+											: field.afterFieldComponent;
+
+									const { name, type } =
+										field as typeof field & {
+											name: string;
+											type: TFieldType;
+										};
+									// `hidden` is resolved above (isHidden) — omitted here so a
+									// functional `hidden` doesn't reach FieldRenderer, whose own
+									// (much simpler) `if (props.hidden) return null` check would
+									// otherwise treat the function itself as always-truthy.
+									// `label` is also omitted: it's rendered exactly once, by
+									// this component's own header below (as a real
+									// `<label htmlFor>`, not just text) — never by the
+									// underlying atom. Forwarding it there too used to render
+									// the same text twice (the atom's own `<label>` plus this
+									// header). When `showLabel` is off there's now no label at
+									// all, on either side — not even one moved onto the atom.
+									const fieldProps = omit(field, [
+										"name",
+										"type",
+										"hidden",
+										"label",
+									]);
+
+									return (
+										<div
+											key={`${name}-${fieldIndex}`}
+											className={cn([
+												styles.groupItem,
+												showResetFieldButton &&
+													styles.groupItemWithReset,
+												field.wrapperClassName,
+											])}
+											style={{ order }}
+										>
 											<div
-												key={`${field.name}-${filterIndex}`}
-												className={cn([
-													"al__form-renderer-group-item",
-													showResetFieldButton &&
-														"al__form-renderer-group-item--with-reset",
-													field.wrapperClassName as
-														| string
-														| undefined,
-												])}
-												style={{ order }}
+												className={
+													styles.groupItemHeader
+												}
 											>
-												<div className="al__form-renderer-group-item-header">
-													{_showFieldLabels && (
-														<p className="al__form-renderer-group-item-label">
-															{displayedLabel}
-															{field.required &&
-																REQUIRED_FIELD_ON_LABEL.includes(
-																	field.type as string
-																) && (
-																	<span className="al__form-renderer-group-item-required-label">
-																		*
-																	</span>
-																)}
-														</p>
+												{showLabel && (
+													<label
+														htmlFor={name}
+														className={
+															styles.groupItemLabel
+														}
+													>
+														{displayedLabel}
+														{field.required &&
+															REQUIRED_FIELD_ON_LABEL[
+																type
+															] && (
+																<span
+																	className={
+																		styles.requiredLabel
+																	}
+																>
+																	*
+																</span>
+															)}
+													</label>
+												)}
+
+												{(showLabel || isDirty) &&
+													showFieldReset && (
+														<Button
+															picto="refresh"
+															color="primary"
+															variant="link"
+															className={cn([
+																styles.resetBtn,
+																(!isDirty ||
+																	fieldsDisabled) &&
+																	styles.resetBtnDisabled,
+															])}
+															size="sm"
+															onClick={() =>
+																field.onReset
+																	? field.onReset(
+																			formikCtx as unknown as FormikContextType<object>
+																		)
+																	: void (
+																			setFieldValue ??
+																			formikCtx.setFieldValue
+																		)(
+																			name,
+																			typeof fieldDefaultValue !==
+																				"undefined"
+																				? fieldDefaultValue
+																				: null
+																		)
+															}
+															disabled={
+																!isDirty ||
+																fieldsDisabled
+															}
+														>
+															{resetLabel}
+														</Button>
 													)}
-													{(_showFieldLabels ||
-														_hasValue) &&
-														_showResetFieldButton && (
-															<Button
-																color="transparent"
-																className={cn([
-																	"al__form-renderer-group-item-reset-btn",
-																	(!_hasValue ||
-																		_isSubmitting) &&
-																		"al__form-renderer-group-item-reset-btn--disabled",
-																])}
-																size="s"
-																onClick={() =>
-																	field.onReset
-																		? field.onReset(
-																				formikCtx
-																			)
-																		: (
-																				setFieldValue ??
-																				formikCtx.setFieldValue
-																			)?.(
-																				field.name,
-																				typeof fieldDefaultValue !==
-																					"undefined"
-																					? fieldDefaultValue
-																					: null
-																			)
-																}
-																disabled={
-																	!_hasValue ||
-																	_isSubmitting
-																}
-															>
-																{t(
-																	"filters.reset"
-																)}
-															</Button>
-														)}
-												</div>
-												{beforeFieldComponent}
-												<FieldRenderer
-													value={fieldValue}
-													{...field}
-													label={
-														displayedLabel as string
-													}
-													formik={
-														formikCtx as unknown as import("formik").FormikContextType<unknown>
-													}
-													customRenderers={
-														fieldsRenderers
-													}
-													disabled={
-														(field.disabled as
-															| boolean
-															| undefined) ||
-														_isSubmitting
-													}
-												/>
-												{afterFieldComponent}
 											</div>
-										);
-									}
-								)}
-							</Grid>
+
+											{beforeFieldComponent}
+
+											<FieldRenderer
+												name={name}
+												type={type}
+												id={name}
+												value={fieldValue}
+												{...fieldProps}
+												formik={
+													formikCtx as unknown as FormikContextType<object>
+												}
+												customRenderers={
+													fieldsRenderers as
+														| TLooseFieldRendererMap
+														| undefined
+												}
+												disabled={
+													("disabled" in fieldProps &&
+														!!fieldProps.disabled) ||
+													fieldsDisabled
+												}
+											/>
+
+											{afterFieldComponent}
+										</div>
+									);
+								})}
+							</FlexGrid>
 						</div>
 					);
 				})}
-			</Grid>
+			</FlexGrid>
 		</FormWrapper>
 	);
 };
@@ -328,60 +405,112 @@ export interface IFormRendererWithFormikProps<K = object> extends Omit<
 	onReset?: () => void;
 	validationSchema?: unknown;
 	defaultValues?: Partial<K>;
+	/** Shows a "reset the whole form" secondary action next to submit. */
 	resetFormButton?: boolean;
-	alwaysActiveSubmitButton?: boolean;
+	/** Defaults to "Reset fields" (or `FormRenderer.resetFormLabel` from the nearest AmphoreProvider — see useAmphoreLabels). No commonKey — "Reset fields" differs from the bare "Reset" in `common` (which `resetLabel` above resolves against). */
+	resetFormLabel?: TLabel;
+	/** Extra condition, OR-ed with the default `isSubmitting || !dirty || !isValid`. The function form receives live Formik context — useful to gate submit on an async check still in flight. */
+	disableSubmit?: boolean | ((formikCtx: FormikProps<K>) => boolean);
 }
+
+/** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. `FormRenderer` and `FormRendererWithFormik` are two views of the same conceptual component and share the `"FormRenderer"` namespace, so their label keys are combined into a single type here rather than exported twice. */
+export type TFormRendererLabels = Pick<
+	IFormRendererProps,
+	"submitLabel" | "cancelLabel" | "resetLabel"
+> &
+	Pick<IFormRendererWithFormikProps, "resetFormLabel">;
 
 export const FormRendererWithFormik = <K extends object>({
 	onSubmit = () => {},
-	alwaysActiveSubmitButton,
+	onReset,
+	disableSubmit,
+	resetFormButton = false,
+	resetFormLabel: resetFormLabelProp,
+	submitLabel: submitLabelProp,
+	cancelLabel: cancelLabelProp,
+	onClose = () => {},
+	defaultValues,
 	...props
 }: IFormRendererWithFormikProps<K>) => {
-	const { initialValues, validationSchema, defaultValues, initialTouched } =
-		props;
+	const { initialValues, validationSchema, initialTouched } = props;
+	const { resolve } = useAmphoreLabels("FormRenderer");
+	const resetFormLabel = resolve("resetFormLabel", resetFormLabelProp);
+	const submitLabel = resolve("submitLabel", submitLabelProp, "submit");
+	const cancelLabel = resolve("cancelLabel", cancelLabelProp, "cancel");
+
 	return (
 		<Formik
 			initialValues={initialValues}
 			initialTouched={initialTouched}
 			onSubmit={onSubmit}
 			validationSchema={validationSchema}
-			validateOnMount={true}
+			validateOnMount
 		>
-			{(formikCtx: FormikProps<K>) => (
-				<FormRenderer
-					{...props}
-					groupBackground={props.groupBackground ?? props.inModal}
-					formikCtx={formikCtx}
-					onSubmit={(values) =>
-						new Promise<void>((resolve) =>
-							resolve(onSubmit(values))
-						)
-					}
-					modalProps={{
-						...props.modalProps,
-						primaryAction: {
-							disabled:
-								!alwaysActiveSubmitButton &&
-								(formikCtx.isSubmitting ||
-									!formikCtx.dirty ||
-									!formikCtx.isValid),
-							...props.modalProps?.primaryAction,
-							action: () => formikCtx.submitForm(),
-						},
-						secondaryAction: props.resetFormButton
-							? {
-									label: t("filters.resetFilters"),
-									...props.modalProps?.secondaryAction,
-									action: () => {
-										formikCtx.resetForm({
-											values: (defaultValues || {}) as K,
-										});
-									},
-								}
-							: props.modalProps?.secondaryAction,
-					}}
-				/>
-			)}
+			{(formikCtx: FormikProps<K>) => {
+				const extraSubmitDisabled =
+					typeof disableSubmit === "function"
+						? disableSubmit(formikCtx)
+						: !!disableSubmit;
+				const submitDisabled =
+					formikCtx.isSubmitting ||
+					!formikCtx.dirty ||
+					!formikCtx.isValid ||
+					extraSubmitDisabled;
+
+				return (
+					<FormRenderer
+						{...props}
+						groupBackground={props.groupBackground ?? props.inModal}
+						formikCtx={formikCtx}
+						onClose={onClose}
+						defaultValues={defaultValues}
+						submitLabel={submitLabel}
+						cancelLabel={cancelLabel}
+						modalProps={{
+							...props.modalProps,
+							footer:
+								props.modalProps?.footer ??
+								(props.inModal ? (
+									<div className={styles.footerActions}>
+										{resetFormButton && (
+											<Button
+												variant="ghost"
+												onClick={() => {
+													formikCtx.resetForm({
+														values: (defaultValues ??
+															{}) as K,
+													});
+													onReset?.();
+												}}
+												disabled={
+													formikCtx.isSubmitting
+												}
+											>
+												{resetFormLabel}
+											</Button>
+										)}
+										<Button
+											variant="outline"
+											onClick={onClose}
+											disabled={formikCtx.isSubmitting}
+										>
+											{cancelLabel}
+										</Button>
+										<Button
+											onClick={() =>
+												formikCtx.submitForm()
+											}
+											isLoading={formikCtx.isSubmitting}
+											disabled={submitDisabled}
+										>
+											{submitLabel}
+										</Button>
+									</div>
+								) : undefined),
+						}}
+					/>
+				);
+			}}
 		</Formik>
 	);
 };
@@ -390,60 +519,57 @@ interface IFormWrapperProps<K extends object>
 	extends Partial<Omit<IFormRendererProps<K>, "fields">>, PropsWithChildren {
 	columns: number;
 	inModal?: boolean;
+	submitLabel: string;
+	cancelLabel: string;
 }
 
 const FormWrapper = <K extends object>({
 	title,
 	onClose = () => {},
-	isOpen = false,
+	open = false,
 	columns,
 	children,
 	inModal = false,
 	modalProps,
+	submitLabel,
+	cancelLabel,
 }: IFormWrapperProps<K>) => {
 	const { submitForm, isSubmitting, dirty } = useFormikContext<K>();
 
 	if (!inModal) return <>{children}</>;
-	if (!isOpen) return null;
-
-	const primaryAction = modalProps?.primaryAction;
-	const secondaryAction = modalProps?.secondaryAction;
+	if (!open) return null;
 
 	return (
 		<Modal
-			title={title as string | undefined}
+			title={title}
 			onClose={onClose}
-			isDisplayed={isOpen}
+			open={open}
 			size={computeModalSize(columns)}
-			closeOnClickOutside={!isSubmitting && !dirty}
-		>
-			<div className="al__form-wrapper-modal-content">
-				{children}
-				<div className="al__form-wrapper-modal-actions">
-					{secondaryAction && (
+			closeOnOverlayClick={!isSubmitting && !dirty}
+			closeOnEscape={!isSubmitting}
+			hideCloseButton={isSubmitting}
+			{...modalProps}
+			footer={
+				modalProps?.footer ?? (
+					<div className={styles.footerActions}>
 						<Button
-							color="transparent"
-							outline
-							onClick={secondaryAction.action ?? onClose}
-							disabled={secondaryAction.disabled || isSubmitting}
+							variant="outline"
+							onClick={onClose}
+							disabled={isSubmitting}
 						>
-							{secondaryAction.label ?? t("global.cancel")}
+							{cancelLabel}
 						</Button>
-					)}
-					{primaryAction && (
 						<Button
-							color="primary"
-							onClick={
-								primaryAction.action ?? (() => submitForm())
-							}
-							disabled={primaryAction.disabled || isSubmitting}
+							onClick={() => submitForm()}
 							isLoading={isSubmitting}
 						>
-							{primaryAction.label ?? t("global.validate")}
+							{submitLabel}
 						</Button>
-					)}
-				</div>
-			</div>
+					</div>
+				)
+			}
+		>
+			<div className={styles.modalContent}>{children}</div>
 		</Modal>
 	);
 };

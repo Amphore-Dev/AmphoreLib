@@ -1,0 +1,64 @@
+// Only ever matches when `onClick` is given (Picto.tsx renders a real
+// <button> then, for a11y/keyboard support) — native UA button chrome
+// (border, background, padding) otherwise shows through, since nothing
+// else in this file resets it: [data-amphore-svg-wrapper] below only
+// styles layout, not appearance.
+button[data-amphore-svg-wrapper] {
+	border: none;
+	background: none;
+	padding: 0;
+	font: inherit;
+	color: inherit;
+	cursor: pointer;
+
+	&:disabled {
+		cursor: not-allowed;
+	}
+}
+
+[data-amphore-svg-wrapper] {
+	// SVG/img default to display:inline, which reserves baseline descender
+	// space and pushes the icon a few px below center in any flex row
+	// (Input's leading picto, Button's icon, ...). Flex + block kills both
+	// the wrapper's own inline gap and the child's baseline offset.
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+
+	& > * {
+		display: block;
+		height: 100%;
+		width: 100%;
+	}
+
+	&:focus-visible {
+		outline: none;
+	}
+
+	&:focus {
+		outline: none;
+	}
+
+	& > *:focus,
+	& > *:focus-visible {
+		outline: none;
+		& > *:focus,
+		& > *:focus-visible {
+			outline: none;
+		}
+	}
+
+	[fill="none"] {
+		fill: none;
+
+		& > * {
+			fill: none;
+		}
+	}
+
+	[data-amphore-svg="current"]:not([fill="none"]) {
+		& > *:not([fill="none"]) {
+			fill: currentColor;
+		}
+	}
+}

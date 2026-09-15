@@ -1,0 +1,34 @@
+.divider {
+	flex-shrink: 0;
+	border: none;
+	background: var(--amp-color-border);
+	width: 100%;
+	height: 1px;
+}
+
+.vertical {
+	align-self: stretch;
+	width: 1px;
+	height: auto;
+}
+
+.withLabel {
+	display: flex;
+	align-items: center;
+	gap: var(--amp-space-2);
+	background: none;
+	height: auto;
+}
+
+.line {
+	flex: 1;
+	height: 1px;
+	background: var(--amp-color-border);
+}
+
+.label {
+	flex-shrink: 0;
+	font-family: var(--amp-font);
+	font-size: 0.75rem;
+	color: var(--amp-color-sub);
+}

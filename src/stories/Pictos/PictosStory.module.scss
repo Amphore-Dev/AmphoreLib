@@ -1,0 +1,100 @@
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: var(--amp-space-4);
+	font-family: var(--amp-font);
+	color: var(--amp-color-ink);
+}
+
+.toolbarWrapper {
+	display: flex;
+	align-items: baseline;
+	gap: var(--amp-space-3);
+	flex-wrap: wrap;
+	flex-direction: column;
+}
+
+.toolbar {
+	display: flex;
+	align-items: baseline;
+	gap: var(--amp-space-3);
+	flex-wrap: wrap;
+}
+
+.search {
+}
+
+.count {
+	font-size: 0.8125rem;
+	color: var(--amp-color-sub);
+	white-space: nowrap;
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+	gap: var(--amp-space-3);
+}
+
+.item {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--amp-space-2);
+	padding: var(--amp-space-3);
+	border: 1px solid var(--amp-color-border);
+	border-radius: var(--amp-radius-md);
+	background: var(--amp-color-card);
+	transition:
+		background 0.12s,
+		border-color 0.12s;
+
+	&:hover {
+		background: var(--amp-color-ghost-bg);
+		border-color: var(--amp-color-primary);
+	}
+}
+
+// Picto renders a real <button> once it's given onClick — reset here
+// instead of relying on Picto.module.scss (that file only strips native
+// button chrome from the icon's own wrapper, not from this outer card).
+.iconButton {
+	border: none;
+	background: none;
+	padding: 0;
+	cursor: pointer;
+	color: var(--amp-color-sub);
+
+	&:focus-visible {
+		outline: 2px solid var(--amp-color-primary);
+		outline-offset: 2px;
+		border-radius: var(--amp-radius-sm);
+	}
+}
+
+.icon {
+	width: 1.75rem;
+	height: 1.75rem;
+}
+
+// Monospace: this label is meant to be read back verbatim as the
+// `icon="..."` string, not prose — same reasoning as any other code token.
+.name {
+	font-family: var(--amp-font-mono);
+	font-size: 0.75rem;
+	color: var(--amp-color-sub);
+	text-align: center;
+	word-break: break-word;
+}
+
+.copied {
+	color: var(--amp-color-primary);
+	font-weight: 600;
+}
+
+.empty {
+	padding: var(--amp-space-6) 0;
+	color: var(--amp-color-sub);
+	font-size: 0.875rem;
+	text-align: center;
+}

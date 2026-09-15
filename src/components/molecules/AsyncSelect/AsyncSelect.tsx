@@ -1,54 +1,83 @@
-import React, { useContext } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
-import { FormikContext, useField } from "formik";
-import { GroupBase, OnChangeValue } from "react-select";
-import Async, { AsyncProps } from "react-select/async";
+import { TSelectOption, TSelectOptionGroup } from "@interfaces/index";
 
-import { ISelectProps } from "../Select/Select";
-import { selectComponents } from "../Select/components";
+import { ISelectProps, Select } from "../Select/Select";
 
-import { cn } from "@utils/cn";
-
-import "../Select/Select.scss";
-
-export interface IAsyncSelectProps<
-	OptionType,
-	IsMulti extends boolean = false,
-	GroupType extends GroupBase<OptionType> = GroupBase<OptionType>,
->
-	extends
-		AsyncProps<OptionType, IsMulti, GroupType>,
-		ISelectProps<OptionType, IsMulti, GroupType> {
-	onChange?: (value: OnChangeValue<OptionType, IsMulti>) => void;
+export interface IAsyncSelectProps<T = string> extends Omit<
+	ISelectProps<T>,
+	"options" | "searchable" | "onSearchChange" | "filterOptions" | "isLoading"
+> {
+	/** Fetches options for a given search query (`""` on initial load) — flat or grouped. */
+	loadOptions: (
+		query: string
+	) => Promise<TSelectOption<T>[] | TSelectOptionGroup<T>[]>;
+	/** Debounce delay (ms) before calling `loadOptions` on each keystroke. Defaults to 300. */
+	debounce?: number;
 }
 
-export const AsyncSelect = <
-	OptionType,
-	IsMulti extends boolean = false,
-	GroupType extends GroupBase<OptionType> = GroupBase<OptionType>,
->({
-	...props
-}: IAsyncSelectProps<OptionType, IsMulti, GroupType>) => {
-	const isInForm = !!useContext(FormikContext);
-	const [field, , helpers] =
-		props.name && isInForm
-			? useField(props.name)
-			: [undefined, undefined, undefined];
+/**
+ * V2 AsyncSelect — a thin wrapper around Select for remote-loaded options.
+ * v1's version was built on a completely different library (react-select's
+ * own `Async`) with a Formik `useField` call made *conditionally* — a real
+ * Rules-of-Hooks violation flagged in memory/react-library-fields-audit.md.
+ * This one is Select all the way down: no ambient form-library awareness,
+ * `filterOptions={false}` (loadOptions is trusted to return already-
+ * relevant results, not filtered again client-side), and a ref-counted
+ * request guard so a slow, stale response can never clobber a newer one.
+ */
+export function AsyncSelect<T = string>({
+	loadOptions,
+	debounce = 300,
+	...selectProps
+}: IAsyncSelectProps<T>) {
+	const [options, setOptions] = useState<
+		TSelectOption<T>[] | TSelectOptionGroup<T>[]
+	>([]);
+	const [isLoading, setIsLoading] = useState(false);
+	const requestId = useRef(0);
+	const debounceTimer = useRef<ReturnType<typeof setTimeout>>();
+	const loadOptionsRef = useRef(loadOptions);
+	loadOptionsRef.current = loadOptions;
 
-	const handleChange = (value: OnChangeValue<OptionType, IsMulti>) => {
-		if (props.onChange) return props.onChange(value);
-		isInForm && field && helpers.setValue(value);
+	const runLoad = (query: string) => {
+		const id = ++requestId.current;
+		setIsLoading(true);
+		loadOptionsRef.current(query).then(
+			(result) => {
+				// A newer request already started — this one's result is stale.
+				if (id !== requestId.current) return;
+				setOptions(result);
+				setIsLoading(false);
+			},
+			() => {
+				if (id !== requestId.current) return;
+				setIsLoading(false);
+			}
+		);
+	};
+
+	// Initial load, once.
+	useEffect(() => {
+		runLoad("");
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally once on mount, not on every loadOptions identity change
+	}, []);
+
+	useEffect(() => () => clearTimeout(debounceTimer.current), []);
+
+	const handleSearchChange = (query: string) => {
+		clearTimeout(debounceTimer.current);
+		debounceTimer.current = setTimeout(() => runLoad(query), debounce);
 	};
 
 	return (
-		<Async
-			{...props}
-			components={{
-				...selectComponents,
-				...props.components,
-			}}
-			className={cn(["al_select al_async_select", props.className])}
-			onChange={handleChange}
+		<Select
+			{...selectProps}
+			options={options}
+			searchable
+			filterOptions={false}
+			isLoading={isLoading}
+			onSearchChange={handleSearchChange}
 		/>
 	);
-};
+}

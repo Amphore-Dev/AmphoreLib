@@ -70,6 +70,7 @@ export { default as MessageSquare } from "./SVGMessageSquare";
 export { default as Minimize } from "./SVGMinimize";
 export { default as MinusCircle } from "./SVGMinusCircle";
 export { default as Minus } from "./SVGMinus";
+export { default as GripVertical } from "./SVGGripVertical";
 export { default as Moon } from "./SVGMoon";
 export { default as MoreHorizontal } from "./SVGMoreHorizontal";
 export { default as PieChart } from "./SVGPieChart";

@@ -1,0 +1,38 @@
+{/* ControlledComponents.mdx */}
+
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Directives/ControlledComponents" />
+
+# Controlled components
+
+Every component is **100% controlled**: `value`/`checked` + `onChange`, never any internal state for the value the caller owns, never any ambient awareness of a form library (Formik, RHF...).
+
+```tsx
+// Input, Select, Toggle, Radio, Checkbox... the same contract everywhere:
+<Input value={value} onChange={(next) => setValue(next)} />
+```
+
+No atom (`Input`, `Select`, `Toggle`...) imports Formik. The only Formik integration in the whole lib lives at the `FieldRenderer`/`FormRenderer`/`FiltersModal`/`EditableCard` level — an outer-layer adapter, never inside the atom itself. See [Concepts/Fields](?path=/docs/concepts-fields--docs) for details.
+
+This is a deliberate break from the old lib (v1), where every field carried a `withFormikWrapper` that silently rewrote its behavior based on ambient Formik context — never reproduced here.
+
+---
+
+## Data-driven API, not a compound-children API
+
+Multi-choice components (`Select`, `Tabs`, `Accordion`) take an `items`/`options` array + `value`/`onChange` — not a children-based API (`<Tabs><Tab/><Tab/></Tabs>`).
+
+```tsx
+<Tabs
+  items={[{ value: "a", label: "A" }, { value: "b", label: "B" }]}
+  value={value}
+  onChange={setValue}
+/>
+```
+
+Shape of `value` for single/multiple: `T | T[] | null`, compared with `===` only (no deep comparison) — see `Select`, `Accordion`.
+
+---
+
+See also: `Select.tsx`, `Tabs.tsx`, `Accordion.tsx`, [Concepts/Fields](?path=/docs/concepts-fields--docs), memory `react-library-fields-audit`.

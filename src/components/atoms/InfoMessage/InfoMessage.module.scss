@@ -1,0 +1,108 @@
+.message {
+	display: flex;
+	align-items: flex-start;
+	border-radius: var(--amp-radius-md);
+	border: 1px solid transparent;
+	font-family: var(--amp-font);
+	line-height: 1.4;
+
+	// ---- size
+	&[data-size="sm"] {
+		gap: var(--amp-space-1);
+		padding: var(--amp-space-1) var(--amp-space-2);
+		font-size: 0.75rem;
+	}
+
+	&[data-size="md"] {
+		gap: var(--amp-space-2);
+		padding: var(--amp-space-2) var(--amp-space-3);
+		font-size: 0.8125rem;
+	}
+
+	&[data-size="lg"] {
+		gap: var(--amp-space-2);
+		padding: var(--amp-space-3) var(--amp-space-4);
+		font-size: 0.9375rem;
+	}
+
+	// ---- color: sets local vars, consumed by the variant rules below.
+	&[data-color="primary"] {
+		--_color: var(--amp-color-primary);
+		--_color-fg: var(--amp-color-primary-fg);
+		--_color-tint: var(--amp-color-primary-tint);
+	}
+	&[data-color="danger"] {
+		--_color: var(--amp-color-danger);
+		--_color-fg: var(--amp-color-danger-fg);
+		--_color-tint: var(--amp-color-danger-tint);
+	}
+	&[data-color="success"] {
+		--_color: var(--amp-color-success);
+		--_color-fg: var(--amp-color-success-fg);
+		--_color-tint: var(--amp-color-success-tint);
+	}
+	&[data-color="warning"] {
+		--_color: var(--amp-color-warning);
+		--_color-fg: var(--amp-color-warning-fg);
+		--_color-tint: var(--amp-color-warning-tint);
+	}
+	&[data-color="info"] {
+		--_color: var(--amp-color-info);
+		--_color-fg: var(--amp-color-info-fg);
+		--_color-tint: var(--amp-color-info-tint);
+	}
+	&[data-color="neutral"] {
+		--_color: var(--amp-color-neutral);
+		--_color-fg: var(--amp-color-neutral-fg);
+		--_color-tint: var(--amp-color-neutral-tint);
+	}
+	&[data-color="black"] {
+		--_color: var(--amp-color-black);
+		--_color-fg: var(--amp-color-black-fg);
+		--_color-tint: var(--amp-color-black-tint);
+	}
+	&[data-color="white"] {
+		--_color: var(--amp-color-white);
+		--_color-fg: var(--amp-color-white-fg);
+		--_color-tint: var(--amp-color-white-tint);
+	}
+
+	// ---- variant
+	&[data-variant="tint"] {
+		background: var(--_color-tint);
+		color: var(--_color);
+	}
+
+	&[data-variant="outline"] {
+		background: transparent;
+		border-color: var(--_color);
+		color: var(--_color);
+	}
+
+	&[data-variant="solid"] {
+		background: var(--_color);
+		color: var(--_color-fg);
+	}
+}
+
+.picto {
+	flex-shrink: 0;
+	width: 1.125rem;
+	height: 1.125rem;
+	margin-top: 0.0625rem;
+
+	[data-size="sm"] > & {
+		width: 0.9375rem;
+		height: 0.9375rem;
+	}
+
+	[data-size="lg"] > & {
+		width: 1.25rem;
+		height: 1.25rem;
+	}
+}
+
+.content {
+	flex: 1;
+	min-width: 0;
+}

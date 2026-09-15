@@ -1,0 +1,88 @@
+.panel {
+	position: sticky;
+	top: 0;
+	height: 100%;
+	max-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	border-radius: var(--amp-radius-lg) 0 0 var(--amp-radius-lg);
+	font-family: var(--amp-font);
+	// position:sticky always opens its own stacking context (per spec,
+	// regardless of this z-index value) — anything overlaid rendered
+	// inside this panel with no portal (a ConfirmModal, say) has its own
+	// z-index trapped inside that context, so this panel's own z-index
+	// still needs to be high enough to beat a *sibling* element elsewhere
+	// on the page (e.g. another sticky header) — 20 matches the value
+	// that already fixed exactly this in a real consumer app.
+	z-index: 20;
+
+	// `overlay` — floats above the page instead of sitting in the flow as
+	// a real column. Same z-index tier as Modal/Dropdown/Popover/Tooltip
+	// (1000): unlike the sticky case above, this isn't about beating one
+	// particular sibling, it's meant to sit over everything, same as
+	// those.
+	&[data-overlay="true"] {
+		position: fixed;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		height: auto;
+		z-index: 1000;
+	}
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--amp-space-2);
+	flex-shrink: 0;
+	padding: var(--amp-card-padding);
+	padding-bottom: var(--amp-space-2);
+	border-bottom: 1px solid var(--amp-color-border);
+}
+
+.title {
+	margin: 0;
+	font-size: 1.0625rem;
+	font-weight: 600;
+	color: var(--amp-color-ink);
+}
+
+.close {
+	flex-shrink: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.75rem;
+	height: 1.75rem;
+	border: none;
+	border-radius: var(--amp-radius-sm);
+	background: transparent;
+	color: var(--amp-color-sub);
+	cursor: pointer;
+
+	&:hover {
+		background: var(--amp-color-ghost-bg);
+		color: var(--amp-color-ink);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--amp-color-primary);
+		outline-offset: 2px;
+	}
+}
+
+.body {
+	flex: 1;
+	overflow: auto;
+	padding: var(--amp-card-padding);
+}
+
+.mobileTitle {
+	margin: 0 0 var(--amp-space-2);
+	font-size: 1.0625rem;
+	font-weight: 600;
+	color: var(--amp-color-ink);
+}

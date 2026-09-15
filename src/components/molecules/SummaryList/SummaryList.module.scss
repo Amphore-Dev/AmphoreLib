@@ -1,0 +1,16 @@
+.list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--amp-space-2);
+	margin: 0;
+	font-family: var(--amp-font);
+}
+
+// Applied as an extra className alongside SummaryListItem's own .row —
+// divider is this component's own concern (grid layout has no row order to
+// separate), not the item's.
+.row {
+	[data-divider="true"] > &:not(:last-child) {
+		border-bottom: 1px solid var(--amp-color-border);
+	}
+}

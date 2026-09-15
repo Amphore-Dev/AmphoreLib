@@ -1,64 +1,65 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
-import { ITextFieldProps, TextField } from "@components/molecules";
+import { IInputProps, Input } from "../Input/Input";
 
-import { cn } from "@utils/cn";
-
-import "./InputSearch.scss";
-
-export interface IInputSearchProps extends Omit<ITextFieldProps, "onChange"> {
-	onChange: (
-		value: string | null,
-		e?: React.ChangeEvent<HTMLInputElement>
-	) => void;
+export interface IInputSearchProps extends Omit<
+	IInputProps,
+	"onChange" | "picto"
+> {
+	onChange: (value: string) => void;
+	/** Debounce delay in ms. Defaults to 500. */
 	delay?: number;
+	/** Debounces `onChange`. Set `false` to fire on every keystroke. Defaults to true. */
 	debounced?: boolean;
+	/** Below this length, typing updates the field but doesn't call `onChange` yet. */
 	minLength?: number;
-	hasDefaultBorder?: boolean;
 }
 
+/**
+ * V2 InputSearch — a debounced `Input` preset (search picto, `isClearable`
+ * on by default). Keeps its own `internalValue` so the field responds
+ * instantly to typing while `onChange` (the actual search trigger) fires
+ * debounced — same split as v1, minus its Formik-era `TextField` plumbing.
+ */
 export const InputSearch: React.FC<IInputSearchProps> = ({
+	value = "",
 	onChange,
 	delay = 500,
 	debounced = true,
-	minLength,
-	hasDefaultBorder = false,
+	minLength = 0,
+	isClearable = true,
 	...props
 }) => {
-	const [internalValue, setInternalValue] = useState<string | null>(null);
-	const debounceTM = useRef<NodeJS.Timeout | null>(null);
-	const debouncedSearch = useCallback((searchText: string | null) => {
-		if (debounceTM.current) clearTimeout(debounceTM.current);
-		debounceTM.current = setTimeout(() => {
-			onChange(searchText);
-		}, delay);
-	}, []);
-
-	const handleSearch = (searchText: string | null) => {
-		setInternalValue(searchText);
-		if (!!searchText && minLength && searchText.length < minLength) return;
-
-		if (!debounced) {
-			if (onChange) onChange(searchText);
-			return;
-		}
-		debouncedSearch(searchText);
-	};
+	const [internalValue, setInternalValue] = useState(value);
+	const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+	const onChangeRef = useRef(onChange);
+	onChangeRef.current = onChange;
 
 	useEffect(() => {
-		if (props.value !== internalValue) setInternalValue(props.value);
-	}, [props.value]);
+		setInternalValue(value);
+	}, [value]);
+
+	useEffect(() => () => clearTimeout(timeoutRef.current), []);
+
+	const handleChange = (next: string) => {
+		setInternalValue(next);
+		if (next.length > 0 && next.length < minLength) return;
+
+		clearTimeout(timeoutRef.current);
+		if (!debounced) {
+			onChangeRef.current(next);
+			return;
+		}
+		timeoutRef.current = setTimeout(() => onChangeRef.current(next), delay);
+	};
 
 	return (
-		<TextField
-			picto={"search"}
+		<Input
 			{...props}
-			className={cn([props.className, "al__input-search"])}
-			labelClassName="al__input-search__label"
-			info={undefined}
+			isClearable={isClearable}
 			value={internalValue}
-			onChange={(value) => handleSearch(value)}
-			hasDefaultBorder={hasDefaultBorder}
+			onChange={handleChange}
+			picto="search"
 		/>
 	);
 };

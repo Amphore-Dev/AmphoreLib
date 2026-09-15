@@ -1,69 +1,111 @@
-import React, { ChangeEvent, useState } from "react";
+import React, { useState } from "react";
 
-import { useTranslation } from "react-i18next";
-
-import { TFieldRendererMap } from "@interfaces/TFields";
+import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
 import {
 	Button,
 	IButtonProps,
 	IInputSearchProps,
 	InputSearch,
-	Link,
 } from "@components/atoms";
-import { ActiveFilters, ITabBarProps, TabBar } from "@components/molecules";
-import { FiltersModal, IFiltersModalProps } from "@components/organisms/";
+import { ActiveFilters, Tabs } from "@components/molecules";
+import { FiltersModal, IFiltersModalProps } from "@components/organisms";
 
+import { genGroups } from "@utils/UFormGroups";
 import { cn } from "@utils/cn";
 
-import "./PageHeader.scss";
+import {
+	IUseFiltersContext,
+	TFieldRendererMap,
+	TFiltersModalGroup,
+	TFiltersSlice,
+	TLabel,
+	TTabItem,
+} from "@interfaces/index";
 
-type THeaderButton = IButtonProps & {
-	hidden?: boolean;
-};
+import styles from "./PageHeader.module.scss";
+
+type THeaderButton = IButtonProps & { hidden?: boolean; key?: React.Key };
+
+/**
+ * PageHeader is the outer-most consumer of the filters system — it doesn't
+ * know (or need to know) any app's concrete slice shape, only that it's
+ * *some* `TFiltersSlice`. `unknown`-in-generic-position rather than `any`:
+ * still type-erased where it has to be, but doesn't silently accept
+ * anything unrelated to the shapes `IUseFiltersContext`/`FiltersModal`
+ * actually expect.
+ */
+type TAnyFiltersSlice = TFiltersSlice<object>;
+type TAnyFiltersContext = IUseFiltersContext<
+	Record<string, TAnyFiltersSlice>,
+	string
+>;
 
 type TPageHeaderFilters = {
-	filters?: IFiltersModalProps<any, any>["filters"];
-	filtersContext?: IFiltersModalProps<any, any>["filtersContext"];
+	filters?: IFiltersModalProps<
+		Record<string, TAnyFiltersSlice>,
+		string
+	>["filters"];
+	filtersContext?: TAnyFiltersContext;
 	searchValue?: string;
-	onSearchChange?: (
-		value: string | null,
-		e?: ChangeEvent<HTMLInputElement>
-	) => void;
+	onSearchChange?: (value: string) => void;
 	fieldsRenderers?: Partial<TFieldRendererMap>;
-	onFiltersChange?: (filters: any) => void;
+	onFiltersChange?: (filters: TAnyFiltersSlice) => void;
 	searchInputProps?: Partial<IInputSearchProps>;
 };
 
-type TPageHeaderTab = ITabBarProps["tabs"][number] &
-	Partial<Omit<IPageHeaderProps, "tabs">> &
-	TPageHeaderFilters & {
+/** A tab that can override any of the header's per-tab-scoped props (filters/search/actions/buttons) while it's the active one. */
+export type TPageHeaderTab<Value extends string = string> = TTabItem<Value> &
+	TPageHeaderFilters &
+	Pick<IPageHeaderProps, "actions" | "buttons" | "secondaryButtons"> & {
 		hidden?: boolean;
 	};
 
-type TTabBarProps = Partial<Omit<ITabBarProps, "tabs">> & {
-	tabs?: TPageHeaderTab[];
-	useTabTitleAsPageTitle?: boolean;
-	initialTabId?: string;
-};
+/**
+ * Position of the actions row (buttons/filters/search) relative to the tab
+ * strip:
+ * - `underTabs` (default): actions are per-tab, only apply to the active one.
+ * - `aboveTabs`: actions are shared across every tab.
+ *
+ * No effect without `tabs`.
+ */
+export type TPageHeaderActionsPosition = "aboveTabs" | "underTabs";
 
-export interface IPageHeaderProps extends TTabBarProps, TPageHeaderFilters {
+export interface IPageHeaderProps extends TPageHeaderFilters {
 	title?: React.ReactNode;
 	titleAfter?: React.ReactNode;
+	/** Free-form content at the head of the actions row, before `buttons`. */
+	actions?: React.ReactNode[];
 	buttons?: THeaderButton[];
 	secondaryButtons?: THeaderButton[];
+	actionsPosition?: TPageHeaderActionsPosition;
 	className?: string;
 	isLoading?: boolean;
 	totalCount?: number;
 	onBack?: () => void;
-	onBackLabel?: string;
+	/** aria-label and text for the back button. Defaults to "Back" (or `common.back`/`PageHeader.onBackLabel` from the nearest AmphoreProvider — see useAmphoreLabels). No effect without `onBack`. */
+	onBackLabel?: TLabel;
 	countMessage?: string;
+	/** Subtitle shown instead of `countMessage` while `isLoading`. Defaults to "Loading..." (or `PageHeader.loadingLabel` from the nearest AmphoreProvider). No commonKey — the ellipsis makes it differ from the bare "Loading" in `common`. */
+	loadingLabel?: TLabel;
+	tabs?: TPageHeaderTab[];
+	selectedTabId?: string;
+	onSelectTab?: (value: string) => void;
+	initialTabId?: string;
 }
+
+/** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
+export type TPageHeaderLabels = Pick<
+	IPageHeaderProps,
+	"loadingLabel" | "onBackLabel"
+>;
 
 export const PageHeader: React.FC<IPageHeaderProps> = ({
 	title,
+	actions,
 	buttons,
 	secondaryButtons,
+	actionsPosition = "underTabs",
 	className,
 	filtersContext,
 	searchValue,
@@ -72,62 +114,74 @@ export const PageHeader: React.FC<IPageHeaderProps> = ({
 	isLoading,
 	totalCount,
 	countMessage,
+	loadingLabel: loadingLabelProp,
 	filters,
 	tabs,
 	fieldsRenderers,
 	onBack,
-	onBackLabel,
+	onBackLabel: onBackLabelProp,
 	onFiltersChange,
 	titleAfter,
-	...props
+	selectedTabId,
+	onSelectTab,
+	initialTabId,
 }) => {
-	const { t } = useTranslation();
-	const [InternalTabState, setInternalTabState] = useState(
-		props?.initialTabId || props?.selectedTabId || tabs?.[0]?.id || null
+	const { resolve } = useAmphoreLabels("PageHeader");
+	const loadingLabel = resolve("loadingLabel", loadingLabelProp);
+	const onBackLabel = resolve("onBackLabel", onBackLabelProp, "back");
+
+	const [internalTab, setInternalTab] = useState<string | null>(
+		initialTabId ?? selectedTabId ?? tabs?.[0]?.value ?? null
 	);
 
-	const ActiveTab =
-		props.selectedTabId !== undefined
-			? props.selectedTabId
-			: InternalTabState;
+	const activeTabValue =
+		selectedTabId !== undefined ? selectedTabId : internalTab;
+	const setActiveTab = onSelectTab ?? setInternalTab;
 
-	const setActiveTab =
-		props.onSelectTab !== undefined
-			? props.onSelectTab
-			: setInternalTabState;
+	const visibleTabs = tabs?.filter((tab) => !tab.hidden) ?? [];
+	const activeTab = visibleTabs.find((tab) => tab.value === activeTabValue);
 
-	const activeTabItem = tabs?.find((t) => t.id === ActiveTab);
-
-	const activeFilters = activeTabItem?.filters || filters;
-	const activeFiltersContext =
-		activeTabItem?.filtersContext || filtersContext;
-
+	const activeFilters = activeTab?.filters ?? filters;
+	const activeFiltersContext = activeTab?.filtersContext ?? filtersContext;
 	const activeSearch = {
-		value: activeTabItem?.searchValue ?? searchValue,
-		onChange: activeTabItem?.onSearchChange ?? onSearchChange,
-		...activeTabItem?.searchInputProps,
+		value: activeTab?.searchValue ?? searchValue,
+		onChange: activeTab?.onSearchChange ?? onSearchChange,
+		...activeTab?.searchInputProps,
 		...searchInputProps,
 	};
-	const activeButtons = activeTabItem?.buttons || buttons;
+	const activeButtons = activeTab?.buttons ?? buttons;
 	const activeSecondaryButtons =
-		activeTabItem?.secondaryButtons || secondaryButtons;
+		activeTab?.secondaryButtons ?? secondaryButtons;
+	const activeActions = activeTab?.actions ?? actions;
 
-	const genHeaderActions = () => {
+	const renderActions = () => {
 		if (
+			!activeActions?.length &&
 			!activeButtons?.length &&
 			!activeSecondaryButtons?.length &&
 			!activeFilters &&
 			!activeSearch.onChange
 		)
 			return null;
+
 		return (
-			<div className="al__page-header__actions">
+			<div className={styles.actions}>
+				{!!activeActions?.length && (
+					<div className={styles.customActions}>
+						{activeActions.map((action, index) => (
+							<React.Fragment key={index}>
+								{action}
+							</React.Fragment>
+						))}
+					</div>
+				)}
+
 				{!!activeSecondaryButtons?.length && (
-					<div className="al__page-header__buttons">
+					<div className={styles.buttons}>
 						{activeSecondaryButtons.map(
-							(button, index) =>
-								!button.hidden && (
-									<Button key={index} {...button} />
+							({ hidden, key, ...button }, index) =>
+								!hidden && (
+									<Button key={key ?? index} {...button} />
 								)
 						)}
 					</div>
@@ -137,7 +191,7 @@ export const PageHeader: React.FC<IPageHeaderProps> = ({
 					<FiltersModal
 						filters={activeFilters}
 						filtersContext={activeFiltersContext}
-						key={activeFiltersContext?.filtersKey}
+						key={activeFiltersContext?.filtersKey?.toString()}
 						fieldsRenderers={{
 							...activeFiltersContext?.fieldRenderers,
 							...fieldsRenderers,
@@ -147,15 +201,11 @@ export const PageHeader: React.FC<IPageHeaderProps> = ({
 				)}
 
 				{!!activeSearch.onChange && (
-					<div className="al__page-header__search">
+					<div className={styles.search}>
 						<InputSearch
-							key={`${activeTabItem?.id || "default"}-search-input`}
+							key={`${activeTab?.value ?? "default"}-search`}
 							name="page-header-search"
-							label={t("search.label")}
-							debounced={true}
-							delay={500}
-							minLength={3}
-							size="s"
+							placeholder="Search"
 							{...activeSearch}
 							onChange={activeSearch.onChange}
 							value={activeSearch.value}
@@ -164,11 +214,11 @@ export const PageHeader: React.FC<IPageHeaderProps> = ({
 				)}
 
 				{!!activeButtons?.length && (
-					<div className="al__page-header__buttons">
+					<div className={styles.buttons}>
 						{activeButtons.map(
-							(button, index) =>
-								!button.hidden && (
-									<Button key={index} {...button} />
+							({ hidden, key, ...button }, index) =>
+								!hidden && (
+									<Button key={key ?? index} {...button} />
 								)
 						)}
 					</div>
@@ -177,91 +227,100 @@ export const PageHeader: React.FC<IPageHeaderProps> = ({
 		);
 	};
 
+	const areActionsUnderTabs = !!tabs && actionsPosition !== "aboveTabs";
+
+	const tabBar = tabs ? (
+		<Tabs
+			items={visibleTabs}
+			value={activeTab?.value ?? ""}
+			onChange={setActiveTab}
+		/>
+	) : null;
+
+	const resolvedFilters =
+		typeof activeFilters === "function"
+			? activeFilters(activeFiltersContext?.filters as never, undefined)
+			: activeFilters;
+	// `ActiveFilters` wants a normalized `TFiltersModalGroup[]` — `resolvedFilters`
+	// may still be a flat `TField[]` at this point.
+	const activeFiltersList = (
+		resolvedFilters ? genGroups(resolvedFilters) : []
+	) as TFiltersModalGroup[];
+
 	return (
-		<div className={cn(["al__page-header", className])}>
+		<div className={cn([styles.header, className])}>
 			{onBack && (
-				<Link
+				<Button
 					onClick={onBack}
-					aria-label={onBackLabel || t("global.back")}
-					className="al__page-header__back-button"
-					picto="chevron"
-					pictoProps={{
+					aria-label={onBackLabel}
+					className={styles.backButton}
+					variant="link"
+					color="neutral"
+					picto={{
+						icon: "chevron",
 						rotation: 180,
-						className: "al__page-header__back-button__picto",
 					}}
-					pictoClassName="al__page-header__back-button__picto"
-					label={onBackLabel || t("global.back")}
-				/>
+				>
+					{onBackLabel}
+				</Button>
 			)}
 			<div
 				className={cn([
-					"al__page-header__top",
-					tabs?.length
-						? "al__page-header__top--with-tabs"
-						: "al__page-header__top--no-tabs",
+					styles.top,
+					areActionsUnderTabs && !!visibleTabs.length
+						? styles.topWithTabs
+						: styles.topNoTabs,
 				])}
 			>
-				<div className="al__page-header__left-content">
-					<div className="al__page-header__title-block">
-						<h1 className="al__page-header__title">{title}</h1>
+				<div className={styles.leftContent}>
+					<div className={styles.titleBlock}>
+						<h1 className={styles.title}>{title}</h1>
 						{titleAfter && (
-							<div className="al__page-header__title-after">
+							<div className={styles.titleAfter}>
 								{titleAfter}
 							</div>
 						)}
 					</div>
-					<p className="al__page-header__subtitle">
+					<p className={styles.subtitle}>
 						{isLoading
-							? t("global.loading")
+							? loadingLabel
 							: totalCount !== undefined
-								? countMessage ||
-									t("results.count", { count: totalCount })
+								? (countMessage ??
+									`${totalCount} result${totalCount > 1 ? "s" : ""}`)
 								: null}
 					</p>
 				</div>
 
-				{tabs ? (
-					<div className="al__page-header__tabs">
-						<TabBar
-							tabs={tabs.filter((tab) => !tab.hidden) || []}
-							activeTab={activeTabItem?.id}
-							onChange={setActiveTab}
-						/>
-					</div>
-				) : null}
+				{areActionsUnderTabs && (
+					<div className={styles.tabsRow}>{tabBar}</div>
+				)}
 
-				<div className="al__page-header__actions-row">
-					{tabs ? (
+				<div className={styles.actionsRow}>
+					{areActionsUnderTabs ? (
 						<ActiveFilters
 							filtersContext={activeFiltersContext}
-							filters={
-								typeof activeFilters === "function"
-									? activeFilters(
-											activeFiltersContext?.filters
-										)
-									: activeFilters
-							}
-							className="al__page-header__active-filters"
-							key={activeTabItem?.id}
-							rightContent={genHeaderActions()}
+							filters={activeFiltersList}
+							className={styles.activeFilters}
+							key={activeTab?.value}
+							rightContent={renderActions()}
 						/>
 					) : (
-						genHeaderActions()
+						renderActions()
 					)}
 				</div>
 			</div>
 
-			{!tabs && (
-				<div className="al__page-header__bottom-active-filters">
+			{!areActionsUnderTabs && (
+				<div className={styles.bottomActiveFilters}>
 					<ActiveFilters
-						filtersContext={filtersContext}
-						filters={
-							typeof filters === "function"
-								? filters(filtersContext?.filters)
-								: filters
-						}
+						filtersContext={activeFiltersContext}
+						filters={activeFiltersList}
 					/>
 				</div>
+			)}
+
+			{!!tabs && !areActionsUnderTabs && (
+				<div className={styles.tabsUnderActions}>{tabBar}</div>
 			)}
 		</div>
 	);

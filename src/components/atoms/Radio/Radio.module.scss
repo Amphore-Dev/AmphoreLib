@@ -1,0 +1,77 @@
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	// Same fix as Checkbox: without this, .row gets stretched to the
+	// wrapper's full width and the whole line becomes clickable.
+	align-items: flex-start;
+	gap: var(--amp-space-1);
+	font-family: var(--amp-font);
+}
+
+.row {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--amp-space-2);
+	cursor: pointer;
+
+	&[data-disabled="true"] {
+		cursor: not-allowed;
+		opacity: 0.55;
+	}
+}
+
+.circleWrapper {
+	box-sizing: border-box;
+	position: relative;
+	display: inline-flex;
+	flex-shrink: 0;
+	width: 1.0625rem;
+	height: 1.0625rem;
+}
+
+.input {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	opacity: 0;
+	cursor: inherit;
+
+	// outline+offset instead of a box-shadow halo — same convention as
+	// Button/Input/Checkbox, draws a real gap instead of faking one with color.
+	&:focus-visible + .circle {
+		outline: 2px solid var(--amp-color-primary);
+		outline-offset: 2px;
+	}
+}
+
+.circle {
+	box-sizing: border-box;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+	border: 1.5px solid var(--amp-color-border);
+	border-radius: 50%;
+	background: var(--amp-color-card);
+	transition: border-color 0.15s ease;
+
+	&[data-checked="true"] {
+		border-color: var(--amp-color-primary);
+	}
+}
+
+.dot {
+	width: 50%;
+	height: 50%;
+	border-radius: 50%;
+	background: var(--amp-color-primary);
+}
+
+.label {
+	font-size: 0.84375rem;
+	line-height: 1;
+	color: var(--amp-color-ink);
+}

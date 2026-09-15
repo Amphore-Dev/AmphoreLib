@@ -1,0 +1,171 @@
+.wrapper {
+	position: relative;
+	display: flex;
+	align-items: stretch;
+}
+
+.tabs {
+	display: flex;
+	align-items: flex-end;
+	flex: 1;
+	gap: var(--amp-space-4);
+	border-bottom: 1px solid var(--amp-color-border);
+	font-family: var(--amp-font);
+	overflow-x: auto;
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+
+	&::-webkit-scrollbar {
+		display: none;
+	}
+
+	// ---- size ----
+	&[data-size="sm"] .tab {
+		padding: var(--amp-space-1) 0;
+		font-size: 0.8125rem;
+	}
+
+	&[data-size="md"] .tab {
+		padding: var(--amp-space-2) 0;
+		font-size: 0.875rem;
+	}
+
+	&[data-size="lg"] .tab {
+		padding: var(--amp-space-2) 0;
+		font-size: 0.9375rem;
+	}
+}
+
+.tab {
+	display: inline-flex;
+	flex-shrink: 0;
+	align-items: center;
+	gap: var(--amp-space-1);
+	margin: 0;
+	white-space: nowrap;
+	border: none;
+	border-bottom: 2px solid transparent;
+	background: transparent;
+	font-family: inherit;
+	font-weight: 600;
+	color: var(--amp-color-sub);
+	cursor: pointer;
+	transition:
+		color 0.15s ease,
+		border-color 0.15s ease;
+
+	// ---- color: sets the local var the active state reads below.
+	&[data-color="primary"] {
+		--_color: var(--amp-color-primary);
+	}
+
+	&[data-color="danger"] {
+		--_color: var(--amp-color-danger);
+	}
+
+	&[data-color="success"] {
+		--_color: var(--amp-color-success);
+	}
+
+	&[data-color="warning"] {
+		--_color: var(--amp-color-warning);
+	}
+
+	&[data-color="info"] {
+		--_color: var(--amp-color-info);
+	}
+
+	&[data-color="neutral"] {
+		--_color: var(--amp-color-neutral);
+	}
+
+	&[data-color="black"] {
+		--_color: var(--amp-color-black);
+	}
+
+	&[data-color="white"] {
+		--_color: var(--amp-color-white);
+	}
+
+	&:hover:not(:disabled):not(.tabActive) {
+		color: var(--amp-color-ink);
+	}
+
+	&:disabled {
+		cursor: not-allowed;
+		opacity: 0.5;
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--_color, var(--amp-color-primary));
+		outline-offset: 2px;
+	}
+}
+
+.tabActive {
+	color: var(--_color);
+	border-bottom-color: var(--_color);
+}
+
+.picto {
+	flex-shrink: 0;
+	width: 1em;
+	height: 1em;
+}
+
+.arrow {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.5rem;
+	margin: 0;
+	padding: 0;
+	border: none;
+	// Solid background, not a gradient fade over .tabs — a few px of tab
+	// label can still hide right behind it, but it never looks like content
+	// is see-through/half-clipped, which a fade does at certain widths.
+	background: var(--amp-color-card);
+	color: var(--amp-color-sub);
+	cursor: pointer;
+
+	& svg {
+		width: 0.875rem;
+		height: 0.875rem;
+	}
+
+	&:hover:not(:disabled) {
+		color: var(--amp-color-ink);
+	}
+
+	// Always mounted once the strip is scrollable (both sides at once) rather
+	// than mounting/unmounting per direction — that used to shrink .tabs'
+	// own width mid-interaction (an arrow appearing takes space away from
+	// the tablist), throwing off the centered scrollIntoView calculations
+	// (visible as tabs landing partly hidden behind the arrow that had just
+	// appeared). Disabled + faded when there's nothing left to scroll to on
+	// that side, instead of removed.
+	&:disabled {
+		opacity: 0.3;
+		cursor: default;
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--amp-color-primary);
+		outline-offset: -2px;
+	}
+}
+
+.arrowLeft {
+	padding-right: 0.125rem;
+}
+
+.arrowRight {
+	padding-left: 0.125rem;
+}
+
+.panel {
+	padding-top: var(--amp-space-4);
+	font-family: var(--amp-font);
+	color: var(--amp-color-ink);
+}

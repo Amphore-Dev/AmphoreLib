@@ -1,0 +1,138 @@
+.badge {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--amp-space-1);
+	font-family: var(--amp-font);
+	font-weight: 600;
+	line-height: 1;
+	border: 1px solid transparent;
+	// Follows the theme radius preset by default (Button/Card do the same) —
+	// only [data-pill="true"] forces the always-round capsule shape.
+	border-radius: var(--amp-radius-md);
+	white-space: nowrap;
+
+	&[data-pill="true"] {
+		border-radius: var(--amp-radius-full);
+	}
+
+	// ---- size ----
+	&[data-size="sm"] {
+		padding: 0.125rem 0.375rem;
+		font-size: 0.6875rem;
+	}
+
+	&[data-size="md"] {
+		padding: 0.1875rem 0.5rem;
+		font-size: 0.75rem;
+	}
+
+	&[data-size="lg"] {
+		padding: 0.25rem 0.625rem;
+		font-size: 0.8125rem;
+	}
+
+	// ---- color: sets local vars, consumed by the variant rules below.
+	// Same convention as Button — one rule here per color, not per variant.
+	&[data-color="primary"] {
+		--_color: var(--amp-color-primary);
+		--_color-fg: var(--amp-color-primary-fg);
+		--_color-tint: var(--amp-color-primary-tint);
+	}
+
+	&[data-color="danger"] {
+		--_color: var(--amp-color-danger);
+		--_color-fg: var(--amp-color-danger-fg);
+		--_color-tint: var(--amp-color-danger-tint);
+	}
+
+	&[data-color="success"] {
+		--_color: var(--amp-color-success);
+		--_color-fg: var(--amp-color-success-fg);
+		--_color-tint: var(--amp-color-success-tint);
+	}
+
+	&[data-color="warning"] {
+		--_color: var(--amp-color-warning);
+		--_color-fg: var(--amp-color-warning-fg);
+		--_color-tint: var(--amp-color-warning-tint);
+	}
+
+	&[data-color="info"] {
+		--_color: var(--amp-color-info);
+		--_color-fg: var(--amp-color-info-fg);
+		--_color-tint: var(--amp-color-info-tint);
+	}
+
+	&[data-color="neutral"] {
+		--_color: var(--amp-color-neutral);
+		--_color-fg: var(--amp-color-neutral-fg);
+		--_color-tint: var(--amp-color-neutral-tint);
+	}
+
+	&[data-color="black"] {
+		--_color: var(--amp-color-black);
+		--_color-fg: var(--amp-color-black-fg);
+		--_color-tint: var(--amp-color-black-tint);
+	}
+
+	&[data-color="white"] {
+		--_color: var(--amp-color-white);
+		--_color-fg: var(--amp-color-white-fg);
+		--_color-tint: var(--amp-color-white-tint);
+	}
+
+	// ---- variant: shape only, reads --_color/-fg/-tint from data-color above.
+	&[data-variant="solid"] {
+		background: var(--_color);
+		color: var(--_color-fg);
+	}
+
+	&[data-variant="outline"] {
+		background: transparent;
+		color: var(--_color);
+		border-color: var(--_color);
+	}
+
+	&[data-variant="tint"] {
+		background: var(--_color-tint);
+		color: var(--_color);
+	}
+
+	// Compound selector (higher specificity) — white solid needs a visible
+	// edge against a white surface, same fix as Button.
+	&[data-color="white"][data-variant="solid"] {
+		border-color: var(--amp-color-border);
+	}
+}
+
+.picto {
+	flex-shrink: 0;
+	width: 1.125em;
+	height: 1.125em;
+}
+
+.remove {
+	flex-shrink: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.125em;
+	height: 1.125em;
+	padding: 0;
+	margin: 0 -0.125rem 0 0.0625rem;
+	border: none;
+	background: transparent;
+	color: inherit;
+	opacity: 0.7;
+	cursor: pointer;
+	border-radius: var(--amp-radius-sm);
+
+	&:hover {
+		opacity: 1;
+	}
+
+	&:focus-visible {
+		outline: 2px solid currentColor;
+		outline-offset: 1px;
+	}
+}

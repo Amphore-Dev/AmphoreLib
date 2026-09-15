@@ -1,0 +1,25 @@
+.td {
+	display: flex;
+	align-items: center;
+	gap: var(--amp-space-1);
+	min-width: 0;
+	padding: var(--amp-space-2) var(--amp-space-3);
+	font-family: var(--amp-font);
+	font-size: 0.8125rem;
+	color: var(--amp-color-ink);
+	border-bottom: 1px solid var(--amp-color-border);
+
+	&[data-sticky] {
+		position: sticky;
+		z-index: 1;
+		background: var(--amp-color-white);
+	}
+
+	&[data-sticky="left"] {
+		left: 0;
+	}
+
+	&[data-sticky="right"] {
+		right: 0;
+	}
+}

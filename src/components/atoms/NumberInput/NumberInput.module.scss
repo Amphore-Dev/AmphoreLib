@@ -1,0 +1,106 @@
+@use "../../../styles/field" as field;
+
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: var(--amp-space-1);
+	font-family: var(--amp-font);
+}
+
+.label {
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: var(--amp-color-ink);
+}
+
+.required {
+	color: var(--amp-color-danger);
+	margin-left: 0.125rem;
+}
+
+.field {
+	@include field.field-box;
+	// Clips the steppers' hover background to the field's own rounded
+	// corners — same fix as Accordion's header/footer, just via overflow
+	// here since nothing in this field is position: sticky.
+	overflow: hidden;
+	padding-right: 0;
+}
+
+.input {
+	@include field.field-text;
+	flex: 1;
+	min-width: 0;
+	text-align: left;
+
+	&:disabled {
+		cursor: not-allowed;
+		color: var(--amp-color-sub);
+	}
+}
+
+.steppers {
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+	align-self: stretch;
+	border-left: 1px solid var(--amp-color-border);
+}
+
+.stepper {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.5rem;
+	padding: 0;
+	border: none;
+	background: transparent;
+	color: var(--amp-color-sub);
+	cursor: pointer;
+
+	// Picto's own wrapper div (rendered around the svg when it has no
+	// onClick) is a plain block box — its inline-level svg child can sit
+	// off-center against the button's flex centering otherwise (the same
+	// baseline-gap quirk fixed elsewhere via display:block, here fixed by
+	// making the wrapper itself a centering flex box).
+	& [data-amphore-svg-wrapper] {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	& svg {
+		width: 0.625rem;
+		height: 0.625rem;
+	}
+
+	&:not(:last-child) {
+		border-bottom: 1px solid var(--amp-color-border);
+	}
+
+	&:hover:not(:disabled) {
+		background: var(--amp-color-ghost-bg);
+		color: var(--amp-color-ink);
+	}
+
+	&:disabled {
+		cursor: not-allowed;
+		opacity: 0.4;
+	}
+}
+
+// [input | steppers | after] — .field's own right padding was zeroed so
+// the steppers sit flush against its edge; whatever comes after them
+// (a unit label, typically) needs its own right-side breathing room
+// instead, matching the field's left padding via the size-scale var.
+.after {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	padding-right: var(--amp-space-2);
+	padding-left: var(--amp-space-1);
+	color: var(--amp-color-sub);
+	font-size: 0.8125rem;
+	white-space: nowrap;
+}

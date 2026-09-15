@@ -1,0 +1,79 @@
+.body {
+	width: 100%;
+}
+
+.group {
+	display: flex;
+	flex-direction: column;
+	gap: var(--amp-space-2);
+}
+
+.groupBackground {
+	padding: var(--amp-space-3);
+	background: var(--amp-color-ghost-bg);
+	border-radius: var(--amp-radius-md);
+}
+
+.groupTitleWrapper {
+	display: flex;
+	flex-direction: column;
+	gap: var(--amp-space-1);
+}
+
+.groupTitle {
+	font-family: var(--amp-font);
+	font-weight: 600;
+	font-size: 0.875rem;
+	color: var(--amp-color-ink);
+	margin: 0;
+}
+
+.groupItem {
+	display: flex;
+	flex-direction: column;
+	gap: var(--amp-space-1);
+}
+
+.groupItemWithReset {
+	position: relative;
+}
+
+.groupItemHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--amp-space-1);
+}
+
+.groupItemLabel {
+	font-family: var(--amp-font);
+	font-size: 0.8125rem;
+	font-weight: 600;
+	color: var(--amp-color-ink);
+	margin: 0;
+}
+
+.requiredLabel {
+	color: var(--amp-color-danger);
+	margin-left: 0.125rem;
+}
+
+.resetBtn {
+	flex-shrink: 0;
+	margin-left: auto;
+}
+
+.resetBtnDisabled {
+	opacity: 0 !important;
+	pointer-events: none;
+}
+
+.footerActions {
+	display: flex;
+	justify-content: flex-end;
+	gap: var(--amp-space-2);
+}
+
+.modalContent {
+	width: 100%;
+}

@@ -1,0 +1,74 @@
+// react-gcolor-picker ships its own runtime-injected CSS (a <style> tag,
+// no stylesheet to import) — themed here via its own class names rather
+// than forking the component, same reasoning as DatePicker/react-day-picker.
+// Own panel frame (padding/background/radius/shadow) — the picker looks
+// right on its own (not just inside something else that happens to frame
+// it, e.g. Popover), and noPadding/noElevation opt out of it when it *is*
+// already framed by whatever renders it.
+.picker {
+	font-family: var(--amp-font);
+	background: var(--amp-color-card);
+
+	&[data-no-padding="true"] {
+		padding: 0;
+	}
+
+	&[data-no-elevation="true"] {
+		box-shadow: none;
+	}
+
+	:global(.colorpicker),
+	:global(.color-picker-panel) {
+		background: transparent;
+	}
+
+	:global(.color-picker-panel) {
+		border-radius: var(--amp-radius-md);
+		overflow: hidden;
+	}
+
+	:global(.popup_tabs) {
+		width: 100% !important;
+		background: transparent;
+		border-radius: var(--amp-radius-md);
+		overflow: hidden;
+	}
+
+	:global(.popup_tabs-header) {
+		background: transparent;
+		border-bottom: 1px solid var(--amp-color-border);
+	}
+
+	:global(.popup_tabs-header-label) {
+		color: var(--amp-color-sub);
+	}
+
+	:global(.popup_tabs-header-label-active) {
+		background: var(--amp-color-primary) !important;
+		color: var(--amp-color-primary-fg);
+		border-radius: var(--amp-radius-sm);
+	}
+
+	// Drag handles (gradient stops) stay circular regardless of the theme's
+	// radius preset — same convention as Slider's thumb — rather than
+	// following the sharp/round scale.
+	:global(.gradient-marker),
+	:global(.gradient-stop-marker) {
+		border-radius: var(--amp-radius-full);
+	}
+
+	:global(.popup_tabs-body-item) > div {
+		background: transparent;
+	}
+
+	:global(.input_rgba) input {
+		background: var(--amp-color-ghost-bg);
+		color: var(--amp-color-ink);
+		border-radius: var(--amp-radius-md);
+		box-shadow: none !important;
+	}
+
+	:global(.default-color-panel_item) {
+		border-radius: var(--amp-radius-md);
+	}
+}

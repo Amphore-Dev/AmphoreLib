@@ -1,11 +1,20 @@
-import { TPictoName } from "@constants/CPictos";
+import type { IPictoProps } from "@components/atoms";
+
+import type { TPictoName } from "@constants/index";
 
 export type TSortDirection = "asc" | "desc";
 
 export type TTableItemAction<T> = {
 	label: string;
-	icon?: TPictoName;
-	onClick: (item: T, event: React.MouseEvent) => void;
+	/** Leading icon (see Picto) — an icon name, or an `IPictoProps` object to pass other Picto props. */
+	picto?: TPictoName | IPictoProps;
+	/**
+	 * No event param (unlike v1's react-contexify version) — V2's
+	 * ContextMenu doesn't forward the triggering right-click event to item
+	 * selection, and by the time a menu item is clicked it'd be stale
+	 * anyway (a different DOM event: the menu item's own click).
+	 */
+	onClick: (item: T) => void;
 	disabled?: boolean | ((item: T) => boolean);
 	hidden?: boolean | ((item: T) => boolean);
 };

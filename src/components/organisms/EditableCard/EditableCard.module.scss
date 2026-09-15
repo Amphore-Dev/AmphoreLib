@@ -1,0 +1,32 @@
+.card {
+	width: 100%;
+}
+
+.editBtn {
+	flex-shrink: 0;
+}
+
+.editBtnHidden {
+	visibility: hidden;
+}
+
+// Non-merged display: a plain vertical stack of group blocks, each its own
+// Grid instance below — a group must never become one flex/grid item
+// among others (previously `display: contents` tried to erase this
+// wrapper, but the outer Grid still saw *the group* as a single child to
+// size, one column wide, several fitting side by side per row instead of
+// each being a full-width row of its own).
+.fields {
+	display: flex;
+	flex-direction: column;
+	gap: var(--amp-space-6);
+	width: 100%;
+}
+
+.fieldsMerged {
+	width: 100%;
+}
+
+.fieldsGroup {
+	width: 100%;
+}

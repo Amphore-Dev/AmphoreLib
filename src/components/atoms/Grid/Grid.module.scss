@@ -1,0 +1,12 @@
+.grid {
+	display: grid;
+	// `--_item-max-width` only exists when `columns` is given (an even split
+	// of the available width); the `0px` fallback otherwise means `max()`
+	// just resolves to `--_item-min-width` — auto-fill by minimum width
+	// alone, no fixed column count, same "columns optional" convention as
+	// FlexGrid's own `--_item-width` fallback.
+	grid-template-columns: repeat(
+		auto-fill,
+		minmax(max(var(--_item-min-width), var(--_item-max-width, 0px)), 1fr)
+	);
+}

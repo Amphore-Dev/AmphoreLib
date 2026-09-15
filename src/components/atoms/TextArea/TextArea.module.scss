@@ -1,0 +1,109 @@
+@use "../../../styles/field" as field;
+
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: var(--amp-space-1);
+	font-family: var(--amp-font);
+}
+
+.label {
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: var(--amp-color-ink);
+}
+
+.required {
+	color: var(--amp-color-danger);
+	margin-left: 0.125rem;
+}
+
+.field {
+	@include field.field-box;
+	// field-box's align-items: center suits a single-line row (Input, Select)
+	// but clips a multi-line textarea to its first line — align to the top
+	// of the box instead so the full block of rows renders visibly.
+	align-items: flex-start;
+	// Anchors .resizeHandle, positioned absolute against this box.
+	position: relative;
+
+	// Padding moves to .textarea itself, below — the (now custom) resize
+	// handle is drawn at this box's own corner, so this stays at 0 rather
+	// than pushing the handle in from the field's actual edge.
+	&[data-size="sm"],
+	&[data-size="md"],
+	&[data-size="lg"] {
+		padding: 0;
+	}
+}
+
+.textarea {
+	@include field.field-text;
+	flex: 1;
+	min-width: 0;
+	// Resizing is handled by our own .resizeHandle (drag via pointer events)
+	// — see TextArea.tsx for why native resize/::-webkit-resizer isn't used.
+	resize: none;
+
+	// Bottom/right get extra padding on top of the normal size scale — room
+	// for the resize handle so it doesn't sit flush against the text.
+	.field[data-size="sm"] & {
+		padding: var(--amp-space-1) calc(var(--amp-space-2) + 0.25rem)
+			calc(var(--amp-space-1) + 0.25rem) var(--amp-space-2);
+	}
+
+	.field[data-size="md"] & {
+		padding: var(--amp-space-2) calc(var(--amp-space-3) + 0.25rem)
+			calc(var(--amp-space-2) + 0.25rem) var(--amp-space-3);
+	}
+
+	.field[data-size="lg"] & {
+		padding: var(--amp-space-3) calc(var(--amp-space-4) + 0.25rem)
+			calc(var(--amp-space-3) + 0.25rem) var(--amp-space-4);
+	}
+
+	&::placeholder {
+		color: var(--amp-color-sub);
+	}
+
+	&:disabled {
+		cursor: not-allowed;
+		color: var(--amp-color-sub);
+	}
+}
+
+.resizeHandle {
+	position: absolute;
+	right: 0.25rem;
+	bottom: 0.25rem;
+	width: 1rem;
+	height: 1rem;
+	cursor: ns-resize;
+	// Three short diagonal strokes, classic resize-grip look, drawn with a
+	// repeating gradient instead of an SVG/image asset — themeable via the
+	// same border-color token as the field, no extra request or embed.
+	background: repeating-linear-gradient(
+		135deg,
+		var(--amp-color-sub) 1px,
+		var(--amp-color-sub) 1px,
+		transparent 2px,
+		transparent 4px
+	);
+	// Clips the repeating pattern to a triangular corner instead of a full
+	// square swatch — matches the visual convention of a corner grip.
+	clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
+.footer {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: var(--amp-space-2);
+}
+
+.counter {
+	flex-shrink: 0;
+	font-size: 0.75rem;
+	color: var(--amp-color-sub);
+	white-space: nowrap;
+}

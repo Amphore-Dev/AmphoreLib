@@ -1,0 +1,56 @@
+{/* Structure.mdx */}
+
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Directives/Structure" />
+
+# Structure & naming
+
+## One folder per component
+
+```
+Button/
+  Button.tsx
+  Button.module.scss
+  Button.test.tsx
+  Button.stories.tsx
+```
+
+One barrel `index.ts` only at the category level (`atoms/index.ts`, `molecules/index.ts`, `organisms/index.ts`, `templates/index.ts`) — never an `index.ts` per component.
+
+## Naming conventions
+
+| Prefix | For |
+|---|---|
+| `TFoo` | data type (`TColor`, `TTabItem`) |
+| `IFooProps` | a component's props interface |
+| `CFoo` | constants file (`CPictos`, `CThemeConfig`) |
+| `UFoo` | grouped utilities file (`UPicto`, `UFormGroups`) |
+
+## Where does a type live?
+
+A component file exports **only** its own `IFooProps`. Every other type (`TFooVariant`, an item shape like `TTabItem`/`TAccordionItem`) stays local to that component (it plus its test/story) **as long as nothing else uses it** — it doesn't move up to `src/types/` just because it's exported.
+
+It moves up to `src/types/` only once it's actually used by more than one component module — check with a `grep` of the name before moving anything:
+
+```bash
+grep -rn "TTabItem" src/components --include="*.tsx" | grep -v "Tabs.tsx\|Tabs.test\|Tabs.stories"
+```
+
+Zero results → stays local. A hit in ANOTHER component → move it to `src/types/`, import it via `@interfaces`, don't leave a re-export in the original file. Real examples: `TMenuItem` (Dropdown + ContextMenu + MenuList), `TSummaryListItem` (SummaryList + EditableCard), `TTabItem` (Tabs + PageHeader) — all three made that move to `src/types/` the moment a second component needed them, not before.
+
+## Files not exported by the lib
+
+`src/index.ts` only re-exports `./components`, `./theme`, `./contexts`, `./hooks`, `./types`, `./utils`, `./constants` — that's the only list that matters for what ends up in the published package. `src/stories/` (this page included, and `StoriesArgs.ts` — see [Directives/Verification](?path=/docs/directives-verification--docs)) isn't in it: everything living there stays invisible to the package, usable only by the `*.stories.tsx`/`*.mdx` files themselves.
+
+---
+
+## Two recurring CSS recipes
+
+**Collapse/expand (`grid-template-rows: 0fr → 1fr`)** — the element whose row track collapses to `0fr` must carry `overflow: hidden` **and** zero padding/margin of its own (padding is a fixed floor, unaffected by `min-height: 0` — the content visibly overflows, cut off mid-character). Fix: nest one level deeper — the collapsing element only has `min-height: 0; overflow: hidden;`, a child carries the padding. Seen twice on `Accordion`.
+
+**`<input type="range">`** — don't style it via `::-webkit-slider-*`/`::-moz-range-*` (cross-browser support is too uneven). Absolutely-positioned `div`s for track/fill/thumb (`aria-hidden`, plain CSS); the real `<input type="range">` sits on top at `opacity: 0`, doing all the actual work (drag, keyboard, focus, a11y). See `Slider.tsx`.
+
+---
+
+See also: `Button/`, `TMenuItem` (`src/types/TMenuItem.ts`), [Directives/Verification](?path=/docs/directives-verification--docs).

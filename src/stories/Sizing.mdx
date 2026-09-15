@@ -1,0 +1,37 @@
+{/* Sizing.mdx */}
+
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Directives/Sizing" />
+
+# Sizing
+
+Every sizeable component exposes a `size?: TSize` (`"sm" | "md" | "lg"`), **always optional**, resolved the same way everywhere:
+
+```tsx
+const { size: defaultSize } = useAmphoreDefaults();
+const size = sizeProp ?? defaultSize ?? "md";
+```
+
+`sizeProp` (the explicit prop) always wins; otherwise `config.defaults.size` (set via `AmphoreProvider`); otherwise `"md"`.
+
+```tsx
+<AmphoreProvider config={{ defaults: { size: "sm" } }}>
+  <Button>No size — inherits "sm"</Button>
+  <Button size="lg">Explicit — still wins</Button>
+</AmphoreProvider>
+```
+
+Applied everywhere `size` exists: `Button`, `Input`, `TextArea`, `NumberInput`, `Select`, `Badge`, `Spinner`, `Tabs`, `Accordion`, `DatePicker`, `TimePicker`, `ColorPickerField`, `Modal`, `ConfirmModal`, `Progress`, `Slider`, `InfoMessage`.
+
+**Story convention**: every component with a `size` has a `DefaultSizeFromConfig` story that demonstrates this dual behavior (inherited default + explicit prop winning) — see `Button.stories.tsx`/`Select.stories.tsx` for the pattern.
+
+---
+
+## Don't add a prop by imitation
+
+A prop (`color`, or any other) only gets added when a real use case exists — not because neighboring components have it. `Accordion` had a `color` removed after the fact, for lack of any real use.
+
+---
+
+See also: `useAmphoreDefaults.ts`, [Directives/Theming](?path=/docs/directives-theming--docs) (radius `sm`/`md`/`lg`, the same conceptual progression but a separate system).

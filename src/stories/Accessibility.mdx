@@ -1,0 +1,45 @@
+{/* Accessibility.mdx */}
+
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Directives/Accessibility" />
+
+# Accessibility
+
+Recurring rules across the lib — not a per-component add-on, a standard.
+
+## Focus ring: `outline`, never `box-shadow`
+
+```scss
+&:focus-visible {
+	outline: 2px solid var(--_color, var(--amp-color-primary));
+	outline-offset: 2px;
+}
+```
+
+`outline` stays visible regardless of the background (drawn outside the box, with real spacing via `outline-offset`) — a `box-shadow` has to guess at a color that contrasts with the background, which isn't reliable.
+
+## `aria-invalid` only where the role supports it
+
+Don't set `aria-invalid` on `role="radio"`/`role="switch"` — ARIA doesn't allow it on these roles (`jsx-a11y/role-supports-aria-props` flags it). Check the role before adding this attribute to a new component.
+
+## Keyboard-navigable lists: manual activation
+
+`Tabs` (and any similar component): arrows/Home/End move **focus** only (roving tabindex) — they don't change the selected value. Committing a selection needs Enter/Space (free via native `<button>` semantics) or a click. Never auto-select on an arrow key by default.
+
+## Disclosure widgets (Accordion)
+
+The trigger carries `aria-expanded`/`aria-controls`; the panel carries `aria-labelledby` pointing at the trigger's `id`.
+
+```tsx
+<button aria-expanded={open} aria-controls={panelId}>...</button>
+<div id={panelId} aria-labelledby={triggerId}>...</div>
+```
+
+## Sortable interactive elements (Th)
+
+A sortable column header needs real keyboard support (`tabIndex` + Enter/Space), not just `onClick`.
+
+---
+
+See also: [Directives/FloatingOverlays](?path=/docs/directives-floatingoverlays--docs), `Tabs.tsx`, `Accordion.tsx`, `Th.tsx`.

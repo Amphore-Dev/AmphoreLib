@@ -1,0 +1,46 @@
+@use "../../../styles/field" as field;
+
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: var(--amp-space-1);
+	font-family: var(--amp-font);
+}
+
+.label {
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: var(--amp-color-ink);
+}
+
+.required {
+	color: var(--amp-color-danger);
+	margin-left: 0.125rem;
+}
+
+.field {
+	@include field.field-box;
+	width: fit-content;
+}
+
+.segment {
+	@include field.field-text;
+	width: 2.25ch;
+	text-align: center;
+	font-variant-numeric: tabular-nums;
+
+	&::placeholder {
+		color: var(--amp-color-sub);
+	}
+
+	&:disabled {
+		cursor: not-allowed;
+		color: var(--amp-color-sub);
+	}
+}
+
+.separator {
+	color: var(--amp-color-sub);
+	font-weight: 600;
+	margin-top: -0.25rem;
+}

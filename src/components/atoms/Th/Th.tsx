@@ -1,31 +1,33 @@
 import React from "react";
 
-import { TSortDirection } from "@interfaces/TTable";
-
-import { Picto } from "@components/atoms";
-
 import { cn } from "@utils/cn";
 
-import "./Th.scss";
+import { TSortDirection } from "@interfaces/index";
 
-export interface IThProps {
-	children?: React.ReactNode;
-	className?: string;
+import { Picto } from "../Picto/Picto";
+
+import styles from "./Th.module.scss";
+
+export interface IThProps extends React.HTMLAttributes<HTMLDivElement> {
 	sortable?: boolean;
 	sortDirection?: TSortDirection;
 	onSort?: () => void;
 	sticky?: "left" | "right";
+	className?: string;
 }
 
+/** V2 Th — a grid column header, same "not a real `<th>`" reasoning as Td. */
 export const Th: React.FC<IThProps> = ({
 	children,
-	className,
-	sortable,
+	className = "",
+	sortable = false,
 	sortDirection,
 	onSort,
 	sticky,
+	...props
 }) => (
 	<div
+		{...props}
 		role="columnheader"
 		aria-sort={
 			sortDirection
@@ -35,20 +37,27 @@ export const Th: React.FC<IThProps> = ({
 				: undefined
 		}
 		onClick={sortable ? onSort : undefined}
-		className={cn([
-			"al__th",
-			sortable && "al__th--sortable",
-			sortDirection && "al__th--sorted",
-			sticky === "left" && "al__th--sticky-left",
-			sticky === "right" && "al__th--sticky-right",
-			className,
-		])}
+		onKeyDown={
+			sortable
+				? (e) => {
+						if (e.key !== "Enter" && e.key !== " ") return;
+						e.preventDefault();
+						onSort?.();
+					}
+				: undefined
+		}
+		tabIndex={sortable ? 0 : undefined}
+		data-sortable={sortable || undefined}
+		data-sticky={sticky}
+		className={cn([styles.th, className])}
 	>
 		{children}
 		{sortable && (
-			<span className="al__th__sort-icon">
+			<span className={styles.sortIcon}>
 				{sortDirection ? (
-					<Picto icon={sortDirection === "desc" ? "sortDesc" : "sortAsc"} />
+					<Picto
+						icon={sortDirection === "desc" ? "sortDesc" : "sortAsc"}
+					/>
 				) : (
 					"-"
 				)}

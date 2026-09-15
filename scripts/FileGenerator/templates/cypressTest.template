@@ -1,8 +1,0 @@
-import { {COMPONENT_NAME} } from "./{COMPONENT_NAME}";
-
-describe("{COMPONENT_NAME}", () => {
-
-    it ("should render the component {COMPONENT_NAME}", () => {
-        cy.mount(<{COMPONENT_NAME} />);
-    });
-});

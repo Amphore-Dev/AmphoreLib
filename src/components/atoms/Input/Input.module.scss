@@ -1,0 +1,69 @@
+@use "../../../styles/field" as field;
+
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: var(--amp-space-1);
+	font-family: var(--amp-font);
+}
+
+.label {
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: var(--amp-color-ink);
+}
+
+.required {
+	color: var(--amp-color-danger);
+	margin-left: 0.125rem;
+}
+
+.field {
+	@include field.field-box;
+}
+
+.input {
+	@include field.field-text;
+	flex: 1;
+	min-width: 0;
+
+	&::placeholder {
+		color: var(--amp-color-sub);
+	}
+
+	&:disabled {
+		cursor: not-allowed;
+		color: var(--amp-color-sub);
+	}
+}
+
+.picto {
+	flex-shrink: 0;
+	width: 1rem;
+	height: 1rem;
+	color: var(--amp-color-sub);
+}
+
+.clear {
+	flex-shrink: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1rem;
+	height: 1rem;
+	padding: 0;
+	border: none;
+	background: transparent;
+	color: var(--amp-color-sub);
+	cursor: pointer;
+	border-radius: var(--amp-radius-sm);
+
+	&:hover {
+		color: var(--amp-color-ink);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--amp-color-primary);
+		outline-offset: 2px;
+	}
+}

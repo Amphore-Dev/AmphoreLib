@@ -1,0 +1,79 @@
+.menu {
+	box-sizing: border-box;
+	min-width: 10rem;
+	max-width: 20rem;
+	// 16rem clipped a plain 7-item action list (ContextMenu reuses this same
+	// class) by a few px, forcing a needless scrollbar on an otherwise
+	// fully-visible menu. 24rem covers that comfortably while still capping
+	// a long Select options list.
+	max-height: 24rem;
+	overflow-y: auto;
+	padding: var(--amp-space-1);
+	border: 1px solid var(--amp-color-border);
+	border-radius: var(--amp-radius-md);
+	background: var(--amp-color-card);
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+	font-family: var(--amp-font);
+	z-index: 1000;
+}
+
+.item {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	gap: var(--amp-space-2);
+	padding: var(--amp-space-2) var(--amp-space-2);
+	margin: 0;
+	border: none;
+	// Derived from the menu's own radius (nested-corner technique: inner
+	// radius = outer radius - the padding between them) instead of a fixed
+	// --amp-radius-sm — that was visually inconsistent with the container
+	// in a "round" preset (a much bigger outer radius next to a small,
+	// unrelated inner one). max(0px, ...) keeps it from going negative in
+	// "sharp" (a tiny outer radius minus the padding).
+	border-radius: max(0px, calc(var(--amp-radius-md) - var(--amp-space-1)));
+	background: transparent;
+	font-family: inherit;
+	font-size: 0.84375rem;
+	color: var(--amp-color-ink);
+	text-align: left;
+	cursor: pointer;
+
+	&:disabled {
+		cursor: not-allowed;
+		opacity: 0.5;
+	}
+
+	&:hover:not(:disabled),
+	&:focus-visible {
+		background: var(--amp-color-ghost-bg);
+	}
+
+	&:focus-visible {
+		outline: none;
+	}
+
+	// ---- color: tints destructive/semantic actions (e.g. color="danger" for Delete).
+	&[data-color="danger"] {
+		color: var(--amp-color-danger);
+	}
+
+	&[data-color="success"] {
+		color: var(--amp-color-success);
+	}
+
+	&[data-color="warning"] {
+		color: var(--amp-color-warning);
+	}
+}
+
+.itemActive {
+	background: var(--amp-color-ghost-bg);
+}
+
+.picto {
+	flex-shrink: 0;
+	width: 1em;
+	height: 1em;
+	color: var(--amp-color-sub);
+}

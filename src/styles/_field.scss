@@ -1,0 +1,102 @@
+// Shared "field" styles for every form field component (Input, Select, and
+// future TextField/NumberField/DatePicker...). Single source of truth for
+// the box (border/radius/background/focus-ring/size scale) and the text
+// slot (font/line-height) — line-height drifting apart between Input's
+// <input> and Select's value/search-input slot is exactly the bug this
+// exists to stop from happening again.
+
+@mixin field-box {
+	box-sizing: border-box;
+	display: flex;
+	align-items: center;
+	gap: var(--amp-space-2);
+	border: 1px solid var(--amp-color-border);
+	border-radius: var(--amp-radius-md);
+	background: var(--amp-color-card);
+	transition:
+		border-color 0.15s ease,
+		box-shadow 0.15s ease;
+
+	// :focus-within covers a field whose *nested* input is focused (Input);
+	// :focus-visible covers a field that's itself the focusable element
+	// (Select's trigger div, via tabIndex). Both use the same ring.
+	&:focus-within,
+	&:focus-visible {
+		outline: 2px solid var(--_field-color, var(--amp-color-primary));
+		outline-offset: 2px;
+	}
+
+	&[data-invalid="true"] {
+		border-color: var(--amp-color-danger);
+	}
+
+	&[data-disabled="true"] {
+		background: var(--amp-color-ghost-bg);
+		cursor: not-allowed;
+	}
+
+	// ---- color: sets the focus ring color, consumed above.
+	&[data-color="primary"] {
+		--_field-color: var(--amp-color-primary);
+	}
+
+	&[data-color="danger"] {
+		--_field-color: var(--amp-color-danger);
+	}
+
+	&[data-color="success"] {
+		--_field-color: var(--amp-color-success);
+	}
+
+	// ---- size: padding + text scale shared by every field. font-size and
+	// line-height match Button's own per-size values exactly (see
+	// Button.module.scss) — a field and a button at the same `size` must
+	// end up the same total height; both inherit down into `field-text`
+	// below (font-size/line-height are inherited, and field-text no longer
+	// sets its own), so a field's text slot always matches its wrapper's
+	// size regardless of which element (input/span/textarea) it's on.
+	&[data-size="sm"] {
+		padding: var(--amp-space-1) var(--amp-space-2);
+		font-size: 0.75rem;
+		line-height: 1.25rem;
+	}
+
+	&[data-size="md"] {
+		padding: var(--amp-space-2) var(--amp-space-2);
+		font-size: 0.84375rem;
+		line-height: 1.5rem;
+	}
+
+	&[data-size="lg"] {
+		padding: var(--amp-space-3) var(--amp-space-3);
+		font-size: 0.9375rem;
+		line-height: 1.75rem;
+	}
+}
+
+// The actual text-editing slot inside a field (Input's <input>, Select's
+// value <span> / search <input>). Must produce the exact same box on every
+// element it's applied to, regardless of tag — that's the whole point.
+@mixin field-text {
+	// Matters beyond consistency: TextArea reads offsetHeight (border-box)
+	// and assigns it straight to style.height while dragging its resize
+	// handle. Without this, a plain <textarea>'s UA default is content-box,
+	// so that assignment grows the box by its own padding+border the instant
+	// a drag starts — a visible jump before the pointer has even moved.
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	border: none;
+	outline: none;
+	background: transparent;
+	font-family: inherit;
+	// Explicit `inherit`, not omitted — form controls (input/textarea) have
+	// their own UA-default font-size that doesn't cascade from the ancestor
+	// on its own (same reason `font-family: inherit` above is spelled out
+	// instead of relying on the default). Picks up field-box's per-size
+	// rule on the ancestor `.field` wrapper, so this text slot always
+	// matches whatever `size` the field itself was given.
+	font-size: inherit;
+	line-height: inherit;
+	color: var(--amp-color-ink);
+}

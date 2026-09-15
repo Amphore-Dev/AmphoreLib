@@ -1,104 +1,85 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 
-import { Placement } from "@floating-ui/react";
-
-import { ITooltipProps, Tooltip } from "../Tooltip/Tooltip";
+import { type Placement } from "@floating-ui/react";
 
 import { cn } from "@utils/cn";
 
-import "./TruncatedTooltipText.scss";
+import { Tooltip } from "../../molecules/Tooltip/Tooltip";
 
-interface TruncatedTooltipTextProps {
+import styles from "./TruncatedTooltipText.module.scss";
+
+export interface ITruncatedTooltipTextProps {
 	children: React.ReactNode;
-	className?: string;
-	placement?: Placement;
+	/** Lines before truncating. 1 = single-line ellipsis, >1 = multi-line clamp. Defaults to 1. */
 	maxLines?: number;
-	tooltipProps?: Partial<ITooltipProps>;
+	placement?: Placement;
+	className?: string;
+	tooltipClassName?: string;
 }
 
-export const TruncatedTooltipText: React.FC<TruncatedTooltipTextProps> = ({
+/**
+ * V2 TruncatedTooltipText — truncates text (ellipsis, 1 or more lines) and
+ * only enables a Tooltip with the full content once it's actually
+ * overflowing (measured via ResizeObserver, re-checked on content/maxLines
+ * change). Always renders the same `<Tooltip disabled={!isTruncated}>`
+ * tree rather than conditionally mounting it — swapping element types once
+ * truncation is detected would remount the trigger into a new DOM node,
+ * losing hover state if the user's pointer was already over it (a real
+ * timing race, not hypothetical: hovering right as a Storybook story
+ * settles hits it easily). `useLayoutEffect` measures before paint too, so
+ * there's no frame where the untruncated/disabled version is visible.
+ */
+export const TruncatedTooltipText: React.FC<ITruncatedTooltipTextProps> = ({
 	children,
-	className,
-	placement = "bottom",
 	maxLines = 1,
-	tooltipProps = {},
+	placement = "top",
+	className = "",
+	tooltipClassName = "",
 }) => {
-	const spanRef = useRef<HTMLSpanElement>(null);
+	const ref = useRef<HTMLSpanElement>(null);
 	const [isTruncated, setIsTruncated] = useState(false);
+	const isMultiLine = maxLines > 1;
 
-	const isMultiLine = maxLines && maxLines > 1;
-
-	const checkTruncate = () => {
-		const el = spanRef.current;
+	useLayoutEffect(() => {
+		const el = ref.current;
 		if (!el) return;
 
-		const style = window.getComputedStyle(el);
-		const lineHeight = parseFloat(style.lineHeight) || 16;
+		const checkTruncated = () => {
+			setIsTruncated(
+				isMultiLine
+					? el.scrollHeight > el.clientHeight
+					: el.scrollWidth > el.clientWidth
+			);
+		};
 
-		if (isMultiLine && el.scrollHeight > lineHeight) {
-			const maxHeight = lineHeight * (maxLines || 1);
-			setIsTruncated(el.scrollHeight > maxHeight);
-		} else {
-			setIsTruncated(el.scrollWidth > el.clientWidth);
-		}
-	};
+		checkTruncated();
 
-	useEffect(() => {
-		checkTruncate();
-
-		const resizeObserver = new ResizeObserver(checkTruncate);
-		if (spanRef.current) resizeObserver.observe(spanRef.current);
-
-		return () => resizeObserver.disconnect();
-	}, [children, isMultiLine, maxLines]);
+		const observer = new ResizeObserver(checkTruncated);
+		observer.observe(el);
+		return () => observer.disconnect();
+	}, [children, isMultiLine]);
 
 	const content = (
 		<span
-			ref={spanRef}
+			ref={ref}
 			className={cn([
-				"al__truncated-text",
-				!isMultiLine &&
-					"text-ellipsis whitespace-nowrap overflow-hidden block max-w-full",
+				styles.text,
+				isMultiLine ? styles.multiLine : styles.singleLine,
 				className,
 			])}
-			style={
-				isMultiLine
-					? {
-							display: "-webkit-box",
-							WebkitBoxOrient: "vertical",
-							WebkitLineClamp: maxLines,
-							overflow: "hidden",
-						}
-					: {}
-			}
+			style={isMultiLine ? { WebkitLineClamp: maxLines } : undefined}
 		>
 			{children}
 		</span>
 	);
 
-	if (isTruncated) {
-		return (
-			<Tooltip
-				{...tooltipProps}
-				buttonClassName={cn([
-					"al__truncated-text al__truncated-text--button",
-					className,
-					tooltipProps.buttonClassName,
-				])}
-				content={content}
-				floatingProps={{
-					placement,
-					...tooltipProps.floatingProps,
-				}}
-				className={cn([
-					"al__truncated-tooltip whitespace-pre-wrap max-w-xl break-words",
-					tooltipProps.className,
-				])}
-			>
-				{children}
-			</Tooltip>
-		);
-	}
-
-	return content;
+	return (
+		<Tooltip
+			content={<span className={tooltipClassName}>{children}</span>}
+			placement={placement}
+			disabled={!isTruncated}
+		>
+			{content}
+		</Tooltip>
+	);
 };

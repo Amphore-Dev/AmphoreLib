@@ -1,0 +1,75 @@
+{/* Theming.mdx */}
+
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Directives/Theming" />
+
+# Theming
+
+The whole lib is driven via **CSS variables** set by `AmphoreProvider` — never a hardcoded color/spacing in a `.module.scss`, never a JS branch on a theme.
+
+```tsx
+<AmphoreProvider config={{ colors: { primary: "#e2673f" }, style: "round" }}>
+  <App />
+</AmphoreProvider>
+```
+
+Without a config, the default theme applies (`DEFAULT_CONFIG` in `CThemeConfig.ts`) — `typography.fontFamily` defaults to `"inherit"`: the lib doesn't load any webfont itself, it lets the host app's font cascade naturally (see `CThemeConfig.ts` for the detail behind this decision).
+
+---
+
+## `--amp-*` variables
+
+Every component reads its styles via `var(--amp-*)`, never a literal value:
+
+```scss
+.button {
+	font-family: var(--amp-font);
+	border-radius: var(--amp-radius-md);
+	padding: var(--amp-space-2) var(--amp-space-3);
+	color: var(--amp-color-ink);
+}
+```
+
+`AmphoreProvider` computes these variables (`configToCssVars` in `UThemeConfig.ts`) and sets them as inline `style` on its own wrapper — every descendant component inherits them.
+
+## `data-*`, never a conditional className
+
+Variant/color/size/state go through `data-*` attributes, read in CSS — not `cn([styles.x, condition && styles.y])` for this:
+
+```tsx
+<div data-color={color} data-variant={variant} data-size={size} />
+```
+
+```scss
+.button {
+	&[data-color="primary"] {
+		--_color: var(--amp-color-primary);
+		--_color-fg: var(--amp-color-primary-fg);
+		--_color-tint: var(--amp-color-primary-tint);
+	}
+
+	&[data-variant="solid"] {
+		background: var(--_color);
+		color: var(--_color-fg);
+	}
+}
+```
+
+One `[data-color="x"]` block per color sets local variables (`--_color`/`--_color-fg`/`--_color-tint`); the `[data-variant]` blocks consume them. Adding a color means one rule here, not one per variant — see `Button.module.scss`, `Badge.module.scss`.
+
+## Density
+
+`density: "comfortable" | "compact"` drives layout spacing (gaps, `Card`/`SectionCard` padding) — purely via CSS variables (`DENSITY_PRESETS` in `CThemeConfig.ts`), no JS context/hook needed.
+
+## Dark theme
+
+`<AmphoreProvider theme="light" | "dark" | "system">` (default `"system"`). A separate `darkColors` palette (not a JS inversion of `colors`) is resolved **in CSS** — a `<style>` scoped to the provider instance + `@media (prefers-color-scheme)` — never a JS media-query detection (risk of SSR/hydration mismatch).
+
+## Radius: `sm` / `md` / `lg` / `full`
+
+Three progressive presets (`sharp` < default < `round`), plus `full` (pill/circle, outside this progression). Always usable — check that the default theme actually differentiates the three before adding a new component that depends on it (a bug already fixed once: the default's `sm` was identical to `sharp`).
+
+---
+
+See also: `AmphoreProvider.tsx`, `CThemeConfig.ts`, `UThemeConfig.ts`, [Directives/Sizing](?path=/docs/directives-sizing--docs).

@@ -1,0 +1,136 @@
+.accordion {
+	display: flex;
+	flex-direction: column;
+	font-family: var(--amp-font);
+	border: 1px solid var(--amp-color-border);
+	border-radius: var(--amp-radius-md);
+	overflow: hidden;
+}
+
+.item {
+	border-bottom: 1px solid var(--amp-color-border);
+
+	&:last-child {
+		border-bottom: none;
+	}
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	gap: var(--amp-space-2);
+	margin: 0;
+	border: none;
+	background: var(--amp-color-card);
+	font-family: inherit;
+	font-weight: 600;
+	color: var(--amp-color-ink);
+	text-align: left;
+	cursor: pointer;
+
+	&:hover:not(:disabled) {
+		background: var(--amp-color-ghost-bg);
+	}
+
+	&:disabled {
+		cursor: not-allowed;
+		opacity: 0.5;
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--amp-color-primary);
+		outline-offset: -2px;
+	}
+}
+
+// ---- size: header padding/font + panel padding, kept in sync per level.
+.accordion[data-size="sm"] {
+	.header {
+		padding: var(--amp-space-2) var(--amp-space-3);
+		font-size: 0.8125rem;
+	}
+
+	.panelContent {
+		padding: var(--amp-space-2) var(--amp-space-3) var(--amp-space-2);
+	}
+}
+
+.accordion[data-size="md"] {
+	.header {
+		padding: var(--amp-space-3) var(--amp-space-4);
+		font-size: 0.875rem;
+	}
+
+	.panelContent {
+		padding: var(--amp-space-3) var(--amp-space-4) var(--amp-space-3);
+	}
+}
+
+.accordion[data-size="lg"] {
+	.header {
+		padding: var(--amp-space-4) var(--amp-space-4);
+		font-size: 0.9375rem;
+	}
+
+	.panelContent {
+		padding: var(--amp-space-4) var(--amp-space-4) var(--amp-space-4);
+	}
+}
+
+.picto {
+	flex-shrink: 0;
+	width: 1.125em;
+	height: 1.125em;
+	color: var(--amp-color-sub);
+}
+
+.title {
+	flex: 1;
+	min-width: 0;
+}
+
+.chevron {
+	flex-shrink: 0;
+	width: 0.75rem;
+	height: 0.75rem;
+	color: var(--amp-color-sub);
+	transition: transform 0.15s ease;
+}
+
+// The animation: grid-template-rows from 0fr to 1fr on an intrinsically-
+// sized track animates to "auto" height with no JS measurement — .panelInner
+// needs min-height: 0 (grid item default is min-height: auto, which would
+// otherwise refuse to shrink below its content's height and break the
+// collapse). overflow: hidden HERE (not just on .panelInner) is what
+// actually clips content while collapsed — a 0fr track shrinks .panel's
+// own box to 0 height, but without clipping its own overflow, the content
+// just keeps painting past that 0-height box instead of disappearing,
+// visibly bleeding into/overlapping the next item.
+.panel {
+	display: grid;
+	grid-template-rows: 0fr;
+	overflow: hidden;
+	transition: grid-template-rows 0.2s ease;
+
+	&[data-open="true"] {
+		grid-template-rows: 1fr;
+	}
+}
+
+// The grid item that must actually collapse to 0 — deliberately no padding
+// here (see .panelContent below): padding is a fixed floor unaffected by
+// min-height: 0, so a padded grid item never fully collapses, leaving a
+// residual gap (== its own padding) the content still visibly peeked
+// through at rest, cut mid-glyph by overflow: hidden.
+.panelInner {
+	min-height: 0;
+	overflow: hidden;
+}
+
+// One level deeper than .panelInner on purpose (see above) — padding lives
+// here instead, fully clipped along with everything else by .panelInner's
+// own overflow: hidden when collapsed.
+.panelContent {
+	color: var(--amp-color-ink);
+}

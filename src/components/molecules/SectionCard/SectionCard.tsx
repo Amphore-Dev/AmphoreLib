@@ -1,37 +1,41 @@
-import React, { PropsWithChildren } from "react";
-
-import { Card, Divider } from "@components/atoms";
+import React from "react";
 
 import { cn } from "@utils/cn";
 
-import "./SectionCard.scss";
+import { Card, ICardProps } from "../../atoms/Card/Card";
+import { Divider } from "../../atoms/Divider/Divider";
+import { Title } from "../../atoms/Title/Title";
 
-export interface ISectionCardProps extends PropsWithChildren {
+import styles from "./SectionCard.module.scss";
+
+export interface ISectionCardProps extends Omit<
+	ICardProps,
+	"children" | "title"
+> {
 	title: React.ReactNode;
 	actions?: React.ReactNode;
+	children?: React.ReactNode;
 	className?: string;
 }
 
+/** V2 SectionCard — a Card preset: title + optional trailing actions, a Divider, then content. */
 export const SectionCard: React.FC<ISectionCardProps> = ({
 	title,
 	actions,
-	className,
 	children,
-}) => {
-	return (
-		<Card className={cn(["al__section-card", className])}>
-			<div className="al__section-card__header">
-				<div className="al__section-card__top">
-					<div className="al__section-card__title">{title}</div>
-					{!!actions && (
-						<div className="al__section-card__actions">
-							{actions}
-						</div>
-					)}
-				</div>
-				<Divider />
+	className = "",
+	...props
+}) => (
+	<Card {...props} className={cn([styles.card, className])}>
+		<div className={styles.header}>
+			<div className={styles.top}>
+				<Title as="h3" size="h5" className={styles.title}>
+					{title}
+				</Title>
+				{!!actions && <div className={styles.actions}>{actions}</div>}
 			</div>
-			{children}
-		</Card>
-	);
-};
+			<Divider />
+		</div>
+		{children}
+	</Card>
+);

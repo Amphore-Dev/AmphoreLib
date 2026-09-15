@@ -1,0 +1,71 @@
+{/* Localization.mdx */}
+
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Directives/Localization" />
+
+# Localization
+
+Every user-facing string in the lib is a prop with a hardcoded English default — never a global i18n dictionary a component reaches into on its own. On top of that, `AmphoreProvider` can override those defaults globally, so a non-English consumer doesn't have to repeat translation props on every single usage of every component.
+
+```tsx
+<AmphoreProvider locale="fr">
+  <App />
+</AmphoreProvider>
+```
+
+Try it live: the "Amphore locale" control in this Storybook's toolbar panel ("Amphore Theme"), or the [Configuration/Theme Configuration](?path=/docs/configuration-theme-configuration--docs) page.
+
+---
+
+## Resolution order
+
+For any translatable prop, highest priority first:
+
+1. **The prop itself**, passed directly on this instance.
+2. **`config.labels.<Component>.<key>`** — a global override for this component only.
+3. **`config.labels.common.<key>`** — a shared override for a generic action verb (see below).
+4. **The `en` bundle** (`src/locales/en.ts`) — always present, even with zero `<AmphoreProvider>` in the tree.
+
+```tsx
+// src/theme/useAmphoreLabels.ts
+const { resolve } = useAmphoreLabels("Badge");
+const removeLabel = resolve("removeLabel", removeLabelProp, "remove");
+```
+
+No component hardcodes its own fallback string inline — `en.ts` is the single source of truth for English, typed `TRequiredThemeLabels` so a component joining the system without its English text also landing in `en.ts` is a compile error, not a silent runtime gap (`resolve()`'s own fallback is `?? ""`, never a guessed string).
+
+## `locale` vs `config.labels`
+
+```tsx
+<AmphoreProvider locale="fr" config={{ labels: { Badge: { removeLabel: "Supprimer" } } }}>
+```
+
+`locale="fr"` applies the whole `fr` bundle; `config.labels` still wins per-key on top of it — same relationship `config.colors.primary` has with `style`. Only `"fr"` needs the prop at all: `"en"` is already the built-in default.
+
+## The `common` bucket — action verbs only
+
+```ts
+common?: {
+	cancel?: string; confirm?: string; reset?: string; submit?: string;
+	add?: string; edit?: string; close?: string; remove?: string;
+	clear?: string; back?: string; loading?: string;
+};
+```
+
+Setting `labels.common.cancel` once covers every component whose own English default is that exact bare word (`FormRenderer.cancelLabel`, `ConfirmModal.cancelText`, ...) — no need to repeat the same translation per component.
+
+**Deliberately not shared**: descriptive messages (`Select.noResultsMessage` "No results", `Table.noDataMessage` "No data"). Two components' empty-state text can share a language without sharing an exact wording — mutualizing here risks changing one component's copy by accident while tuning another's.
+
+A component only reads from `common` when its own English wording is the bare common word — check the `commonKey` argument (3rd, optional) in that component's own `resolve()` call to see whether it does.
+
+## Adding a new labeled component
+
+1. Type the prop `TLabel` (a documentation alias for `string`, see `src/types/TLabel.ts` for why it can't be auto-detected).
+2. `const { resolve } = useAmphoreLabels("YourComponent");` + `resolve("yourProp", yourPropValue, commonKey?)`.
+3. Export `T<Name>Labels = Pick<I<Name>Props, "yourProp">` next to the Props interface.
+4. Register it in `TThemeLabels`/`TRequiredThemeLabels` (`src/theme/TThemeLabels.ts`) and add its English text to `en.ts` — omitting either is a `tsc` error, not a gap you'll find at runtime.
+
+---
+
+See also: `useAmphoreLabels.ts`, `TThemeLabels.ts`, `src/locales/en.ts`, `src/locales/fr.ts`, [Directives/Theming](?path=/docs/directives-theming--docs).

@@ -1,403 +1,235 @@
 {/* FiltersContext.mdx */}
 
-import { Meta } from "@storybook/blocks";
+import { Meta } from "@storybook/addon-docs/blocks";
 
 <Meta title="Concepts/FiltersContext" />
 
 # 🧩 Filters Context
 
-Un contexte React générique pour gérer des **filtres applicatifs** (avec des slices par domaine), persistés dans `sessionStorage` et optionnellement synchronisés avec l'URL.
+A generic React context for managing **application filters** (with per-domain slices), persisted in `sessionStorage`/`localStorage` and optionally synced with the URL.
 
 ---
 
-## ✨ Fonctionnalités
+## ✨ Features
 
-- `createFiltersContext<T>()` → génère un **Provider** et un hook `useFiltersContext`.
-- Chaque **slice** de `T` est un objet de filtres (`TFiltersSlice`).
-- **Filtres communs** inclus automatiquement dans chaque slice :
-    - `page`, `limit`, `total`, `status`, `search`, `sortOrder`, `sortType`, `count`, `startDate`, `endDate`.
-- Persistance automatique dans `sessionStorage`.
-- Synchronisation optionnelle avec l'URL via `params` + `TParamsAccessors`.
+- `createFiltersContext<T>()` → generates a **Provider** and a `useFiltersContext` hook.
+- Each **slice** of `T` is a filters object (`TFiltersSlice`).
+- **Common filters** included automatically in every slice (`TDefaultFilters`):
+  `page`, `limit`, `total`, `status`, `search`, `sortOrder`, `sortType`, `count`, `startDate`, `endDate`.
+- Automatic persistence (`sessionStorage` by default, `localStorage` optionally) — writes guarded by try/catch, never throws (SSR, private browsing, storage full/blocked).
+- Optional URL sync via `params` + `TParamsCodecs`, with no dependency on any router (default adapter based on `window.history`/`URLSearchParams`).
 
 ---
 
-## 🛠️ Utilisation
+## 🛠️ Usage
 
-### 1. Définir vos types de filtres
+### 1. Define your filter types
 
 ```ts
 // src/types/TFilters.ts
-import { TFiltersSlice } from "@amphore/lib";
+import { TFiltersSlice } from "@amphore-dev/amphore-lib";
 
-export type TMyTempFilters = {
-	planning: TPlanningFilters;
-	commercialPropositions: TCommercialPropositionsFilters;
+export type TMyFilters = {
+  planning: TPlanningFilters;
+  orders: TOrdersFilters;
 };
 
-// src/types/TPlanning.ts
 export type TPlanningFilters = TFiltersSlice<{
-	display?: "day" | "week";
-	site?: string | null;
-	grouped?: boolean;
+  display?: "day" | "week";
+  site?: string | null;
 }>;
 
-// src/types/TCommercialPropositions.ts
-export type TCommercialPropositionsFilters = TFiltersSlice<{
-	status?: "draft" | "sent";
-	assignedTo?: string;
+export type TOrdersFilters = TFiltersSlice<{
+  status?: "draft" | "sent";
+  assignedTo?: string;
 }>;
 ```
 
-### 2. Définir vos filtres
+### 2. Define your default values
 
 ```ts
-// src/constants/Cfilters.ts
-import { TMyTempFilters } from "@myTypes";
-import { CPlanningFilters, CCommercialPropositionsFilters } from "@myConstants";
-
-export const CDEFAULT_FILTERS: TMyTempFilters = {
-	planning: CPlanningFilters,
-	commercialPropositions: CCommercialPropositionsFilters,
+export const DEFAULT_FILTERS: TMyFilters = {
+  planning: { display: "week", site: null },
+  orders: { status: "draft", assignedTo: "" },
 };
-
-
-// src/constants/CPlanning.ts
-import { TPlanningFilters } from "@myTypes";
-
-export const CPLANNING_FILTERS: TPlanningFilters = {
-	display: "week",
-	site: null,
-	grouped: false,
-};
-
-
-// src/constants/CCommercialPropositions.ts
-import { TCommercialPropositionsFilters } from "@myTypes";
-
-export const CCOMMERCIAL_PROPOSITIONS_FILTERS: TCommercialPropositionsFilters =
-	{
-		status: "draft",
-		assignedTo: "",
-	};
 ```
 
----
-
-### 3. Créer un contexte typé
-
-Pour créer un contexte typé, importer `createFiltersContext` depuis la lib, dans un fichier de votre projet.
-Appeler ensuite `createFiltersContext` en passant le type de vos filtres en annotation de la fonction générique, puis exporter le résultat décomposé.
-
-Le fichier est à placer soit:
-
-- A la racine du projet -> index.ts, App.tsx
-- Dans un dossier `contexts` ou `providers` -> myFilters.ts
-- A l'intérieur d'un composant si vous avez besoin d'un contexte spécifique (à éviter)
+### 3. Create a typed context
 
 ```ts
-import { TMyTempFilters } from "@myTypes";
-import { createFiltersContext } from "@amphore/lib";
+// src/contexts/FiltersContext.ts
+import { createFiltersContext } from "@amphore-dev/amphore-lib";
+import { TMyFilters } from "@myTypes";
 
 export const { Provider: FiltersProvider, useFiltersContext } =
-	createFiltersContext<TMyTempFilters>();
+  createFiltersContext<TMyFilters>();
 ```
 
-La fonction retourne le Provider ainsi que le hook `useFiltersContext` qui permet de récupérer les différentes Slices à l'intérieur d'un composant.
-
----
-
-### 4. Envelopper l'application ou la page
-
-Dans le layout ou la vue cible, importer le Provider depuis le fichier créé précédemment, wrapper l'enfant et passer les valeurs par défaut des filtres dans la prop `defaultFilters`
+### 4. Wrap the app or the page
 
 ```tsx
-import { CDEFAULT_FILTERS } from "@myConstants";
+import { DEFAULT_FILTERS } from "@myConstants";
 import { FiltersProvider } from "@myContexts/FiltersContext";
 
-<FiltersProvider defaultFilters={CDEFAULT_FILTERS}>
-	<App />
+<FiltersProvider defaultFilters={DEFAULT_FILTERS}>
+  <App />
 </FiltersProvider>;
 ```
 
-Puis dans `<App />`, vous pouvez utiliser le hook `useFiltersContext`, importé depuis le fichier créé précédemment, pour accéder et modifier les filtres.
+⚠️ Avoid nesting a `Provider` inside another `Provider` to limit context errors.
+
+### 5. Use the filters in a component
 
 ```tsx
 import { useFiltersContext } from "@myContexts/FiltersContext";
 
-function App() {
-	const { filters, setFilter } = useFiltersContext("planning");
-
-	return (
-		<div>
-			<h1>Mon Application</h1>
-			<button onClick={() => setFilter("status", "completed")}>
-				Filtrer par statut : Complété
-			</button>
-		</div>
-	);
-}
-```
-
-#### **⚠️   ATTENTION**
-Éviter d'encapsuler un Provider dans un Provider pour limiter les erreurs de contexte.
-
----
-
-### 5. Choisir un adapter pour la gestion des paramètres d'URL
-
-	ℹ️ Utile seulement si l'option "updateUrlParams" est passée au Provider ou au hook "useFiltersContext"
-
-Par défaut, le `FiltersProvider` utilise un **adapter standalone** basé sur `window.history` et `URLSearchParams`.
-Cela permet d'utiliser la lib sans dépendance à `react-router-dom`.
-
-Si votre projet utilise **React Router**, vous pouvez injecter l'adapter correspondant pour garder la synchro avec son routeur interne :
-
-```tsx
-import { CDEFAULT_FILTERS } from "@myConstants";
-import { useCreateRouterAdapter } from "@amphore/lib";
-import { useSearchParams } from "react-router-dom";
-
-const MyComponent = () => {
-	const adapter = useCreateRouterAdapter(useSearchParams());
-	return (
-		<FiltersProvider
-			defaultFilters={CDEFAULT_FILTERS}
-			adapterHook={adapter}
-		>
-			<App />
-		</FiltersProvider>
-	);
-};
-```
-
-Vous pouvez aussi créer et passer vos propres adapters (ex : `NextRouterAdapter`, `ExpoRouterAdapter`, …) tant qu'ils respectent les interfaces suivantes :
-
-```ts
-// types exportés depuis la lib
-interface ISearchParamsAdapter {
-	getParam: (key: string) => string | null;
-	getAll: () => URLSearchParams;
-	setParams: (
-		updater: URLSearchParams | ((prev: URLSearchParams) => URLSearchParams),
-		options?: { replace?: boolean }
-	) => void;
-}
-
-interface TLocation<State = unknown> {
-	state: State;
-	key: string;
-	pathname: string;
-	search: string;
-	hash: string;
-}
-```
-
----
-
-### 6. Utiliser les filtres dans un composant
-
-```tsx
 function PlanningToolbar() {
-	const { filters, setFilter } = useFiltersContext("planning");
+  const { filters, setFilter } = useFiltersContext("planning");
 
-	return (
-		<>
-			<span>Vue : {filters.display}</span>
-			<button onClick={() => setFilter("display", "day")}>Jour</button>
-			<button onClick={() => setFilter("display", "week")}>
-				Semaine
-			</button>
-		</>
-	);
+  return (
+    <>
+      <span>View: {filters.display}</span>
+      <Button onClick={() => setFilter("display", "day")}>Day</Button>
+      <Button onClick={() => setFilter("display", "week")}>Week</Button>
+    </>
+  );
 }
+```
+
+### 6. URL adapter (only if `updateUrlParams` is used)
+
+By default, the `Provider` uses `useStandaloneSearchParams` — an adapter based on `window.history`/`URLSearchParams`, with no dependency on any router.
+
+To plug in a different router (React Router, etc.), supply your own adapter via `adapterHook`, matching this interface:
+
+```ts
+interface ISearchParamsAdapter {
+  getParam: (key: string) => string | undefined;
+  setParams: (
+    updater: (prev: URLSearchParams) => URLSearchParams,
+    options?: { replace?: boolean }
+  ) => void;
+}
+```
+
+```tsx
+const myRouterAdapter = (): ISearchParamsAdapter => {
+  const [searchParams, setSearchParams] = useSearchParams(); // e.g.: react-router-dom
+  return {
+    getParam: (key) => searchParams.get(key) ?? undefined,
+    setParams: (updater, { replace = true } = {}) => {
+      setSearchParams(updater(new URLSearchParams(searchParams)), { replace });
+    },
+  };
+};
+
+<FiltersProvider defaultFilters={DEFAULT_FILTERS} adapterHook={myRouterAdapter()}>
+  <App />
+</FiltersProvider>;
 ```
 
 ---
 
-
-## 🧩 API du hook `useFiltersContext`
-
-Pour une slice donnée `S` :
+## 🧩 `useFiltersContext` hook API
 
 ```ts
-interface IUseFiltersContext<S> {
-  filters: S;                                 // état actuel des filtres
-  setFilters(next: S | (prev: S) => S): void; // remplacement ou update
-  setFilter<K extends keyof S>(k: K, v: S[K]): void; // update d'une seule clé
+interface IUseFiltersContext<T, K, S = T[K]> {
+  filters: S;
+  filtersKey: K;
+  setFilters: (next: S | ((prev: S) => S), replace?: boolean) => void;
+  setFilter: <SK extends keyof S>(key: SK, value: S[SK]) => void;
 
-  getPagination(): { page?: number; limit?: number };
-  setPagination(p: Partial<{ page: number; limit: number }>): void;
+  getPagination: () => Partial<{ page: number; limit: number; total: number }>;
+  setPagination: (p: Partial<{ page: number; limit: number; total: number }>) => void;
 
   count: number;
-  setCount(n: number): void;
+  setCount: (n: number) => void;
 
-  getParams(filters?: S): Record<string, string>; // sérialisation vers URL
-  getQueryKeys(filters?: S): string[]; // génération des clés de requête
+  getParams: (filters?: S) => Record<string, string>;
+  getQueryKeys: (filters?: S) => string[];
+
+  options?: TFiltersContextOptions<S>;
+  fieldRenderers?: Partial<TFieldRendererMap>;
 }
 ```
 
-- `filters` : état actuel des filtres pour la slice
-- `setFilters(next)` : remplace ou met à jour les filtres (objet ou fonction)
-- `getPagination()` : retourne `{ page, limit }` pour la pagination
-- `setPagination(p)` : met à jour la pagination `{ page, limit }`
-- `getParams(filters?)` : sérialise les filtres en paramètres
-- `getQueryKeys(filters?)` : génère les clés de requête à partir des filtres
-- `count` : nombre de filtres actifs
-- `setCount(n)` : force manuellement la valeur du compteur (préférer passer un `countCallback` depuis les options du hook)
+- `filters`: the current filters state for the slice
+- `setFilters(next, replace?)`: replaces or updates the filters (object or function)
+- `setFilter(key, value)`: updates a single key
+- `getPagination()` / `setPagination(p)`: read/write `{page, limit, total}`
+- `getParams(filters?)` / `getQueryKeys(filters?)`: serialization to the URL / query keys
+- `count` / `setCount(n)`: active-filters counter (prefer `countCallback` in options over manually calling `setCount`)
+- `fieldRenderers`: see [Concepts/Fields](?path=/docs/concepts-fields--docs), `FiltersContext` level
 
 ---
 
-## ⚙️ Options
-
-Chaque appel à `useFiltersContext("slice", options)` accepte :
+## ⚙️ Options (`TFiltersContextOptions<S>`)
 
 ```ts
-export type TFiltersContextOptions<S> = {
-	countCallback?: (filters: S) => number; // calculer un compteur à partir des filtres d'une slice
-	defaultValues?: Partial<S>; // valeurs par défaut LOCALES
-	params?: Partial<TParamsCodecs<S>>; // mapping state <-> URL
-	resetPageOnChange?: boolean; // reset pagination si les filtres d'une slice changent (défaut : true)
-	updateUrlParams?: boolean; // mettre à jour les paramètres d'URL (défaut : true)
+type TFiltersContextOptions<S> = {
+  countCallback?: (filters: S) => number;
+  defaultValues?: Partial<S>; // defaults LOCAL to the calling component
+  params?: Partial<TParamsCodecs<S>>; // state <-> URL mapping
+  resetPageOnChange?: boolean; // default: true
+  updateUrlParams?: boolean; // default: false — explicit opt-in
+  skipInitFromUrl?: boolean; // skips the initial read from the URL
 };
 ```
 
-#### **⚠️   ATTENTION**
+⚠️ The `options` (including `defaultValues`) are **local** to the component that passes them to `useFiltersContext` — they aren't shared between several components consuming the same slice. For global default values, pass them into the `Provider`'s `defaultFilters` instead.
 
-Les `options` sont locales au composant qui les définit.
+### The `params` option
 
-```ts
-const ComposantA = () => {
-	const { filters, setFilter } = useFiltersContext("planning", {
-		defaultValues: { site: "1" },
-		updateUrlParams: true,
-	});
-	return <div>
-		<span>Site : {filters.site}</span>
-		<button onClick={() => setFilter("site", "2")}>Changer le site</button>
-	</div>;
-	// filters.site = 1
-	// l'url est bien update au changement
-};
-
-const ComposantB = () => {
-	const { filters, setFilter } = useFiltersContext("planning");
-	return <div>
-		<span>Site : {filters.site}</span>
-		<button onClick={() => setFilter("site", "2")}>Changer le site</button>
-	</div>;
-	// filters.site = undefined
-	// si updateUrlParams est non définit dans les props <FiltersProvider/>, l'url n'est pas mise à jour car updateUrlParams est à false par défaut
-};
-```
-
-Pour définir des valeurs par défaut constantes pour tous les composants, il faut soit:
-- passer les `defaultFilters` souhaités en prop du `FiltersProvider`.
-- définir une constante qui contiendra les options par défaut pour une slice et qui sera passée en argument a chaque appel de `useFiltersContext`
-
-```ts
-// src/constants/CPlanning.ts
-export const PLANNING_FILTERS_OPTIONS = {
-	defaultValues: { sortOrder: "asc" },
-	updateUrlParams: true,
-};
-
-// src/components/x/y.tsx
-const PlanningComponent = () => {
-	const { filters, setFilter } = useFiltersContext("planning", PLANNING_FILTERS_OPTIONS);
-	return (
-		<div>
-			<span>Site : {filters.site}</span>
-			<button onClick={() => setFilter("site", "2")}>Changer le site</button>
-		</div>
-	);
-};
-```
-
-### Option `params`
-
-Dans le cas où l'option `updateUrlParams` est à `true`, les paramètres d'url ainsi que l'états des filtres seront synchronisés:
-- mise à jour des filtres depuis l'url au chargement de la page
-- mise à jour de l'url au changement dans les filtres
-
-L'option `params` est un objet contenant la liste des clés de filtres a observer. Chaque clé peut avoir pour valeur `true` ou un objet contenant les accessors facultatifs `get`, `set` et `key` (au moins un requis)
-
-ℹ️   Exemple: pour les filtres sous forme d'objet
+Each key can be `true` (value encoded as-is) or an object `{ get?, set?, key? }`:
 
 ```ts
 const { filters } = useFiltersContext("planning", {
-	params: {
-		site: {
-			// site est un objet
-			key: "siteId", // clé utilisée dans l'url ex: ?siteId=1
-			get: (value) => ({ id: value }) ?? undefined, // utilisé pour récupérer le paramètre depuis l'url
-			set: (site) => (site ? site?.id : null), // utilisé pour définir le paramètre dans l'url
-		},
-		assignedTo: { key: "user" }, // clé utilisée dans l'url sans get/set ex: ?user=1
-		display: true, // encode directement la valeur string
-	},
+  updateUrlParams: true,
+  params: {
+    site: {
+      key: "siteId", // key used in the URL, e.g.: ?siteId=1
+      get: (value) => value?.id, // value -> URL
+      set: (raw) => ({ id: raw }), // URL -> value
+    },
+    status: true, // encoded as-is, e.g.: ?status=draft
+  },
 });
 ```
 
 ---
 
-## 📖 Exemple complet
+## 📖 Full example
 
 ```tsx
-function CommercialList() {
-	const { filters, setFilter, getPagination } = useFiltersContext(
-		"commercialPropositions",
-		{
-			defaultValues: { limit: 20 },
-			params: {
-				status: true, // pris tel quel
-				assignedTo: { key: "user" }, // clé custom dans l'URL
-				site: {
-					key: "siteId",
-					get: (value) => ({ id: value }) ?? undefined,
-					set: (site) => (site ? site?.id : null),
-				},
-			},
-		}
-	);
+function OrdersList() {
+  const { filters, setFilter, getPagination } = useFiltersContext("orders", {
+    updateUrlParams: true,
+    defaultValues: { limit: 20 },
+    params: { status: true, assignedTo: { key: "user" } },
+  });
 
-	useEffect(() => {
-		fetchData(filters, getPagination());
-	}, [filters]);
+  useEffect(() => {
+    fetchData(filters, getPagination());
+  }, [filters]);
 
-	return (
-		<div>
-			<select
-				value={filters.status}
-				onChange={(e) => setFilter("status", e.target.value as TCPStatus)}
-			>
-				<option value="draft">Brouillon</option>
-				<option value="sent">Envoyée</option>
-			</select>
-		</div>
-	);
+  return (
+    <Select
+      value={filters.status}
+      onChange={(value) => setFilter("status", value)}
+      options={[
+        { label: "Draft", value: "draft" },
+        { label: "Sent", value: "sent" },
+      ]}
+    />
+  );
 }
 ```
 
-## 📘 Nomenclature des types génériques
+---
 
-`<C>` = Contexte complet  
-`<T>` = Type des filtres complets (plusieurs slices)  
-`<S>` = Type d'une slice de filtres  
-`<SK>` = Clé d'une slice de filtres  
-`<K>` = Clé d'un type mappé (keyof M)  
-`<V>` = Valeur d'une clé d'une slice de filtres  
-`<M>` = Type mappé
+## 📕 Glossary
 
-## 📕 Lexique
-
-- **Accessor** : Fonction permettant d'accéder à une valeur de filtre de manière sécurisée. (get / set)
-
-- **Adapter (Url)** : Hook permettant de synchroniser les paramètres de recherche avec l'URL.
-
-- **Codec** : Définit la manière dont les filtres sont sérialisés et désérialisés dans l'URL.
-
-- **Filtres**: Contient les slices de filtres, qui sont des ensembles de critères de filtrage.
-
-- **Provider** : Composant React qui encapsule l'application ou une partie de l'application pour fournir le contexte des filtres.
-
-- **Slice** : Une portion de l'état des filtres, correspondant à un ensemble de filtres liés (ex: "planning", "commercialPropositions").
+- **Slice**: the portion of filters state corresponding to a domain (e.g., `planning`, `orders`).
+- **Adapter (URL)**: an object `{getParam, setParams}` syncing state with the URL, with no dependency on any particular router.
+- **Codec**: defines how a filter key serializes/deserializes to and from the URL (`TParamCodec`).
+- **Provider**: a React component wrapping the app (or part of it) to supply the filters context.

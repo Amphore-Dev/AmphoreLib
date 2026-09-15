@@ -2,20 +2,26 @@ import React from "react";
 
 import { cn } from "@utils/cn";
 
-import "./InputErrorMessage.scss";
+import styles from "./InputErrorMessage.module.scss";
 
 export interface IInputErrorMessageProps {
-	children: React.ReactNode;
+	children?: React.ReactNode;
 	className?: string;
+	/** Pass this to the field's `aria-describedby` so it's read on focus, not just on change. */
+	id?: string;
 }
 
+/** Shared error text for any form field — Input, Select, Checkbox... all render errors through this. */
 export const InputErrorMessage: React.FC<IInputErrorMessageProps> = ({
 	children,
-	className,
+	className = "",
+	id,
 }) => {
-	return children ? (
-		<p className={cn(["al__input__error-message", className])}>
+	if (!children) return null;
+
+	return (
+		<p id={id} className={cn([styles.message, className])} role="alert">
 			{children}
 		</p>
-	) : null;
+	);
 };

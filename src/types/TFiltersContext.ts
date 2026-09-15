@@ -52,9 +52,8 @@ export type TParamsAccessors<S> = {
 	key?: string;
 };
 
-export type TParamCodec<V> =
-	| true // -> prendre la valeur telle quelle
-	| TParamsAccessors<V>;
+/** `true` means "use the raw value as-is"; an object customizes the URL key/encoding/decoding. */
+export type TParamCodec<V> = true | TParamsAccessors<V>;
 
 export type TParamsCodecs<S extends object> = {
 	[P in keyof S]?: TParamCodec<S[P]>;

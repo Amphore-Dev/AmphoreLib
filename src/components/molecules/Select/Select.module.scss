@@ -1,0 +1,172 @@
+@use "../../../styles/field" as field;
+
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: var(--amp-space-1);
+	font-family: var(--amp-font);
+}
+
+.label {
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: var(--amp-color-ink);
+}
+
+.required {
+	color: var(--amp-color-danger);
+	margin-left: 0.125rem;
+}
+
+.field {
+	@include field.field-box;
+	cursor: pointer;
+
+	&[data-disabled="true"] {
+		opacity: 0.7;
+	}
+}
+
+.picto {
+	flex-shrink: 0;
+	width: 1rem;
+	height: 1rem;
+	color: var(--amp-color-sub);
+}
+
+.valueArea {
+	flex: 1;
+	min-width: 0;
+}
+
+// .value and .searchInput swap in the same slot depending on open/searchable
+// state — both go through field-text so they can't drift apart the way they
+// did before (an <input>'s UA-stylesheet defaults differ from a <span>'s
+// even at the same font-size).
+.value {
+	@include field.field-text;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: block;
+}
+
+.placeholder {
+	color: var(--amp-color-sub);
+}
+
+.searchInput {
+	@include field.field-text;
+	width: 100%;
+}
+
+// Chips themselves are <Badge onRemove> now (see Select.tsx) — only the
+// flex wrapper stays local.
+.chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem;
+}
+
+.indicators {
+	display: flex;
+	align-items: center;
+	gap: 0.375rem;
+	flex-shrink: 0;
+}
+
+.clear {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1rem;
+	height: 1rem;
+	padding: 0;
+	border: none;
+	border-radius: var(--amp-radius-sm);
+	background: transparent;
+	color: var(--amp-color-sub);
+	cursor: pointer;
+
+	&:hover {
+		color: var(--amp-color-ink);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--amp-color-primary);
+		outline-offset: 2px;
+	}
+}
+
+.chevron {
+	width: 0.75rem;
+	height: 0.75rem;
+	color: var(--amp-color-sub);
+	transition: transform 0.15s ease;
+}
+
+.loadingIcon {
+	width: 0.75rem;
+	height: 0.75rem;
+}
+
+.listbox {
+	box-sizing: border-box;
+	max-height: 16rem;
+	overflow-y: auto;
+	border: 1px solid var(--amp-color-border);
+	border-radius: var(--amp-radius-md);
+	background: var(--amp-color-card);
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+	font-family: var(--amp-font);
+	z-index: 50;
+}
+
+.option {
+	padding: var(--amp-space-2) var(--amp-space-3);
+	font-size: 0.84375rem;
+	color: var(--amp-color-ink);
+	cursor: pointer;
+
+	&[aria-disabled="true"] {
+		color: var(--amp-color-sub);
+		cursor: not-allowed;
+	}
+}
+
+.optionActive {
+	background: var(--amp-color-ghost-bg);
+}
+
+.option[data-selected="true"] {
+	font-weight: 600;
+	background: var(--amp-color-primary-tint);
+}
+
+.noResults {
+	padding: var(--amp-space-2) var(--amp-space-3);
+	font-size: 0.8125rem;
+	color: var(--amp-color-sub);
+}
+
+.loading {
+	display: flex;
+	align-items: center;
+	gap: var(--amp-space-2);
+	padding: var(--amp-space-2) var(--amp-space-3);
+	font-size: 0.8125rem;
+	color: var(--amp-color-sub);
+}
+
+.groupHeading {
+	padding: var(--amp-space-2) var(--amp-space-3) var(--amp-space-1);
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: var(--amp-color-sub);
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
+}
+
+.listboxFooter {
+	border-top: 1px solid var(--amp-color-border);
+}

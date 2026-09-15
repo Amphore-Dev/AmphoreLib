@@ -1,82 +1,63 @@
-import ESLintPlugin from "eslint-webpack-plugin";
 import path from "path";
-import postcss from "postcss";
-import sass from "sass";
+import { fileURLToPath } from "url";
 
-module.exports = {
-	stories:  ["../src/**/*.@((stories|story).@(js|jsx|ts|tsx))"],
-	/** Expose public folder to storybook as static */
-	staticDirs: ["../public"],
-	addons: [
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+/** @type {import('@storybook/react-vite').StorybookConfig} */
+export default {
+    // Plain glob only — the extglob form (@((stories|story).@(js|jsx|ts|tsx)))
+    // breaks @storybook/react-vite's dev-mode import map ("importers[path]
+    // is not a function"): its story-matching regex mishandles that syntax.
+    // V2 convention is `.stories.tsx` only anyway, so this is not a loss.
+    stories: ["../src/**/*.stories.tsx", "../src/**/*.mdx"],
+
+    /** Expose public folder to storybook as static */
+    staticDirs: ["../public"],
+
+    // addon-measure/addon-outline dropped: latest published versions (9.0.8)
+    // still target Storybook 9's package layout and fail to load under v10
+    // ("package-structure-changes" migration error). Re-add once v10 builds ship.
+    addons: [
 		"@storybook/addon-links",
-		"@storybook/addon-essentials",
+		"@storybook/addon-docs",
+		"@storybook/addon-a11y",
 		"storybook-dark-mode",
-		"@storybook/addon-styling-webpack",
-		"@storybook/addon-webpack5-compiler-babel",
-		"@storybook/addon-measure",
-		"@storybook/addon-outline",
 	],
-	framework: {
-		name: "@storybook/react-webpack5",
+
+    framework: {
+		name: "@storybook/react-vite",
 		options: {},
 	},
-	typescript: {
+
+    typescript: {
 		reactDocgen: "react-docgen-typescript",
-		// Provide your own options if necessary.
-		// See https://storybook.js.org/docs/configure/typescript for more information.
 		reactDocgenTypescriptOptions: {},
 	},
-	webpackFinal: async (config) => {
-		config.resolve.extensions.push(".ts", ".tsx");
-		config.plugins.push(
-			new ESLintPlugin({
-				extensions: ["js", "jsx", "ts", "tsx"],
-				files: "src",
-				emitWarning: true,
-				failOnWarning: false,
-				failOnError: false,
-			})
-		);
-		// SASS + Tailwind CSS
-		config.module.rules.push({
-			test: /\.s(a|c)ss$/,
-			use: [
-				"style-loader",
-				{
-					loader: "css-loader",
-					options: {
-						importLoaders: 1,
-						// We always need to apply postcss-loader before css-loader
-						modules: {
-							auto: /\.module\.scss$/,
-							localIdentName: "[name]__[local]--[hash:base64:5]",
-						},
-					},
-				},
-				{
-					loader: "postcss-loader",
-					// required for tailwind
-					options: {
-						implementation: postcss,
-						postcssOptions: {
-							config: path.resolve(
-								__dirname,
-								"../postcss.config.js"
-							),
-						},
-					},
-				},
-				{
-					loader: "sass-loader",
-					options: {
-						implementation: sass,
-					},
-				},
-			],
-		});
 
+    // Vite handles .module.scss natively — same behavior as the lib build
+    // (vite.config.ts), so aliases are kept in sync manually here.
+    async viteFinal(config) {
+		config.resolve ??= {};
+		config.resolve.alias = {
+			...config.resolve.alias,
+			"@": path.resolve(__dirname, "../src"),
+			"@assets": path.resolve(__dirname, "../src/assets"),
+			"@components": path.resolve(__dirname, "../src/components"),
+			"@constants": path.resolve(__dirname, "../src/constants"),
+			"@contexts": path.resolve(__dirname, "../src/contexts"),
+			"@hooks": path.resolve(__dirname, "../src/hooks"),
+			"@utils": path.resolve(__dirname, "../src/utils"),
+			"@theme": path.resolve(__dirname, "../src/theme"),
+			"@interfaces": path.resolve(__dirname, "../src/types"),
+			"@stories": path.resolve(__dirname, "../src/stories"),
+		};
 		return config;
 	},
-	docs: {},
-	telemetry: false,
+
+    docs: {},
+    telemetry: false,
+
+    core: {
+        disableWhatsNewNotifications: true
+    }
 };

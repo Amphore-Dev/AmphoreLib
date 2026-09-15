@@ -1,0 +1,198 @@
+.button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--amp-space-2);
+	font-family: var(--amp-font);
+	font-weight: 600;
+	border: 1px solid transparent;
+	border-radius: var(--amp-radius-md);
+	cursor: pointer;
+	transition:
+		filter 0.15s ease,
+		transform 0.1s ease,
+		opacity 0.15s ease;
+
+	&:active {
+		transform: translateY(1px);
+	}
+
+	// Custom focus ring instead of the browser default (near-invisible on a
+	// solid-colored background like a blue button). outline+offset draws
+	// outside the box and doesn't need a background-matching color to fake
+	// the gap, unlike a box-shadow ring would.
+	&:focus-visible {
+		outline: 2px solid var(--_color, var(--amp-color-primary));
+		outline-offset: 2px;
+	}
+
+	&:disabled {
+		cursor: not-allowed;
+		opacity: 0.55;
+		transform: none;
+	}
+
+	// ---- size ----
+	// line-height is explicit (not "normal") and deliberately taller than
+	// .spinner/.picto's own size at each level (Button.tsx's ICON_SIZE) —
+	// the button's row height is governed by this fixed value either way,
+	// so toggling isLoading (spinner <-> nothing) or adding/removing
+	// `picto` never changes the button's height, regardless of size. Keep
+	// these in sync whenever ICON_SIZE changes — each must stay taller
+	// than its own size's icon, not just fit the text.
+	&[data-size="sm"] {
+		padding: var(--amp-space-1) var(--amp-space-2);
+		font-size: 0.75rem;
+		line-height: 1.25rem;
+	}
+
+	&[data-size="md"] {
+		padding: var(--amp-space-2) var(--amp-space-3);
+		font-size: 0.84375rem;
+		line-height: 1.5rem;
+	}
+
+	&[data-size="lg"] {
+		padding: var(--amp-space-3) var(--amp-space-4);
+		font-size: 0.9375rem;
+		line-height: 1.75rem;
+	}
+
+	// ---- color: sets local vars, consumed by the variant rules below.
+	// Adding a color later means one rule here, not one per variant.
+	&[data-color="primary"] {
+		--_color: var(--amp-color-primary);
+		--_color-fg: var(--amp-color-primary-fg);
+		--_color-tint: var(--amp-color-primary-tint);
+	}
+
+	&[data-color="danger"] {
+		--_color: var(--amp-color-danger);
+		--_color-fg: var(--amp-color-danger-fg);
+		--_color-tint: var(--amp-color-danger-tint);
+	}
+
+	&[data-color="success"] {
+		--_color: var(--amp-color-success);
+		--_color-fg: var(--amp-color-success-fg);
+		--_color-tint: var(--amp-color-success-tint);
+	}
+
+	&[data-color="warning"] {
+		--_color: var(--amp-color-warning);
+		--_color-fg: var(--amp-color-warning-fg);
+		--_color-tint: var(--amp-color-warning-tint);
+	}
+
+	&[data-color="info"] {
+		--_color: var(--amp-color-info);
+		--_color-fg: var(--amp-color-info-fg);
+		--_color-tint: var(--amp-color-info-tint);
+	}
+
+	&[data-color="neutral"] {
+		--_color: var(--amp-color-neutral);
+		--_color-fg: var(--amp-color-neutral-fg);
+		--_color-tint: var(--amp-color-neutral-tint);
+	}
+
+	&[data-color="black"] {
+		--_color: var(--amp-color-black);
+		--_color-fg: var(--amp-color-black-fg);
+		--_color-tint: var(--amp-color-black-tint);
+	}
+
+	&[data-color="white"] {
+		--_color: var(--amp-color-white);
+		--_color-fg: var(--amp-color-white-fg);
+		--_color-tint: var(--amp-color-white-tint);
+	}
+
+	// ---- variant: shape only, reads --_color/-fg/-tint from data-color above.
+	&[data-variant="solid"] {
+		background: var(--_color);
+		color: var(--_color-fg);
+
+		&:hover:not(:disabled) {
+			filter: brightness(1.07);
+		}
+	}
+
+	&[data-variant="outline"] {
+		background: transparent;
+		color: var(--_color);
+		border-color: var(--_color);
+
+		&:hover:not(:disabled) {
+			background: var(--_color-tint);
+		}
+	}
+
+	&[data-variant="ghost"] {
+		background: var(--amp-color-ghost-bg);
+		color: var(--amp-color-ink);
+
+		&:hover:not(:disabled) {
+			background: var(--_color-tint);
+		}
+	}
+
+	// No padding/background/border at any size — reads as inline text with
+	// an action attached (e.g. SummaryListItem's "Ajouter"), not a button-
+	// shaped control. `line-height` stays (same reasoning as the per-size
+	// rules above: a stable row height regardless of isLoading/picto), only
+	// the box model collapses to fit the label exactly, like a link.
+	&[data-variant="link"] {
+		padding: 0;
+		background: transparent;
+		border-color: transparent;
+		color: var(--_color);
+
+		&:hover:not(:disabled) {
+			text-decoration: underline;
+		}
+	}
+
+	// Compound selector (higher specificity than the plain variant rules
+	// above) — white solid needs a visible edge against a white surface.
+	&[data-color="white"][data-variant="solid"] {
+		border-color: var(--amp-color-border);
+	}
+
+	&[data-loading="true"] {
+		cursor: progress;
+	}
+}
+
+// Picto's own wrapper div (rendered around the svg when it has no onClick)
+// is a plain block box — its inline-level svg child can sit off-center
+// against the button's flex centering otherwise (same baseline-gap quirk
+// fixed elsewhere via display:block).
+.pictoWrapper {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+// Actual width/height come from Button.tsx's ICON_SIZE, set inline per
+// `size` — inline style, not a class, since the underlying SVGs ship with
+// hardcoded width/height=24 attributes a class alone can't reliably
+// override across browsers.
+.spinner,
+.picto {
+	flex-shrink: 0;
+	margin-bottom: 2px;
+}
+
+.spinner {
+	border-radius: 50%;
+	border: 2px solid currentColor;
+	border-top-color: transparent;
+	animation: amp-spin 0.6s linear infinite;
+}
+
+@keyframes amp-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}

@@ -2,7 +2,7 @@ import React from "react";
 
 import { Pictos, TPictoName } from "@constants/index";
 
-import "./Picto.scss";
+import "./Picto.module.scss";
 
 export interface IPictoProps {
 	icon?: TPictoName;
@@ -22,7 +22,7 @@ export interface IPictoProps {
 export const Picto: React.FC<IPictoProps> = ({
 	icon,
 	className = "",
-	color = "currentColor",
+	color,
 	rotation = 0,
 	style,
 	src,
@@ -71,7 +71,11 @@ export const Picto: React.FC<IPictoProps> = ({
 				<SvgIcon
 					className={className}
 					style={{
-						color,
+						// Only set inline color when explicitly passed as a prop — an inline style
+						// always wins over any CSS class/module color rule (e.g. Checkbox's ".check"
+						// class), so defaulting this to the literal "currentColor" string silently
+						// defeated every consumer styling the icon through className instead of `color`.
+						...(color ? { color } : {}),
 						opacity: disabled ? 0.25 : 1,
 						transform: rotation
 							? `rotate(${rotation}deg)`

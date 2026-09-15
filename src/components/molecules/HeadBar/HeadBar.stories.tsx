@@ -2,49 +2,24 @@ import React from "react";
 
 import { StoryFn } from "@storybook/react";
 
-import { HeadBar } from "./HeadBar";
+import { HeadBar, IHeadBarProps } from "./HeadBar";
 
 export default {
 	title: "Components/Molecules/HeadBar",
 	component: HeadBar,
-	argTypes: {
-		leftContent: {
-			control: "node",
-		},
-		rightContent: {
-			control: "node",
-		},
-		className: {
-			control: "text",
-		},
-	},
 };
 
-const Template: StoryFn = (props) => {
-	return <HeadBar {...props} />;
-};
+const Template: StoryFn<IHeadBarProps> = (args) => <HeadBar {...args} />;
 
-export const Base: any = Template.bind({});
-
+export const Base = Template.bind({});
 Base.args = {
-	className: "bg-neutral-50",
-	leftContent: <div>Left Content</div>,
-	rightContent: (
-		<>
-			<div>Menu 1</div>
-			<div>Menu 2</div>
-			<div className="rounded-full bg-neutral-200 p-5" />
-		</>
-	),
+	leftContent: <strong>Amphore</strong>,
+	rightContent: <span>Profile</span>,
 };
 
-export const Menu: StoryFn = (props) => {
-	return (
-		<HeadBar
-			{...props}
-			onMenuClick={() => {
-				alert("Menu Clicked");
-			}}
-		/>
-	);
+export const WithMenuButton = Template.bind({});
+WithMenuButton.args = {
+	onMenuClick: () => alert("Menu clicked"),
+	leftContent: <strong>Amphore</strong>,
+	rightContent: <span>Profile</span>,
 };

@@ -1,18 +1,19 @@
 import { TBaseField, TField, TFieldsGroup, TFieldType } from "./TFields";
 
-type BaseFilter<Name extends string, Type extends TFieldType> = TBaseField<
+type TBaseFilter<Name extends string, Type extends TFieldType> = TBaseField<
 	Name,
 	Type
 > & {
 	chip?: (value: unknown, filtersValues: unknown) => React.ReactNode;
 	chipLabel?: string | ((value: unknown, filtersValues: unknown) => string);
-	valueDisplay?: (option: any) => React.ReactNode;
+	valueDisplay?: (option: unknown) => React.ReactNode;
 };
 
-// Union discriminée de tous les filtres possibles
+/** Discriminated union of every possible filter field. */
 export type TFilterModalFilter<Name extends string = string> = TField<
 	Name,
-	BaseFilter<Name, TFieldType>
->;
+	Record<never, never>
+> &
+	TBaseFilter<Name, TFieldType>;
 
 export type TFiltersModalGroup = TFieldsGroup<TFilterModalFilter>;

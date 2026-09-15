@@ -1,0 +1,22 @@
+.breadcrumb {
+	display: flex;
+	align-items: center;
+	gap: var(--amp-space-2);
+	font-family: var(--amp-font);
+	font-size: 0.8125rem;
+}
+
+.item {
+	color: var(--amp-color-sub);
+	white-space: nowrap;
+
+	&[data-current] {
+		color: var(--amp-color-ink);
+		font-weight: 600;
+	}
+}
+
+.separator {
+	color: var(--amp-color-border);
+	user-select: none;
+}

@@ -27,9 +27,11 @@ pnpm-debug.log*
 # macOS-specific files
 .DS_Store
 
-old_base_to_sort/
-
 storybook-static/
 
 .claude
 .vscode/
+debug-storybook.log
+
+# vitest coverage output
+coverage/

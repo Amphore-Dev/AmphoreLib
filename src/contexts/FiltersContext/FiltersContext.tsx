@@ -1,19 +1,19 @@
 import * as React from "react";
 
-import { DEFAULT_FILTERS } from "@constants/CFiltersContext";
-
-import {
-	IUseFiltersContext,
-	TFieldRendererMap,
-	TFiltersContextOptions,
-	TFiltersSlice,
-} from "@interfaces/TFiltersContext";
-import { ISearchParamsAdapter } from "@interfaces/TSearchParams";
+import { DEFAULT_FILTERS } from "@constants/index";
 
 import { useFiltersContext } from "@hooks/useFiltersContext";
 import { useStandaloneSearchParams } from "@hooks/useStandaloneSearchParams";
 
 import { applyDefaults } from "@utils/UFiltersContext";
+
+import {
+	IUseFiltersContext,
+	ISearchParamsAdapter,
+	TFieldRendererMap,
+	TFiltersContextOptions,
+	TFiltersSlice,
+} from "@interfaces/index";
 
 export type FiltersCtxValue<F extends TFiltersSlice<object>> = {
 	filters: F;
@@ -37,12 +37,60 @@ export type TCreatedFiltersContext<
 type FiltersProviderProps<T extends TFiltersSlice<object>> =
 	React.PropsWithChildren<{
 		defaultFilters: T;
+		/** Persistence key. Omit to skip persistence entirely. */
 		storageKey?: string;
+		/** "local" persists across tabs/reloads, "session" only across reloads in the same tab. */
+		storage?: "session" | "local";
 		adapterHook?: ISearchParamsAdapter;
 		options?: TFiltersContextOptions<TFiltersSlice<object>>;
 		fieldRenderers?: Partial<TFieldRendererMap>;
 	}>;
 
+/** Reads a persisted slice; returns `null` on any failure (SSR, storage blocked/full, corrupt JSON) instead of throwing. */
+const readStorage = (
+	webStorage: Storage | undefined,
+	storageKey: string
+): unknown => {
+	if (!webStorage) return null;
+	try {
+		const raw = webStorage.getItem(storageKey);
+		return raw ? JSON.parse(raw) : null;
+	} catch {
+		return null;
+	}
+};
+
+/** Persists a slice; silently no-ops on failure (SSR, private-browsing quota, storage blocked). */
+const writeStorage = (
+	webStorage: Storage | undefined,
+	storageKey: string,
+	value: unknown
+): void => {
+	if (!webStorage) return;
+	try {
+		webStorage.setItem(storageKey, JSON.stringify(value));
+	} catch {
+		// see above — a full/blocked storage shouldn't break filtering itself
+	}
+};
+
+const getWebStorage = (storage: "session" | "local"): Storage | undefined => {
+	if (typeof window === "undefined") return undefined;
+	try {
+		return storage === "local"
+			? window.localStorage
+			: window.sessionStorage;
+	} catch {
+		return undefined;
+	}
+};
+
+/**
+ * Creates one `{Provider, useFiltersContext}` pair per app instead of a
+ * single hardcoded global context — several independently-typed filter
+ * slices (e.g. `planning`, `orders`) can share one Provider, each reached
+ * via its own key.
+ */
 export function createFiltersContext<
 	T extends Record<PropertyKey, TFiltersSlice<object>>,
 >() {
@@ -51,56 +99,50 @@ export function createFiltersContext<
 	const Provider: React.FC<FiltersProviderProps<T>> = ({
 		defaultFilters,
 		storageKey = "FiltersContext",
-		adapterHook = useStandaloneSearchParams(),
+		storage = "session",
+		adapterHook,
 		options,
 		children,
 		fieldRenderers,
 	}) => {
-		const _defaultFilters = applyDefaults(defaultFilters, DEFAULT_FILTERS);
+		// `useStandaloneSearchParams()` can't be the prop's own default value
+		// (that would call the hook conditionally, breaking rules-of-hooks the
+		// moment a consumer ever passes their own `adapterHook`) — called
+		// unconditionally here instead, and only used when no override is given.
+		const standaloneAdapter = useStandaloneSearchParams();
+		const adapter = adapterHook ?? standaloneAdapter;
 
-		const [filters, _setFilters] = React.useState<T>(() => {
-			const raw = sessionStorage.getItem(storageKey);
-			const saved = raw
-				? (JSON.parse(raw) as Partial<T>)
-				: ({} as Partial<T>);
-			const result = { ..._defaultFilters } as T;
-			for (const key of Object.keys(_defaultFilters) as (keyof T)[]) {
-				if (key in saved) {
-					result[key] = {
-						...(_defaultFilters[key] as object),
-						...(saved[key] as object),
-					} as T[keyof T];
-				}
-			}
-			return result;
+		const webStorage = React.useMemo(
+			() => (storageKey ? getWebStorage(storage) : undefined),
+			[storage, storageKey]
+		);
+		const defaultFiltersMerged = React.useMemo(
+			() => applyDefaults(defaultFilters, DEFAULT_FILTERS),
+			[defaultFilters]
+		);
+
+		const [filters, setFilters] = React.useState<T>(() => {
+			const saved = storageKey
+				? (readStorage(webStorage, storageKey) as Partial<T> | null)
+				: null;
+			return { ...defaultFiltersMerged, ...saved } as T;
 		});
 
-		const setFilters = React.useCallback<
-			React.Dispatch<React.SetStateAction<T>>
-		>(
-			(action) => {
-				_setFilters((prev) => {
-					const next =
-						typeof action === "function"
-							? (action as (prev: T) => T)(prev)
-							: action;
-					sessionStorage.setItem(storageKey, JSON.stringify(next));
-					return next;
-				});
-			},
-			[storageKey]
-		);
+		React.useEffect(() => {
+			if (!storageKey) return;
+			writeStorage(webStorage, storageKey, filters);
+		}, [filters, storageKey, webStorage]);
 
 		const value = React.useMemo(
 			() => ({
 				filters,
 				setFilters,
-				defaultFilters: _defaultFilters,
-				adapter: adapterHook,
+				defaultFilters: defaultFiltersMerged,
+				adapter,
 				options,
 				fieldRenderers,
 			}),
-			[filters, _defaultFilters, adapterHook, options, fieldRenderers]
+			[filters, defaultFiltersMerged, adapter, options, fieldRenderers]
 		);
 
 		return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

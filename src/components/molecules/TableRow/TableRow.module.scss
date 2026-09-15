@@ -1,0 +1,43 @@
+.row {
+	&.clickable [role="gridcell"] {
+		cursor: pointer;
+	}
+
+	&[data-selected="true"] [role="gridcell"] {
+		background: var(--amp-color-primary-tint);
+	}
+
+	&:hover:not([data-selected="true"]) [role="gridcell"] {
+		background: var(--amp-color-ghost-bg);
+	}
+}
+
+.selectCell {
+	justify-content: center;
+}
+
+.contextMenuCell {
+	position: relative;
+	justify-content: center;
+}
+
+.contextMenuButton {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: none;
+	border: none;
+	color: var(--amp-color-sub);
+	cursor: pointer;
+	opacity: 0;
+
+	.row:hover & {
+		opacity: 1;
+	}
+
+	&:hover {
+		color: var(--amp-color-ink);
+	}
+}

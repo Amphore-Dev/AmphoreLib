@@ -2,8 +2,9 @@ import React from "react";
 
 import { StoryFn } from "@storybook/react";
 
-import { Picto, IPictoProps } from "./Picto";
 import { Pictos } from "@constants/index";
+
+import { Picto, IPictoProps } from "./Picto";
 
 export default {
 	title: "Components/Atoms/Picto",
@@ -56,7 +57,7 @@ export const Template: StoryFn<IPictoProps> = (args) => (
 			color: args.color,
 		}}
 	>
-		<Picto {...args} wrapperClassName="!w-32 h-32" />
+		<Picto {...args} style={{ width: "8rem", height: "8rem" }} />
 	</div>
 );
 

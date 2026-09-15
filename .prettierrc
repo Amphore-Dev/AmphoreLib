@@ -14,26 +14,23 @@
 	"trailingComma": "es5",
 	"useTabs": true,
 
-	"plugins": [
-		"prettier-plugin-tailwindcss",
-		"@trivago/prettier-plugin-sort-imports"
-	],
+	"plugins": ["@trivago/prettier-plugin-sort-imports"],
 
 	"importOrder": [
 		"^react$",
 		"<THIRD_PARTY_MODULES>",
-		"(date-fns|react-datepicker)",
-		"@tanstack",
-		"interface",
-		"config",
-		"services",
-		"(store/|hooks|./router)",
-		"(@zolteam.*$|views|components/|./index|^(\\.|\\.\\.)/(?!.+\\.scss$|.+\\.css$).*$)|forms",
-		"(utils|utils/)",
-		"constants_globals",
-		"(assets|.svg)",
-		"^../(.*)$",
-		"(styles/|^\\./.*\\.(scss|css)|^\\./.*\\.module\\.(scss|css)$)"
+		"^@theme(/.*)?$",
+		"^@components(/.*)?$",
+		"^@constants(/.*)?$",
+		"^@hooks(/.*)?$",
+		"^@contexts(/.*)?$",
+		"^@utils(/.*)?$",
+		"^@interfaces(/.*)?$",
+		"^@assets(/.*)?$",
+		"^\\.\\./",
+		"^\\./(?!.*\\.(scss|css)$)",
+		"^\\./.*\\.module\\.(scss|css)$",
+		"^\\./.*\\.(scss|css)$"
 	],
 	"importOrderSeparation": true
 }

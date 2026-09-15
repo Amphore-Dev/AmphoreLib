@@ -2,31 +2,32 @@ import React from "react";
 
 import { cn } from "@utils/cn";
 
-import "./Td.scss";
+import styles from "./Td.module.scss";
 
-export interface ITdProps {
-	children?: React.ReactNode;
-	className?: string;
+export interface ITdProps extends React.HTMLAttributes<HTMLDivElement> {
+	/** Pins the cell to an edge while the row scrolls horizontally. */
 	sticky?: "left" | "right";
-	onClick?: () => void;
+	className?: string;
 }
 
+/**
+ * V2 Td — a grid cell, not a real `<td>`: `Table` lays rows out via CSS
+ * Grid (`display: contents` on each row, one grid column per Td) rather
+ * than an HTML `<table>`, so it can virtualize rows and size columns with
+ * `minmax()`/`max-content` — a real `<table>` can't do either. `role`
+ * supplies the equivalent semantics instead.
+ */
 export const Td: React.FC<ITdProps> = ({
 	children,
-	className,
+	className = "",
 	sticky,
-	onClick,
+	...props
 }) => (
 	<div
+		{...props}
 		role="gridcell"
-		className={cn([
-			"al__td",
-			sticky && "al__td--sticky",
-			sticky === "left" && "al__td--sticky-left",
-			sticky === "right" && "al__td--sticky-right",
-			className,
-		])}
-		onClick={onClick}
+		data-sticky={sticky}
+		className={cn([styles.td, className])}
 	>
 		{children}
 	</div>
