@@ -18,10 +18,12 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
+            # No `registry-url` — see deploy-prod.yml's comment: it makes
+            # setup-node write a broken .npmrc auth line that silently
+            # skips the OIDC exchange entirely.
             - uses: actions/setup-node@v6
               with:
                   node-version: "22.x"
-                  registry-url: "https://registry.npmjs.org"
 
             - name: Install Yarn 4.14.1
               run: |
