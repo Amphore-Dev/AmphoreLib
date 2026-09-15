@@ -48,4 +48,11 @@ jobs:
             # Node's bundled npm may predate that. Bump it just for publish.
             - run: npm install -g npm@latest
 
-            - run: npm publish
+            # This Trusted Publisher is configured stage-only ("Allow npm
+            # publish" left unchecked, on purpose — direct publish gets a
+            # 403 from OIDC itself, npm's registry, not this workflow).
+            # `npm publish` puts a version live immediately; `npm stage
+            # publish` queues it instead — a maintainer still has to review
+            # and approve it (2FA, interactive — that step can't use OIDC,
+            # so it can never happen from CI) before it's actually live.
+            - run: npm stage publish

@@ -37,4 +37,8 @@ jobs:
             # Node's bundled npm may predate that. Bump it just for publish.
             - run: npm install -g npm@latest
 
-            - run: npm publish --tag next
+            # Same stage-only Trusted Publisher as deploy-prod.yml — see
+            # its comment. Untested whether `npm stage publish` accepts
+            # `--tag` the same way `npm publish` does; if not, this errors
+            # clearly rather than silently publishing to the wrong tag.
+            - run: npm stage publish --tag next
