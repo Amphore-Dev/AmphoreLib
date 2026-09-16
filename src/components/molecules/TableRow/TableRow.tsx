@@ -105,6 +105,9 @@ export const TableRow = <T,>({
 					</Td>
 				);
 			}
+			const content = col.render
+				? col.render(item)
+				: String(item[col.key as keyof T] ?? "");
 			return (
 				<Td
 					key={col.key}
@@ -113,11 +116,16 @@ export const TableRow = <T,>({
 					{typeof col.before === "function"
 						? col.before(item)
 						: undefined}
-					<TruncatedTooltipText>
-						{col.render
-							? col.render(item)
-							: String(item[col.key as keyof T] ?? "")}
-					</TruncatedTooltipText>
+					{col.truncate === false && !col.maxLines ? (
+						content
+					) : (
+						<TruncatedTooltipText
+							maxLines={col.maxLines}
+							tooltip={col.truncate !== false}
+						>
+							{content}
+						</TruncatedTooltipText>
+					)}
 				</Td>
 			);
 		})}

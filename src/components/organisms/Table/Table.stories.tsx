@@ -40,6 +40,7 @@ export default {
 		selectOnClick: { control: { type: "boolean" } },
 		selectionMode: { control: "radio", options: ["toggle", "exclusive"] },
 		hasMore: { control: { type: "boolean" } },
+		columnVisibilityMenu: { control: { type: "boolean" } },
 	},
 	parameters: {
 		// Fills its own viewport inline — same reasoning as Modal's default.
@@ -149,6 +150,86 @@ export const ColumnVisibility = () => (
 		<p style={{ fontSize: "0.8125rem", color: "var(--amp-color-sub)" }}>
 			Right-click the header to show/hide columns.
 		</p>
-		<Table columns={columns} items={users} getItemKey={(u) => u.id} />
+		<Table
+			columns={columns}
+			items={users}
+			getItemKey={(u) => u.id}
+			columnVisibilityMenu
+		/>
+	</div>
+);
+
+// `width` takes any grid track size — fixed, percentage, fr or keyword.
+// The Role column opts out of the ellipsis/tooltip wrapper: its `render`
+// output is a pill, not text, so there's nothing to truncate or hover.
+const sizedColumns: TTableColumn<TUser>[] = [
+	{ key: "name", label: "Name (120px)", width: "120px", sortable: true },
+	{
+		key: "email",
+		label: "Email (1fr, min 200px)",
+		width: "1fr",
+		minWidth: "200px",
+	},
+	{
+		key: "role",
+		label: "Role (auto, no truncate)",
+		width: "auto",
+		truncate: false,
+		render: (u) => (
+			<span
+				style={{
+					padding: "0 var(--amp-space-2)",
+					borderRadius: "999px",
+					background: "var(--amp-color-primary-tint)",
+					color: "var(--amp-color-primary)",
+					fontSize: "0.75rem",
+					lineHeight: "1.25rem",
+				}}
+			>
+				{u.role}
+			</span>
+		),
+	},
+	{
+		key: "description",
+		label: "Description (1fr, 2 lines, no tooltip)",
+		width: "1fr",
+		minWidth: "150px",
+		truncate: false,
+		render: () =>
+			"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam at ipsum eu nunc commodo posuere et sit amet ligula.",
+		maxLines: 2,
+	},
+];
+
+// `maxLines` clamps a cell to N lines instead of one; `rowHeight` is only
+// the virtualizer's estimate, so it's bumped to roughly match.
+const multiLineColumns: TTableColumn<TUser>[] = [
+	{ key: "name", label: "Name", width: "120px" },
+	{
+		key: "email",
+		label: "Bio (2 lines max)",
+		width: "260px",
+		maxLines: 2,
+		render: (u) =>
+			`${u.name} is ${u.role.toLowerCase()} number ${u.id}, reachable at ${u.email}, and this sentence keeps going long enough to wrap and get clamped.`,
+	},
+	{ key: "role", label: "Role" },
+];
+
+export const MultiLineCells = () => (
+	<div style={{ height: 400 }}>
+		<Table
+			columns={multiLineColumns}
+			items={users}
+			getItemKey={(u) => u.id}
+			rowHeight={52}
+		/>
+	</div>
+);
+
+export const ColumnWidths = () => (
+	<div style={{ height: 400 }}>
+		<Table columns={sizedColumns} items={users} getItemKey={(u) => u.id} />
 	</div>
 );

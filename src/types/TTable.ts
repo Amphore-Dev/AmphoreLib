@@ -26,7 +26,13 @@ type KeyOfChildren<T> = {
 export type TTableColumn<T> = {
 	key: (keyof T & string) | "contextMenu" | KeyOfChildren<T>;
 	label?: string;
+	/**
+	 * Any CSS grid track size: a length/percentage (`"200px"`, `"20%"`), a
+	 * flex (`"1fr"`) or a keyword (`"auto"`, `"max-content"`). Combined with
+	 * `minWidth` when both are given. Defaults to `max-content`.
+	 */
 	width?: string;
+	/** Lower bound for the column. Defaults to `150px` (no `width` or a `fr` width), `min-content` (keyword width), none otherwise. */
 	minWidth?: string;
 	sortable?: boolean;
 	onClick?: (item: T) => void;
@@ -35,4 +41,20 @@ export type TTableColumn<T> = {
 	render?: (item: T) => React.ReactNode;
 	hidden?: boolean;
 	disableHiding?: boolean;
+	/**
+	 * Cell content is wrapped in a `TruncatedTooltipText` (ellipsis + tooltip
+	 * with the full text once it overflows). Set `false` to turn that off —
+	 * e.g. when `render` returns something that shouldn't be clipped or
+	 * hovered (badges, buttons). Alone it renders the content as-is; with
+	 * `maxLines` it keeps the line clamp and only drops the tooltip.
+	 * Defaults to true.
+	 */
+	truncate?: boolean;
+	/**
+	 * Lines of text before the ellipsis kicks in (see TruncatedTooltipText).
+	 * Defaults to 1. Rows are laid out in normal flow so taller cells just
+	 * make taller rows, but bump `rowHeight` to match — it's the
+	 * virtualizer's size estimate.
+	 */
+	maxLines?: number;
 };

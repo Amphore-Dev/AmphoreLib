@@ -48,6 +48,18 @@ describe("TruncatedTooltipText", () => {
 		);
 	});
 
+	it("never shows a tooltip when tooltip=false, even while overflowing", async () => {
+		stubLayout({ scrollWidth: 200, clientWidth: 100 });
+		const user = userEvent.setup();
+		render(
+			<TruncatedTooltipText tooltip={false}>
+				A long text
+			</TruncatedTooltipText>
+		);
+		await user.hover(screen.getByText("A long text"));
+		expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+	});
+
 	it("checks scrollHeight/clientHeight instead when maxLines > 1", async () => {
 		stubLayout({
 			scrollWidth: 100,

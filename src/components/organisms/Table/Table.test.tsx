@@ -318,6 +318,102 @@ describe("Table", () => {
 		);
 	});
 
+	it("passes fixed widths through and wraps fr/keyword widths in minmax()", () => {
+		const sized: TTableColumn<TUser>[] = [
+			{ key: "name", width: "120px" },
+			{ key: "email", width: "1fr", minWidth: "200px" },
+			{ key: "id", width: "auto" },
+		];
+		const { container } = render(
+			<Table columns={sized} items={items} getItemKey={(i) => i.id} />
+		);
+		const grid = container.querySelector('[role="grid"]') as HTMLElement;
+		expect(grid.style.gridTemplateColumns).toBe(
+			"120px minmax(200px, 1fr) minmax(min-content, auto) 1fr"
+		);
+	});
+
+	it("floors fr widths at 150px and keyword widths at min-content when no minWidth is given", () => {
+		const sized: TTableColumn<TUser>[] = [
+			{ key: "name", width: "2fr" },
+			{ key: "email", width: "max-content" },
+		];
+		const { container } = render(
+			<Table columns={sized} items={items} getItemKey={(i) => i.id} />
+		);
+		const grid = container.querySelector('[role="grid"]') as HTMLElement;
+		expect(grid.style.gridTemplateColumns).toBe(
+			"minmax(150px, 2fr) minmax(min-content, max-content) 1fr"
+		);
+	});
+
+	it("combines width and minWidth with max() for length widths", () => {
+		const sized: TTableColumn<TUser>[] = [
+			{ key: "name", width: "20%", minWidth: "100px" },
+		];
+		const { container } = render(
+			<Table columns={sized} items={items} getItemKey={(i) => i.id} />
+		);
+		const grid = container.querySelector('[role="grid"]') as HTMLElement;
+		expect(grid.style.gridTemplateColumns).toContain("max(100px, 20%)");
+	});
+
+	it("doesn't open the column-visibility menu on header right-click by default", () => {
+		render(
+			<Table columns={columns} items={items} getItemKey={(i) => i.id} />
+		);
+		fireEvent.contextMenu(screen.getAllByRole("row")[0]);
+		expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+	});
+
+	it("opens the column-visibility menu on header right-click when columnVisibilityMenu is set", () => {
+		render(
+			<Table
+				columns={columns}
+				items={items}
+				getItemKey={(i) => i.id}
+				columnVisibilityMenu
+			/>
+		);
+		fireEvent.contextMenu(screen.getAllByRole("row")[0]);
+		const menu = screen.getByRole("menu");
+		fireEvent.click(within(menu).getByText("Email"));
+		expect(screen.queryByText("Email")).not.toBeInTheDocument();
+		expect(screen.getByText("Nom")).toBeInTheDocument();
+	});
+
+	it("renders cell content without the truncation wrapper when truncate is false", () => {
+		const cols: TTableColumn<TUser>[] = [
+			{ key: "name", truncate: false, render: (u) => <b>{u.name}</b> },
+			{ key: "email" },
+		];
+		render(<Table columns={cols} items={items} getItemKey={(i) => i.id} />);
+		const nameCell = screen.getByText("Alice").closest('[role="gridcell"]');
+		const emailCell = screen
+			.getByText("alice@example.com")
+			.closest('[role="gridcell"]');
+		expect(nameCell?.firstElementChild?.tagName).toBe("B");
+		expect(emailCell?.firstElementChild?.tagName).toBe("SPAN");
+	});
+
+	it("forwards maxLines to the cell's TruncatedTooltipText", () => {
+		const cols: TTableColumn<TUser>[] = [{ key: "name", maxLines: 3 }];
+		render(<Table columns={cols} items={items} getItemKey={(i) => i.id} />);
+		const text = screen.getByText("Alice");
+		expect(text.style.webkitLineClamp).toBe("3");
+	});
+
+	it("keeps the line clamp but drops the tooltip when truncate=false and maxLines are both set", () => {
+		const cols: TTableColumn<TUser>[] = [
+			{ key: "name", truncate: false, maxLines: 2 },
+		];
+		render(<Table columns={cols} items={items} getItemKey={(i) => i.id} />);
+		const text = screen.getByText("Alice");
+		expect(text.style.webkitLineClamp).toBe("2");
+		fireEvent.mouseEnter(text);
+		expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+	});
+
 	it("adds a 2.5rem selection column to grid-template-columns when selectable", () => {
 		const { container } = render(
 			<Table

@@ -13,6 +13,8 @@ export interface ITruncatedTooltipTextProps {
 	/** Lines before truncating. 1 = single-line ellipsis, >1 = multi-line clamp. Defaults to 1. */
 	maxLines?: number;
 	placement?: Placement;
+	/** Set `false` to keep the ellipsis/clamp but never show the full-content tooltip. Defaults to true. */
+	tooltip?: boolean;
 	className?: string;
 	tooltipClassName?: string;
 }
@@ -33,6 +35,7 @@ export const TruncatedTooltipText: React.FC<ITruncatedTooltipTextProps> = ({
 	children,
 	maxLines = 1,
 	placement = "top",
+	tooltip = true,
 	className = "",
 	tooltipClassName = "",
 }) => {
@@ -77,7 +80,7 @@ export const TruncatedTooltipText: React.FC<ITruncatedTooltipTextProps> = ({
 		<Tooltip
 			content={<span className={tooltipClassName}>{children}</span>}
 			placement={placement}
-			disabled={!isTruncated}
+			disabled={!tooltip || !isTruncated}
 		>
 			{content}
 		</Tooltip>

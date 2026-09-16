@@ -47,6 +47,13 @@ export interface ITableProps<T> {
 	setSelectedKeys?: React.Dispatch<
 		React.SetStateAction<Set<string | number>>
 	>;
+	/**
+	 * Enables the right-click context menu on the header row that lets the
+	 * user show/hide columns. Off by default — `hidden`,
+	 * `initialVisibleColumns` and `onColumnVisibilityChange` still work
+	 * without it, there's just no built-in UI to toggle columns.
+	 */
+	columnVisibilityMenu?: boolean;
 	onColumnVisibilityChange?: (
 		key: TTableColumn<T>["key"],
 		visible: boolean
@@ -86,13 +93,43 @@ function defaultCompare<T>(a: T, b: T, key: keyof T & string): number {
 	return String(va).localeCompare(String(vb));
 }
 
+const FLEX_WIDTH = /^\s*[\d.]+fr\s*$/;
+const KEYWORD_WIDTH =
+	/^\s*(auto|min-content|max-content|fit-content\(.*\))\s*$/;
+
+/**
+ * One column → one `grid-template-columns` track. `width` accepts any track
+ * size (`200px`, `20%`, `1fr`, `auto`…), but only lengths/percentages may
+ * go inside `max()` — wrapping `1fr` or `auto` in it makes the whole
+ * declaration invalid, which the browser then drops silently (every column
+ * collapsed into one). Flex/keyword widths go through `minmax()` instead.
+ *
+ * The minimum matters once the grid overflows horizontally: tracks only
+ * grow toward their max with *positive* free space, so on a scrolling
+ * table a `minmax(0, auto)` / `minmax(0, 1fr)` column sits at 0px and its
+ * content leaks into the next cell. Keywords therefore default to a
+ * `min-content` floor (a real `<table>`'s auto column never gets narrower
+ * than its content either); `fr` gets the same 150px floor as width-less
+ * columns, so it still truncates long text when space is tight but never
+ * disappears.
+ */
+function columnTrackSize<T>({ width, minWidth }: TTableColumn<T>): string {
+	if (!width) return `minmax(${minWidth ?? "150px"}, max-content)`;
+	if (FLEX_WIDTH.test(width))
+		return `minmax(${minWidth ?? "150px"}, ${width})`;
+	if (KEYWORD_WIDTH.test(width))
+		return `minmax(${minWidth ?? "min-content"}, ${width})`;
+	return minWidth ? `max(${minWidth}, ${width})` : width;
+}
+
 /**
  * V2 Table — CSS Grid (not a real `<table>`, see Td/Th) + virtualized rows
  * (`@tanstack/react-virtual`), ported from v1's. Context menus (row actions,
  * column visibility) rewired from react-contexify's global id registry to
  * this lib's own `useContextMenu<T>()` controller model: `Table` owns both
  * controllers directly and passes callbacks down, rather than components
- * three levels deep reaching a menu by string id.
+ * three levels deep reaching a menu by string id. The column-visibility
+ * one is opt-in (`columnVisibilityMenu`).
  */
 export const Table = <T,>({
 	columns: columnsProp,
@@ -112,6 +149,7 @@ export const Table = <T,>({
 	showCheckbox: showCheckboxProp = true,
 	selectedKeys: controlledSelectedKeys,
 	setSelectedKeys: setControlledSelectedKeys,
+	columnVisibilityMenu = false,
 	onColumnVisibilityChange,
 	initialVisibleColumns,
 	isLoading = false,
@@ -331,12 +369,7 @@ export const Table = <T,>({
 
 	const gridTemplateColumns = [
 		...(showCheckbox ? ["2.5rem"] : []),
-		...visibleColumns.map((col) => {
-			const max = col.width ?? "max-content";
-			return col.width
-				? `max(${col.minWidth ?? "0px"}, ${max})`
-				: `minmax(${col.minWidth ?? "150px"}, ${max})`;
-		}),
+		...visibleColumns.map((col) => columnTrackSize(col)),
 		"1fr",
 	].join(" ");
 
@@ -375,7 +408,11 @@ export const Table = <T,>({
 				activeSortKey={activeSortKey}
 				sortDirection={sortDirection}
 				onSort={handleSort}
-				onColumnsContextMenu={(e) => columnsMenu.show(e, undefined)}
+				onColumnsContextMenu={
+					columnVisibilityMenu
+						? (e) => columnsMenu.show(e, undefined)
+						: undefined
+				}
 				hasContextMenuColumn={!!handleRowContextMenu}
 				onGlobalContextMenu={
 					onGlobalContextMenu
@@ -388,7 +425,9 @@ export const Table = <T,>({
 				onSelectAll={toggleSelectAll}
 			/>
 
-			<ContextMenu menu={columnsMenu} items={columnsMenuItems} />
+			{columnVisibilityMenu && (
+				<ContextMenu menu={columnsMenu} items={columnsMenuItems} />
+			)}
 			{!!rowActions?.length && (
 				<ContextMenu menu={rowActionsMenu} items={rowActionItems} />
 			)}
