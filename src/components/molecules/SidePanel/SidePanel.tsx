@@ -1,5 +1,6 @@
 import React, { PropsWithChildren } from "react";
 
+import { AmphorePortal } from "@theme/AmphorePortal";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
 import { useMediaQuery } from "@hooks/index";
@@ -48,6 +49,14 @@ export interface ISidePanelProps extends PropsWithChildren {
 	>;
 	/** aria-label for the desktop close (×) button. Defaults to "Close" (or `common.close`/`SidePanel.closeLabel` from the nearest AmphoreProvider). Desktop only, no effect on mobile (see `hideCloseButton`). */
 	closeLabel?: TLabel;
+	/**
+	 * Renders into `document.body` via AmphorePortal (theme scope
+	 * re-applied) — the `overlay` desktop panel and the mobile BottomPanel
+	 * both. No effect in the default sticky desktop mode: a real layout
+	 * column can't be portaled, it has to sit in the flow next to the page.
+	 * Defaults to false.
+	 */
+	portal?: boolean;
 	className?: string;
 }
 
@@ -74,6 +83,7 @@ export const SidePanel: React.FC<ISidePanelProps> = ({
 	keepDockedOnMobile = false,
 	bottomPanelProps,
 	closeLabel: closeLabelProp,
+	portal = false,
 	className = "",
 	children,
 }) => {
@@ -89,6 +99,7 @@ export const SidePanel: React.FC<ISidePanelProps> = ({
 				{...bottomPanelProps}
 				open={open}
 				onOpenChange={onOpenChange}
+				portal={portal}
 				className={className}
 			>
 				{title && <h2 className={styles.mobileTitle}>{title}</h2>}
@@ -99,7 +110,7 @@ export const SidePanel: React.FC<ISidePanelProps> = ({
 
 	if (!open) return null;
 
-	return (
+	const panel = (
 		<Card
 			elevation={overlay ? 4 : 2}
 			noPadding
@@ -126,4 +137,6 @@ export const SidePanel: React.FC<ISidePanelProps> = ({
 			<div className={styles.body}>{children}</div>
 		</Card>
 	);
+
+	return portal && overlay ? <AmphorePortal>{panel}</AmphorePortal> : panel;
 };

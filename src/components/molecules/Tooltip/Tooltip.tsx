@@ -14,6 +14,8 @@ import {
 	type Placement,
 } from "@floating-ui/react";
 
+import { AmphorePortal } from "@theme/AmphorePortal";
+
 import { cn } from "@utils/cn";
 
 import styles from "./Tooltip.module.scss";
@@ -24,20 +26,24 @@ export interface ITooltipProps {
 	children: React.ReactElement;
 	placement?: Placement;
 	disabled?: boolean;
+	/** Renders the tooltip into `document.body` via AmphorePortal (theme scope re-applied) — escapes any ancestor stacking context/`transform`/`overflow` that would trap or clip it. Defaults to false (inline, `position: fixed`). */
+	portal?: boolean;
 	className?: string;
 }
 
 /**
  * V2 Tooltip — hover/focus-triggered, non-interactive text hint
  * (role="tooltip"). Display-only, unlike Popover (click, interactive
- * content) — a separate component, not a variant. No portal,
- * `strategy:"fixed"` instead (see memory/amphorelib-v2-conventions.md).
+ * content) — a separate component, not a variant. Inline
+ * (`strategy:"fixed"`) by default, `portal` opts into AmphorePortal (see
+ * memory/amphorelib-v2-conventions.md).
  */
 export const Tooltip: React.FC<ITooltipProps> = ({
 	content,
 	children,
 	placement = "top",
 	disabled = false,
+	portal = false,
 	className = "",
 }) => {
 	const [open, setOpen] = useState(false);
@@ -74,19 +80,21 @@ export const Tooltip: React.FC<ITooltipProps> = ({
 		getReferenceProps({ ...children.props, ref: mergedRef })
 	);
 
+	const floating = open && !disabled && !!content && (
+		<div
+			ref={refs.setFloating}
+			style={floatingStyles}
+			className={cn([styles.tooltip, className])}
+			{...getFloatingProps()}
+		>
+			{content}
+		</div>
+	);
+
 	return (
 		<>
 			{trigger}
-			{open && !disabled && !!content && (
-				<div
-					ref={refs.setFloating}
-					style={floatingStyles}
-					className={cn([styles.tooltip, className])}
-					{...getFloatingProps()}
-				>
-					{content}
-				</div>
-			)}
+			{portal ? <AmphorePortal>{floating}</AmphorePortal> : floating}
 		</>
 	);
 };

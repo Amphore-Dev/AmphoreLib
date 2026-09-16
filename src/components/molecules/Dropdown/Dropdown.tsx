@@ -15,6 +15,8 @@ import {
 	type Placement,
 } from "@floating-ui/react";
 
+import { AmphorePortal } from "@theme/AmphorePortal";
+
 import type { TMenuItem } from "@interfaces/index";
 
 import { MenuList } from "./MenuList";
@@ -25,6 +27,8 @@ export interface IDropdownProps {
 	children: React.ReactElement;
 	placement?: Placement;
 	disabled?: boolean;
+	/** Renders the menu into `document.body` via AmphorePortal (theme scope re-applied) — escapes any ancestor stacking context/`transform`/`overflow` that would trap or clip it. Defaults to false (inline, `position: fixed`). */
+	portal?: boolean;
 	className?: string;
 }
 
@@ -32,14 +36,16 @@ export interface IDropdownProps {
  * V2 Dropdown — click-triggered action menu (role="menu"/"menuitem", real
  * roving DOM focus). Triggers one-off actions, doesn't persist a value
  * (unlike Select). Menu rendering itself lives in shared `MenuList` (also
- * used by ContextMenu). No portal, `strategy:"fixed"` instead (see
- * memory/amphorelib-v2-conventions.md). Trigger must be forwardRef.
+ * used by ContextMenu). Inline (`strategy:"fixed"`) by default, `portal`
+ * opts into AmphorePortal (see memory/amphorelib-v2-conventions.md).
+ * Trigger must be forwardRef.
  */
 export function Dropdown({
 	items,
 	children,
 	placement = "bottom-start",
 	disabled = false,
+	portal = false,
 	className = "",
 }: IDropdownProps) {
 	const [open, setOpen] = useState(false);
@@ -106,25 +112,27 @@ export function Dropdown({
 		setOpen(false);
 	};
 
+	const menu = open && (
+		<MenuList
+			items={items}
+			context={context}
+			floatingRef={refs.setFloating}
+			floatingStyles={floatingStyles}
+			getFloatingProps={getFloatingProps}
+			getItemProps={(_item, onClick) => getItemProps({ onClick })}
+			itemRef={(node, index) => {
+				listRef.current[index] = node;
+			}}
+			onSelect={handleSelect}
+			activeIndex={activeIndex}
+			className={className}
+		/>
+	);
+
 	return (
 		<>
 			{trigger}
-			{open && (
-				<MenuList
-					items={items}
-					context={context}
-					floatingRef={refs.setFloating}
-					floatingStyles={floatingStyles}
-					getFloatingProps={getFloatingProps}
-					getItemProps={(_item, onClick) => getItemProps({ onClick })}
-					itemRef={(node, index) => {
-						listRef.current[index] = node;
-					}}
-					onSelect={handleSelect}
-					activeIndex={activeIndex}
-					className={className}
-				/>
-			)}
+			{portal ? <AmphorePortal>{menu}</AmphorePortal> : menu}
 		</>
 	);
 }

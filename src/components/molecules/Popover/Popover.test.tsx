@@ -4,6 +4,13 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
+import { AmphoreProvider } from "@theme/AmphoreProvider";
+
+import {
+	expectInline,
+	expectPortaledWithScope,
+} from "../../../../tests/expectPortal";
+
 import { Popover } from "./Popover";
 
 describe("Popover (uncontrolled)", () => {
@@ -143,5 +150,53 @@ describe("Popover (controlled)", () => {
 		await user.click(screen.getByRole("button", { name: "Ouvrir" }));
 		expect(onOpenChange).toHaveBeenCalledWith(true);
 		expect(screen.getByRole("dialog")).toBeInTheDocument();
+	});
+});
+
+describe("Popover portal", () => {
+	it("renders the content inline by default", async () => {
+		const user = userEvent.setup();
+		const { container } = render(
+			<Popover content={<p>Contenu</p>}>
+				<button type="button">Ouvrir</button>
+			</Popover>
+		);
+		await user.click(screen.getByRole("button", { name: "Ouvrir" }));
+		expectInline(container, screen.getByRole("dialog"));
+	});
+
+	it("renders into document.body with the theme scope when portal is set", async () => {
+		const user = userEvent.setup();
+		const { container } = render(
+			<AmphoreProvider>
+				<Popover content={<p>Contenu</p>} portal>
+					<button type="button">Ouvrir</button>
+				</Popover>
+			</AmphoreProvider>
+		);
+		await user.click(screen.getByRole("button", { name: "Ouvrir" }));
+		const dialog = screen.getByRole("dialog");
+		expectPortaledWithScope(container, dialog);
+		expect(dialog).toHaveTextContent("Contenu");
+	});
+
+	it("still closes on outside click when portaled", async () => {
+		const user = userEvent.setup();
+		const onOpenChange = vi.fn();
+		render(
+			<AmphoreProvider>
+				<Popover
+					content={<p>Contenu</p>}
+					portal
+					onOpenChange={onOpenChange}
+				>
+					<button type="button">Ouvrir</button>
+				</Popover>
+			</AmphoreProvider>
+		);
+		await user.click(screen.getByRole("button", { name: "Ouvrir" }));
+		await user.click(document.body);
+		expect(onOpenChange).toHaveBeenLastCalledWith(false);
+		expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 	});
 });

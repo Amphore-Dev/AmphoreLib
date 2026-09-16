@@ -16,6 +16,7 @@ export default {
 			options: ["bottom-start", "bottom-end", "top-start", "top-end"],
 		},
 		disabled: { control: "boolean" },
+		portal: { control: "boolean" },
 	},
 };
 
@@ -59,4 +60,29 @@ export const Disabled = () => (
 	<Dropdown items={ITEMS} disabled>
 		<Button variant="outline">Actions</Button>
 	</Dropdown>
+);
+
+/**
+ * `portal` renders the menu into `document.body` through AmphorePortal,
+ * which re-applies the nearest AmphoreProvider's theme scope inside the
+ * portal — styled exactly like the inline version. The trigger here sits in
+ * a `transform`ed, `overflow: hidden` box: inline, `position: fixed` gets
+ * trapped by that ancestor and clipped; portaled, it escapes.
+ */
+export const Portaled = () => (
+	<div
+		style={{
+			transform: "translateZ(0)",
+			overflow: "hidden",
+			width: 320,
+			height: 120,
+			padding: "1rem",
+			border: "1px dashed var(--amp-color-border)",
+			borderRadius: "var(--amp-radius-md)",
+		}}
+	>
+		<Dropdown items={ITEMS} portal>
+			<Button>Actions (portaled)</Button>
+		</Dropdown>
+	</div>
 );

@@ -1,5 +1,6 @@
 import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
 
+import { AmphorePortal } from "@theme/AmphorePortal";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
 import { cn } from "@utils/cn";
@@ -30,6 +31,8 @@ export interface IBottomPanelProps extends PropsWithChildren {
 	collapseLabel?: TLabel;
 	/** aria-label for the drag handle while collapsed (tapping/dragging it expands the panel). Defaults to "Expand panel" (or `BottomPanel.expandLabel` from the nearest AmphoreProvider). */
 	expandLabel?: TLabel;
+	/** Renders the sheet into `document.body` via AmphorePortal (theme scope re-applied) — escapes any ancestor `transform`/`filter`/`contain` that would turn its `position: fixed` into a local one, or a stacking context that would trap its z-index. Defaults to false (inline). */
+	portal?: boolean;
 	className?: string;
 }
 
@@ -44,8 +47,9 @@ const DRAG_THRESHOLD = 4;
 /**
  * V2 BottomPanel — a draggable bottom sheet: a handle you tap to toggle
  * open/closed, or drag to resize (and drag past `closeThreshold` to close).
- * No portal — `position: fixed` already escapes normal layout without one
- * (same reasoning as Modal's FloatingOverlay). Reusable on its own (a
+ * Inline by default — `position: fixed` escapes normal layout without a
+ * portal (same reasoning as Modal's FloatingOverlay); `portal` opts into
+ * AmphorePortal for the ancestors that break that. Reusable on its own (a
  * mobile action sheet, say) — SidePanel uses it as its own mobile
  * fallback, but this doesn't know anything about that.
  */
@@ -60,6 +64,7 @@ export const BottomPanel: React.FC<IBottomPanelProps> = ({
 	collapsedLabel: collapsedLabelProp,
 	collapseLabel: collapseLabelProp,
 	expandLabel: expandLabelProp,
+	portal = false,
 	className = "",
 	children,
 }) => {
@@ -152,7 +157,7 @@ export const BottomPanel: React.FC<IBottomPanelProps> = ({
 		onOpenChange(!open);
 	};
 
-	return (
+	const panel = (
 		<Card
 			elevation={4}
 			noPadding
@@ -179,4 +184,6 @@ export const BottomPanel: React.FC<IBottomPanelProps> = ({
 			</div>
 		</Card>
 	);
+
+	return portal ? <AmphorePortal>{panel}</AmphorePortal> : panel;
 };

@@ -6,6 +6,11 @@ import { describe, expect, it, vi } from "vitest";
 
 import { AmphoreProvider } from "@theme/AmphoreProvider";
 
+import {
+	expectInline,
+	expectPortaledWithScope,
+} from "../../../../tests/expectPortal";
+
 import { ISelectProps, Select } from "./Select";
 
 const OPTIONS = [
@@ -678,6 +683,30 @@ describe("Select", () => {
 			expect(
 				screen.queryByRole("button", { name: "Voir plus" })
 			).not.toBeInTheDocument();
+		});
+	});
+
+	describe("portal", () => {
+		it("renders the listbox inline by default", async () => {
+			const { container } = render(
+				<Select options={OPTIONS} onChange={() => {}} />
+			);
+			await userEvent.click(screen.getByRole("combobox"));
+			expectInline(container, screen.getByRole("listbox"));
+		});
+
+		it("renders into document.body with the theme scope when portal is set, and selection still works", async () => {
+			const onChange = vi.fn();
+			const { container } = render(
+				<AmphoreProvider>
+					<Select options={OPTIONS} onChange={onChange} portal />
+				</AmphoreProvider>
+			);
+			await userEvent.click(screen.getByRole("combobox"));
+			const listbox = screen.getByRole("listbox");
+			expectPortaledWithScope(container, listbox);
+			await userEvent.click(within(listbox).getByText("Semaine"));
+			expect(onChange).toHaveBeenCalledWith("week");
 		});
 	});
 });

@@ -33,6 +33,8 @@ Every component reads its styles via `var(--amp-*)`, never a literal value:
 
 `AmphoreProvider` computes these variables (`configToCssVars` in `UThemeConfig.ts`) and sets them as inline `style` on its own wrapper — every descendant component inherits them.
 
+The flip side: anything rendered **outside** that wrapper in the DOM — a portal to `document.body` — inherits nothing and shows up unstyled. `AmphoreScope` re-applies the nearest provider's wrapper attributes and vars (read from `AmphoreScopeContext`) around such content, and `AmphorePortal` bundles it with `FloatingPortal`. See [Directives/FloatingOverlays](?path=/docs/directives-floatingoverlays--docs).
+
 ## `data-*`, never a conditional className
 
 Variant/color/size/state go through `data-*` attributes, read in CSS — not `cn([styles.x, condition && styles.y])` for this:

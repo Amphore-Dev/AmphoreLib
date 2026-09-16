@@ -1,6 +1,13 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { AmphoreProvider } from "@theme/AmphoreProvider";
+
+import {
+	expectInline,
+	expectPortaledWithScope,
+} from "../../../../tests/expectPortal";
+
 import { BottomPanel } from "./BottomPanel";
 
 describe("BottomPanel", () => {
@@ -102,5 +109,28 @@ describe("BottomPanel", () => {
 		fireEvent.mouseMove(window, { clientY: 102 }); // 2px, under the 4px threshold
 		fireEvent.mouseUp(window);
 		expect(onOpenChange).toHaveBeenCalledWith(true);
+	});
+
+	describe("portal", () => {
+		it("renders inline by default", () => {
+			const { container } = render(
+				<BottomPanel open onOpenChange={() => {}}>
+					<p>Contenu</p>
+				</BottomPanel>
+			);
+			expectInline(container, screen.getByRole("dialog"));
+		});
+
+		it("renders into document.body with the theme scope when portal is set", () => {
+			const { container } = render(
+				<AmphoreProvider theme="light">
+					<BottomPanel open onOpenChange={() => {}} portal>
+						<p>Contenu</p>
+					</BottomPanel>
+				</AmphoreProvider>
+			);
+			expectPortaledWithScope(container, screen.getByRole("dialog"));
+			expect(screen.getByText("Contenu")).toBeInTheDocument();
+		});
 	});
 });

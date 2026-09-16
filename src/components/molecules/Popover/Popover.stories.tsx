@@ -23,6 +23,7 @@ export default {
 		closeOnOutsideClick: { control: "boolean" },
 		closeOnClick: { control: "boolean" },
 		disabled: { control: "boolean" },
+		portal: { control: "boolean" },
 	},
 };
 
@@ -122,3 +123,31 @@ export const CloseOnClick = () => {
 		</div>
 	);
 };
+
+/**
+ * `portal` renders the popover into `document.body` through AmphorePortal,
+ * which re-applies the nearest AmphoreProvider's theme scope inside the
+ * portal — styled exactly like the inline version. The trigger here sits in
+ * a `transform`ed, `overflow: hidden` box: inline, `position: fixed` gets
+ * trapped by that ancestor and clipped; portaled, it escapes.
+ */
+export const Portaled = () => (
+	<div
+		style={{
+			transform: "translateZ(0)",
+			overflow: "hidden",
+			width: 320,
+			height: 120,
+			padding: "1rem",
+			border: "1px dashed var(--amp-color-border)",
+			borderRadius: "var(--amp-radius-md)",
+		}}
+	>
+		<Popover
+			portal
+			content={<p style={{ margin: 0 }}>Escapes the dashed box.</p>}
+		>
+			<Button>Open (portaled)</Button>
+		</Popover>
+	</div>
+);

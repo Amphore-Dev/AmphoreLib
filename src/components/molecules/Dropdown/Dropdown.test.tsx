@@ -4,7 +4,14 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
+import { AmphoreProvider } from "@theme/AmphoreProvider";
+
 import type { TMenuItem } from "@interfaces/index";
+
+import {
+	expectInline,
+	expectPortaledWithScope,
+} from "../../../../tests/expectPortal";
 
 import { Dropdown } from "./Dropdown";
 
@@ -148,5 +155,42 @@ describe("Dropdown", () => {
 		expect(screen.getByRole("menu")).toBeInTheDocument();
 		await user.keyboard("{Escape}");
 		expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+	});
+
+	describe("portal", () => {
+		it("renders the menu inline by default", async () => {
+			const user = userEvent.setup();
+			const { container } = render(
+				<Dropdown
+					items={makeItems(
+						() => {},
+						() => {}
+					)}
+				>
+					<button type="button">Actions</button>
+				</Dropdown>
+			);
+			await user.click(screen.getByRole("button", { name: "Actions" }));
+			expectInline(container, screen.getByRole("menu"));
+		});
+
+		it("renders into document.body with the theme scope when portal is set, and items still fire", async () => {
+			const user = userEvent.setup();
+			const onEdit = vi.fn();
+			const { container } = render(
+				<AmphoreProvider>
+					<Dropdown items={makeItems(onEdit, () => {})} portal>
+						<button type="button">Actions</button>
+					</Dropdown>
+				</AmphoreProvider>
+			);
+			await user.click(screen.getByRole("button", { name: "Actions" }));
+			expectPortaledWithScope(container, screen.getByRole("menu"));
+			await user.click(
+				screen.getByRole("menuitem", { name: "Modifier" })
+			);
+			expect(onEdit).toHaveBeenCalledTimes(1);
+			expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+		});
 	});
 });

@@ -13,6 +13,8 @@ import {
 	type Placement,
 } from "@floating-ui/react";
 
+import { AmphorePortal } from "@theme/AmphorePortal";
+
 import { cn } from "@utils/cn";
 
 import styles from "./Popover.module.scss";
@@ -36,6 +38,8 @@ export interface IPopoverProps {
 	 */
 	closeOnClick?: boolean;
 	disabled?: boolean;
+	/** Renders the popover into `document.body` via AmphorePortal (theme scope re-applied) — escapes any ancestor stacking context/`transform`/`overflow` that would trap or clip it. Defaults to false (inline, `position: fixed`). */
+	portal?: boolean;
 	className?: string;
 }
 
@@ -43,8 +47,9 @@ export interface IPopoverProps {
  * V2 Popover — click-triggered, can hold interactive content. role="dialog",
  * non-modal (no focus trap/page dim, unlike Modal). Separate component from
  * Tooltip (hover/focus, display-only) — different trigger/role, not a flag.
- * Controlled (`open`/`onOpenChange`) or uncontrolled (omit `open`). No
- * portal, `strategy:"fixed"` instead (see memory/amphorelib-v2-conventions.md).
+ * Controlled (`open`/`onOpenChange`) or uncontrolled (omit `open`).
+ * Inline (`strategy:"fixed"`) by default, `portal` opts into AmphorePortal
+ * (see memory/amphorelib-v2-conventions.md).
  */
 export const Popover: React.FC<IPopoverProps> = ({
 	content,
@@ -55,6 +60,7 @@ export const Popover: React.FC<IPopoverProps> = ({
 	closeOnOutsideClick = true,
 	closeOnClick = false,
 	disabled = false,
+	portal = false,
 	className = "",
 }) => {
 	const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
@@ -91,23 +97,23 @@ export const Popover: React.FC<IPopoverProps> = ({
 		getReferenceProps({ ...children.props, ref: mergedRef })
 	);
 
+	const floating = open && (
+		<div
+			ref={refs.setFloating}
+			style={floatingStyles}
+			className={cn([styles.popover, className])}
+			{...getFloatingProps({
+				onClick: closeOnClick ? () => setOpen(false) : undefined,
+			})}
+		>
+			{content}
+		</div>
+	);
+
 	return (
 		<>
 			{trigger}
-			{open && (
-				<div
-					ref={refs.setFloating}
-					style={floatingStyles}
-					className={cn([styles.popover, className])}
-					{...getFloatingProps({
-						onClick: closeOnClick
-							? () => setOpen(false)
-							: undefined,
-					})}
-				>
-					{content}
-				</div>
-			)}
+			{portal ? <AmphorePortal>{floating}</AmphorePortal> : floating}
 		</>
 	);
 };

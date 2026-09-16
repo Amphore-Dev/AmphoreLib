@@ -11,6 +11,7 @@ export default {
 	title: "Components/Molecules/DatePicker",
 	component: DatePicker,
 	argTypes: {
+		portal: { control: "boolean" },
 		size: sizeArgType,
 		color: colorArgType,
 		disabled: { control: { type: "boolean" } },
@@ -88,3 +89,9 @@ export const DefaultSizeFromConfig = () => (
 		</AmphoreProvider>
 	</div>
 );
+
+export const Portal = Template.bind({});
+Portal.args = {
+	...Base.args,
+	portal: true,
+};

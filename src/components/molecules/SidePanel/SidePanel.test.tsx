@@ -1,6 +1,13 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { AmphoreProvider } from "@theme/AmphoreProvider";
+
+import {
+	expectInline,
+	expectPortaledWithScope,
+} from "../../../../tests/expectPortal";
+
 import { SidePanel } from "./SidePanel";
 
 const setMatchMedia = (matches: boolean) => {
@@ -129,6 +136,47 @@ describe("SidePanel", () => {
 			expect(screen.getByText("Tâche #42")).toBeInTheDocument();
 			// Docked (closed): content is present but hidden, not gone.
 			expect(screen.getByText("Détails")).not.toBeVisible();
+		});
+	});
+
+	describe("portal", () => {
+		it("desktop sticky mode ignores portal — a layout column stays in the flow", () => {
+			setMatchMedia(false);
+			const { container } = render(
+				<AmphoreProvider>
+					<SidePanel open onOpenChange={() => {}} portal>
+						<p>Détails</p>
+					</SidePanel>
+				</AmphoreProvider>
+			);
+			expectInline(container, screen.getByRole("complementary"));
+		});
+
+		it("desktop overlay mode portals into document.body with the theme scope", () => {
+			setMatchMedia(false);
+			const { container } = render(
+				<AmphoreProvider>
+					<SidePanel open onOpenChange={() => {}} overlay portal>
+						<p>Détails</p>
+					</SidePanel>
+				</AmphoreProvider>
+			);
+			expectPortaledWithScope(
+				container,
+				screen.getByRole("complementary")
+			);
+		});
+
+		it("mobile forwards portal to the BottomPanel", () => {
+			setMatchMedia(true);
+			const { container } = render(
+				<AmphoreProvider>
+					<SidePanel open onOpenChange={() => {}} portal>
+						<p>Détails</p>
+					</SidePanel>
+				</AmphoreProvider>
+			);
+			expectPortaledWithScope(container, screen.getByRole("dialog"));
 		});
 	});
 });

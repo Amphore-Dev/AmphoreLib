@@ -33,7 +33,7 @@ export default {
 };
 ```
 
-A sized component always has a `DefaultSizeFromConfig` story (see [Directives/Sizing](?path=/docs/directives-sizing--docs)). A non-portaled component that fills its own viewport (`Modal`) needs `parameters.docs.story.height` — addon-docs' default iframe height is too short otherwise.
+A sized component always has a `DefaultSizeFromConfig` story (see [Directives/Sizing](?path=/docs/directives-sizing--docs)). A component that fills its own viewport inline (`Modal` without `portal`) needs `parameters.docs.story.height` — addon-docs' default iframe height is too short otherwise; a `Portaled` story can reset it to `"auto"`.
 
 ---
 

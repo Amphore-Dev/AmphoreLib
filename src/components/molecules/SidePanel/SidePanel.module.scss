@@ -10,11 +10,13 @@
 	font-family: var(--amp-font);
 	// position:sticky always opens its own stacking context (per spec,
 	// regardless of this z-index value) — anything overlaid rendered
-	// inside this panel with no portal (a ConfirmModal, say) has its own
-	// z-index trapped inside that context, so this panel's own z-index
-	// still needs to be high enough to beat a *sibling* element elsewhere
-	// on the page (e.g. another sticky header) — 20 matches the value
-	// that already fixed exactly this in a real consumer app.
+	// inline inside this panel (a ConfirmModal without `portal`, say) has
+	// its own z-index trapped inside that context, so this panel's own
+	// z-index still needs to be high enough to beat a *sibling* element
+	// elsewhere on the page (e.g. another sticky header) — 20 matches the
+	// value that already fixed exactly this in a real consumer app. The
+	// cleaner fix on the consumer side is `<Modal portal>`, which escapes
+	// this context entirely.
 	z-index: 20;
 
 	// `overlay` — floats above the page instead of sitting in the flow as

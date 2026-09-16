@@ -42,7 +42,7 @@ export default {
 		hasMore: { control: { type: "boolean" } },
 	},
 	parameters: {
-		// Not portaled, fills its own viewport — same reasoning as Modal.
+		// Fills its own viewport inline — same reasoning as Modal's default.
 		docs: { story: { height: "420px" } },
 	},
 };

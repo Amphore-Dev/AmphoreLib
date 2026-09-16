@@ -4,6 +4,13 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
+import { AmphoreProvider } from "@theme/AmphoreProvider";
+
+import {
+	expectInline,
+	expectPortaledWithScope,
+} from "../../../../tests/expectPortal";
+
 import { Tooltip } from "./Tooltip";
 
 describe("Tooltip", () => {
@@ -84,5 +91,33 @@ describe("Tooltip", () => {
 			</Tooltip>
 		);
 		expect(ref.current).toBeInstanceOf(HTMLButtonElement);
+	});
+
+	describe("portal", () => {
+		it("renders the tooltip inline by default", async () => {
+			const user = userEvent.setup();
+			const { container } = render(
+				<Tooltip content="Astuce">
+					<button type="button">Cible</button>
+				</Tooltip>
+			);
+			await user.hover(screen.getByRole("button", { name: "Cible" }));
+			expectInline(container, await screen.findByRole("tooltip"));
+		});
+
+		it("renders into document.body with the theme scope when portal is set", async () => {
+			const user = userEvent.setup();
+			const { container } = render(
+				<AmphoreProvider theme="dark">
+					<Tooltip content="Astuce" portal>
+						<button type="button">Cible</button>
+					</Tooltip>
+				</AmphoreProvider>
+			);
+			await user.hover(screen.getByRole("button", { name: "Cible" }));
+			const tooltip = await screen.findByRole("tooltip");
+			expectPortaledWithScope(container, tooltip);
+			expect(tooltip).toHaveTextContent("Astuce");
+		});
 	});
 });

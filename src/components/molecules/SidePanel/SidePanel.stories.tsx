@@ -10,6 +10,7 @@ export default {
 	title: "Components/Molecules/SidePanel",
 	component: SidePanel,
 	argTypes: {
+		portal: { control: "boolean" },
 		title: { control: "text" },
 		hideCloseButton: { control: "boolean" },
 		overlay: { control: "boolean" },
@@ -73,8 +74,8 @@ const mainContent = (onOpen: () => void) => (
 			Open the panel
 		</Button>
 		<p style={{ margin: 0, color: "var(--amp-color-sub)", fontSize: 13 }}>
-			Rest of the page (a task list, a table…) — the panel docks
-			beside it, not on top of it.
+			Rest of the page (a task list, a table…) — the panel docks beside
+			it, not on top of it.
 		</p>
 	</div>
 );
@@ -102,18 +103,14 @@ Base.args = {
 	mobileBreakpoint: FORCE_DESKTOP,
 	open: true,
 	title: "Task #482",
-	children: (
-		<p style={{ margin: 0 }}>Panel content — a task's detail.</p>
-	),
+	children: <p style={{ margin: 0 }}>Panel content — a task's detail.</p>,
 };
 
 export const WithoutTitle = Template.bind({});
 WithoutTitle.args = {
 	...Base.args,
 	title: undefined,
-	children: (
-		<p style={{ margin: 0 }}>No title — just the close button.</p>
-	),
+	children: <p style={{ margin: 0 }}>No title — just the close button.</p>,
 };
 
 export const HideCloseButton = Template.bind({});
@@ -152,8 +149,8 @@ MobileFallback.args = {
 	bottomPanelProps: { defaultHeight: 260 },
 	children: (
 		<p style={{ margin: 0 }}>
-			On mobile: drag the handle to resize, or tap it
-			to collapse/expand — no separate close button.
+			On mobile: drag the handle to resize, or tap it to collapse/expand —
+			no separate close button.
 		</p>
 	),
 };
@@ -175,4 +172,10 @@ KeepDockedOnMobile.args = {
 			Content hidden while closed — tap the handle to show it.
 		</p>
 	),
+};
+
+export const Portal = Template.bind({});
+Portal.args = {
+	...Base.args,
+	portal: true,
 };

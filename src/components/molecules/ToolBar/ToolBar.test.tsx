@@ -2,6 +2,10 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
+import { AmphoreProvider } from "@theme/AmphoreProvider";
+
+import { expectPortaledWithScope } from "../../../../tests/expectPortal";
+
 import { ToolBar, TToolBarItem } from "./ToolBar";
 
 const items: TToolBarItem[] = [
@@ -96,5 +100,40 @@ describe("ToolBar", () => {
 			<ToolBar items={items} className="custom" />
 		);
 		expect(container.firstChild).toHaveClass("custom");
+	});
+
+	describe("portal", () => {
+		it("forwards portal to an item's Popover", () => {
+			const { container } = render(
+				<AmphoreProvider>
+					<ToolBar
+						items={[
+							{
+								id: "colors",
+								label: "Couleurs",
+								popoverContent: "Palette",
+							},
+						]}
+						activeItem="colors"
+						portal
+					/>
+				</AmphoreProvider>
+			);
+			expectPortaledWithScope(container, screen.getByRole("dialog"));
+			expect(screen.getByRole("dialog")).toHaveTextContent("Palette");
+		});
+
+		it("forwards portal to an item's Tooltip", async () => {
+			const { container } = render(
+				<AmphoreProvider>
+					<ToolBar items={items} portal />
+				</AmphoreProvider>
+			);
+			await userEvent.hover(screen.getByRole("button", { name: "Gras" }));
+			expectPortaledWithScope(
+				container,
+				await screen.findByRole("tooltip")
+			);
+		});
 	});
 });

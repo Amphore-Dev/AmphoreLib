@@ -8,6 +8,9 @@ import { useContextMenu } from "./useContextMenu";
 export default {
 	title: "Components/Molecules/ContextMenu",
 	component: ContextMenu,
+	argTypes: {
+		portal: { control: "boolean" },
+	},
 };
 
 /**
@@ -168,5 +171,38 @@ export const WithScroll = () => {
 				{ label: "Item 5", onClick: () => alert("Item 5") },
 			]}
 		/>
+	);
+};
+
+export const Portal = () => {
+	const menu = useContextMenu();
+
+	return (
+		<div>
+			<div
+				onContextMenu={(e) => menu.show(e, undefined)}
+				style={{
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "center",
+					width: 280,
+					height: 120,
+					border: "1px dashed var(--amp-color-border)",
+					borderRadius: "var(--amp-radius-md)",
+					color: "var(--amp-color-sub)",
+					fontSize: 13,
+				}}
+			>
+				Right-click to see the portal menu
+			</div>
+			<ContextMenu
+				menu={menu}
+				portal
+				items={[
+					{ label: "Item 1", onClick: () => alert("Item 1") },
+					{ label: "Item 2", onClick: () => alert("Item 2") },
+				]}
+			/>
+		</div>
 	);
 };

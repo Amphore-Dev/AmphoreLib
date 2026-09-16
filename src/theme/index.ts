@@ -1,4 +1,7 @@
+export * from "./AmphorePortal";
 export * from "./AmphoreProvider";
+export * from "./AmphoreScope";
+export * from "./AmphoreScopeContext";
 export * from "./CThemeConfig";
 export * from "./TThemeLabels";
 export * from "./TThemeTokens";

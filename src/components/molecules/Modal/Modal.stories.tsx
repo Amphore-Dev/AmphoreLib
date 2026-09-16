@@ -15,11 +15,13 @@ export default {
 		closeOnEscape: { control: "boolean" },
 		hideCloseButton: { control: "boolean" },
 		closeLabel: { control: "text" },
+		portal: { control: "boolean" },
 	},
-	// Not portaled (see Modal.tsx) — the modal covers the story's own iframe
-	// viewport, not the whole page. Addon-docs otherwise embeds that iframe
-	// at a small default height, clipping the modal. This asks for a taller
-	// one specifically on the docs page (Canvas tab is unaffected/full-size).
+	// Inline by default (see Modal.tsx) — the modal covers the story's own
+	// iframe viewport, not the whole page. Addon-docs otherwise embeds that
+	// iframe at a small default height, clipping the modal. This asks for a
+	// taller one specifically on the docs page (Canvas tab is unaffected/
+	// full-size). The `Portaled` story escapes this entirely.
 	parameters: {
 		docs: { story: { height: "420px" } },
 	},
@@ -138,9 +140,7 @@ export const NoCloseButton = () => {
 				hideCloseButton
 				closeOnOverlayClick={false}
 				closeOnEscape={false}
-				footer={
-					<Button onClick={() => setOpen(false)}>Finish</Button>
-				}
+				footer={<Button onClick={() => setOpen(false)}>Finish</Button>}
 			>
 				<p style={{ margin: 0 }}>
 					Only the button below closes this modal.
@@ -149,3 +149,45 @@ export const NoCloseButton = () => {
 		</>
 	);
 };
+
+/**
+ * `portal` renders the overlay into `document.body` through AmphorePortal,
+ * which re-applies the nearest AmphoreProvider's theme scope inside the
+ * portal — so it's styled exactly like the inline version. Here the trigger
+ * sits inside a `transform`ed, `overflow: hidden` box: inline, the fixed
+ * overlay would be trapped and clipped by that ancestor; portaled, it
+ * covers the whole viewport as expected.
+ */
+export const Portaled = () => {
+	const [open, setOpen] = useState(false);
+	return (
+		<div
+			style={{
+				transform: "translateZ(0)",
+				overflow: "hidden",
+				width: 320,
+				height: 120,
+				padding: "1rem",
+				border: "1px dashed var(--amp-color-border)",
+				borderRadius: "var(--amp-radius-md)",
+			}}
+		>
+			<p style={{ margin: "0 0 0.75rem", color: "var(--amp-color-sub)" }}>
+				transform + overflow: hidden ancestor
+			</p>
+			<Button onClick={() => setOpen(true)}>Open (portaled)</Button>
+			<Modal
+				open={open}
+				onClose={() => setOpen(false)}
+				title="Portaled modal"
+				portal
+			>
+				<p style={{ margin: 0 }}>
+					Rendered into document.body, theme scope re-applied — not
+					clipped by the dashed box.
+				</p>
+			</Modal>
+		</div>
+	);
+};
+Portaled.parameters = { docs: { story: { height: "auto" } } };

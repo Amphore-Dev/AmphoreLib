@@ -4,6 +4,13 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
+import { AmphoreProvider } from "@theme/AmphoreProvider";
+
+import {
+	expectInline,
+	expectPortaledWithScope,
+} from "../../../../tests/expectPortal";
+
 import { ContextMenu } from "./ContextMenu";
 import { useContextMenu } from "./useContextMenu";
 
@@ -17,9 +24,11 @@ const ROWS: TRow[] = [
 function TestList({
 	onEdit,
 	disabled = false,
+	portal = false,
 }: {
 	onEdit: (row: TRow) => void;
 	disabled?: boolean;
+	portal?: boolean;
 }) {
 	const menu = useContextMenu<TRow>();
 
@@ -33,6 +42,7 @@ function TestList({
 			<ContextMenu
 				menu={menu}
 				disabled={disabled}
+				portal={portal}
 				items={(row) => [
 					{ label: "Modifier", onClick: () => onEdit(row) },
 					{ label: "Archiver", onClick: () => {}, disabled: true },
@@ -104,5 +114,30 @@ describe("ContextMenu (shared menu, controller-based)", () => {
 		expect(screen.getAllByRole("menu")).toHaveLength(1);
 		fireEvent.contextMenu(screen.getByText("Ligne B"));
 		expect(screen.getAllByRole("menu")).toHaveLength(1);
+	});
+
+	describe("portal", () => {
+		it("renders the menu inline by default", () => {
+			const { container } = render(<TestList onEdit={() => {}} />);
+			fireEvent.contextMenu(screen.getByText("Ligne A"));
+			expectInline(container, screen.getByRole("menu"));
+		});
+
+		it("renders into document.body with the theme scope when portal is set, and items still resolve per row", async () => {
+			const user = userEvent.setup();
+			const onEdit = vi.fn();
+			const { container } = render(
+				<AmphoreProvider>
+					<TestList onEdit={onEdit} portal />
+				</AmphoreProvider>
+			);
+			fireEvent.contextMenu(screen.getByText("Ligne B"));
+			expectPortaledWithScope(container, screen.getByRole("menu"));
+			await user.click(
+				screen.getByRole("menuitem", { name: "Modifier" })
+			);
+			expect(onEdit).toHaveBeenCalledWith(ROWS[1]);
+			expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+		});
 	});
 });

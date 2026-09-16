@@ -8,14 +8,23 @@ import { Meta } from "@storybook/addon-docs/blocks";
 
 All built on `@floating-ui/react`, with four recurring rules — each one broke a real component before being fixed here.
 
-## Never `FloatingPortal`
+## Never a bare `FloatingPortal` — `AmphorePortal`
 
-`FloatingPortal` portals to the current `document.body` — under Storybook's docs embed, that `document` doesn't share the story's stylesheet: the portaled content renders with none of the theme's CSS (confirmed on `Select` and `Modal`). Rendering stays **inline**:
+The theme is **CSS variables inlined on `AmphoreProvider`'s wrapper** (`.amp-root`, plus the `data-amp-theme`/`data-amp-density`/`data-amp-scope` attributes), with no `:root` fallback. Anything rendered through a portal leaves that wrapper in the DOM, so every `var(--amp-*)` resolves to nothing — the portaled content shows up unstyled. That was misread for a while as a Storybook stylesheet issue; it isn't, it's plain CSS inheritance and happens in any app.
 
-- `Select`: its dropdown (`position: absolute`) — would remain a portal candidate in another lib, not here.
-- `Modal`: its `FloatingOverlay` is `position: fixed`, already covers the viewport without a portal.
+`AmphorePortal` is the one portal primitive in the lib: `FloatingPortal` + `AmphoreScope`, a `div` that re-applies the nearest provider's attributes and inline vars inside the portal. The provider's dark-mode `<style>` block matches on `[data-amp-scope]` alone, not DOM position, so it applies there too — nothing to duplicate. Without a provider above, `AmphoreScope` is a passthrough.
 
-Same rule for `Tooltip`/`Popover`/`Dropdown`/`ContextMenu` — only add a portal facing a real case (an ancestor `overflow: hidden` that actually clips), never as a precaution. Toast/Notification (not built yet) is the only legitimate candidate identified so far (a global queue, independent of any local position).
+```tsx
+import { AmphorePortal, AmphoreScope } from "@amphore-dev/amphore-lib";
+
+// in a lib component:
+return portal ? <AmphorePortal>{overlay}</AmphorePortal> : overlay;
+
+// in a consumer that already has its own createPortal:
+createPortal(<AmphoreScope>{content}</AmphoreScope>, document.body);
+```
+
+Every overlay stays **inline by default** (`strategy: "fixed"` — `Modal`'s `FloatingOverlay` already covers the viewport that way) and takes an opt-in `portal` prop: `Modal`, `Select`, `Tooltip`, `Popover`, `Dropdown`, `ContextMenu`, `BottomPanel`, `SidePanel` (its `overlay` desktop mode and mobile only — a sticky layout column can't be portaled). `DatePicker`/`ToolBar` forward it to their own `Popover`/`Tooltip`. Reach for `portal` when an ancestor breaks `position: fixed` (`transform`, `filter`, `contain`) or traps the z-index (`position: sticky` or any other stacking context, e.g. a `Modal` opened from inside a sticky `SidePanel`) — each component has a `Portaled` story showing exactly that case. Toast/Notification (not built yet) should portal unconditionally.
 
 ## A trigger must be `forwardRef`
 
@@ -24,7 +33,7 @@ Same rule for `Tooltip`/`Popover`/`Dropdown`/`ContextMenu` — only add a portal
 ```tsx
 // Always forwardRef if usable as a Tooltip/Popover/Dropdown trigger:
 export const Button = React.forwardRef<HTMLButtonElement, IButtonProps>(
-  (props, ref) => <button ref={ref} {...props} />
+	(props, ref) => <button ref={ref} {...props} />
 );
 ```
 
@@ -52,7 +61,7 @@ Always render the same wrapper, drive it with its `disabled` prop (every floatin
 
 ```tsx
 <Tooltip disabled={!isTruncated} content={fullText}>
-  <span>{text}</span>
+	<span>{text}</span>
 </Tooltip>
 ```
 
@@ -60,4 +69,4 @@ Prefer `useLayoutEffect` over `useEffect` for the measurement that drives this `
 
 ---
 
-See also: `Tooltip.tsx`, `Popover.tsx`, `Dropdown.tsx`, `ContextMenu.tsx`, `useContextMenu.ts`, [Directives/Accessibility](?path=/docs/directives-accessibility--docs).
+See also: `AmphorePortal.tsx`, `AmphoreScope.tsx`, `Tooltip.tsx`, `Popover.tsx`, `Dropdown.tsx`, `ContextMenu.tsx`, `useContextMenu.ts`, [Directives/Accessibility](?path=/docs/directives-accessibility--docs).

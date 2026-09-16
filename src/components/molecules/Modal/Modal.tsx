@@ -10,6 +10,7 @@ import {
 	useRole,
 } from "@floating-ui/react";
 
+import { AmphorePortal } from "@theme/AmphorePortal";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
 import { cn } from "@utils/cn";
@@ -37,6 +38,14 @@ export interface IModalProps {
 	hideCloseButton?: boolean;
 	/** aria-label for the header close (×) button. Defaults to "Close" (or `common.close`/`Modal.closeLabel` from the nearest AmphoreProvider — see useAmphoreLabels). No effect when `hideCloseButton`. */
 	closeLabel?: TLabel;
+	/**
+	 * Render into `document.body` (via AmphorePortal) instead of inline.
+	 * Escapes any ancestor stacking context / `transform` / `overflow` that
+	 * would otherwise trap or clip the overlay. The theme is re-applied
+	 * inside the portal, so styling is identical either way. Defaults to
+	 * false — inline, covering the viewport from wherever it's rendered.
+	 */
+	portal?: boolean;
 	className?: string;
 }
 
@@ -45,10 +54,12 @@ export type TModalLabels = Pick<IModalProps, "closeLabel">;
 
 /**
  * V2 Modal — dialog overlay on floating-ui's Dialog primitives
- * (FloatingOverlay + FloatingFocusManager for the focus trap). No portal —
- * FloatingOverlay is already `position:fixed`, and a portal breaks under
- * Storybook's docs-page embed (see memory/amphorelib-v2-conventions.md).
- * Panel is `<Card elevation={4} noPadding>`, not a hand-rolled div.
+ * (FloatingOverlay + FloatingFocusManager for the focus trap). Inline by
+ * default — FloatingOverlay is already `position:fixed`, so it covers the
+ * viewport without a portal. Opt into one with `portal` (AmphorePortal,
+ * which re-applies the theme scope — a bare FloatingPortal would render
+ * unstyled). Panel is `<Card elevation={4} noPadding>`, not a hand-rolled
+ * div.
  */
 export const Modal: React.FC<IModalProps> = ({
 	open,
@@ -61,6 +72,7 @@ export const Modal: React.FC<IModalProps> = ({
 	closeOnEscape = true,
 	hideCloseButton = false,
 	closeLabel: closeLabelProp,
+	portal = false,
 	className = "",
 }) => {
 	const titleId = useFloatingId();
@@ -84,7 +96,7 @@ export const Modal: React.FC<IModalProps> = ({
 
 	if (!open) return null;
 
-	return (
+	const overlay = (
 		<FloatingOverlay className={styles.overlay} lockScroll>
 			<FloatingFocusManager context={context}>
 				<Card
@@ -125,4 +137,6 @@ export const Modal: React.FC<IModalProps> = ({
 			</FloatingFocusManager>
 		</FloatingOverlay>
 	);
+
+	return portal ? <AmphorePortal>{overlay}</AmphorePortal> : overlay;
 };

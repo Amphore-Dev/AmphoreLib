@@ -2,6 +2,13 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
+import { AmphoreProvider } from "@theme/AmphoreProvider";
+
+import {
+	expectInline,
+	expectPortaledWithScope,
+} from "../../../../tests/expectPortal";
+
 import { DatePicker } from "./DatePicker";
 
 describe("DatePicker", () => {
@@ -94,5 +101,36 @@ describe("DatePicker", () => {
 		expect(trigger).toHaveAttribute("data-invalid", "true");
 		expect(trigger).toHaveAttribute("aria-describedby");
 		expect(screen.getByText("Requis")).toBeInTheDocument();
+	});
+
+	describe("portal", () => {
+		it("renders the calendar inline by default", async () => {
+			const user = userEvent.setup();
+			const { container } = render(
+				<DatePicker value={null} onChange={() => {}} />
+			);
+			await user.click(screen.getByRole("button"));
+			expectInline(container, screen.getByRole("dialog"));
+		});
+
+		it("forwards portal to the Popover, and a day click still commits", async () => {
+			const user = userEvent.setup();
+			const onChange = vi.fn();
+			const { container } = render(
+				<AmphoreProvider>
+					<DatePicker
+						value={new Date(2024, 2, 1)}
+						onChange={onChange}
+						portal
+					/>
+				</AmphoreProvider>
+			);
+			await user.click(screen.getByRole("button"));
+			expectPortaledWithScope(container, screen.getByRole("dialog"));
+			await user.click(
+				screen.getByRole("button", { name: /15 March 2024/ })
+			);
+			expect(onChange).toHaveBeenCalledWith(new Date(2024, 2, 15));
+		});
 	});
 });

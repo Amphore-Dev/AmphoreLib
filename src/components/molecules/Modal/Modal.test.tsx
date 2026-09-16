@@ -2,6 +2,8 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
+import { AmphoreProvider } from "@theme/AmphoreProvider";
+
 import { Modal } from "./Modal";
 
 describe("Modal", () => {
@@ -92,5 +94,66 @@ describe("Modal", () => {
 		expect(document.getElementById(titleId as string)).toHaveTextContent(
 			"Mon titre"
 		);
+	});
+
+	describe("portal", () => {
+		it("renders inline (inside the render container) by default", () => {
+			const { container } = render(
+				<Modal open onClose={() => {}} title="Titre">
+					Contenu
+				</Modal>
+			);
+			expect(container.contains(screen.getByRole("dialog"))).toBe(true);
+		});
+
+		it("renders into document.body when portal is true", () => {
+			const { container } = render(
+				<Modal open onClose={() => {}} title="Titre" portal>
+					Contenu
+				</Modal>
+			);
+			const dialog = screen.getByRole("dialog");
+			expect(container.contains(dialog)).toBe(false);
+			expect(document.body.contains(dialog)).toBe(true);
+		});
+
+		it("keeps the provider's theme scope inside the portal", () => {
+			render(
+				<AmphoreProvider
+					theme="dark"
+					config={{ colors: { primary: "#abcdef" } }}
+				>
+					<Modal open onClose={() => {}} title="Titre" portal>
+						Contenu
+					</Modal>
+				</AmphoreProvider>
+			);
+			const root = document.querySelector(".amp-root") as HTMLElement;
+			const dialog = screen.getByRole("dialog");
+			expect(root.contains(dialog)).toBe(false);
+
+			const scope = dialog.closest("[data-amp-scope]") as HTMLElement;
+			expect(scope).toHaveAttribute(
+				"data-amp-scope",
+				root.getAttribute("data-amp-scope")
+			);
+			expect(scope).toHaveAttribute("data-amp-theme", "dark");
+			expect(scope.style.getPropertyValue("--amp-color-primary")).toBe(
+				"#abcdef"
+			);
+		});
+
+		it("still closes on Escape and via the close button when portaled", async () => {
+			const user = userEvent.setup();
+			const onClose = vi.fn();
+			render(
+				<Modal open onClose={onClose} title="Titre" portal>
+					Contenu
+				</Modal>
+			);
+			await user.click(screen.getByRole("button", { name: "Close" }));
+			await user.keyboard("{Escape}");
+			expect(onClose).toHaveBeenCalledTimes(2);
+		});
 	});
 });

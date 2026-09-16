@@ -34,6 +34,8 @@ export interface IDatePickerProps {
 	color?: TColor;
 	disabled?: boolean;
 	required?: boolean;
+	/** Forwarded to the calendar's Popover — renders it into `document.body` via AmphorePortal. Defaults to false. */
+	portal?: boolean;
 	className?: string;
 	wrapperClassName?: string;
 }
@@ -61,6 +63,7 @@ export const DatePicker: React.FC<IDatePickerProps> = ({
 	color = "primary",
 	disabled = false,
 	required = false,
+	portal = false,
 	className = "",
 	wrapperClassName = "",
 }) => {
@@ -99,6 +102,7 @@ export const DatePicker: React.FC<IDatePickerProps> = ({
 				onOpenChange={setOpen}
 				placement="bottom-start"
 				disabled={disabled}
+				portal={portal}
 				content={
 					<DayPicker
 						className={styles.calendar}

@@ -23,6 +23,7 @@ export default {
 			],
 		},
 		disabled: { control: "boolean" },
+		portal: { control: "boolean" },
 	},
 };
 
@@ -76,6 +77,31 @@ export const KeyboardFocus = () => (
 		<span>Tab to the button:</span>
 		<Tooltip content="Also accessible via keyboard">
 			<Button>Focus me</Button>
+		</Tooltip>
+	</div>
+);
+
+/**
+ * `portal` renders the tooltip into `document.body` through AmphorePortal,
+ * which re-applies the nearest AmphoreProvider's theme scope inside the
+ * portal — styled exactly like the inline version. The trigger here sits in
+ * a `transform`ed, `overflow: hidden` box: inline, `position: fixed` gets
+ * trapped by that ancestor and clipped; portaled, it escapes.
+ */
+export const Portaled = () => (
+	<div
+		style={{
+			transform: "translateZ(0)",
+			overflow: "hidden",
+			width: 320,
+			height: 120,
+			padding: "1rem",
+			border: "1px dashed var(--amp-color-border)",
+			borderRadius: "var(--amp-radius-md)",
+		}}
+	>
+		<Tooltip content="Escapes the dashed box" portal>
+			<Button>Hover me (portaled)</Button>
 		</Tooltip>
 	</div>
 );

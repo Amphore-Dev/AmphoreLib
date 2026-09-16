@@ -18,6 +18,7 @@ export default {
 		collapsedLabel: { control: "text" },
 		collapseLabel: { control: "text" },
 		expandLabel: { control: "text" },
+		portal: { control: "boolean" },
 	},
 	parameters: {
 		// Fixed-position, fills the viewport height — same reason Modal
@@ -44,8 +45,7 @@ Base.args = {
 		<div>
 			<h3 style={{ margin: "0 0 8px" }}>Task #482</h3>
 			<p style={{ margin: 0 }}>
-				Drag the handle to resize, or tap it to
-				collapse/expand.
+				Drag the handle to resize, or tap it to collapse/expand.
 			</p>
 		</div>
 	),

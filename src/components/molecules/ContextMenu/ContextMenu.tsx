@@ -11,6 +11,8 @@ import {
 	useRole,
 } from "@floating-ui/react";
 
+import { AmphorePortal } from "@theme/AmphorePortal";
+
 import type { TMenuItem } from "@interfaces/index";
 
 import { MenuList } from "../Dropdown/MenuList";
@@ -23,6 +25,8 @@ export interface IContextMenuProps<T> {
 	/** Static list, or resolved from whatever `data` the triggering `show(event, data)` call passed. */
 	items: TMenuItem[] | ((data: T) => TMenuItem[]);
 	disabled?: boolean;
+	/** Renders the menu into `document.body` via AmphorePortal (theme scope re-applied) — escapes any ancestor stacking context/`transform`/`overflow` that would trap or clip it. Defaults to false (inline, `position: fixed`). */
+	portal?: boolean;
 	className?: string;
 }
 
@@ -32,12 +36,14 @@ export interface IContextMenuProps<T> {
  * as many `onContextMenu` handlers as needed, `items` resolved against
  * whatever `data` the triggering call passed. Reuses Dropdown's `MenuList`,
  * positions via a virtual reference at the cursor (`refs.setPositionReference`)
- * — no trigger ref/forwardRef needed, unlike Dropdown.
+ * — no trigger ref/forwardRef needed, unlike Dropdown. Inline
+ * (`strategy:"fixed"`) by default, `portal` opts into AmphorePortal.
  */
 export function ContextMenu<T = undefined>({
 	menu,
 	items,
 	disabled = false,
+	portal = false,
 	className = "",
 }: IContextMenuProps<T>) {
 	const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -125,7 +131,7 @@ export function ContextMenu<T = undefined>({
 		menu.hide();
 	};
 
-	return (
+	const list = (
 		<MenuList
 			items={resolvedItems}
 			context={context}
@@ -141,4 +147,6 @@ export function ContextMenu<T = undefined>({
 			className={className}
 		/>
 	);
+
+	return portal ? <AmphorePortal>{list}</AmphorePortal> : list;
 }

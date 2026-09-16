@@ -16,6 +16,7 @@ import {
 	type UseFloatingOptions,
 } from "@floating-ui/react";
 
+import { AmphorePortal } from "@theme/AmphorePortal";
 import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
@@ -111,6 +112,8 @@ export interface ISelectProps<T = string> {
 	 * Doesn't change what `onChange` receives or how many times it fires.
 	 */
 	clearInputOnSelect?: boolean;
+	/** Renders the listbox into `document.body` via AmphorePortal (theme scope re-applied) — escapes any ancestor stacking context/`transform`/`overflow` that would trap or clip it. Defaults to false (inline, `position: fixed`). */
+	portal?: boolean;
 	className?: string;
 	wrapperClassName?: string;
 	/**
@@ -141,6 +144,17 @@ export type TSelectLabels = Pick<
  * `filterOptions`/`isLoading` exist on this component specifically so that
  * wrapper doesn't need to reach into internals.
  */
+/**
+ * Wraps the listbox in AmphorePortal only when asked — kept as a tiny
+ * component (not `portal ? <AmphorePortal>{el}</AmphorePortal> : el` inline)
+ * because the listbox JSX below is ~80 lines and would otherwise have to be
+ * hoisted into a variable just to reference it twice.
+ */
+const PortalOrInline: React.FC<
+	React.PropsWithChildren<{ portal: boolean }>
+> = ({ portal, children }) =>
+	portal ? <AmphorePortal>{children}</AmphorePortal> : <>{children}</>;
+
 export function Select<T = string>({
 	options,
 	value,
@@ -168,6 +182,7 @@ export function Select<T = string>({
 	renderGroupHeader,
 	footer,
 	clearInputOnSelect = false,
+	portal = false,
 	className = "",
 	wrapperClassName = "",
 	floatingProps,
@@ -268,11 +283,12 @@ export function Select<T = string>({
 	const { refs, floatingStyles, context } = useFloating({
 		whileElementsMounted: autoUpdate,
 		placement: "bottom-start",
-		// Not portaled (see below), so "fixed" avoids the classic pitfall of
-		// "absolute" positioning without a portal: coordinates would otherwise
-		// be relative to the nearest positioned ancestor instead of the
-		// viewport, breaking the moment any wrapping container in a consumer
-		// app (or Storybook's own docs layout) sets position: relative.
+		// Inline by default (see `portal`), so "fixed" avoids the classic
+		// pitfall of "absolute" positioning without a portal: coordinates
+		// would otherwise be relative to the nearest positioned ancestor
+		// instead of the viewport, breaking the moment any wrapping container
+		// in a consumer app (or Storybook's own docs layout) sets
+		// position: relative.
 		strategy: "fixed",
 		middleware: [
 			offset(4),
@@ -516,83 +532,86 @@ export function Select<T = string>({
 			</div>
 
 			{open && (
-				// Rendered inline, not portaled: FloatingPortal defaults to
-				// document.body, which broke styling inside Storybook's docs
-				// page (the live example there runs in a context that doesn't
-				// share the portal target's stylesheet). Trade-off: this can
-				// get clipped by an ancestor's overflow: hidden — acceptable
-				// for now, revisit with an explicit portal root if it bites.
-				<div
-					ref={refs.setFloating}
-					style={floatingStyles}
-					className={styles.listbox}
-					{...getFloatingProps()}
-				>
-					{isLoading ? (
-						<div className={styles.loading}>
-							<Spinner size="sm" />
-							{loadingMessage}
-						</div>
-					) : filteredOptions.length === 0 ? (
-						<div className={styles.noResults}>
-							{noResultsMessage}
-						</div>
-					) : (
-						renderEntries.map((entry) =>
-							entry.kind === "header" ? (
-								<div
-									key={`header-${entry.group.label}`}
-									className={styles.groupHeading}
-								>
-									{renderGroupHeader
-										? renderGroupHeader(entry.group)
-										: entry.group.label}
-								</div>
-							) : (
-								<div
-									// See the chip key above — same
-									// object-value collision risk here.
-									key={
-										getOptionValue
-											? getOptionValue(entry.option.value)
-											: `${entry.index}-${String(entry.option.value)}`
-									}
-									id={`${selectId}-option-${entry.index}`}
-									ref={(node) => {
-										listRef.current[entry.index] = node;
-										labelsRef.current[entry.index] =
-											entry.option.label;
-									}}
-									role="option"
-									aria-selected={isSelected(entry.option)}
-									aria-disabled={
-										entry.option.disabled || undefined
-									}
-									className={cn([
-										styles.option,
-										activeIndex === entry.index &&
-											styles.optionActive,
-									])}
-									data-selected={
-										isSelected(entry.option) || undefined
-									}
-									{...getItemProps({
-										onClick: () =>
-											handleSelect(entry.option),
-									})}
-								>
-									{renderOption
-										? renderOption(entry.option)
-										: entry.option.label}
-								</div>
+				// Inline by default — can get clipped by an ancestor's
+				// overflow: hidden / trapped in its stacking context; `portal`
+				// opts into AmphorePortal for those cases (a bare
+				// FloatingPortal would drop the theme's CSS vars).
+				<PortalOrInline portal={portal}>
+					<div
+						ref={refs.setFloating}
+						style={floatingStyles}
+						className={styles.listbox}
+						{...getFloatingProps()}
+					>
+						{isLoading ? (
+							<div className={styles.loading}>
+								<Spinner size="sm" />
+								{loadingMessage}
+							</div>
+						) : filteredOptions.length === 0 ? (
+							<div className={styles.noResults}>
+								{noResultsMessage}
+							</div>
+						) : (
+							renderEntries.map((entry) =>
+								entry.kind === "header" ? (
+									<div
+										key={`header-${entry.group.label}`}
+										className={styles.groupHeading}
+									>
+										{renderGroupHeader
+											? renderGroupHeader(entry.group)
+											: entry.group.label}
+									</div>
+								) : (
+									<div
+										// See the chip key above — same
+										// object-value collision risk here.
+										key={
+											getOptionValue
+												? getOptionValue(
+														entry.option.value
+													)
+												: `${entry.index}-${String(entry.option.value)}`
+										}
+										id={`${selectId}-option-${entry.index}`}
+										ref={(node) => {
+											listRef.current[entry.index] = node;
+											labelsRef.current[entry.index] =
+												entry.option.label;
+										}}
+										role="option"
+										aria-selected={isSelected(entry.option)}
+										aria-disabled={
+											entry.option.disabled || undefined
+										}
+										className={cn([
+											styles.option,
+											activeIndex === entry.index &&
+												styles.optionActive,
+										])}
+										data-selected={
+											isSelected(entry.option) ||
+											undefined
+										}
+										{...getItemProps({
+											onClick: () =>
+												handleSelect(entry.option),
+										})}
+									>
+										{renderOption
+											? renderOption(entry.option)
+											: entry.option.label}
+									</div>
+								)
 							)
-						)
-					)}
+						)}
 
-					{footer && (
-						<div className={styles.listboxFooter}>{footer}</div>
-					)}
-				</div>
+						{footer && (
+							<div className={styles.listboxFooter}>{footer}</div>
+						)}
+					</div>
+				</PortalOrInline>
 			)}
 
 			{!hideError && <InputErrorMessage>{error}</InputErrorMessage>}

@@ -8,6 +8,7 @@ export default {
 	title: "Components/Molecules/ToolBar",
 	component: ToolBar,
 	argTypes: {
+		portal: { control: "boolean" },
 		position: { control: "radio", options: ["top", "bottom"] },
 	},
 };
@@ -58,3 +59,9 @@ LabelsOnly.args = {
 
 export const AtTopOfScreen = Template.bind({});
 AtTopOfScreen.args = { items, position: "top" };
+
+export const Portal = Template.bind({});
+Portal.args = {
+	...Base.args,
+	portal: true,
+};

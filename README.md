@@ -148,10 +148,18 @@ Accessibility, Structure, Verification) — the short version:
 - **User-facing strings are props with English defaults**, not a global
   i18n dictionary — override per instance (`removeLabel`, `submitLabel`,
   `zoomOutLabel`, ...).
-- **No portals.** Overlays position themselves in place (`position: fixed`
-  where needed) instead of rendering into `document.body`, so they keep
-  working inside a Storybook docs iframe, a shadow DOM, or any other
-  embed with its own stacking context.
+- **Inline by default, `portal` on demand.** Overlays position themselves
+  in place (`position: fixed`) and stay inside the `AmphoreProvider`
+  wrapper. Every overlay (`Modal`, `Select`, `Tooltip`, `Popover`,
+  `Dropdown`, `ContextMenu`, `BottomPanel`, `SidePanel`...) takes an
+  opt-in `portal` prop that renders it into `document.body` through
+  `AmphorePortal` — for the ancestors that break `position: fixed`
+  (`transform`, `filter`, `contain`) or trap its z-index (`sticky`, any
+  stacking context). Never a bare `createPortal`/`FloatingPortal`: the
+  theme is CSS variables inlined on the provider's wrapper, so anything
+  rendered outside it loses every `var(--amp-*)`. `AmphorePortal` (or
+  `AmphoreScope` around your own `createPortal`) re-applies that scope
+  inside the portal.
 
 ## Credits
 

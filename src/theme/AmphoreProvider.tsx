@@ -3,6 +3,7 @@ import React, { useId, useMemo, type PropsWithChildren } from "react";
 import { fr } from "../locales/fr";
 
 import { AmphoreDefaultsContext } from "./AmphoreDefaultsContext";
+import { AmphoreScopeContext, type IAmphoreScope } from "./AmphoreScopeContext";
 import type { TThemeConfigInput, TThemeMode } from "./TThemeTokens";
 import {
 	colorsToCssVars,
@@ -72,6 +73,19 @@ export function AmphoreProvider({
 	const scopeId = useId().replace(/:/g, "");
 	const darkDeclarations = cssVarsToDeclarations(darkColorVars);
 
+	// What AmphoreScope needs to rebuild this wrapper inside a portal — see
+	// AmphoreScopeContext. Memoized so portaled subtrees don't re-render on
+	// every provider render.
+	const scope = useMemo<IAmphoreScope>(
+		() => ({
+			scopeId,
+			theme,
+			density: resolved.density,
+			style: lightStyle,
+		}),
+		[scopeId, theme, resolved.density, lightStyle]
+	);
+
 	const Tag = as as "div";
 	return (
 		<Tag
@@ -93,11 +107,13 @@ export function AmphoreProvider({
   [data-amp-scope="${scopeId}"]:not([data-amp-theme="light"]):not([data-amp-theme="dark"]) { ${darkDeclarations} }
 }`}
 			</style>
-			<AmphoreDefaultsContext.Provider
-				value={{ ...resolved.defaults, labels: resolved.labels }}
-			>
-				{children}
-			</AmphoreDefaultsContext.Provider>
+			<AmphoreScopeContext.Provider value={scope}>
+				<AmphoreDefaultsContext.Provider
+					value={{ ...resolved.defaults, labels: resolved.labels }}
+				>
+					{children}
+				</AmphoreDefaultsContext.Provider>
+			</AmphoreScopeContext.Provider>
 		</Tag>
 	);
 }

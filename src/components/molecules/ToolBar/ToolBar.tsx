@@ -30,6 +30,8 @@ export interface IToolBarProps {
 	onChange?: (id: string | undefined) => void;
 	/** Toolbar's own position on screen — flips popover/tooltip placement so it opens away from the edge. Defaults to "bottom". */
 	position?: "top" | "bottom";
+	/** Forwarded to every item's Popover/Tooltip — renders them into `document.body` via AmphorePortal. Defaults to false. */
+	portal?: boolean;
 	className?: string;
 }
 
@@ -38,9 +40,9 @@ export interface IToolBarProps {
  * version had a custom floating-ui middleware to center a popover under
  * its anchor, a portal, and a `component`/`popover(ref)` render-prop
  * escape hatch — dropped all of it: Popover's own flip/shift already
- * handles collision, no portal per this lib's standing convention, and a
- * plain `popoverContent` node covers the same need without the render-prop
- * indirection.
+ * handles collision, `portal` is just forwarded to Popover/Tooltip (inline
+ * by default), and a plain `popoverContent` node covers the same need
+ * without the render-prop indirection.
  *
  * A popover item's trigger uses a native `title` for the hover hint
  * (not Tooltip) — Tooltip isn't `forwardRef`, so nesting it as Popover's
@@ -52,6 +54,7 @@ export const ToolBar: React.FC<IToolBarProps> = ({
 	activeItem,
 	onChange,
 	position = "bottom",
+	portal = false,
 	className = "",
 }) => {
 	const placement = position === "top" ? "bottom" : "top";
@@ -77,6 +80,7 @@ export const ToolBar: React.FC<IToolBarProps> = ({
 							}
 							placement={placement}
 							disabled={item.disabled}
+							portal={portal}
 							content={item.popoverContent}
 						>
 							<button
@@ -119,6 +123,7 @@ export const ToolBar: React.FC<IToolBarProps> = ({
 						key={item.id}
 						content={item.label}
 						placement={placement}
+						portal={portal}
 					>
 						{button}
 					</Tooltip>
