@@ -1,6 +1,13 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { AmphoreProvider } from "@theme/AmphoreProvider";
+
+import {
+	expectInline,
+	expectPortaledWithScope,
+} from "../../../../tests/expectPortal";
+
 import { ConfirmModal } from "./ConfirmModal";
 
 describe("ConfirmModal", () => {
@@ -138,5 +145,28 @@ describe("ConfirmModal", () => {
 		render(<ConfirmModal open onClose={() => {}} onConfirm={onConfirm} />);
 		fireEvent.click(screen.getByRole("button", { name: "Confirm" }));
 		expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled();
+	});
+
+	describe("portal", () => {
+		it("renders inline by default", () => {
+			const { container } = render(
+				<ConfirmModal open onClose={() => {}} onConfirm={() => {}} />
+			);
+			expectInline(container, screen.getByRole("dialog"));
+		});
+
+		it("forwards portal to Modal", () => {
+			const { container } = render(
+				<AmphoreProvider>
+					<ConfirmModal
+						open
+						onClose={() => {}}
+						onConfirm={() => {}}
+						portal
+					/>
+				</AmphoreProvider>
+			);
+			expectPortaledWithScope(container, screen.getByRole("dialog"));
+		});
 	});
 });

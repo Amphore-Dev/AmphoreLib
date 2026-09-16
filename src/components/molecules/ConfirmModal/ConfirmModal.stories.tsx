@@ -11,6 +11,7 @@ export default {
 	title: "Components/Molecules/ConfirmModal",
 	component: ConfirmModal,
 	argTypes: {
+		portal: { control: "boolean" },
 		size: sizeArgType,
 		confirmColor: {
 			control: "select",

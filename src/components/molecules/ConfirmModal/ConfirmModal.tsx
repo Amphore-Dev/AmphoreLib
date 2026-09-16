@@ -24,6 +24,8 @@ export interface IConfirmModalProps {
 	/** Tints the confirm button — e.g. "danger" for a destructive action. */
 	confirmColor?: TColor;
 	size?: TSize;
+	/** Forwarded to Modal — renders into `document.body` via AmphorePortal. Defaults to false. */
+	portal?: boolean;
 	className?: string;
 }
 
@@ -54,6 +56,7 @@ export const ConfirmModal: React.FC<IConfirmModalProps> = ({
 	confirmText: confirmTextProp,
 	confirmColor = "primary",
 	size = "sm",
+	portal = false,
 	className = "",
 }) => {
 	const [isLoading, setIsLoading] = useState(false);
@@ -84,6 +87,7 @@ export const ConfirmModal: React.FC<IConfirmModalProps> = ({
 			onClose={onClose}
 			title={title}
 			size={size}
+			portal={portal}
 			className={className}
 			// While confirming, closing any other way (overlay click, Escape,
 			// the header ×) would abandon an in-flight action with no way for
