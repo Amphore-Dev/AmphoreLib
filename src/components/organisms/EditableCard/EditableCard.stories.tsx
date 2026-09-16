@@ -326,6 +326,7 @@ AllFieldTypes.args = {
 			],
 		},
 		{ name: "contract", type: "file", label: "Signed contract" },
+		{ name: "favoriteColor", type: "color", label: "Favorite color" },
 	],
 	values: {
 		role: "dev",
@@ -335,5 +336,6 @@ AllFieldTypes.args = {
 		contractType: "permanent",
 		benefits: ["health"],
 		contract: [makeSampleImageFile("signed-contract.jpg")],
+		favoriteColor: "#ff0000",
 	},
 };

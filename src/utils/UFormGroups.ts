@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { createElement, type ReactNode } from "react";
 
 import { isNil, isPlainObject } from "lodash";
 
@@ -108,6 +108,33 @@ export const getDefaultValueDisplay = (
 			if (!files.length) return undefined;
 			return files.length === 1 ? files[0].name : `${files.length} files`;
 		}
+
+		case "color":
+			// A swatch next to the hex - the value alone reads as noise.
+			return typeof value === "string" && value
+				? createElement(
+						"span",
+						{
+							style: {
+								display: "inline-flex",
+								alignItems: "center",
+								gap: "0.5em",
+							},
+						},
+						createElement("span", {
+							"aria-hidden": true,
+							style: {
+								display: "inline-block",
+								width: "1em",
+								height: "1em",
+								borderRadius: "var(--amp-radius-md)",
+								border: "1px solid var(--amp-color-border)",
+								background: value,
+							},
+						}),
+						value
+					)
+				: undefined;
 
 		default:
 			return undefined;

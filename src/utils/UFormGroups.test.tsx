@@ -1,3 +1,6 @@
+import { isValidElement, type ReactElement } from "react";
+
+import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { TField, TFieldsGroup } from "@interfaces/index";
@@ -106,6 +109,20 @@ describe("getDefaultValueDisplay", () => {
 	it("formats a toggle field's boolean value", () => {
 		expect(getDefaultValueDisplay("toggle", true)).toBe("Yes");
 		expect(getDefaultValueDisplay("toggle", false)).toBe("No");
+	});
+
+	it("shows a colour field's hex next to a swatch of it", () => {
+		const node = getDefaultValueDisplay("color", "#aabbcc");
+		expect(isValidElement(node)).toBe(true);
+		const { container } = render(node as ReactElement);
+		expect(container).toHaveTextContent("#aabbcc");
+		const swatch = container.querySelector("[aria-hidden]") as HTMLElement;
+		expect(swatch.style.background).toBe("rgb(170, 187, 204)");
+	});
+
+	it('returns undefined for an empty colour - the caller\'s own "-" fallback applies', () => {
+		expect(getDefaultValueDisplay("color", "")).toBeUndefined();
+		expect(getDefaultValueDisplay("color", null)).toBeUndefined();
 	});
 
 	it("joins a checkbox field's array value", () => {

@@ -11,6 +11,7 @@ import {
 } from "@components/atoms";
 import {
 	CheckboxFilter,
+	ColorPickerField,
 	DatePicker,
 	FilesField,
 	PeriodFilter,
@@ -209,6 +210,18 @@ export const FieldRenderer: React.FC<IFieldRendererProps> = ({
 				}
 			/>
 		),
+		color: ({ value, onChange, ...fieldProps }) => (
+			<ColorPickerField
+				{...fieldProps}
+				value={value ?? ""}
+				onChange={
+					onChange ??
+					((next) => {
+						void setFieldValue(props.name, next);
+					})
+				}
+			/>
+		),
 	};
 
 	function renderByType<K extends TFieldType>(
@@ -218,8 +231,22 @@ export const FieldRenderer: React.FC<IFieldRendererProps> = ({
 		const customRenderer = customRenderers?.[String(type)] as
 			| ((fieldProps: TFieldPropsByType[K]) => JSX.Element)
 			| undefined;
-		const Renderer = renderer ?? customRenderer ?? renderers[type];
-		return Renderer(fieldProps);
+		const custom = renderer ?? customRenderer;
+		if (!custom) return renderers[type](fieldProps);
+
+		// A custom renderer gets the same deal as the built-in ones: an
+		// `onChange` that writes through Formik unless the descriptor
+		// brought its own. Without this it would have no way to set the
+		// value at all - the Formik context is this layer's, not the
+		// consumer's.
+		return custom({
+			...fieldProps,
+			onChange:
+				(fieldProps as { onChange?: unknown }).onChange ??
+				((value: unknown) => {
+					void setFieldValue(props.name, value);
+				}),
+		} as TFieldPropsByType[K]);
 	}
 
 	const type = (props.type ?? "input") as TFieldType;

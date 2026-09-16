@@ -62,6 +62,7 @@ const groupedFields: TFieldsGroup[] = [
 		columns: 2,
 		fields: [
 			{ name: "newsletter", type: "toggle", label: "Newsletter" },
+			{ name: "brand", type: "color", label: "Brand colour" },
 			{
 				name: "role",
 				type: "select",
@@ -93,6 +94,7 @@ Groups.args = {
 		name: "",
 		email: "",
 		newsletter: false,
+		brand: "#3663DD",
 		role: "reader",
 	},
 	displayGroupTitles: true,

@@ -11,6 +11,7 @@ import {
 } from "@components/atoms";
 import {
 	ICheckboxesFilterProps,
+	IColorPickerFieldProps,
 	IDatePickerProps,
 	IFilesFieldProps,
 	IPeriodFilterProps,
@@ -55,6 +56,11 @@ export type TFieldPropsByType<
 	radio: IRadioFilterProps;
 	toggle: IToggleProps;
 	file: IFilesFieldProps;
+	/** A hex colour (`#rrggbb`), picked through ColorPickerField. */
+	color: TOmitControlled<IColorPickerFieldProps> & {
+		value?: string | null;
+		onChange?: (value: string) => void;
+	};
 } & CustomProps;
 
 export type TFieldType<

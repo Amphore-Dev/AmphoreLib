@@ -67,6 +67,7 @@ The renderer is selected automatically based on the `type` property.
 - `radio`: single selection (`RadioFilter`)
 - `toggle`: switch (`Toggle`)
 - `file`: file upload (`FilesField`, one or more `InputFile`)
+- `color`: hex colour (`ColorPickerField`, `"#rrggbb"` string value). In `EditableCard`'s read-only mode the value is shown as a swatch next to the hex — no `valueDisplay` needed.
 
 No `quantity` type (`InputQuantity` doesn't exist in this version of the lib) and no dedicated `NumberField` component — `NumberInput` is already controlled/clean, unlike the old version which needed an intermediate component to work around an ambient-Formik coupling bug.
 
@@ -193,17 +194,19 @@ Three levels of override, from most specific to most global:
 {
   name: "custom",
   type: "input",
-  renderer: (props) => {
-    const { value, formik } = props;
-    return (
-      <MyCustomInput
-        value={value}
-        onChange={(next) => formik.setFieldValue("custom", next)}
-      />
-    );
-  },
+  renderer: ({ value, onChange, label, error, disabled }) => (
+    <MyCustomInput
+      label={label}
+      value={value}
+      onChange={onChange}
+      error={error}
+      disabled={disabled}
+    />
+  ),
 }
 ```
+
+A custom renderer gets the same props as the built-in one for that `type`, plus an `onChange` that writes through Formik (`setFieldValue(name, value)`) unless the field descriptor brings its own `onChange`. It never sees the Formik context itself: the lib bundles its own copy of Formik, so a consumer's `useFormikContext()` would read a different context — `onChange` is the only way to set the value.
 
 ### 2. At the component level (`fieldsRenderers`)
 

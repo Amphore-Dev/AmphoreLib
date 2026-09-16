@@ -61,8 +61,24 @@
 		background: transparent;
 	}
 
+	:global(.input_rgba-wrap) {
+		flex-wrap: wrap;
+		gap: 16px;
+	}
+
+	:global(.input_rgba-hex) {
+		width: unset !important;
+		flex: 1 1 100px !important;
+	}
+
+	:global(.input_rgba-alpha) {
+		width: unset !important;
+		flex: 1 1 100px !important;
+		margin-left: 0px !important;
+	}
+
 	:global(.input_rgba) input {
-		background: var(--amp-color-ghost-bg);
+		background: var(--amp-color-ghost-bg) !important;
 		color: var(--amp-color-ink);
 		border-radius: var(--amp-radius-md);
 		box-shadow: none !important;

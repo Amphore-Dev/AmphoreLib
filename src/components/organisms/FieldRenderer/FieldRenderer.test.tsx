@@ -1,11 +1,31 @@
 import React from "react";
 
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Formik } from "formik";
 import { describe, expect, it, vi } from "vitest";
 
 import { FieldRenderer } from "./FieldRenderer";
+
+vi.mock("@components/molecules", async (importOriginal) => ({
+	...(await importOriginal<typeof import("@components/molecules")>()),
+	ColorPickerField: ({
+		label,
+		value,
+		onChange,
+	}: {
+		label?: string;
+		value: string;
+		onChange: (value: string) => void;
+	}) => (
+		<div data-testid="color-picker-field" data-value={value}>
+			{label}
+			<button type="button" onClick={() => onChange("#aabbcc")}>
+				pick #aabbcc
+			</button>
+		</div>
+	),
+}));
 
 const renderInFormik = (
 	ui: React.ReactElement,
@@ -93,6 +113,76 @@ describe("FieldRenderer", () => {
 		);
 		expect(screen.getByTestId("field-renderer")).toBeInTheDocument();
 		expect(screen.queryByTestId("custom-input")).not.toBeInTheDocument();
+	});
+
+	it("hands a custom renderer an onChange that writes through Formik", async () => {
+		const { values } = renderWithValues(() => (
+			<FieldRenderer
+				name="custom"
+				type="input"
+				renderer={(fieldProps) => (
+					<button
+						type="button"
+						onClick={() =>
+							(
+								fieldProps as { onChange?: (v: string) => void }
+							).onChange?.("picked")
+						}
+					>
+						pick
+					</button>
+				)}
+			/>
+		));
+		fireEvent.click(screen.getByText("pick"));
+		await waitFor(() => expect(values.current.custom).toBe("picked"));
+	});
+
+	it("keeps a custom renderer's own onChange when the descriptor brings one", () => {
+		const onChange = vi.fn();
+		const { values } = renderWithValues(() => (
+			<FieldRenderer
+				name="custom"
+				type="input"
+				onChange={onChange}
+				renderer={(fieldProps) => (
+					<button
+						type="button"
+						onClick={() =>
+							(
+								fieldProps as { onChange?: (v: string) => void }
+							).onChange?.("picked")
+						}
+					>
+						pick
+					</button>
+				)}
+			/>
+		));
+		screen.getByText("pick").click();
+		expect(onChange).toHaveBeenCalledWith("picked");
+		expect(values.current.custom).toBeUndefined();
+	});
+
+	it("renders a ColorPickerField for type=color and writes the pick through Formik", async () => {
+		const { values } = renderWithValues(
+			() => (
+				<FieldRenderer
+					name="color"
+					type="color"
+					label="Colour"
+					value="#112233"
+				/>
+			),
+			{ color: "#112233" }
+		);
+		// The real picker (react-gcolor-picker) isn't driven here - see
+		// the ColorPickerField suite; the mock exposes its onChange.
+		const picker = screen.getByTestId("color-picker-field");
+		expect(picker).toHaveTextContent("Colour");
+		expect(picker).toHaveAttribute("data-value", "#112233");
+		fireEvent.click(screen.getByText("pick #aabbcc"));
+		await waitFor(() => expect(values.current.color).toBe("#aabbcc"));
 	});
 
 	it("calls a field's own onChange instead of touching Formik", () => {

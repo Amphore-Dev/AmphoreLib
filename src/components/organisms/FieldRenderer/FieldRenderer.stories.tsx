@@ -49,6 +49,14 @@ ToggleField.args = {
 	value: true,
 };
 
+export const ColorField = Template.bind({});
+ColorField.args = {
+	name: "brand",
+	type: "color",
+	label: "Brand colour",
+	value: "#3663DD",
+};
+
 export const CheckboxField = Template.bind({});
 CheckboxField.args = {
 	name: "days",
