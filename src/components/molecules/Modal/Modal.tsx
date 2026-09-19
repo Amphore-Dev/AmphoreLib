@@ -25,8 +25,16 @@ import styles from "./Modal.module.scss";
 export interface IModalProps {
 	open: boolean;
 	onClose: () => void;
-	title?: string;
+	title?: React.ReactNode;
 	children?: React.ReactNode;
+	/**
+	 * Extra header content, in the same sticky row as `title` and the close
+	 * button, taking whatever width is left between them. With no `title`
+	 * and `hideCloseButton`, it *is* the header — for a consumer bringing
+	 * its own (a heading plus its own action buttons, say) that still
+	 * needs the row to stay put while the body scrolls under it.
+	 */
+	header?: React.ReactNode;
 	footer?: React.ReactNode;
 	/** Controls the panel's max-width. Defaults to "md". */
 	size?: TSize;
@@ -66,6 +74,7 @@ export const Modal: React.FC<IModalProps> = ({
 	onClose,
 	title,
 	children,
+	header,
 	footer,
 	size = "md",
 	closeOnOverlayClick = true,
@@ -108,12 +117,17 @@ export const Modal: React.FC<IModalProps> = ({
 					aria-labelledby={title ? titleId : undefined}
 					{...getFloatingProps()}
 				>
-					{(title || !hideCloseButton) && (
+					{(title || !hideCloseButton || header) && (
 						<div className={styles.header}>
 							{title && (
 								<h2 id={titleId} className={styles.title}>
 									{title}
 								</h2>
+							)}
+							{header && (
+								<div className={styles.headerSlot}>
+									{header}
+								</div>
 							)}
 							{!hideCloseButton && (
 								<button

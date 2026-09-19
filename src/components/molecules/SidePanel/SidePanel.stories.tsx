@@ -15,6 +15,10 @@ export default {
 		hideCloseButton: { control: "boolean" },
 		overlay: { control: "boolean" },
 		mobileBreakpoint: { control: "number" },
+		mobileMode: {
+			control: "radio",
+			options: ["bottomPanel", "modal"],
+		},
 		keepDockedOnMobile: { control: "boolean" },
 		open: { control: false },
 		onOpenChange: { control: false },
@@ -119,6 +123,53 @@ HideCloseButton.args = {
 	hideCloseButton: true,
 };
 
+// `header` alone (no title, no close button): the consumer brings its
+// own header — a heading and its action buttons — and the lib keeps it
+// in the row that stays put while the body scrolls. Same in the mobile
+// Modal (`mobileMode="modal"`).
+export const CustomHeader = Template.bind({});
+CustomHeader.args = {
+	...Base.args,
+	title: undefined,
+	hideCloseButton: true,
+	mobileMode: "modal",
+	header: (
+		<div
+			style={{
+				display: "flex",
+				alignItems: "center",
+				justifyContent: "space-between",
+				gap: 8,
+			}}
+		>
+			<strong>Editing</strong>
+			<div style={{ display: "flex", gap: 8 }}>
+				<Button variant="ghost" size="sm">
+					Cancel
+				</Button>
+				<Button size="sm">Save</Button>
+			</div>
+		</div>
+	),
+	children: (
+		<div>
+			{Array.from({ length: 30 }, (_, i) => (
+				<p key={i} style={{ margin: "0 0 1rem" }}>
+					Field {i + 1} — scrolls under the header, which stays put.
+				</p>
+			))}
+		</div>
+	),
+};
+
+// `cardProps`: the docked panel's Card, customized — here flatter and
+// bordered instead of the default elevation.
+export const CustomCard = Template.bind({});
+CustomCard.args = {
+	...Base.args,
+	cardProps: { elevation: 1, bordered: true },
+};
+
 // `overlay`: position:fixed instead of sticky — floats above the page
 // instead of sitting in the flow as a real column (main content behind
 // it keeps its own full width, doesn't shrink to make room). No dimming
@@ -170,6 +221,28 @@ KeepDockedOnMobile.args = {
 	children: (
 		<p style={{ margin: 0 }}>
 			Content hidden while closed — tap the handle to show it.
+		</p>
+	),
+};
+
+// `mobileMode="modal"`: below `mobileBreakpoint`, a centered Modal instead
+// of the BottomPanel sheet — dimmed backdrop, header with the title and
+// close button, Escape / outside-click all closing through
+// `onOpenChange(false)`. `keepDockedOnMobile` and `bottomPanelProps` have
+// nothing to act on here; `modalProps` is the passthrough instead. The
+// Modal's overlay is `position: fixed`, so the demo box's `transform`
+// confines it the same way it confines the BottomPanel above.
+export const MobileModal = Template.bind({});
+MobileModal.args = {
+	mobileBreakpoint: FORCE_MOBILE,
+	mobileMode: "modal",
+	open: true,
+	title: "Task #482",
+	modalProps: { size: "sm" },
+	children: (
+		<p style={{ margin: 0 }}>
+			On mobile: a centered dialog — close it from the header, Escape, or
+			the backdrop.
 		</p>
 	),
 };

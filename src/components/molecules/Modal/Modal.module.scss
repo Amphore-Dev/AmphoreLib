@@ -65,6 +65,13 @@
 	border-bottom: 1px solid var(--amp-color-border);
 }
 
+// Whatever's left between the title and the close button — min-width: 0
+// so a wide consumer header shrinks/wraps instead of pushing the × out.
+.headerSlot {
+	flex: 1;
+	min-width: 0;
+}
+
 .title {
 	margin: 0;
 	font-size: 1.0625rem;

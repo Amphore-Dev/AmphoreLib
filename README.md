@@ -117,7 +117,8 @@ exhaustive list:
 - **Feedback & status** — `Spinner`, `Skeleton`, `InfoMessage`, `Progress`,
   `Badge`, `CountDown`.
 - **Overlays** — `Modal`, `ConfirmModal`, `Popover`, `Tooltip`, `Dropdown`,
-  `ContextMenu`, `SidePanel` (docks to a `BottomPanel` sheet on mobile).
+  `ContextMenu`, `SidePanel` (on mobile, a `BottomPanel` sheet or — via
+  `mobileMode="modal"` — a centered `Modal`).
 - **Navigation & structure** — `Tabs`, `Accordion`, `Breadcrumb`,
   `NavItem`/`NavList`, `Card`, `Grid`/`FlexGrid`, `Divider`,
   `SectionCard`.

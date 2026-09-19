@@ -128,6 +128,38 @@ export const LongBody = () => {
 	);
 };
 
+export const LongBodyAndCustomHeader = () => {
+	const [open, setOpen] = useState(false);
+	return (
+		<>
+			<Button onClick={() => setOpen(true)}>Open the modal</Button>
+			<Modal
+				open={open}
+				onClose={() => setOpen(false)}
+				title={false}
+				hideCloseButton
+				header={<p style={{ margin: 0 }}>Custom header content</p>}
+				footer={
+					<>
+						<Button variant="ghost" onClick={() => setOpen(false)}>
+							Decline
+						</Button>
+						<Button onClick={() => setOpen(false)}>Accept</Button>
+					</>
+				}
+			>
+				{Array.from({ length: 30 }, (_, i) => (
+					<p key={i} style={{ margin: "0 0 1rem" }}>
+						Paragraph {i + 1} — test content to check that only the
+						modal's body scrolls, while the title and footer stay
+						fixed (sticky) at the top and bottom.
+					</p>
+				))}
+			</Modal>
+		</>
+	);
+};
+
 export const NoCloseButton = () => {
 	const [open, setOpen] = useState(false);
 	return (

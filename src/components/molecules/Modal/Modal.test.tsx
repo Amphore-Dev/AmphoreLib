@@ -35,6 +35,38 @@ describe("Modal", () => {
 		).toBeInTheDocument();
 	});
 
+	it("renders the header slot in the header row, with or without a title", () => {
+		const { rerender } = render(
+			<Modal
+				open
+				onClose={() => {}}
+				title="Titre"
+				header={<button type="button">Action</button>}
+			>
+				Contenu
+			</Modal>
+		);
+		expect(
+			screen.getByRole("button", { name: "Action" })
+		).toBeInTheDocument();
+
+		// No title, no close button: the slot alone is still a header.
+		rerender(
+			<Modal
+				open
+				onClose={() => {}}
+				hideCloseButton
+				header={<button type="button">Action</button>}
+			>
+				Contenu
+			</Modal>
+		);
+		expect(
+			screen.getByRole("button", { name: "Action" })
+		).toBeInTheDocument();
+		expect(screen.queryByRole("heading")).not.toBeInTheDocument();
+	});
+
 	it("calls onClose when the header close button is clicked", async () => {
 		const user = userEvent.setup();
 		const onClose = vi.fn();
