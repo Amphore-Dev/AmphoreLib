@@ -15,6 +15,10 @@ export default {
 		hideCloseButton: { control: "boolean" },
 		overlay: { control: "boolean" },
 		mobileBreakpoint: { control: "number" },
+		mobileMode: {
+			control: "radio",
+			options: ["bottomPanel", "modal"],
+		},
 		keepDockedOnMobile: { control: "boolean" },
 		open: { control: false },
 		onOpenChange: { control: false },
@@ -170,6 +174,28 @@ KeepDockedOnMobile.args = {
 	children: (
 		<p style={{ margin: 0 }}>
 			Content hidden while closed — tap the handle to show it.
+		</p>
+	),
+};
+
+// `mobileMode="modal"`: below `mobileBreakpoint`, a centered Modal instead
+// of the BottomPanel sheet — dimmed backdrop, header with the title and
+// close button, Escape / outside-click all closing through
+// `onOpenChange(false)`. `keepDockedOnMobile` and `bottomPanelProps` have
+// nothing to act on here; `modalProps` is the passthrough instead. The
+// Modal's overlay is `position: fixed`, so the demo box's `transform`
+// confines it the same way it confines the BottomPanel above.
+export const MobileModal = Template.bind({});
+MobileModal.args = {
+	mobileBreakpoint: FORCE_MOBILE,
+	mobileMode: "modal",
+	open: true,
+	title: "Task #482",
+	modalProps: { size: "sm" },
+	children: (
+		<p style={{ margin: 0 }}>
+			On mobile: a centered dialog — close it from the header, Escape, or
+			the backdrop.
 		</p>
 	),
 };

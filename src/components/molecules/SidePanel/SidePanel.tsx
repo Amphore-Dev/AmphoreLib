@@ -12,6 +12,7 @@ import type { TLabel } from "@interfaces/index";
 import { Card } from "../../atoms/Card/Card";
 import { Picto } from "../../atoms/Picto/Picto";
 import { BottomPanel, IBottomPanelProps } from "../BottomPanel/BottomPanel";
+import { IModalProps, Modal } from "../Modal/Modal";
 
 import styles from "./SidePanel.module.scss";
 
@@ -20,10 +21,21 @@ export interface ISidePanelProps extends PropsWithChildren {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	title?: React.ReactNode;
-	/** Hides the built-in header close (×) button. Desktop only — the mobile BottomPanel's own handle already doubles as that affordance. Defaults to false. */
+	/** Hides the built-in header close (×) button — desktop, and the mobile Modal when `mobileMode="modal"`. No effect on the mobile BottomPanel, whose own handle already doubles as that affordance. Defaults to false. */
 	hideCloseButton?: boolean;
-	/** Below this width (px), renders as a BottomPanel sliding up from the bottom instead of a docked side panel. Defaults to 1280. */
+	/** Below this width (px), renders as `mobileMode` (a BottomPanel sliding up from the bottom by default) instead of a docked side panel. Defaults to 1280. */
 	mobileBreakpoint?: number;
+	/**
+	 * What to render below `mobileBreakpoint`. `"bottomPanel"` (default): a
+	 * draggable BottomPanel sheet sliding up from the bottom — tap/drag its
+	 * handle to close, no header row. `"modal"`: a centered Modal instead
+	 * (dimmed backdrop, header with `title` and the close button, Escape /
+	 * outside-click closing through `onOpenChange(false)`) — for detail
+	 * content that reads better centered than docked to the bottom edge.
+	 * `keepDockedOnMobile` and `bottomPanelProps` only apply to
+	 * `"bottomPanel"`; `modalProps` only to `"modal"`.
+	 */
+	mobileMode?: "bottomPanel" | "modal";
 	/**
 	 * Desktop only. `false` (default): `position: sticky` — the panel is a
 	 * real column, sitting next to the page's own content, which keeps its
@@ -34,27 +46,50 @@ export interface ISidePanelProps extends PropsWithChildren {
 	 */
 	overlay?: boolean;
 	/**
-	 * Mobile only. `false` (default): closing behaves the same as desktop
-	 * — the panel is fully gone, nothing rendered at all. `true`: closing
-	 * docks it to a peeking handle instead (BottomPanel's own native
-	 * behavior — tap or drag it back up to reopen), for when there's
-	 * still something worth peeking at even while "closed" (a mini
-	 * player, an ongoing upload). Most consumers want the default —
-	 * "closed" meaning nothing selected, nothing to peek at.
+	 * Mobile only, `mobileMode="bottomPanel"` only. `false` (default):
+	 * closing behaves the same as desktop — the panel is fully gone,
+	 * nothing rendered at all. `true`: closing docks it to a peeking
+	 * handle instead (BottomPanel's own native behavior — tap or drag it
+	 * back up to reopen), for when there's still something worth peeking
+	 * at even while "closed" (a mini player, an ongoing upload). Most
+	 * consumers want the default — "closed" meaning nothing selected,
+	 * nothing to peek at. Ignored in `"modal"` mode: a closed modal has
+	 * nothing to peek at.
 	 */
 	keepDockedOnMobile?: boolean;
-	/** Passed straight to the mobile BottomPanel fallback (defaultHeight, minHeight, closeThreshold...). */
+	/** Passed straight to the mobile BottomPanel fallback (defaultHeight, minHeight, closeThreshold...). Ignored when `mobileMode="modal"`. */
 	bottomPanelProps?: Partial<
 		Omit<IBottomPanelProps, "open" | "onOpenChange" | "children">
 	>;
-	/** aria-label for the desktop close (×) button. Defaults to "Close" (or `common.close`/`SidePanel.closeLabel` from the nearest AmphoreProvider). Desktop only, no effect on mobile (see `hideCloseButton`). */
+	/**
+	 * Passed straight to the mobile Modal fallback when
+	 * `mobileMode="modal"` (size, closeOnOverlayClick, closeOnEscape...).
+	 * Everything SidePanel already owns (`open`/`onOpenChange`, `title`,
+	 * `hideCloseButton`, `closeLabel`, `portal`, `className`) is wired from
+	 * SidePanel's own props, not from here. Ignored when
+	 * `mobileMode="bottomPanel"`.
+	 */
+	modalProps?: Partial<
+		Omit<
+			IModalProps,
+			| "open"
+			| "onClose"
+			| "children"
+			| "title"
+			| "hideCloseButton"
+			| "closeLabel"
+			| "portal"
+			| "className"
+		>
+	>;
+	/** aria-label for the close (×) button — desktop, and the mobile Modal when `mobileMode="modal"`. Defaults to "Close" (or `common.close`/`SidePanel.closeLabel` from the nearest AmphoreProvider). No effect on the mobile BottomPanel (see `hideCloseButton`). */
 	closeLabel?: TLabel;
 	/**
 	 * Renders into `document.body` via AmphorePortal (theme scope
-	 * re-applied) — the `overlay` desktop panel and the mobile BottomPanel
-	 * both. No effect in the default sticky desktop mode: a real layout
-	 * column can't be portaled, it has to sit in the flow next to the page.
-	 * Defaults to false.
+	 * re-applied) — the `overlay` desktop panel and the mobile fallback
+	 * (BottomPanel or Modal) both. No effect in the default sticky desktop
+	 * mode: a real layout column can't be portaled, it has to sit in the
+	 * flow next to the page. Defaults to false.
 	 */
 	portal?: boolean;
 	className?: string;
@@ -65,13 +100,14 @@ export type TSidePanelLabels = Pick<ISidePanelProps, "closeLabel">;
 
 /**
  * V2 SidePanel — a docked detail panel: a sticky right-hand column on
- * desktop, a draggable BottomPanel sliding up from the bottom below
- * `mobileBreakpoint`. The one legitimate use of `useMediaQuery` in this
- * lib (see its own doc comment) — desktop and mobile aren't the same tree
- * styled differently, they're two different components. Closing behaves
- * the same on both by default (fully gone) — `keepDockedOnMobile` opts
- * mobile into BottomPanel's own native closed-but-peeking behavior
- * instead, for the cases that actually want it.
+ * desktop, and below `mobileBreakpoint` either a draggable BottomPanel
+ * sliding up from the bottom (default) or a centered Modal
+ * (`mobileMode="modal"`). The one legitimate use of `useMediaQuery` in
+ * this lib (see its own doc comment) — desktop and mobile aren't the same
+ * tree styled differently, they're two different components. Closing
+ * behaves the same on both by default (fully gone) — `keepDockedOnMobile`
+ * opts the mobile BottomPanel into its own native closed-but-peeking
+ * behavior instead, for the cases that actually want it.
  */
 export const SidePanel: React.FC<ISidePanelProps> = ({
 	open,
@@ -79,9 +115,11 @@ export const SidePanel: React.FC<ISidePanelProps> = ({
 	title,
 	hideCloseButton = false,
 	mobileBreakpoint = 1280,
+	mobileMode = "bottomPanel",
 	overlay = false,
 	keepDockedOnMobile = false,
 	bottomPanelProps,
+	modalProps,
 	closeLabel: closeLabelProp,
 	portal = false,
 	className = "",
@@ -90,6 +128,30 @@ export const SidePanel: React.FC<ISidePanelProps> = ({
 	const isMobile = useMediaQuery(`(max-width: ${mobileBreakpoint - 1}px)`);
 	const { resolve } = useAmphoreLabels("SidePanel");
 	const closeLabel = resolve("closeLabel", closeLabelProp, "close");
+
+	if (isMobile && mobileMode === "modal") {
+		// Modal's `title` is a plain string (it doubles as the dialog's
+		// aria-labelledby heading); a richer ReactNode title goes in the
+		// body instead, same as the BottomPanel branch below.
+		const titleIsString = typeof title === "string";
+		return (
+			<Modal
+				{...modalProps}
+				open={open}
+				onClose={() => onOpenChange(false)}
+				title={titleIsString ? title : undefined}
+				hideCloseButton={hideCloseButton}
+				closeLabel={closeLabel}
+				portal={portal}
+				className={className}
+			>
+				{title && !titleIsString && (
+					<h2 className={styles.mobileTitle}>{title}</h2>
+				)}
+				{children}
+			</Modal>
+		);
+	}
 
 	if (isMobile) {
 		if (!open && !keepDockedOnMobile) return null;
