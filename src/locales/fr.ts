@@ -81,6 +81,9 @@ export const fr: TThemeLabels = {
 	HeadBar: {
 		menuLabel: "Menu",
 	},
+	InfoMessage: {
+		closeLabel: "Fermer",
+	},
 	Input: {
 		clearLabel: "Effacer",
 	},

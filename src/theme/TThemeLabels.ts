@@ -15,6 +15,7 @@
 import type { TLabel } from "@interfaces/index";
 
 import type { TBadgeLabels } from "../components/atoms/Badge/Badge";
+import type { TInfoMessageLabels } from "../components/atoms/InfoMessage/InfoMessage";
 import type { TInputLabels } from "../components/atoms/Input/Input";
 import type { TInputFileLabels } from "../components/atoms/InputFile/InputFile";
 import type { TNumberInputLabels } from "../components/atoms/NumberInput/NumberInput";
@@ -84,6 +85,7 @@ export interface TThemeLabels {
 	FiltersModal?: TFiltersModalLabels;
 	FormRenderer?: TFormRendererLabels;
 	HeadBar?: THeadBarLabels;
+	InfoMessage?: TInfoMessageLabels;
 	Input?: TInputLabels;
 	InputFile?: TInputFileLabels;
 	Modal?: TModalLabels;
@@ -122,6 +124,7 @@ export type TRequiredThemeLabels = {
 	FiltersModal: Required<TFiltersModalLabels>;
 	FormRenderer: Required<TFormRendererLabels>;
 	HeadBar: Required<THeadBarLabels>;
+	InfoMessage: Required<TInfoMessageLabels>;
 	Input: Required<TInputLabels>;
 	InputFile: Required<TInputFileLabels>;
 	Modal: Required<TModalLabels>;

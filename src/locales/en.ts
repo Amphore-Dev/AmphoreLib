@@ -86,6 +86,9 @@ export const en: TRequiredThemeLabels = {
 	HeadBar: {
 		menuLabel: "Menu",
 	},
+	InfoMessage: {
+		closeLabel: "Close",
+	},
 	Input: {
 		clearLabel: "Clear",
 	},

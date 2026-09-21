@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import userEvent from "@testing-library/user-event";
+import { describe, expect, it, vi } from "vitest";
 
 import { InfoMessage } from "./InfoMessage";
 
@@ -51,6 +52,30 @@ describe("InfoMessage", () => {
 			</InfoMessage>
 		);
 		expect(screen.getByTestId("star")).toBeInTheDocument();
+	});
+
+	it("shows no close button without onClose", () => {
+		render(<InfoMessage>Hello</InfoMessage>);
+		expect(screen.queryByRole("button")).not.toBeInTheDocument();
+	});
+
+	it("shows a close button when onClose is given, and calls it on click", async () => {
+		const user = userEvent.setup();
+		const onClose = vi.fn();
+		render(<InfoMessage onClose={onClose}>Hello</InfoMessage>);
+		await user.click(screen.getByRole("button", { name: "Close" }));
+		expect(onClose).toHaveBeenCalledTimes(1);
+	});
+
+	it("lets closeLabel override the close button's aria-label", () => {
+		render(
+			<InfoMessage onClose={() => {}} closeLabel="Fermer">
+				Hello
+			</InfoMessage>
+		);
+		expect(
+			screen.getByRole("button", { name: "Fermer" })
+		).toBeInTheDocument();
 	});
 
 	it("defaults size to md", () => {

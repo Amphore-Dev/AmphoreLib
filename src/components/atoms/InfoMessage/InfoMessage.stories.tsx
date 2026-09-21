@@ -88,3 +88,27 @@ LongText.args = {
 	children:
 		"This message is deliberately much longer than the other examples, to check that the text wraps correctly, that the icon stays aligned to the top without getting squashed, and that the message keeps a reasonable width instead of stretching across the full available width with no limit at all.",
 };
+
+export const Dismissable = () => (
+	<div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+		<InfoMessage onClose={() => {}}>
+			One line, close button on it.
+		</InfoMessage>
+
+		<InfoMessage color="warning" onClose={() => {}}>
+			This message is deliberately much longer than the other examples, to
+			check that the close button stays on the first line, at the end,
+			while the text wraps beneath it across several lines.
+		</InfoMessage>
+		<InfoMessage size="sm" onClose={() => {}}>
+			<span
+				style={{ display: "flex", flexWrap: "wrap", gap: "0 0.5rem" }}
+			>
+				<span>
+					Subscription active until 21/09/2027, then free plan.
+				</span>
+				<a href="#">Reactivate</a>
+			</span>
+		</InfoMessage>
+	</div>
+);
