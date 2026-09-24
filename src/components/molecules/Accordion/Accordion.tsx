@@ -16,7 +16,17 @@ import styles from "./Accordion.module.scss";
 
 export interface TAccordionItem<T = string> {
 	value: T;
-	title: string;
+	/**
+	 * Rendered inside the toggle button: rich content (a dot, a badge, muted
+	 * figures) is fine, interactive content (links, buttons) is not — it
+	 * would be nested in a `<button>`, invalid and hidden from screen
+	 * readers. Put those in `actions`.
+	 */
+	title: React.ReactNode;
+	/** The toggle's accessible name when `title` is not plain text (e.g. "Acme" rather than "Acme · 3 projects · 76:00"). */
+	ariaLabel?: string;
+	/** Links/buttons at the end of the header row, outside the toggle button. */
+	actions?: React.ReactNode;
 	content: React.ReactNode;
 	disabled?: boolean;
 	/** Leading icon (see Picto), same convention as Input/Select — an icon name, or an `IPictoProps` object to pass other Picto props. */
@@ -30,26 +40,49 @@ export interface IAccordionProps<T = string> {
 	onChange?: (value: T | T[] | null) => void;
 	/** Lets more than one section be open at once. Defaults to true (multi-open) — pass `false` for a single-open (classic FAQ) accordion. */
 	multiple?: boolean;
+	/** Where the open/close chevron sits relative to the title. Defaults to "end". */
+	chevronPosition?: "start" | "end";
+	/** Wraps each header row in an `<hN>` (WAI-ARIA accordion pattern). Defaults to a plain div, leaving the page outline untouched. */
+	headingLevel?: 2 | 3 | 4 | 5 | 6;
 	size?: TSize;
 	className?: string;
 }
 
 /**
+ * The chevron icon points right at 0°. "end" keeps the classic down/up
+ * pair; "start" is the tree convention, right when closed, down when open.
+ */
+export const chevronRotation = (
+	position: "start" | "end",
+	open: boolean
+): number => ("start" === position ? (open ? 90 : 0) : open ? 270 : 90);
+
+/**
  * V2 Accordion — controlled, generic over `T`. Same conventions as Select
  * (`items` array, `value`/`multiple` shape, `===` matching). Expand/collapse
  * is pure CSS (`grid-template-rows: 0fr -> 1fr`), no measured height.
+ *
+ * Each header row has two zones that never overlap: the toggle button
+ * (chevron, picto, title — full width) and the optional `actions` beside
+ * it. No click handler on the row itself, so nothing has to guess which
+ * element was meant to be interactive.
  */
 export function Accordion<T = string>({
 	items,
 	value,
 	onChange,
 	multiple = true,
+	chevronPosition = "end",
+	headingLevel,
 	size: sizeProp,
 	className = "",
 }: IAccordionProps<T>) {
 	const { size: defaultSize } = useAmphoreDefaults();
 	const size = sizeProp ?? defaultSize ?? "md";
 	const accordionId = useId();
+	const HeaderRow: React.ElementType = headingLevel
+		? `h${headingLevel}`
+		: "div";
 
 	const openValues: T[] = multiple
 		? ((value as T[] | undefined) ?? [])
@@ -78,6 +111,13 @@ export function Accordion<T = string>({
 				const open = isOpen(item);
 				const headerId = `${accordionId}-header-${index}`;
 				const panelId = `${accordionId}-panel-${index}`;
+				const chevron = (
+					<Picto
+						icon="chevron"
+						rotation={chevronRotation(chevronPosition, open)}
+						className={styles.chevron}
+					/>
+				);
 
 				return (
 					<div
@@ -85,29 +125,36 @@ export function Accordion<T = string>({
 						className={styles.item}
 						data-open={open || undefined}
 					>
-						<button
-							id={headerId}
-							type="button"
-							className={styles.header}
-							aria-expanded={open}
-							aria-controls={panelId}
-							aria-disabled={item.disabled || undefined}
-							disabled={item.disabled}
-							onClick={() => toggle(item)}
-						>
-							{!!item.picto && (
-								<Picto
-									{...getPicto(item.picto)}
-									className={styles.picto}
-								/>
+						<HeaderRow className={styles.headerRow}>
+							<button
+								id={headerId}
+								type="button"
+								className={styles.header}
+								aria-expanded={open}
+								aria-controls={panelId}
+								aria-label={item.ariaLabel}
+								aria-disabled={item.disabled || undefined}
+								disabled={item.disabled}
+								onClick={() => toggle(item)}
+							>
+								{"start" === chevronPosition && chevron}
+								{!!item.picto && (
+									<Picto
+										{...getPicto(item.picto)}
+										className={styles.picto}
+									/>
+								)}
+								<span className={styles.title}>
+									{item.title}
+								</span>
+								{"end" === chevronPosition && chevron}
+							</button>
+							{!!item.actions && (
+								<div className={styles.actions}>
+									{item.actions}
+								</div>
 							)}
-							<span className={styles.title}>{item.title}</span>
-							<Picto
-								icon="chevron"
-								rotation={open ? 270 : 90}
-								className={styles.chevron}
-							/>
-						</button>
+						</HeaderRow>
 
 						{/* role="region" per item is correct but noisy for a screen
 						    reader's landmark list on a long accordion (e.g. a

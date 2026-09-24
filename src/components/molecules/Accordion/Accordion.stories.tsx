@@ -5,6 +5,8 @@ import { StoryFn } from "@storybook/react";
 
 import { AmphoreProvider } from "@theme/AmphoreProvider";
 
+import { Button } from "../../atoms/Button/Button";
+
 import { Accordion, IAccordionProps, TAccordionItem } from "./Accordion";
 
 export default {
@@ -13,6 +15,7 @@ export default {
 	argTypes: {
 		size: sizeArgType,
 		multiple: { control: "boolean" },
+		chevronPosition: { control: "inline-radio", options: ["start", "end"] },
 	},
 };
 
@@ -25,8 +28,7 @@ const ITEMS: TAccordionItem<string>[] = [
 	{
 		value: "returns",
 		title: "How do I return an item?",
-		content:
-			'From your account, under "My orders", within 30 days.',
+		content: 'From your account, under "My orders", within 30 days.',
 	},
 	{
 		value: "payment",
@@ -197,6 +199,211 @@ export const Unique = () => {
 					},
 				]}
 			/>
+		</div>
+	);
+};
+
+const CLIENTS = [
+	{
+		value: "acme",
+		name: "Acme",
+		color: "#0f9be8",
+		meta: "3 projects · 76:00",
+	},
+	{
+		value: "nord",
+		name: "Studio Nord",
+		color: "#c2410c",
+		meta: "2 projects · 23:00",
+	},
+];
+
+/** A rich, non-interactive `title` in the toggle; links/buttons in `actions`, beside it. */
+export const RichTitleWithActions = () => {
+	const [value, setValue] = useState<string[]>(["acme"]);
+	return (
+		<div style={{ maxWidth: 640 }}>
+			<Accordion
+				value={value}
+				onChange={(v) => setValue(v as string[])}
+				chevronPosition="start"
+				items={CLIENTS.map((client) => ({
+					value: client.value,
+					ariaLabel: client.name,
+					title: (
+						<span
+							style={{
+								display: "flex",
+								alignItems: "center",
+								gap: 8,
+							}}
+						>
+							<span
+								style={{
+									width: 10,
+									height: 10,
+									borderRadius: 999,
+									background: client.color,
+								}}
+							/>
+							{client.name}
+							<span style={{ fontWeight: 400, opacity: 0.7 }}>
+								{client.meta}
+							</span>
+						</span>
+					),
+					actions: (
+						<Button size="sm" picto="add">
+							Project
+						</Button>
+					),
+					content: `${client.name}'s projects.`,
+				}))}
+			/>
+		</div>
+	);
+};
+
+export const ChevronStart = Template.bind({});
+ChevronStart.args = { chevronPosition: "start" };
+
+/** Each header row becomes an <h3> — the WAI-ARIA accordion pattern. */
+export const HeadingLevel = Template.bind({});
+HeadingLevel.args = { headingLevel: 3 };
+
+const RichTitle: React.FC<{ color: string; name: string; meta: string }> = ({
+	color,
+	name,
+	meta,
+}) => (
+	<span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+		<span
+			style={{
+				width: 10,
+				height: 10,
+				borderRadius: 999,
+				background: color,
+				flexShrink: 0,
+			}}
+		/>
+		{name}
+		<span style={{ fontWeight: 400, opacity: 0.7 }}>{meta}</span>
+	</span>
+);
+
+const ALL_FEATURES_ITEMS: TAccordionItem<string>[] = [
+	{
+		value: "acme",
+		picto: "folder",
+		ariaLabel: "Acme",
+		title: (
+			<RichTitle color="#0f9be8" name="Acme" meta="3 projects · 76:00" />
+		),
+		actions: (
+			<>
+				<Button
+					size="sm"
+					variant="ghost"
+					picto="externalLink"
+					aria-label="Open Acme"
+				/>
+				<Button size="sm" picto="add">
+					Project
+				</Button>
+			</>
+		),
+		content: "Picto + rich title + two actions (icon-only and labelled).",
+	},
+	{
+		value: "nord",
+		picto: "briefcase",
+		ariaLabel: "Studio Nord",
+		title: (
+			<RichTitle
+				color="#c2410c"
+				name="Studio Nord"
+				meta="2 projects · 23:00"
+			/>
+		),
+		actions: (
+			<Button size="sm" variant="outline" picto="edit">
+				Edit
+			</Button>
+		),
+		content: "Picto + rich title + one outline action.",
+	},
+	{
+		value: "plain",
+		picto: "target",
+		title: "Plain string title, no actions",
+		content:
+			"Picto + plain title: the classic rendering, nothing beside the toggle.",
+	},
+	{
+		value: "internal",
+		title: <RichTitle color="#a3a3a3" name="Internal" meta="no picto" />,
+		ariaLabel: "Internal",
+		actions: (
+			<Button size="sm" picto="add">
+				Project
+			</Button>
+		),
+		content: "Rich title + action, without a picto.",
+	},
+	{
+		value: "locked",
+		picto: "lock",
+		ariaLabel: "Archived client",
+		title: (
+			<RichTitle color="#737373" name="Archived client" meta="disabled" />
+		),
+		actions: (
+			<Button size="sm" variant="ghost" picto="settings">
+				Settings
+			</Button>
+		),
+		content: "Never shown: the item is disabled.",
+		disabled: true,
+	},
+];
+
+/**
+ * Every item-level prop at once (picto, rich title, ariaLabel, actions,
+ * disabled), chevron at the start vs. at the end, each header in an <h3>.
+ */
+export const AllFeatures = () => {
+	const [start, setStart] = useState<string[]>(["acme"]);
+	const [end, setEnd] = useState<string[]>(["acme"]);
+	const column = (
+		label: string,
+		position: "start" | "end",
+		value: string[],
+		setValue: (v: string[]) => void
+	) => (
+		<div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+			<code>
+				chevronPosition="{position}" — {label}
+			</code>
+			<Accordion
+				value={value}
+				onChange={(v) => setValue(v as string[])}
+				chevronPosition={position}
+				headingLevel={3}
+				items={ALL_FEATURES_ITEMS}
+			/>
+		</div>
+	);
+	return (
+		<div
+			style={{
+				display: "grid",
+				gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+				gap: 32,
+				maxWidth: 1280,
+			}}
+		>
+			{column("left", "start", start, setStart)}
+			{column("right", "end", end, setEnd)}
 		</div>
 	);
 };

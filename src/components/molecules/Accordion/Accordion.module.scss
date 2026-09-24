@@ -15,23 +15,35 @@
 	}
 }
 
-.header {
+// The row owns the background and the hover, so the actions zone reads as
+// part of the same header. Reset for when it renders as an <hN>
+// (`headingLevel`): no heading margin nor font — the button sets its own.
+.headerRow {
 	display: flex;
 	align-items: center;
-	width: 100%;
+	margin: 0;
+	font: inherit;
+	background: var(--amp-color-card);
+
+	&:has(> .header:not(:disabled)):hover {
+		background: var(--amp-color-ghost-bg);
+	}
+}
+
+.header {
+	display: flex;
+	flex: 1;
+	align-items: center;
+	min-width: 0;
 	gap: var(--amp-space-2);
 	margin: 0;
 	border: none;
-	background: var(--amp-color-card);
+	background: transparent;
 	font-family: inherit;
 	font-weight: 600;
 	color: var(--amp-color-ink);
 	text-align: left;
 	cursor: pointer;
-
-	&:hover:not(:disabled) {
-		background: var(--amp-color-ghost-bg);
-	}
 
 	&:disabled {
 		cursor: not-allowed;
@@ -44,8 +56,19 @@
 	}
 }
 
+.actions {
+	display: flex;
+	flex-shrink: 0;
+	align-items: center;
+	gap: var(--amp-space-2);
+}
+
 // ---- size: header padding/font + panel padding, kept in sync per level.
 .accordion[data-size="sm"] {
+	.actions {
+		padding-right: var(--amp-space-3);
+	}
+
 	.header {
 		padding: var(--amp-space-2) var(--amp-space-3);
 		font-size: 0.8125rem;
@@ -57,6 +80,10 @@
 }
 
 .accordion[data-size="md"] {
+	.actions {
+		padding-right: var(--amp-space-4);
+	}
+
 	.header {
 		padding: var(--amp-space-3) var(--amp-space-4);
 		font-size: 0.875rem;
@@ -68,6 +95,10 @@
 }
 
 .accordion[data-size="lg"] {
+	.actions {
+		padding-right: var(--amp-space-4);
+	}
+
 	.header {
 		padding: var(--amp-space-4) var(--amp-space-4);
 		font-size: 0.9375rem;
