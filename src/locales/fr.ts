@@ -135,4 +135,11 @@ export const fr: TThemeLabels = {
 	TodoList: {
 		moveLabel: "Déplacer (flèches haut/bas)",
 	},
+	Tour: {
+		nextLabel: "Suivant",
+		prevLabel: "Précédent",
+		skipLabel: "Passer",
+		doneLabel: "Terminer",
+		stepOfLabel: "Étape {current} sur {total}",
+	},
 };

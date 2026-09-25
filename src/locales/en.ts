@@ -140,4 +140,11 @@ export const en: TRequiredThemeLabels = {
 	TodoList: {
 		moveLabel: "Move (up/down arrows)",
 	},
+	Tour: {
+		nextLabel: "Next",
+		prevLabel: "Previous",
+		skipLabel: "Skip",
+		doneLabel: "Done",
+		stepOfLabel: "Step {current} of {total}",
+	},
 };

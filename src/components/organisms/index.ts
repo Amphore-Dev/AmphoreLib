@@ -6,3 +6,4 @@ export * from "./FiltersModal/FiltersModal";
 export * from "./FormRenderer/FormRenderer";
 export * from "./Table/Table";
 export * from "./TodoList/TodoList";
+export * from "./Tour/Tour";

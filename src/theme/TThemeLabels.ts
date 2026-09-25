@@ -40,6 +40,7 @@ import type { TFiltersModalLabels } from "../components/organisms/FiltersModal/F
 import type { TFormRendererLabels } from "../components/organisms/FormRenderer/FormRenderer";
 import type { TTableLabels } from "../components/organisms/Table/Table";
 import type { TTodoListLabels } from "../components/organisms/TodoList/TodoList";
+import type { TTourLabels } from "../components/organisms/Tour/Tour";
 import type { TPageHeaderLabels } from "../components/templates/PageHeader/PageHeader";
 
 /**
@@ -100,6 +101,7 @@ export interface TThemeLabels {
 	TimePicker?: TTimePickerLabels;
 	TodoItem?: TTodoItemLabels;
 	TodoList?: TTodoListLabels;
+	Tour?: TTourLabels;
 }
 
 /**
@@ -139,4 +141,5 @@ export type TRequiredThemeLabels = {
 	TimePicker: Required<TTimePickerLabels>;
 	TodoItem: Required<TTodoItemLabels>;
 	TodoList: Required<TTodoListLabels>;
+	Tour: Required<TTourLabels>;
 };

@@ -4,7 +4,7 @@ import { Meta } from "@storybook/addon-docs/blocks";
 
 <Meta title="Directives/FloatingOverlays" />
 
-# Floating overlays (Tooltip / Popover / Dropdown / ContextMenu / Select / Modal)
+# Floating overlays (Tooltip / Popover / Dropdown / ContextMenu / Select / Modal / Tour)
 
 All built on `@floating-ui/react`, with four recurring rules — each one broke a real component before being fixed here.
 
@@ -24,7 +24,7 @@ return portal ? <AmphorePortal>{overlay}</AmphorePortal> : overlay;
 createPortal(<AmphoreScope>{content}</AmphoreScope>, document.body);
 ```
 
-Every overlay stays **inline by default** (`strategy: "fixed"` — `Modal`'s `FloatingOverlay` already covers the viewport that way) and takes an opt-in `portal` prop: `Modal`, `Select`, `Tooltip`, `Popover`, `Dropdown`, `ContextMenu`, `BottomPanel`, `SidePanel` (its `overlay` desktop mode and mobile only — a sticky layout column can't be portaled). `DatePicker`/`ToolBar` forward it to their own `Popover`/`Tooltip`. Reach for `portal` when an ancestor breaks `position: fixed` (`transform`, `filter`, `contain`) or traps the z-index (`position: sticky` or any other stacking context, e.g. a `Modal` opened from inside a sticky `SidePanel`) — each component has a `Portaled` story showing exactly that case. Toast/Notification (not built yet) should portal unconditionally.
+Every overlay stays **inline by default** (`strategy: "fixed"` — `Modal`'s `FloatingOverlay` already covers the viewport that way) and takes an opt-in `portal` prop: `Modal`, `Select`, `Tooltip`, `Popover`, `Dropdown`, `ContextMenu`, `BottomPanel`, `SidePanel`, `Tour` (its `overlay` desktop mode and mobile only — a sticky layout column can't be portaled). `DatePicker`/`ToolBar` forward it to their own `Popover`/`Tooltip`. Reach for `portal` when an ancestor breaks `position: fixed` (`transform`, `filter`, `contain`) or traps the z-index (`position: sticky` or any other stacking context, e.g. a `Modal` opened from inside a sticky `SidePanel`) — each component has a `Portaled` story showing exactly that case. Toast/Notification (not built yet) should portal unconditionally.
 
 ## A trigger must be `forwardRef`
 
