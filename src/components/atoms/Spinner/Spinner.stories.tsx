@@ -81,3 +81,18 @@ export const DefaultSizeFromConfig = () => (
 		</AmphoreProvider>
 	</div>
 );
+
+export const Inline = () => (
+	<div>
+		<Spinner inline />
+		<span style={{ marginLeft: "0.5rem" }}>Loading</span>
+	</div>
+);
+
+export const Centered = () => (
+	<Spinner
+		style={{
+			margin: "0 auto",
+		}}
+	/>
+);

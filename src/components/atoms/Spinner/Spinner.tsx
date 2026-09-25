@@ -18,6 +18,7 @@ export interface ISpinnerProps extends Omit<
 	/** Accessible label announced to screen readers (role="status"). Defaults to "Loading" (or `common.loading`/`Spinner.label` from the nearest AmphoreProvider — see useAmphoreLabels). */
 	label?: TLabel;
 	className?: string;
+	inline?: boolean;
 }
 
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
@@ -34,6 +35,7 @@ export const Spinner: React.FC<ISpinnerProps> = ({
 	size: sizeProp,
 	label: labelProp,
 	className = "",
+	inline = false,
 	...props
 }) => {
 	const { size: defaultSize } = useAmphoreDefaults();
@@ -45,7 +47,7 @@ export const Spinner: React.FC<ISpinnerProps> = ({
 		<span
 			{...props}
 			role="status"
-			className={cn([styles.spinner, className])}
+			className={cn([styles.spinner, className, inline && styles.inline])}
 			data-color={color}
 			data-size={size}
 		>

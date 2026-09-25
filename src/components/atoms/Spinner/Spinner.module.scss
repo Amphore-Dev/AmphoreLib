@@ -1,10 +1,14 @@
 .spinner {
-	display: inline-block;
+	display: block;
 	flex-shrink: 0;
 	border-radius: 50%;
 	border: 2px solid var(--_color-tint, currentColor);
 	border-top-color: var(--_color, currentColor);
 	animation: amp-spinner-spin 1.5s linear infinite;
+
+	&.inline {
+		display: inline-block;
+	}
 
 	&[data-size="sm"] {
 		width: 0.875rem;

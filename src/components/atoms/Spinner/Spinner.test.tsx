@@ -32,6 +32,23 @@ describe("Spinner", () => {
 		expect(spinner).toHaveAttribute("data-size", "lg");
 	});
 
+	it("is block by default (no inline class)", () => {
+		render(<Spinner data-testid="spinner" />);
+		expect(screen.getByTestId("spinner").className).not.toMatch(/inline/);
+	});
+
+	it("applies the inline class when inline is set", () => {
+		render(<Spinner data-testid="spinner" inline />);
+		expect(screen.getByTestId("spinner").className).toMatch(/inline/);
+	});
+
+	it("keeps a custom className alongside the inline class", () => {
+		render(<Spinner data-testid="spinner" className="custom" inline />);
+		const spinner = screen.getByTestId("spinner");
+		expect(spinner).toHaveClass("custom");
+		expect(spinner.className).toMatch(/inline/);
+	});
+
 	it("falls back to AmphoreProvider's config.defaults.size when no size prop is given", () => {
 		render(
 			<AmphoreProvider config={{ defaults: { size: "lg" } }}>
