@@ -63,7 +63,36 @@ export type TTourStep = {
 	optional?: boolean;
 	/** Shows the step on one device only — the other one never counts it. */
 	only?: TTourDevice;
+	/**
+	 * This step's primary button, instead of the tour's `nextLabel` /
+	 * `doneLabel` — e.g. "Start the tour" on a welcome step.
+	 */
+	nextLabel?: React.ReactNode;
+	/** This step's skip button, instead of the tour's `skipLabel` — e.g. "Later". Still closes with "skip". */
+	skipLabel?: React.ReactNode;
+	/**
+	 * `false`: no "Step x of y" nor dots on this step, and it is left out
+	 * of the count on the others — a welcome step before the tour proper,
+	 * which then reads "Step 1 of 4", not "Step 2 of 5". Defaults to true.
+	 */
+	progress?: boolean;
+
+	/** Custom class name for this step's bubble. */
+	className?: string;
+
+	/** Custom style for this step's bubble. */
+	style?: React.CSSProperties;
+
+	/** This step's footer layout, instead of the tour's `actionsAlign`. */
+	actionsAlign?: TTourActionsAlign;
 };
+
+/**
+ * `"end"`: dots at the start, buttons at the end, one row. `"start"`: the
+ * other way round. `"center"`: a column, dots centered above centered
+ * buttons (no dots row at all without progress).
+ */
+export type TTourActionsAlign = "start" | "center" | "end";
 
 export type TTourCloseReason = "done" | "skip" | "missing";
 
@@ -107,6 +136,8 @@ export interface ITourProps {
 	doneLabel?: TLabel;
 	/** `{current}` and `{total}` are replaced. Defaults to "Step {current} of {total}". */
 	stepOfLabel?: TLabel;
+	/** Footer layout of every step; a step's own `actionsAlign` wins. Defaults to "end". */
+	actionsAlign?: TTourActionsAlign;
 	className?: string;
 }
 
@@ -156,6 +187,7 @@ export const Tour: React.FC<ITourProps> = ({
 	skipLabel: skipLabelProp,
 	doneLabel: doneLabelProp,
 	stepOfLabel: stepOfLabelProp,
+	actionsAlign = "end",
 	className = "",
 }) => {
 	const { resolve } = useAmphoreLabels("Tour");
@@ -186,6 +218,9 @@ export const Tour: React.FC<ITourProps> = ({
 		-1;
 	const position = visible.indexOf(current);
 	const isLast = position === visible.length - 1;
+	// What "Step x of y" and the dots count: steps with `progress: false`
+	// (a welcome step) are shown but not counted.
+	const counted = visible.filter((i) => steps[i].progress !== false);
 
 	useEffect(() => {
 		if (open && stepProp === undefined) setInternalStep(0);
@@ -332,6 +367,8 @@ export const Tour: React.FC<ITourProps> = ({
 	const ready = !searching && (!selector || !!target);
 	const pad = currentStep.padding ?? 6;
 	const centered = !selector;
+	const showProgress = currentStep.progress !== false;
+	const align = currentStep.actionsAlign ?? actionsAlign;
 
 	// Sheet: at the bottom, unless that would cover the target.
 	const sheetPosition =
@@ -379,17 +416,22 @@ export const Tour: React.FC<ITourProps> = ({
 					<Card
 						ref={refs.setFloating}
 						elevation={4}
-						className={cn([styles.bubble, className])}
+						className={cn([
+							styles.bubble,
+							className,
+							currentStep.className,
+						])}
 						data-variant={display}
 						data-centered={centered}
 						data-position={
 							display === "sheet" ? sheetPosition : undefined
 						}
-						style={
-							display === "popover" && !centered
+						style={{
+							...(currentStep.style ?? {}),
+							...(display === "popover" && !centered
 								? floatingStyles
-								: undefined
-						}
+								: undefined),
+						}}
 						aria-labelledby={titleId}
 						aria-describedby={contentId}
 						{...getFloatingProps({ onKeyDown })}
@@ -403,44 +445,68 @@ export const Tour: React.FC<ITourProps> = ({
 								height={7}
 							/>
 						)}
-						<span className={styles.counter}>
-							{stepOfLabel
-								.replace("{current}", String(position + 1))
-								.replace("{total}", String(visible.length))}
-						</span>
+						{showProgress && (
+							<span className={styles.counter}>
+								{stepOfLabel
+									.replace(
+										"{current}",
+										String(counted.indexOf(current) + 1)
+									)
+									.replace("{total}", String(counted.length))}
+							</span>
+						)}
 						<h2 id={titleId} className={styles.title}>
 							{forDevice(currentStep.title, device)}
 						</h2>
 						<div id={contentId} className={styles.content}>
 							{forDevice(currentStep.content, device)}
 						</div>
-						<div className={styles.footer}>
-							<div className={styles.dots} aria-hidden>
-								{visible.map((i) => (
-									<span key={i} data-active={i === current} />
-								))}
+						<div
+							className={styles.footer}
+							data-actions-align={align}
+						>
+							{/* In a row it stays, even empty: it pushes the
+							    buttons to their side. Centered, an empty one
+							    would only leave a gap above them. */}
+							{(showProgress || align !== "center") && (
+								<div className={styles.dots} aria-hidden>
+									{showProgress &&
+										counted.map((i) => (
+											<span
+												key={i}
+												data-active={i === current}
+											/>
+										))}
+								</div>
+							)}
+							<div className={styles.actions}>
+								{!isLast && (
+									<Button
+										size="sm"
+										variant="ghost"
+										onClick={() => onClose("skip")}
+									>
+										{currentStep.skipLabel ?? skipLabel}
+									</Button>
+								)}
+								{position > 0 && (
+									<Button
+										size="sm"
+										variant="outline"
+										onClick={prev}
+									>
+										{prevLabel}
+									</Button>
+								)}
+								<Button
+									ref={primaryRef}
+									size="sm"
+									onClick={next}
+								>
+									{currentStep.nextLabel ??
+										(isLast ? doneLabel : nextLabel)}
+								</Button>
 							</div>
-							{!isLast && (
-								<Button
-									size="sm"
-									variant="ghost"
-									onClick={() => onClose("skip")}
-								>
-									{skipLabel}
-								</Button>
-							)}
-							{position > 0 && (
-								<Button
-									size="sm"
-									variant="outline"
-									onClick={prev}
-								>
-									{prevLabel}
-								</Button>
-							)}
-							<Button ref={primaryRef} size="sm" onClick={next}>
-								{isLast ? doneLabel : nextLabel}
-							</Button>
 						</div>
 					</Card>
 				</FloatingFocusManager>

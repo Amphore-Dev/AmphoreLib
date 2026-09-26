@@ -12,6 +12,10 @@ export default {
 	component: Tour,
 	argTypes: {
 		variant: { control: "select", options: ["auto", "popover", "sheet"] },
+		actionsAlign: {
+			control: "select",
+			options: ["start", "center", "end"],
+		},
 		mobileBreakpoint: { control: "number" },
 		targetTimeout: { control: "number" },
 		portal: { control: "boolean" },
@@ -185,13 +189,26 @@ Default.args = { steps: STEPS };
 export const Sheet = Template.bind({});
 Sheet.args = { steps: STEPS, variant: "sheet" };
 
-/** A first step with no target: centered, no spotlight. */
-export const CenteredStep = Template.bind({});
-CenteredStep.args = {
+/**
+ * A welcome step before the tour proper: no target (centered), its own
+ * buttons centered (`actionsAlign: "center"`), and `progress: false` so
+ * the steps after it still read "Step 1 of 4". "Later" closes with
+ * "skip", like the skip button.
+ */
+export const WelcomeStep = Template.bind({});
+WelcomeStep.args = {
 	steps: [
 		{
 			title: "Welcome!",
-			content: "A 30-second tour of the interface. Skip it anytime.",
+			content:
+				"A 30-second tour of the interface. You can replay it anytime from your profile.",
+			nextLabel: "Start the tour",
+			skipLabel: "Later",
+			progress: false,
+			actionsAlign: "center",
+			style: {
+				textAlign: "center",
+			},
 		},
 		...STEPS,
 	],
@@ -255,3 +272,25 @@ export const Portaled: StoryFn<ITourProps> = (args) => {
 	);
 };
 Portaled.args = { steps: STEPS, portal: true };
+
+export const CustomStyleStep = Template.bind({});
+CustomStyleStep.args = {
+	steps: [
+		{
+			title: "Custom Step style",
+			content: "This is a custom step with a unique target.",
+			progress: false,
+			style: {
+				textAlign: "center",
+				backgroundColor: "black",
+				color: "white",
+				borderRadius: "80px",
+			},
+		},
+		...STEPS,
+	],
+};
+
+/** The footer layout for every step (`actionsAlign` on the tour); a step's own value wins. */
+export const ActionsCentered = Template.bind({});
+ActionsCentered.args = { steps: STEPS, actionsAlign: "center" };

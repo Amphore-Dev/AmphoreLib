@@ -113,6 +113,36 @@
 	flex-wrap: wrap;
 	gap: var(--amp-space-2);
 	margin-top: var(--amp-space-2);
+
+	// The dots take the free room, which pushes the buttons to the other
+	// side; "start" only swaps the two sides (DOM order unchanged, the
+	// dots are aria-hidden).
+	&[data-actions-align="start"] {
+		flex-direction: row-reverse;
+
+		.dots {
+			justify-content: flex-end;
+		}
+	}
+
+	&[data-actions-align="center"] {
+		flex-direction: column;
+
+		.dots {
+			flex: none;
+		}
+
+		.actions {
+			justify-content: center;
+		}
+	}
+}
+
+.actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--amp-space-2);
 }
 
 .dots {

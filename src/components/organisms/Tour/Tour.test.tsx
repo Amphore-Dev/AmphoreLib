@@ -362,6 +362,115 @@ describe("Tour", () => {
 		});
 	});
 
+	describe("welcome step", () => {
+		const WELCOME: TTourStep = {
+			title: "Welcome",
+			content: "A quick tour",
+			nextLabel: "Start the tour",
+			skipLabel: "Later",
+			progress: false,
+		};
+
+		it("shows its own buttons and no progress", () => {
+			mockViewport(false);
+			renderTour({ steps: [WELCOME, ...STEPS] });
+			const dialog = screen.getByRole("dialog", { name: "Welcome" });
+			expect(dialog).not.toHaveTextContent(/Step \d/);
+			expect(
+				screen.getByRole("button", { name: "Start the tour" })
+			).toBeInTheDocument();
+			expect(
+				screen.queryByRole("button", { name: "Next" })
+			).not.toBeInTheDocument();
+		});
+
+		it("is left out of the count of the steps after it", async () => {
+			mockViewport(false);
+			const user = userEvent.setup();
+			renderTour({ steps: [WELCOME, ...STEPS] });
+			await user.click(
+				screen.getByRole("button", { name: "Start the tour" })
+			);
+			const dialog = screen.getByRole("dialog", { name: "Menu" });
+			expect(dialog).toHaveTextContent("Step 1 of 3");
+			// Back to the welcome step, with the tour's own labels after it.
+			expect(
+				screen.getByRole("button", { name: "Previous" })
+			).toBeInTheDocument();
+			expect(
+				screen.getByRole("button", { name: "Skip" })
+			).toBeInTheDocument();
+		});
+
+		it("closes with 'skip' from its own skip button", async () => {
+			mockViewport(false);
+			const user = userEvent.setup();
+			const { onClose } = renderTour({ steps: [WELCOME, ...STEPS] });
+			await user.click(screen.getByRole("button", { name: "Later" }));
+			expect(onClose).toHaveBeenCalledWith("skip");
+		});
+
+		it("replaces 'Done' on a last step", () => {
+			mockViewport(false);
+			renderTour({
+				steps: [{ ...STEPS[0], nextLabel: "Let's go" }],
+			});
+			expect(
+				screen.getByRole("button", { name: "Let's go" })
+			).toBeInTheDocument();
+		});
+	});
+
+	describe("actionsAlign", () => {
+		const footer = () =>
+			screen.getByRole("dialog").querySelector("[data-actions-align]");
+
+		it("defaults to 'end'", () => {
+			mockViewport(false);
+			renderTour();
+			expect(footer()).toHaveAttribute("data-actions-align", "end");
+		});
+
+		it("takes the tour's value", () => {
+			mockViewport(false);
+			renderTour({ actionsAlign: "start" });
+			expect(footer()).toHaveAttribute("data-actions-align", "start");
+		});
+
+		it("lets a step override the tour's value", () => {
+			mockViewport(false);
+			renderTour({
+				actionsAlign: "start",
+				steps: [{ ...STEPS[0], actionsAlign: "center" }, ...STEPS],
+			});
+			expect(footer()).toHaveAttribute("data-actions-align", "center");
+		});
+
+		it("drops the empty dots row when centered without progress", () => {
+			mockViewport(false);
+			renderTour({
+				steps: [
+					{
+						title: "Welcome",
+						content: "Hi",
+						progress: false,
+						actionsAlign: "center",
+					},
+					...STEPS,
+				],
+			});
+			// Only the buttons' row is left.
+			expect(footer()?.children).toHaveLength(1);
+		});
+
+		it("keeps the dots row centered with progress", () => {
+			mockViewport(false);
+			renderTour({ actionsAlign: "center" });
+			expect(footer()?.children).toHaveLength(2);
+			expect(footer()?.firstElementChild?.children).toHaveLength(3);
+		});
+	});
+
 	describe("portal", () => {
 		it("renders inline by default", () => {
 			mockViewport(false);
