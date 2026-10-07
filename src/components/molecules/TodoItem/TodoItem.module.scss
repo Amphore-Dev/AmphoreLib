@@ -1,3 +1,5 @@
+@use "../../../styles/touch" as touch;
+
 .row {
 	display: flex;
 	align-items: flex-start;
@@ -6,12 +8,19 @@
 	font-family: var(--amp-font);
 	background: var(--amp-color-card);
 
-	&:hover {
-		background: var(--amp-color-ghost-bg);
+	@media (hover: hover) {
+		&:hover {
+			background: var(--amp-color-ghost-bg);
+		}
 	}
 
+	// Lifted: tinted and raised over its neighbors, so the row being moved
+	// stays obvious under a finger that hides most of it.
 	&[data-dragging="true"] {
+		position: relative;
+		z-index: 1;
 		background: var(--amp-color-primary-tint);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 	}
 
 	&[data-size="sm"] {
@@ -24,6 +33,9 @@
 }
 
 .handle {
+	// 2rem, not the 44px default: a wider hit area would spill over the
+	// row's text/badge, which have their own tap actions.
+	@include touch.drag-handle(2rem);
 	flex-shrink: 0;
 	margin-top: 0.125rem;
 	display: flex;
@@ -78,9 +90,11 @@
 	color: var(--amp-color-ink);
 	cursor: text;
 
-	&:hover {
-		text-decoration: underline;
-		text-decoration-color: var(--amp-color-border);
+	@media (hover: hover) {
+		&:hover {
+			text-decoration: underline;
+			text-decoration-color: var(--amp-color-border);
+		}
 	}
 
 	&:focus-visible {
@@ -101,8 +115,10 @@
 span.text {
 	cursor: default;
 
-	&:hover {
-		text-decoration: none;
+	@media (hover: hover) {
+		&:hover {
+			text-decoration: none;
+		}
 	}
 }
 
@@ -116,6 +132,8 @@ span.text {
 }
 
 .remove {
+	// 2rem, same as the handle: rows are tight.
+	@include touch.touch-target(2rem);
 	flex-shrink: 0;
 	margin-top: 0.0625rem;
 	display: flex;

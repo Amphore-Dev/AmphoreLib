@@ -92,10 +92,12 @@
 }
 
 // Excludes [data-selected] so hovering the selected day doesn't un-select it visually.
-.calendar
-	:global(.rdp-day):not([data-selected="true"])
-	:global(.rdp-day_button):hover:not(:disabled) {
-	background: var(--amp-color-ghost-bg);
+@media (hover: hover) {
+	.calendar
+		:global(.rdp-day):not([data-selected="true"])
+		:global(.rdp-day_button):hover:not(:disabled) {
+		background: var(--amp-color-ghost-bg);
+	}
 }
 
 // "selected" modifier lands on the <td> ([data-selected]), not the <button>.

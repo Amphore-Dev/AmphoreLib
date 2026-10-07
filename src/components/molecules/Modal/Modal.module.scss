@@ -1,3 +1,5 @@
+@use "../../../styles/touch" as touch;
+
 .overlay {
 	display: flex;
 	// No align-items: center here on purpose — centering the cross axis that
@@ -9,7 +11,11 @@
 	// keeping the whole thing reachable by scrolling.
 	justify-content: center;
 	padding: var(--amp-space-4);
+	// Notch / home indicator (viewport-fit=cover draws under them).
+	padding-top: max(var(--amp-space-4), env(safe-area-inset-top, 0px));
+	padding-bottom: max(var(--amp-space-4), env(safe-area-inset-bottom, 0px));
 	overflow-y: auto;
+	overscroll-behavior: contain;
 	background: rgba(0, 0, 0, 0.45);
 	z-index: 1000;
 }
@@ -26,6 +32,9 @@
 	// screen otherwise let flexbox shrink the panel down to header+footer
 	// with barely any room left for content between them.
 	max-height: calc(100vh - var(--amp-space-6) * 2);
+	// The visible viewport on mobile, under the browser's own URL bar —
+	// 100vh is the largest one and puts the panel's bottom behind it.
+	max-height: calc(100dvh - var(--amp-space-6) * 2);
 	font-family: var(--amp-font);
 	outline: none;
 	// Card sets border-radius but nothing clips to it — the sticky header/
@@ -80,6 +89,7 @@
 }
 
 .close {
+	@include touch.touch-target;
 	flex-shrink: 0;
 	display: inline-flex;
 	align-items: center;
@@ -94,9 +104,11 @@
 	color: var(--amp-color-sub);
 	cursor: pointer;
 
-	&:hover {
-		color: var(--amp-color-ink);
-		background: var(--amp-color-ghost-bg);
+	@media (hover: hover) {
+		&:hover {
+			color: var(--amp-color-ink);
+			background: var(--amp-color-ghost-bg);
+		}
 	}
 
 	&:focus-visible {
@@ -108,6 +120,9 @@
 .body {
 	flex: 1;
 	overflow-y: auto;
+	// Reaching the end of the body doesn't scroll (or pull-to-refresh) the
+	// page behind the modal.
+	overscroll-behavior: contain;
 	padding: var(--amp-space-4);
 	color: var(--amp-color-ink);
 	font-size: 0.9375rem;

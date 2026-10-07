@@ -1,3 +1,5 @@
+@use "../../../styles/touch" as touch;
+
 .message {
 	display: flex;
 	align-items: flex-start;
@@ -108,6 +110,7 @@
 }
 
 .close {
+	@include touch.touch-target;
 	flex-shrink: 0;
 	display: inline-flex;
 	align-items: center;
@@ -125,8 +128,10 @@
 	cursor: pointer;
 	border-radius: var(--amp-radius-sm);
 
-	&:hover {
-		opacity: 1;
+	@media (hover: hover) {
+		&:hover {
+			opacity: 1;
+		}
 	}
 
 	&:focus-visible {

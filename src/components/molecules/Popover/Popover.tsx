@@ -4,6 +4,7 @@ import {
 	flip,
 	offset,
 	shift,
+	size,
 	useClick,
 	useDismiss,
 	useFloating,
@@ -38,6 +39,12 @@ export interface IPopoverProps {
 	 */
 	closeOnClick?: boolean;
 	disabled?: boolean;
+	/**
+	 * Sizes the popover to the trigger's width (at least — longer content
+	 * still grows it, up to the viewport). For combobox-like use, where the
+	 * trigger is a field and the popover its suggestion list.
+	 */
+	matchTriggerWidth?: boolean;
 	/** Renders the popover into `document.body` via AmphorePortal (theme scope re-applied) — escapes any ancestor stacking context/`transform`/`overflow` that would trap or clip it. Defaults to false (inline, `position: fixed`). */
 	portal?: boolean;
 	className?: string;
@@ -60,6 +67,7 @@ export const Popover: React.FC<IPopoverProps> = ({
 	closeOnOutsideClick = true,
 	closeOnClick = false,
 	disabled = false,
+	matchTriggerWidth = false,
 	portal = false,
 	className = "",
 }) => {
@@ -76,7 +84,24 @@ export const Popover: React.FC<IPopoverProps> = ({
 		onOpenChange: setOpen,
 		placement,
 		strategy: "fixed",
-		middleware: [offset(6), flip({ padding: 8 }), shift({ padding: 8 })],
+		middleware: [
+			offset(6),
+			flip({ padding: 8 }),
+			shift({ padding: 8 }),
+			...(matchTriggerWidth
+				? [
+						size({
+							padding: 8,
+							apply({ rects, availableWidth, elements }) {
+								Object.assign(elements.floating.style, {
+									minWidth: `${rects.reference.width}px`,
+									maxWidth: `${availableWidth}px`,
+								});
+							},
+						}),
+					]
+				: []),
+		],
 	});
 
 	const click = useClick(context, { enabled: !disabled });

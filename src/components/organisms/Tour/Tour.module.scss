@@ -60,7 +60,9 @@
 		left: var(--amp-space-3);
 		right: var(--amp-space-3);
 		max-height: 50vh;
+		max-height: 50dvh;
 		overflow-y: auto;
+		overscroll-behavior: contain;
 	}
 
 	&[data-variant="sheet"][data-position="bottom"] {

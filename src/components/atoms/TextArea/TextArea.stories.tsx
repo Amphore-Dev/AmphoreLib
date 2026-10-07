@@ -100,12 +100,7 @@ export const Sizes = () => (
 );
 
 export const Disabled = () => (
-	<TextArea
-		label="Description"
-		value="Locked"
-		onChange={() => {}}
-		disabled
-	/>
+	<TextArea label="Description" value="Locked" onChange={() => {}} disabled />
 );
 
 export const DefaultSizeFromConfig = () => (

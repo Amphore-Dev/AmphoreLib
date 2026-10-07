@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { AmphoreProvider } from "@theme/AmphoreProvider";
 
@@ -121,6 +121,42 @@ describe("Popover (uncontrolled)", () => {
 		await user.click(screen.getByRole("button", { name: "Choix A" }));
 		expect(onPick).toHaveBeenCalledTimes(1);
 		expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+	});
+});
+
+describe("Popover matchTriggerWidth", () => {
+	// Mocked before render: the position is computed once, on mount.
+	const renderWithTriggerWidth = (matchTriggerWidth: boolean) => {
+		vi.spyOn(
+			HTMLButtonElement.prototype,
+			"getBoundingClientRect"
+		).mockReturnValue(DOMRect.fromRect({ width: 420, height: 40 }));
+		render(
+			<Popover
+				open
+				content="Contenu"
+				matchTriggerWidth={matchTriggerWidth}
+			>
+				<button type="button">Ouvrir</button>
+			</Popover>
+		);
+	};
+
+	afterEach(() => vi.restoreAllMocks());
+
+	it("sizes the popover to at least the trigger's width", async () => {
+		renderWithTriggerWidth(true);
+		await waitFor(() =>
+			expect(screen.getByRole("dialog").style.minWidth).toBe("420px")
+		);
+	});
+
+	it("leaves the popover's width alone by default", async () => {
+		renderWithTriggerWidth(false);
+		await waitFor(() =>
+			expect(screen.getByRole("dialog").style.top).not.toBe("")
+		);
+		expect(screen.getByRole("dialog").style.minWidth).toBe("");
 	});
 });
 

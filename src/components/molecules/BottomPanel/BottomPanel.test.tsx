@@ -29,7 +29,7 @@ describe("BottomPanel", () => {
 		expect(screen.getByText("Détails")).not.toBeVisible();
 	});
 
-	it("toggles open on a tap (mousedown/mouseup with no movement)", () => {
+	it("toggles open on a tap (pointerdown/pointerup with no movement)", () => {
 		const onOpenChange = vi.fn();
 		render(
 			<BottomPanel open={false} onOpenChange={onOpenChange}>
@@ -39,8 +39,8 @@ describe("BottomPanel", () => {
 		const handle = screen.getByRole("button", {
 			name: "Expand panel",
 		});
-		fireEvent.mouseDown(handle, { clientY: 100 });
-		fireEvent.mouseUp(window);
+		fireEvent.pointerDown(handle, { clientY: 100 });
+		fireEvent(window, new PointerEvent("pointerup"));
 		expect(onOpenChange).toHaveBeenCalledWith(true);
 	});
 
@@ -68,9 +68,9 @@ describe("BottomPanel", () => {
 		const handle = screen.getByRole("button", {
 			name: "Collapse panel",
 		});
-		fireEvent.mouseDown(handle, { clientY: 300 });
-		fireEvent.mouseMove(window, { clientY: 200 }); // dragged up 100px
-		fireEvent.mouseUp(window);
+		fireEvent.pointerDown(handle, { clientY: 300 });
+		fireEvent(window, new PointerEvent("pointermove", { clientY: 200 })); // dragged up 100px
+		fireEvent(window, new PointerEvent("pointerup"));
 		expect(onOpenChange).toHaveBeenCalledWith(true);
 	});
 
@@ -89,9 +89,9 @@ describe("BottomPanel", () => {
 		const handle = screen.getByRole("button", {
 			name: "Collapse panel",
 		});
-		fireEvent.mouseDown(handle, { clientY: 100 });
-		fireEvent.mouseMove(window, { clientY: 500 }); // dragged down 400px, well past the threshold
-		fireEvent.mouseUp(window);
+		fireEvent.pointerDown(handle, { clientY: 100 });
+		fireEvent(window, new PointerEvent("pointermove", { clientY: 500 })); // dragged down 400px, well past the threshold
+		fireEvent(window, new PointerEvent("pointerup"));
 		expect(onOpenChange).toHaveBeenCalledWith(false);
 	});
 
@@ -105,10 +105,25 @@ describe("BottomPanel", () => {
 		const handle = screen.getByRole("button", {
 			name: "Expand panel",
 		});
-		fireEvent.mouseDown(handle, { clientY: 100 });
-		fireEvent.mouseMove(window, { clientY: 102 }); // 2px, under the 4px threshold
-		fireEvent.mouseUp(window);
+		fireEvent.pointerDown(handle, { clientY: 100 });
+		fireEvent(window, new PointerEvent("pointermove", { clientY: 102 })); // 2px, under the 4px threshold
+		fireEvent(window, new PointerEvent("pointerup"));
 		expect(onOpenChange).toHaveBeenCalledWith(true);
+	});
+
+	it("doesn't toggle on a press the browser cancelled — not a tap", () => {
+		const onOpenChange = vi.fn();
+		render(
+			<BottomPanel open={false} onOpenChange={onOpenChange}>
+				content
+			</BottomPanel>
+		);
+		const handle = screen.getByRole("button", {
+			name: "Expand panel",
+		});
+		fireEvent.pointerDown(handle, { clientY: 100 });
+		fireEvent(window, new PointerEvent("pointercancel"));
+		expect(onOpenChange).not.toHaveBeenCalled();
 	});
 
 	describe("portal", () => {

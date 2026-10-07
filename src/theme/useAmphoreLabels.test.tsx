@@ -76,7 +76,7 @@ describe("useAmphoreLabels", () => {
 			<AmphoreDefaultsContext.Provider
 				value={{ labels: { Badge: { removeLabel: "Retirer" } } }}
 			>
-				<Badge onRemove={() => {}}>MYD-1</Badge>
+				<Badge onRemove={() => {}}>CHR-1</Badge>
 			</AmphoreDefaultsContext.Provider>
 		);
 		expect(

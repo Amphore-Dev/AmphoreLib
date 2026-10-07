@@ -70,8 +70,10 @@
 	cursor: pointer;
 	min-width: 0;
 
-	&:hover {
-		text-decoration: underline;
+	@media (hover: hover) {
+		&:hover {
+			text-decoration: underline;
+		}
 	}
 }
 
@@ -94,8 +96,10 @@
 	padding: 0;
 	cursor: pointer;
 
-	&:hover {
-		color: var(--amp-color-primary-tint);
-		text-decoration: underline;
+	@media (hover: hover) {
+		&:hover {
+			color: var(--amp-color-primary-tint);
+			text-decoration: underline;
+		}
 	}
 }

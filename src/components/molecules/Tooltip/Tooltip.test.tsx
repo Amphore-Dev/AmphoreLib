@@ -1,6 +1,6 @@
 import { createRef } from "react";
 
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
@@ -57,6 +57,35 @@ describe("Tooltip", () => {
 		);
 		await user.tab();
 		expect(await screen.findByRole("tooltip")).toHaveTextContent("Astuce");
+	});
+
+	it("toggles on a tap (touch has no hover)", async () => {
+		render(
+			<Tooltip content="Astuce">
+				<span>Cible</span>
+			</Tooltip>
+		);
+		const trigger = screen.getByText("Cible");
+
+		fireEvent.pointerDown(trigger, { pointerType: "touch" });
+		fireEvent.click(trigger);
+		expect(await screen.findByRole("tooltip")).toHaveTextContent("Astuce");
+
+		fireEvent.pointerDown(trigger, { pointerType: "touch" });
+		fireEvent.click(trigger);
+		expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+	});
+
+	it("doesn't open on a mouse click — that's hover's job", () => {
+		render(
+			<Tooltip content="Astuce">
+				<span>Cible</span>
+			</Tooltip>
+		);
+		const trigger = screen.getByText("Cible");
+		fireEvent.pointerDown(trigger, { pointerType: "mouse" });
+		fireEvent.click(trigger);
+		expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
 	});
 
 	it("never shows when disabled", async () => {

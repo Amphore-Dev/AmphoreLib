@@ -1,3 +1,5 @@
+@use "../../../styles/touch" as touch;
+
 .badge {
 	display: inline-flex;
 	align-items: center;
@@ -112,6 +114,7 @@
 }
 
 .remove {
+	@include touch.touch-target(2rem);
 	flex-shrink: 0;
 	display: inline-flex;
 	align-items: center;
@@ -127,8 +130,10 @@
 	cursor: pointer;
 	border-radius: var(--amp-radius-sm);
 
-	&:hover {
-		opacity: 1;
+	@media (hover: hover) {
+		&:hover {
+			opacity: 1;
+		}
 	}
 
 	&:focus-visible {

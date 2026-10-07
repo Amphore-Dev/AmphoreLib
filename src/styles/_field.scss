@@ -108,4 +108,12 @@
 	font-size: inherit;
 	line-height: inherit;
 	color: var(--amp-color-ink);
+
+	// iOS Safari zooms the page in on focus of any field whose text is under
+	// 16px — every size here (12-15px) — and doesn't zoom back out. Touch-
+	// first devices get at least 16px on the text slot; the field box keeps
+	// its line-height, so the field itself doesn't grow.
+	@media (pointer: coarse) {
+		font-size: max(1rem, 1em);
+	}
 }

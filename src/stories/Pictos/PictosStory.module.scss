@@ -49,9 +49,11 @@
 		background 0.12s,
 		border-color 0.12s;
 
-	&:hover {
-		background: var(--amp-color-ghost-bg);
-		border-color: var(--amp-color-primary);
+	@media (hover: hover) {
+		&:hover {
+			background: var(--amp-color-ghost-bg);
+			border-color: var(--amp-color-primary);
+		}
 	}
 }
 

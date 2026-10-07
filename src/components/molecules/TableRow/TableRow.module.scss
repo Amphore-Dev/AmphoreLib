@@ -1,3 +1,5 @@
+@use "../../../styles/touch" as touch;
+
 .row {
 	&.clickable [role="gridcell"] {
 		cursor: pointer;
@@ -7,8 +9,10 @@
 		background: var(--amp-color-primary-tint);
 	}
 
-	&:hover:not([data-selected="true"]) [role="gridcell"] {
-		background: var(--amp-color-ghost-bg);
+	@media (hover: hover) {
+		&:hover:not([data-selected="true"]) [role="gridcell"] {
+			background: var(--amp-color-ghost-bg);
+		}
 	}
 }
 
@@ -31,13 +35,9 @@
 	border: none;
 	color: var(--amp-color-sub);
 	cursor: pointer;
-	opacity: 0;
+	@include touch.reveal-on-hover(".row");
 
-	.row:hover & {
-		opacity: 1;
-	}
-
-	&:hover {
+	@include touch.hover {
 		color: var(--amp-color-ink);
 	}
 }

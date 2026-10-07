@@ -9,6 +9,12 @@
 	overflow: hidden;
 	border-radius: var(--amp-radius-lg) var(--amp-radius-lg) 0 0;
 	font-family: var(--amp-font);
+	// Clear of the iPhone home indicator (with viewport-fit=cover, the
+	// page draws under it). content-box: the inset adds to the height the
+	// component sets inline instead of eating into it, so the docked
+	// handle stays tappable above the indicator.
+	box-sizing: content-box;
+	padding-bottom: env(safe-area-inset-bottom, 0px);
 	transition: height 0.25s ease;
 
 	// No transition while actively dragging — the height already tracks the
@@ -53,6 +59,7 @@
 .content {
 	flex: 1;
 	overflow: auto;
+	overscroll-behavior: contain;
 	padding: var(--amp-card-padding);
 	padding-top: 0;
 }

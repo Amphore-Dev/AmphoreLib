@@ -8,8 +8,10 @@
 	cursor: pointer;
 	transition: color 0.15s ease;
 
-	&:hover:not([data-disabled="true"]) {
-		filter: brightness(1.1);
+	@media (hover: hover) {
+		&:hover:not([data-disabled="true"]) {
+			filter: brightness(1.1);
+		}
 	}
 
 	&:focus-visible {
@@ -73,8 +75,10 @@
 	&[data-underline="hover"] {
 		text-decoration: none;
 
-		&:hover:not([data-disabled="true"]) {
-			text-decoration: underline;
+		@media (hover: hover) {
+			&:hover:not([data-disabled="true"]) {
+				text-decoration: underline;
+			}
 		}
 	}
 

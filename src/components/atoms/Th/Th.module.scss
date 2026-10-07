@@ -16,8 +16,10 @@
 		cursor: pointer;
 		user-select: none;
 
-		&:hover {
-			color: var(--amp-color-ink);
+		@media (hover: hover) {
+			&:hover {
+				color: var(--amp-color-ink);
+			}
 		}
 
 		&:focus-visible {

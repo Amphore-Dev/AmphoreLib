@@ -38,7 +38,7 @@ Base.args = {
 export const WithBeforeSlot = Template.bind({});
 WithBeforeSlot.args = {
 	...Base.args,
-	before: <Badge color="neutral">MYD-15898</Badge>,
+	before: <Badge color="neutral">CHR-15898</Badge>,
 };
 
 export const SingleLine = Template.bind({});

@@ -66,7 +66,7 @@ describe("AmphoreProvider locale", () => {
 	it("applies the fr bundle when locale='fr'", () => {
 		render(
 			<AmphoreProvider locale="fr">
-				<Badge onRemove={() => {}}>MYD-1</Badge>
+				<Badge onRemove={() => {}}>CHR-1</Badge>
 			</AmphoreProvider>
 		);
 		expect(
@@ -77,7 +77,7 @@ describe("AmphoreProvider locale", () => {
 	it("stays English with no locale prop", () => {
 		render(
 			<AmphoreProvider>
-				<Badge onRemove={() => {}}>MYD-1</Badge>
+				<Badge onRemove={() => {}}>CHR-1</Badge>
 			</AmphoreProvider>
 		);
 		expect(
@@ -91,7 +91,7 @@ describe("AmphoreProvider locale", () => {
 				locale="fr"
 				config={{ labels: { Badge: { removeLabel: "Supprimer" } } }}
 			>
-				<Badge onRemove={() => {}}>MYD-1</Badge>
+				<Badge onRemove={() => {}}>CHR-1</Badge>
 			</AmphoreProvider>
 		);
 		expect(

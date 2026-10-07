@@ -8,6 +8,7 @@
 	// a long Select options list.
 	max-height: 24rem;
 	overflow-y: auto;
+	overscroll-behavior: contain;
 	padding: var(--amp-space-1);
 	border: 1px solid var(--amp-color-border);
 	border-radius: var(--amp-radius-md);

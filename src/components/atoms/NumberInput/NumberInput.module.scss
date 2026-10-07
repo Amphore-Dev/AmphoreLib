@@ -103,9 +103,11 @@
 		border-bottom: 1px solid var(--amp-color-border);
 	}
 
-	&:hover:not(:disabled) {
-		background: var(--amp-color-ghost-bg);
-		color: var(--amp-color-ink);
+	@media (hover: hover) {
+		&:hover:not(:disabled) {
+			background: var(--amp-color-ghost-bg);
+			color: var(--amp-color-ink);
+		}
 	}
 
 	&:disabled {

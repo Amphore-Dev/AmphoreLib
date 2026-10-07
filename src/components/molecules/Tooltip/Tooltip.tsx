@@ -4,6 +4,7 @@ import {
 	flip,
 	offset,
 	shift,
+	useClick,
 	useDismiss,
 	useFloating,
 	useFocus,
@@ -32,11 +33,16 @@ export interface ITooltipProps {
 }
 
 /**
- * V2 Tooltip — hover/focus-triggered, non-interactive text hint
+ * V2 Tooltip — hover/focus-triggered (tap on touch), non-interactive text hint
  * (role="tooltip"). Display-only, unlike Popover (click, interactive
  * content) — a separate component, not a variant. Inline
  * (`strategy:"fixed"`) by default, `portal` opts into AmphorePortal (see
  * memory/amphorelib-v2-conventions.md).
+ *
+ * Touch has no hover: iOS only fires the emulated mouse events hover relies
+ * on for elements it deems clickable, so a tooltip on a plain element
+ * never opened there. A tap now toggles it (useClick with `ignoreMouse`,
+ * so a mouse click doesn't fight the hover), and a tap elsewhere closes it.
  */
 export const Tooltip: React.FC<ITooltipProps> = ({
 	content,
@@ -58,12 +64,14 @@ export const Tooltip: React.FC<ITooltipProps> = ({
 
 	const hover = useHover(context, { move: false, enabled: !disabled });
 	const focus = useFocus(context, { enabled: !disabled });
+	const tap = useClick(context, { ignoreMouse: true, enabled: !disabled });
 	const dismiss = useDismiss(context);
 	const role = useRole(context, { role: "tooltip" });
 
 	const { getReferenceProps, getFloatingProps } = useInteractions([
 		hover,
 		focus,
+		tap,
 		dismiss,
 		role,
 	]);

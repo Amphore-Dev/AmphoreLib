@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { AmphoreProvider } from "@theme/AmphoreProvider";
 
@@ -133,8 +133,8 @@ describe("TextArea", () => {
 		const handle = screen.getByTestId("textarea-resize-handle");
 
 		fireEvent.pointerDown(handle, { clientY: 100 });
-		fireEvent(document, new PointerEvent("pointermove", { clientY: 150 }));
-		fireEvent(document, new PointerEvent("pointerup"));
+		fireEvent(window, new PointerEvent("pointermove", { clientY: 150 }));
+		fireEvent(window, new PointerEvent("pointerup"));
 
 		expect(textarea.style.height).toBe("130px");
 	});
@@ -151,8 +151,8 @@ describe("TextArea", () => {
 		const handle = screen.getByTestId("textarea-resize-handle");
 
 		fireEvent.pointerDown(handle, { clientY: 100 });
-		fireEvent(document, new PointerEvent("pointermove", { clientY: -500 }));
-		fireEvent(document, new PointerEvent("pointerup"));
+		fireEvent(window, new PointerEvent("pointermove", { clientY: -500 }));
+		fireEvent(window, new PointerEvent("pointerup"));
 
 		expect(textarea.style.height).toBe("48px");
 	});
@@ -183,6 +183,60 @@ describe("TextArea", () => {
 		expect(
 			screen.queryByTestId("textarea-resize-handle")
 		).not.toBeInTheDocument();
+	});
+
+	describe("touch-first device (pointer: coarse)", () => {
+		const setCoarsePointer = () => {
+			window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+				matches: query === "(pointer: coarse)",
+				media: query,
+				addEventListener: vi.fn(),
+				removeEventListener: vi.fn(),
+			})) as unknown as typeof window.matchMedia;
+		};
+
+		afterEach(() => {
+			// @ts-expect-error -- back to jsdom's own (absent) matchMedia
+			delete window.matchMedia;
+		});
+
+		it("shows no resize handle", () => {
+			setCoarsePointer();
+			render(
+				<TextArea label="Description" value="" onChange={() => {}} />
+			);
+			expect(
+				screen.queryByTestId("textarea-resize-handle")
+			).not.toBeInTheDocument();
+		});
+
+		it("grows with its content instead", () => {
+			setCoarsePointer();
+			render(
+				<TextArea label="Description" value="" onChange={() => {}} />
+			);
+			const textarea = screen.getByLabelText(
+				"Description"
+			) as HTMLTextAreaElement;
+			// autoGrow's effect sets an explicit px height; a plain field has none.
+			expect(textarea.style.height).toMatch(/px$/);
+		});
+
+		it("stays a fixed-height field when resizable is false", () => {
+			setCoarsePointer();
+			render(
+				<TextArea
+					label="Description"
+					value=""
+					onChange={() => {}}
+					resizable={false}
+				/>
+			);
+			expect(
+				(screen.getByLabelText("Description") as HTMLTextAreaElement)
+					.style.height
+			).toBe("");
+		});
 	});
 
 	it("still shows the resize handle when autoGrow is set — the two combine, not replace", () => {
@@ -250,8 +304,8 @@ describe("TextArea", () => {
 
 		// Drag up to 200px tall — well beyond what "a" alone needs.
 		fireEvent.pointerDown(handle, { clientY: 500 });
-		fireEvent(document, new PointerEvent("pointermove", { clientY: 640 }));
-		fireEvent(document, new PointerEvent("pointerup"));
+		fireEvent(window, new PointerEvent("pointermove", { clientY: 640 }));
+		fireEvent(window, new PointerEvent("pointerup"));
 		expect(textarea.style.height).toBe("200px");
 
 		// Typing more (still well under 200px of content) shouldn't shrink it

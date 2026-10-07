@@ -2,6 +2,8 @@ import React, { useEffect, useId, useRef } from "react";
 
 import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
 
+import { useDrag, useMediaQuery } from "@hooks/index";
+
 import { cn } from "@utils/cn";
 
 import { TColor, TSize } from "@interfaces/index";
@@ -29,7 +31,7 @@ export interface ITextAreaProps extends Omit<
 	rows?: number;
 	/** Shows a live "x / maxLength" counter under the field. */
 	showCharCounter?: boolean;
-	/** Lets the field be dragged taller/shorter. Defaults to true. Works together with `autoGrow` — a manual drag sets a floor autoGrow won't shrink below, but content can still grow past it. */
+	/** Lets the field be dragged taller/shorter. Defaults to true. Works together with `autoGrow` — a manual drag sets a floor autoGrow won't shrink below, but content can still grow past it. On a touch-first device (`pointer: coarse`) there's no handle: the field grows with its content instead (`autoGrow`, still capped by `maxRows`). */
 	resizable?: boolean;
 	/** Grows/shrinks the field height to fit its content instead of scrolling. Combines with manual resize rather than replacing it. */
 	autoGrow?: boolean;
@@ -40,6 +42,8 @@ export interface ITextAreaProps extends Omit<
 }
 
 const MIN_HEIGHT_PX = 48;
+
+const COARSE_POINTER = "(pointer: coarse)";
 
 /**
  * V2 TextArea — fully controlled (value/onChange only), no ambient
@@ -53,6 +57,12 @@ const MIN_HEIGHT_PX = 48;
  * `width`/`height` without going invisible in Chrome/Safari, and Firefox
  * exposes no equivalent hook at all. A hand-rolled handle sizes and themes
  * consistently everywhere instead.
+ *
+ * Touch-first devices get no handle at all: a corner grip is a poor
+ * finger target, mobile browsers never show a native one either, and
+ * growing with the content does the same job without a gesture. A hybrid
+ * device (fine primary pointer, touchscreen too) keeps the handle — it
+ * goes through `useDrag`, so a finger drags it as well as a mouse.
  */
 export const TextArea: React.FC<ITextAreaProps> = ({
 	value = "",
@@ -76,6 +86,9 @@ export const TextArea: React.FC<ITextAreaProps> = ({
 	...props
 }) => {
 	const { size: defaultSize } = useAmphoreDefaults();
+	const coarsePointer = useMediaQuery(COARSE_POINTER);
+	const showHandle = resizable && !disabled && !coarsePointer;
+	const grows = autoGrow || (resizable && coarsePointer);
 	const size = sizeProp ?? defaultSize ?? "md";
 	const generatedId = useId();
 	const inputId = id ?? generatedId;
@@ -101,7 +114,7 @@ export const TextArea: React.FC<ITextAreaProps> = ({
 	// AmphoreProvider, so a hardcoded pixel constant here would silently
 	// drift from whatever a consumer's theme actually renders.
 	useEffect(() => {
-		if (!autoGrow) return;
+		if (!grows) return;
 		const textarea = textareaRef.current;
 		if (!textarea) return;
 
@@ -135,33 +148,25 @@ export const TextArea: React.FC<ITextAreaProps> = ({
 		if (maxRows) {
 			textarea.style.overflowY = scrollHeight > cap ? "auto" : "hidden";
 		}
-	}, [autoGrow, maxRows, value]);
+	}, [grows, maxRows, value]);
 
-	const handleResizeStart = (e: React.PointerEvent) => {
-		const textarea = textareaRef.current;
-		if (!textarea || disabled) return;
-
-		e.preventDefault();
-		const startY = e.clientY;
-		const startHeight = textarea.offsetHeight;
-
-		const handlePointerMove = (moveEvent: PointerEvent) => {
+	const startHeightRef = useRef(0);
+	const resize = useDrag({
+		disabled: !showHandle,
+		onStart: () => {
+			startHeightRef.current = textareaRef.current?.offsetHeight ?? 0;
+		},
+		onMove: ({ dy }) => {
+			const textarea = textareaRef.current;
+			if (!textarea) return;
 			const nextHeight = Math.max(
 				MIN_HEIGHT_PX,
-				startHeight + (moveEvent.clientY - startY)
+				startHeightRef.current + dy
 			);
 			textarea.style.height = `${nextHeight}px`;
-			if (autoGrow) manualHeightRef.current = nextHeight;
-		};
-
-		const handlePointerUp = () => {
-			document.removeEventListener("pointermove", handlePointerMove);
-			document.removeEventListener("pointerup", handlePointerUp);
-		};
-
-		document.addEventListener("pointermove", handlePointerMove);
-		document.addEventListener("pointerup", handlePointerUp);
-	};
+			if (grows) manualHeightRef.current = nextHeight;
+		},
+	});
 
 	return (
 		<div className={cn([styles.wrapper, wrapperClassName])}>
@@ -194,10 +199,10 @@ export const TextArea: React.FC<ITextAreaProps> = ({
 					onChange={handleChange}
 				/>
 
-				{resizable && !disabled && (
+				{showHandle && (
 					<div
 						className={styles.resizeHandle}
-						onPointerDown={handleResizeStart}
+						{...resize.handleProps}
 						data-testid="textarea-resize-handle"
 						aria-hidden
 					/>

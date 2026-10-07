@@ -1,7 +1,9 @@
-import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
+import React, { PropsWithChildren, useRef, useState } from "react";
 
 import { AmphorePortal } from "@theme/AmphorePortal";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
+
+import { useDrag } from "@hooks/index";
 
 import { cn } from "@utils/cn";
 
@@ -74,82 +76,36 @@ export const BottomPanel: React.FC<IBottomPanelProps> = ({
 	const collapseLabel = resolve("collapseLabel", collapseLabelProp);
 	const expandLabel = resolve("expandLabel", expandLabelProp);
 	const [height, setHeight] = useState(defaultHeight);
-	const [dragging, setDragging] = useState(false);
-
-	// Mirrors `height`/`open` for the pointerup handler below — it's added
-	// to `window`, not a React element, so its closure would otherwise
-	// always see the value from the render it was created in, not the
-	// latest one.
-	const heightRef = useRef(height);
-	heightRef.current = height;
-	const openRef = useRef(open);
-	openRef.current = open;
-
-	const draggingRef = useRef(false);
-	const movedRef = useRef(false);
-	const startYRef = useRef(0);
 	const startHeightRef = useRef(0);
 
-	const handlePointerDown = (e: React.MouseEvent | React.TouchEvent) => {
-		draggingRef.current = true;
-		setDragging(true);
-		movedRef.current = false;
-		startYRef.current = "touches" in e ? e.touches[0].clientY : e.clientY;
-		startHeightRef.current = open ? height : minHeight;
-		e.preventDefault();
-	};
-
-	useEffect(() => {
-		const maxHeight = window.innerHeight * maxHeightRatio;
-
-		const onMove = (e: MouseEvent | TouchEvent) => {
-			if (!draggingRef.current) return;
-			const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
-			const delta = startYRef.current - clientY;
-			if (Math.abs(delta) > DRAG_THRESHOLD) movedRef.current = true;
-			if (!movedRef.current) return;
+	const drag = useDrag({
+		axis: "y",
+		threshold: DRAG_THRESHOLD,
+		onStart: () => {
+			startHeightRef.current = open ? height : minHeight;
+		},
+		onMove: ({ dy }) => {
+			const maxHeight = window.innerHeight * maxHeightRatio;
 			setHeight(
 				Math.min(
 					maxHeight,
-					Math.max(minHeight, startHeightRef.current + delta)
+					Math.max(minHeight, startHeightRef.current - dy)
 				)
 			);
-		};
-
-		const onEnd = () => {
-			if (!draggingRef.current) return;
-			draggingRef.current = false;
-			setDragging(false);
-
-			if (!movedRef.current) {
-				// A tap, not a drag — toggle regardless of direction.
-				onOpenChange(!openRef.current);
-			} else if (heightRef.current <= closeThreshold) {
+		},
+		onEnd: ({ moved, cancelled }) => {
+			if (!moved) {
+				// A tap, not a drag — toggle regardless of direction. A
+				// cancelled press (the browser took the gesture) isn't a tap.
+				if (!cancelled) onOpenChange(!open);
+			} else if (height <= closeThreshold) {
 				onOpenChange(false);
 				setHeight(defaultHeight);
 			} else {
 				onOpenChange(true);
 			}
-			movedRef.current = false;
-		};
-
-		window.addEventListener("mousemove", onMove);
-		window.addEventListener("mouseup", onEnd);
-		window.addEventListener("touchmove", onMove);
-		window.addEventListener("touchend", onEnd);
-		return () => {
-			window.removeEventListener("mousemove", onMove);
-			window.removeEventListener("mouseup", onEnd);
-			window.removeEventListener("touchmove", onMove);
-			window.removeEventListener("touchend", onEnd);
-		};
-	}, [
-		closeThreshold,
-		defaultHeight,
-		maxHeightRatio,
-		minHeight,
-		onOpenChange,
-	]);
+		},
+	});
 
 	const handleKeyDown = (e: React.KeyboardEvent) => {
 		if (e.key !== "Enter" && e.key !== " ") return;
@@ -163,15 +119,14 @@ export const BottomPanel: React.FC<IBottomPanelProps> = ({
 			noPadding
 			className={cn([styles.panel, className])}
 			style={{ height: open ? height : minHeight }}
-			data-dragging={dragging || undefined}
+			data-dragging={drag.isDragging || undefined}
 			role="dialog"
 			aria-label={open ? openLabel : collapsedLabel}
 		>
 			<button
 				type="button"
 				className={styles.handle}
-				onMouseDown={handlePointerDown}
-				onTouchStart={handlePointerDown}
+				{...drag.handleProps}
 				onKeyDown={handleKeyDown}
 				aria-expanded={open}
 				aria-label={open ? collapseLabel : expandLabel}

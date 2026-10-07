@@ -30,12 +30,12 @@ const seed: TTodoItem[] = [
 	{
 		id: "1",
 		text: "Fix the pricing terms form validation",
-		before: <Badge color="neutral">MYD-15898</Badge>,
+		before: <Badge color="neutral">CHR-15898</Badge>,
 	},
 	{
 		id: "2",
 		text: "Audit dependencies and update vulnerable packages",
-		before: <Badge color="neutral">MYD-15912</Badge>,
+		before: <Badge color="neutral">CHR-15912</Badge>,
 	},
 	{ id: "3", text: "Security kickoff meeting with the client" },
 ];

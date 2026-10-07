@@ -1,7 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 
 import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
+
+import { useAutoScroll, useDrag } from "@hooks/index";
 
 import { cn } from "@utils/cn";
 
@@ -41,12 +43,15 @@ export type TTodoListLabels = Pick<ITodoListProps, "moveLabel">;
 
 /**
  * V2 TodoList — a controlled, reorderable list of `TodoItem` rows. Reorder
- * is custom pointer-based (no DnD dependency, same pattern as BottomPanel's
- * own drag handling): a `pointerdown` on a handle starts tracking, `move`
+ * is custom pointer-based (no DnD dependency, `useDrag` like every other
+ * drag in this lib): a `pointerdown` on a handle starts tracking, `move`
  * measures sibling midpoints to find the drop index and splices `items`
  * immediately (once per index crossed, same as the original prototype this
- * was ported from) — not just on drop. Arrow-up/down on the handle reorders
- * by one without needing a drag at all.
+ * was ported from) — not just on drop. Near the edge of the scroll
+ * container (or the screen), `useAutoScroll` scrolls so a long list can be
+ * reordered past what's visible — on a phone, the finger on the handle
+ * can't scroll it any other way. Arrow-up/down on the handle reorders by
+ * one without needing a drag at all.
  */
 export const TodoList: React.FC<ITodoListProps> = ({
 	items,
@@ -82,48 +87,53 @@ export const TodoList: React.FC<ITodoListProps> = ({
 		onChangeRef.current(next);
 	};
 
-	const startDrag = (index: number) => {
-		dragIndexRef.current = index;
-		setDragIndex(index);
+	// Last pointer Y, so an auto-scroll step can re-hit-test against rows
+	// that just moved under a finger that didn't.
+	const pointerYRef = useRef(0);
+
+	const retarget = () => {
+		const list = listRef.current;
+		const current = dragIndexRef.current;
+		if (!list || current === null) return;
+		const rows = Array.from(list.children) as HTMLElement[];
+		const y = pointerYRef.current;
+		let target = rows.length - 1;
+		for (let i = 0; i < rows.length; i++) {
+			const rect = rows[i].getBoundingClientRect();
+			if (y < rect.top + rect.height / 2) {
+				target = i;
+				break;
+			}
+		}
+		if (target !== current) {
+			move(current, target);
+			dragIndexRef.current = target;
+			setDragIndex(target);
+		}
 	};
 
-	useEffect(() => {
-		if (dragIndex === null) return;
+	const autoScroll = useAutoScroll(listRef, { onScroll: retarget });
 
-		const onMove = (e: PointerEvent) => {
-			const list = listRef.current;
-			const current = dragIndexRef.current;
-			if (!list || current === null) return;
-			const rows = Array.from(list.children) as HTMLElement[];
-			const y = e.clientY;
-			let target = rows.length - 1;
-			for (let i = 0; i < rows.length; i++) {
-				const rect = rows[i].getBoundingClientRect();
-				if (y < rect.top + rect.height / 2) {
-					target = i;
-					break;
-				}
-			}
-			if (target !== current) {
-				move(current, target);
-				dragIndexRef.current = target;
-				setDragIndex(target);
-			}
-		};
+	const endDrag = () => {
+		autoScroll.stop();
+		dragIndexRef.current = null;
+		setDragIndex(null);
+	};
 
-		const onUp = () => {
-			dragIndexRef.current = null;
-			setDragIndex(null);
-		};
-
-		window.addEventListener("pointermove", onMove);
-		window.addEventListener("pointerup", onUp);
-		return () => {
-			window.removeEventListener("pointermove", onMove);
-			window.removeEventListener("pointerup", onUp);
-		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- only needs to re-subscribe when a drag starts/ends; `move` reads items/onChange through refs kept fresh every render
-	}, [dragIndex]);
+	const drag = useDrag({
+		onStart: ({ pointerType }) => {
+			setDragIndex(dragIndexRef.current);
+			// A short tick confirming the row was picked up — Android only,
+			// iOS Safari has no Vibration API (the call is just skipped).
+			if (pointerType === "touch") navigator.vibrate?.(10);
+		},
+		onMove: ({ y }) => {
+			pointerYRef.current = y;
+			retarget();
+			autoScroll.update(y);
+		},
+		onEnd: endDrag,
+	});
 
 	const handleTextChange = (index: number, text: string) => {
 		const next = [...items];
@@ -154,8 +164,8 @@ export const TodoList: React.FC<ITodoListProps> = ({
 							? {
 									"aria-label": moveLabel,
 									onPointerDown: (e) => {
-										e.preventDefault();
-										startDrag(index);
+										dragIndexRef.current = index;
+										drag.handleProps.onPointerDown(e);
 									},
 									onKeyDown: (e) => {
 										if (e.key === "ArrowUp") {

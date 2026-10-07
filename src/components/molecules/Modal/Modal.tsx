@@ -95,8 +95,12 @@ export const Modal: React.FC<IModalProps> = ({
 		},
 	});
 
+	// Outside press on `click`, not floating-ui's default `pointerdown`: on
+	// touch, closing on pointerdown unmounts the overlay before the tap's
+	// click fires, so that click lands on whatever sat under the overlay.
 	const dismiss = useDismiss(context, {
 		outsidePress: closeOnOverlayClick,
+		outsidePressEvent: "click",
 		escapeKey: closeOnEscape,
 	});
 	const role = useRole(context, { role: "dialog" });

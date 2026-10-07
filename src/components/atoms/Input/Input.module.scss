@@ -1,4 +1,5 @@
 @use "../../../styles/field" as field;
+@use "../../../styles/touch" as touch;
 
 .wrapper {
 	display: flex;
@@ -45,6 +46,8 @@
 }
 
 .clear {
+	// 2rem: inside the field, a wider target would cover the text being typed.
+	@include touch.touch-target(2rem);
 	flex-shrink: 0;
 	display: inline-flex;
 	align-items: center;
@@ -58,8 +61,10 @@
 	cursor: pointer;
 	border-radius: var(--amp-radius-sm);
 
-	&:hover {
-		color: var(--amp-color-ink);
+	@media (hover: hover) {
+		&:hover {
+			color: var(--amp-color-ink);
+		}
 	}
 
 	&:focus-visible {

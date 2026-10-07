@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
@@ -111,6 +111,38 @@ describe("Modal", () => {
 			</Modal>
 		);
 		await user.keyboard("{Escape}");
+		expect(onClose).not.toHaveBeenCalled();
+	});
+
+	it("closes on the overlay's click, not its pointerdown", () => {
+		const onClose = vi.fn();
+		render(
+			<Modal open onClose={onClose} title="Titre">
+				Contenu
+			</Modal>
+		);
+		const overlay = screen.getByRole("dialog").parentElement as HTMLElement;
+		fireEvent.pointerDown(overlay);
+		fireEvent.mouseDown(overlay);
+		expect(onClose).not.toHaveBeenCalled();
+		fireEvent.click(overlay);
+		expect(onClose).toHaveBeenCalledTimes(1);
+	});
+
+	it("does not close on overlay click when closeOnOverlayClick is false", () => {
+		const onClose = vi.fn();
+		render(
+			<Modal
+				open
+				onClose={onClose}
+				title="Titre"
+				closeOnOverlayClick={false}
+			>
+				Contenu
+			</Modal>
+		);
+		const overlay = screen.getByRole("dialog").parentElement as HTMLElement;
+		fireEvent.click(overlay);
 		expect(onClose).not.toHaveBeenCalled();
 	});
 

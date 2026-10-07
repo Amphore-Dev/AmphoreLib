@@ -1,3 +1,5 @@
+@use "../../../styles/touch" as touch;
+
 .wrapper {
 	position: relative;
 	display: flex;
@@ -87,8 +89,10 @@
 		--_color: var(--amp-color-white);
 	}
 
-	&:hover:not(:disabled):not(.tabActive) {
-		color: var(--amp-color-ink);
+	@media (hover: hover) {
+		&:hover:not(:disabled):not(.tabActive) {
+			color: var(--amp-color-ink);
+		}
 	}
 
 	&:disabled {
@@ -114,6 +118,7 @@
 }
 
 .arrow {
+	@include touch.touch-target;
 	flex-shrink: 0;
 	display: flex;
 	align-items: center;
@@ -134,8 +139,10 @@
 		height: 0.875rem;
 	}
 
-	&:hover:not(:disabled) {
-		color: var(--amp-color-ink);
+	@media (hover: hover) {
+		&:hover:not(:disabled) {
+			color: var(--amp-color-ink);
+		}
 	}
 
 	// Always mounted once the strip is scrollable (both sides at once) rather

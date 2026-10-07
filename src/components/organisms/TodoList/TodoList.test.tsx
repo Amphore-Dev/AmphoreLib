@@ -83,6 +83,45 @@ describe("TodoList", () => {
 		]);
 	});
 
+	it("ends the drag on pointercancel (the browser took the gesture over)", () => {
+		const { container } = render(
+			<TodoList items={items} onChange={() => {}} />
+		);
+		stubRects(container);
+		const handles = screen.getAllByRole("button", { name: /^Move/i });
+
+		fireEvent.pointerDown(handles[0], { clientY: 10 });
+		expect(container.querySelector("li")).toHaveAttribute(
+			"data-dragging",
+			"true"
+		);
+		fireEvent(window, new PointerEvent("pointercancel"));
+		expect(
+			container.querySelector("[data-dragging]")
+		).not.toBeInTheDocument();
+	});
+
+	it("vibrates once when a touch drag picks a row up", () => {
+		const vibrate = vi.fn();
+		Object.defineProperty(navigator, "vibrate", {
+			configurable: true,
+			value: vibrate,
+		});
+		render(<TodoList items={items} onChange={() => {}} />);
+		const handles = screen.getAllByRole("button", { name: /^Move/i });
+
+		fireEvent.pointerDown(handles[0], { pointerType: "touch" });
+		expect(vibrate).toHaveBeenCalledTimes(1);
+		fireEvent(window, new PointerEvent("pointerup"));
+
+		fireEvent.pointerDown(handles[0], { pointerType: "mouse" });
+		expect(vibrate).toHaveBeenCalledTimes(1);
+		fireEvent(window, new PointerEvent("pointerup"));
+
+		// @ts-expect-error -- jsdom has none, put it back that way
+		delete navigator.vibrate;
+	});
+
 	it("reorders by one with arrow keys, without a drag", () => {
 		const onChange = vi.fn();
 		render(<TodoList items={items} onChange={onChange} />);

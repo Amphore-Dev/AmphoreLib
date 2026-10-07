@@ -55,7 +55,9 @@
 	font-size: 0.75rem;
 	cursor: pointer;
 
-	&:hover {
-		background: var(--amp-color-ghost-bg);
+	@media (hover: hover) {
+		&:hover {
+			background: var(--amp-color-ghost-bg);
+		}
 	}
 }

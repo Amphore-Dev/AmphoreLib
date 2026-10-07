@@ -113,8 +113,10 @@
 		background: var(--_color);
 		color: var(--_color-fg);
 
-		&:hover:not(:disabled) {
-			filter: brightness(1.07);
+		@media (hover: hover) {
+			&:hover:not(:disabled) {
+				filter: brightness(1.07);
+			}
 		}
 	}
 
@@ -123,8 +125,10 @@
 		color: var(--_color);
 		border-color: var(--_color);
 
-		&:hover:not(:disabled) {
-			background: var(--_color-tint);
+		@media (hover: hover) {
+			&:hover:not(:disabled) {
+				background: var(--_color-tint);
+			}
 		}
 	}
 
@@ -132,8 +136,10 @@
 		background: var(--amp-color-ghost-bg);
 		color: var(--amp-color-ink);
 
-		&:hover:not(:disabled) {
-			background: var(--_color-tint);
+		@media (hover: hover) {
+			&:hover:not(:disabled) {
+				background: var(--_color-tint);
+			}
 		}
 	}
 
@@ -148,8 +154,10 @@
 		border-color: transparent;
 		color: var(--_color);
 
-		&:hover:not(:disabled) {
-			text-decoration: underline;
+		@media (hover: hover) {
+			&:hover:not(:disabled) {
+				text-decoration: underline;
+			}
 		}
 	}
 

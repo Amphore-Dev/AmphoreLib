@@ -33,9 +33,11 @@
 	color: var(--amp-color-sub);
 	cursor: pointer;
 
-	&:hover:not(:disabled) {
-		background: var(--amp-color-ghost-bg);
-		color: var(--amp-color-ink);
+	@media (hover: hover) {
+		&:hover:not(:disabled) {
+			background: var(--amp-color-ghost-bg);
+			color: var(--amp-color-ink);
+		}
 	}
 
 	&:disabled {
@@ -74,9 +76,11 @@
 	font-family: inherit;
 	cursor: pointer;
 
-	&:hover:not(:disabled) {
-		background: var(--amp-color-ghost-bg);
-		color: var(--amp-color-ink);
+	@media (hover: hover) {
+		&:hover:not(:disabled) {
+			background: var(--amp-color-ghost-bg);
+			color: var(--amp-color-ink);
+		}
 	}
 
 	&:disabled {
@@ -101,8 +105,10 @@
 	padding: 0.25rem var(--amp-space-2);
 	border-radius: var(--amp-radius-sm);
 
-	&:hover {
-		background: var(--amp-color-ghost-bg);
+	@media (hover: hover) {
+		&:hover {
+			background: var(--amp-color-ghost-bg);
+		}
 	}
 
 	&:focus-visible {

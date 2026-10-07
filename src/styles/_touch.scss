@@ -1,0 +1,66 @@
+// Shared touch styles. Pairs with the `useDrag` hook (src/hooks/useDrag.ts):
+// the hook handles the pointer events, these make sure the browser lets
+// them through and that a finger can actually hit the thing.
+
+// Grows the element's hit area to at least $size without changing how it
+// looks or lays out: an invisible ::before, centered on it. 44px is the
+// usual minimum for a finger (Apple HIG / WCAG 2.5.5); pass less where
+// neighbors would overlap. Touch-first devices only (pointer: coarse): a
+// mouse is precise, and a bigger invisible target next to text there just
+// steals clicks meant for it. Takes ::before — draw visuals in ::after.
+@mixin touch-target($size: 2.75rem) {
+	position: relative;
+
+	@media (pointer: coarse) {
+		&::before {
+			content: "";
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			width: max(100%, #{$size});
+			height: max(100%, #{$size});
+			transform: translate(-50%, -50%);
+		}
+	}
+}
+
+// A handle a pointer drags (resize corner, reorder grip, sheet handle).
+// `touch-action: none` is the part that matters: without it the browser
+// reads a finger drag on the handle as a page scroll, sends
+// `pointercancel`, and the drag dies after a few pixels.
+@mixin drag-handle($size: 2.75rem) {
+	@include touch-target($size);
+	touch-action: none;
+	user-select: none;
+	-webkit-user-select: none;
+	-webkit-touch-callout: none;
+	-webkit-tap-highlight-color: transparent;
+}
+
+// `:hover` only where a pointer can actually hover. On touch, a tap leaves
+// the tapped element in :hover until the next tap elsewhere, so a hover
+// style sticks around looking like a state. Use it for decorative hover
+// feedback; a hover that *reveals* something also needs a touch fallback
+// (see `reveal-on-hover`).
+@mixin hover {
+	@media (hover: hover) {
+		&:hover {
+			@content;
+		}
+	}
+}
+
+// Hidden until its $parent is hovered — row actions and the like. Always
+// shown on touch (nothing to hover there) and on keyboard focus.
+@mixin reveal-on-hover($parent) {
+	opacity: 0;
+
+	#{$parent}:hover &,
+	&:focus-visible {
+		opacity: 1;
+	}
+
+	@media (hover: none) {
+		opacity: 1;
+	}
+}

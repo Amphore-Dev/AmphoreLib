@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 
+// No `matchMedia` at all outside a browser (SSR, jsdom): nothing matches.
+const hasMatchMedia = () =>
+	typeof window !== "undefined" && typeof window.matchMedia === "function";
+
 const getMatches = (query: string): boolean =>
-	typeof window !== "undefined" ? window.matchMedia(query).matches : false;
+	hasMatchMedia() ? window.matchMedia(query).matches : false;
 
 /**
  * Tracks whether a media query currently matches — the one case CSS alone
@@ -19,6 +23,7 @@ export const useMediaQuery = (query: string): boolean => {
 	const [matches, setMatches] = useState(() => getMatches(query));
 
 	useEffect(() => {
+		if (!hasMatchMedia()) return;
 		const mql = window.matchMedia(query);
 		setMatches(mql.matches);
 

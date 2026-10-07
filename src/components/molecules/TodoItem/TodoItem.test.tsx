@@ -12,8 +12,8 @@ describe("TodoItem", () => {
 	});
 
 	it("renders the before slot", () => {
-		render(<TodoItem text="Tâche" before={<span>MYD-1</span>} />);
-		expect(screen.getByText("MYD-1")).toBeInTheDocument();
+		render(<TodoItem text="Tâche" before={<span>CHR-1</span>} />);
+		expect(screen.getByText("CHR-1")).toBeInTheDocument();
 	});
 
 	it("switches to an editor on click and commits on Enter", () => {

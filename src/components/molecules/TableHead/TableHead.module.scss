@@ -17,7 +17,9 @@
 	color: var(--amp-color-sub);
 	cursor: pointer;
 
-	&:hover {
-		color: var(--amp-color-ink);
+	@media (hover: hover) {
+		&:hover {
+			color: var(--amp-color-ink);
+		}
 	}
 }

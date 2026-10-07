@@ -14,9 +14,11 @@
 		background-color 0.15s ease,
 		color 0.15s ease;
 
-	&:hover {
-		background: var(--amp-color-ghost-bg);
-		color: var(--amp-color-ink);
+	@media (hover: hover) {
+		&:hover {
+			background: var(--amp-color-ghost-bg);
+			color: var(--amp-color-ink);
+		}
 	}
 
 	&:focus-visible {
@@ -28,8 +30,10 @@
 		background: var(--amp-color-primary);
 		color: var(--amp-color-primary-fg);
 
-		&:hover {
-			background: var(--amp-color-primary);
+		@media (hover: hover) {
+			&:hover {
+				background: var(--amp-color-primary);
+			}
 		}
 	}
 
