@@ -44,6 +44,9 @@
 }
 
 .seeMore {
+	// A <button> doesn't inherit the font: without this it falls back to the
+	// browser's own (family, size, line height) unless the consumer resets it.
+	font: inherit;
 	display: inline-flex;
 	align-items: center;
 	height: 1.5rem;

@@ -1,6 +1,6 @@
 {
 	"name": "@amphore-dev/amphore-lib",
-	"version": "1.10.0",
+	"version": "1.10.1",
 	"main": "lib/index.js",
 	"module": "lib/index.esm.js",
 	"types": "lib/index.d.ts",
@@ -23,7 +23,7 @@
 	"scripts": {
 		"start": "storybook dev -p 6006",
 		"build-sb": "storybook build",
-		"build": "vite build",
+		"build": "vite build && node scripts/check-built-css.mjs",
 		"test": "vitest",
 		"test:watch": "vitest --watch",
 		"test:ci": "vitest run",

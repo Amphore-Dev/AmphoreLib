@@ -57,6 +57,9 @@
 }
 
 .zoomValue {
+	// A <button> doesn't inherit the font: without this it falls back to the
+	// browser's own (family, size, line height) unless the consumer resets it.
+	font: inherit;
 	min-width: 3rem;
 	text-align: center;
 	font-size: 0.75rem;

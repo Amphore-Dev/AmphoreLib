@@ -115,6 +115,10 @@
 
 .remove {
 	@include touch.touch-target(2rem);
+	// Sized in em: without this a <button> keeps the browser's own font
+	// size (13.33px) instead of the badge's, unless the consumer's reset
+	// happens to set it (Tailwind's does) — a different × per app.
+	font: inherit;
 	flex-shrink: 0;
 	display: inline-flex;
 	align-items: center;

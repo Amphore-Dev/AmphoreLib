@@ -2,7 +2,10 @@ import React from "react";
 
 import { Pictos, TPictoName } from "@constants/index";
 
-import "./Picto.module.scss";
+// A global stylesheet, not a CSS module: its rules are attribute
+// selectors meant for every picto, and a `.module.scss` imported only for
+// its side effect was tree-shaken out of the published lib/style.css.
+import "./Picto.scss";
 
 export interface IPictoProps {
 	icon?: TPictoName;
