@@ -1,0 +1,67 @@
+@use "../../../styles/field" as field;
+
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: var(--amp-space-1);
+	font-family: var(--amp-font);
+}
+
+.label {
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: var(--amp-color-ink);
+}
+
+.required {
+	color: var(--amp-color-danger);
+	margin-left: 0.125rem;
+}
+
+// The field box wraps: chips first, the text input taking what's left of
+// the last line (or a line of its own once there's no room left).
+.field {
+	@include field.field-box;
+	flex-wrap: wrap;
+	gap: 0.25rem;
+	cursor: text;
+
+	&[data-disabled="true"] {
+		cursor: not-allowed;
+	}
+}
+
+.input {
+	@include field.field-text;
+	flex: 1;
+	min-width: 6rem;
+
+	&::placeholder {
+		color: var(--amp-color-sub);
+	}
+
+	&:disabled {
+		cursor: not-allowed;
+		color: var(--amp-color-sub);
+	}
+}
+
+.footer {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: var(--amp-space-2);
+}
+
+.counter {
+	flex-shrink: 0;
+	margin-left: auto;
+	font-size: 0.75rem;
+	color: var(--amp-color-sub);
+	white-space: nowrap;
+
+	&[data-full="true"] {
+		color: var(--amp-color-ink);
+		font-weight: 600;
+	}
+}

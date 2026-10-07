@@ -4,6 +4,7 @@ export * from "./AsyncSelect/AsyncSelect";
 export * from "./BottomPanel/BottomPanel";
 export * from "./Breadcrumb/Breadcrumb";
 export * from "./CheckboxFilter/CheckboxFilter";
+export * from "./ChipInput/ChipInput";
 export * from "./ColorPickerField/ColorPickerField";
 export * from "./ConfirmModal/ConfirmModal";
 export * from "./ContextMenu/ContextMenu";

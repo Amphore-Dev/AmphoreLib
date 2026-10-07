@@ -24,6 +24,7 @@ import type { TTimePickerLabels } from "../components/atoms/TimePicker/TimePicke
 import type { TAddTodoItemLabels } from "../components/molecules/AddTodoItem/AddTodoItem";
 import type { TBottomPanelLabels } from "../components/molecules/BottomPanel/BottomPanel";
 import type { TBreadcrumbLabels } from "../components/molecules/Breadcrumb/Breadcrumb";
+import type { TChipInputLabels } from "../components/molecules/ChipInput/ChipInput";
 import type { TConfirmModalLabels } from "../components/molecules/ConfirmModal/ConfirmModal";
 import type { TDatePickerLabels } from "../components/molecules/DatePicker/DatePicker";
 import type { THeadBarLabels } from "../components/molecules/HeadBar/HeadBar";
@@ -79,6 +80,7 @@ export interface TThemeLabels {
 	Badge?: TBadgeLabels;
 	BottomPanel?: TBottomPanelLabels;
 	Breadcrumb?: TBreadcrumbLabels;
+	ChipInput?: TChipInputLabels;
 	ConfirmModal?: TConfirmModalLabels;
 	DatePicker?: TDatePickerLabels;
 	EditableCard?: TEditableCardLabels;
@@ -119,6 +121,7 @@ export type TRequiredThemeLabels = {
 	Badge: Required<TBadgeLabels>;
 	BottomPanel: Required<TBottomPanelLabels>;
 	Breadcrumb: Required<TBreadcrumbLabels>;
+	ChipInput: Required<TChipInputLabels>;
 	ConfirmModal: Required<TConfirmModalLabels>;
 	DatePicker: Required<TDatePickerLabels>;
 	EditableCard: Required<TEditableCardLabels>;

@@ -129,6 +129,11 @@ describe("getDefaultValueDisplay", () => {
 		expect(getDefaultValueDisplay("checkbox", ["a", "b"])).toBe("a, b");
 	});
 
+	it("joins a chips field's value, nothing for an empty one", () => {
+		expect(getDefaultValueDisplay("chips", ["CHR", "T4"])).toBe("CHR, T4");
+		expect(getDefaultValueDisplay("chips", [])).toBeUndefined();
+	});
+
 	it("names a file field's single file", () => {
 		const file = new File(["x"], "contrat.pdf");
 		expect(getDefaultValueDisplay("file", [file])).toBe("contrat.pdf");

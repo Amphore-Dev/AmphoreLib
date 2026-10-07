@@ -43,6 +43,9 @@ export const fr: TThemeLabels = {
 	Breadcrumb: {
 		navigationLabel: "Fil d'Ariane",
 	},
+	ChipInput: {
+		removeLabel: "Retirer",
+	},
 	ConfirmModal: {
 		cancelText: "Annuler",
 		confirmText: "Confirmer",

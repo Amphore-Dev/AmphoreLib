@@ -101,6 +101,11 @@ export const getDefaultValueDisplay = (
 				? (value as string[]).join(", ")
 				: undefined;
 
+		case "chips":
+			return Array.isArray(value) && value.length
+				? (value as string[]).join(", ")
+				: undefined;
+
 		case "file": {
 			const files = (
 				Array.isArray(value) ? value : value ? [value] : []

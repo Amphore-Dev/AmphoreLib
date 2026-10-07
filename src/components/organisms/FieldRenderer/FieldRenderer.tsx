@@ -11,6 +11,7 @@ import {
 } from "@components/atoms";
 import {
 	CheckboxFilter,
+	ChipInput,
 	ColorPickerField,
 	DatePicker,
 	FilesField,
@@ -160,6 +161,18 @@ export const FieldRenderer: React.FC<IFieldRendererProps> = ({
 					onChange ??
 					((value) => {
 						void setFieldValue(props.name, value);
+					})
+				}
+			/>
+		),
+		chips: ({ value, onChange, ...fieldProps }) => (
+			<ChipInput
+				{...fieldProps}
+				value={value ?? []}
+				onChange={
+					onChange ??
+					((next) => {
+						void setFieldValue(props.name, next);
 					})
 				}
 			/>

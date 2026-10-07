@@ -48,6 +48,9 @@ export const en: TRequiredThemeLabels = {
 	Breadcrumb: {
 		navigationLabel: "Breadcrumb",
 	},
+	ChipInput: {
+		removeLabel: "Remove",
+	},
 	ConfirmModal: {
 		cancelText: "Cancel",
 		confirmText: "Confirm",

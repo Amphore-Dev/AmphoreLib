@@ -11,6 +11,7 @@ import {
 } from "@components/atoms";
 import {
 	ICheckboxesFilterProps,
+	IChipInputProps,
 	IColorPickerFieldProps,
 	IDatePickerProps,
 	IFilesFieldProps,
@@ -52,6 +53,8 @@ export type TFieldPropsByType<
 		onChange?: (value: number | null) => void;
 	};
 	textarea: ITextAreaProps;
+	/** A list of short strings (tags, emails, keys), through ChipInput. */
+	chips: IChipInputProps;
 	checkbox: ICheckboxesFilterProps;
 	radio: IRadioFilterProps;
 	toggle: IToggleProps;

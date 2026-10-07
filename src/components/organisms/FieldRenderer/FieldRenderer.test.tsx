@@ -185,6 +185,25 @@ describe("FieldRenderer", () => {
 		await waitFor(() => expect(values.current.color).toBe("#aabbcc"));
 	});
 
+	it("renders a ChipInput for type=chips and writes the chips through Formik", async () => {
+		const { values } = renderWithValues(
+			() => (
+				<FieldRenderer
+					name="tags"
+					type="chips"
+					label="Tags"
+					value={["alpha"]}
+				/>
+			),
+			{ tags: ["alpha"] }
+		);
+		expect(screen.getByText("alpha")).toBeInTheDocument();
+		await userEvent.type(screen.getByLabelText("Tags"), "beta{Enter}");
+		await waitFor(() =>
+			expect(values.current.tags).toEqual(["alpha", "beta"])
+		);
+	});
+
 	it("calls a field's own onChange instead of touching Formik", () => {
 		const onChange = vi.fn();
 		renderInFormik(
