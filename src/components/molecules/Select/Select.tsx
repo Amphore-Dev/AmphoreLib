@@ -195,6 +195,10 @@ export function Select<T = string>({
 	const noResultsMessage = resolve("noResultsMessage", noResultsMessageProp);
 	const clearLabel = resolve("clearLabel", clearLabelProp, "clear");
 	const selectId = useId();
+	// The trigger is a div (role combobox, from useRole), which a
+	// <label htmlFor> cannot name: the label gets an id and the combobox,
+	// its listbox and the search field point at it instead.
+	const labelId = label ? `${selectId}-label` : undefined;
 	const [open, setOpen] = useState(false);
 	const [search, setSearch] = useState("");
 	const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -428,7 +432,7 @@ export function Select<T = string>({
 	return (
 		<div className={cn([styles.wrapper, wrapperClassName])}>
 			{label && (
-				<label className={styles.label}>
+				<label id={labelId} className={styles.label}>
 					{label}
 					{required && <span className={styles.required}>*</span>}
 				</label>
@@ -442,6 +446,7 @@ export function Select<T = string>({
 				data-disabled={disabled || undefined}
 				data-invalid={!!error || undefined}
 				tabIndex={disabled ? undefined : 0}
+				aria-labelledby={labelId}
 				{...getReferenceProps({ onKeyDown: handleTriggerKeyDown })}
 			>
 				{!!picto && (
@@ -478,6 +483,7 @@ export function Select<T = string>({
 						<input
 							ref={searchInputRef}
 							className={styles.searchInput}
+							aria-labelledby={labelId}
 							value={search}
 							placeholder={
 								selectedOptions[0]?.label ?? placeholder
@@ -541,6 +547,7 @@ export function Select<T = string>({
 						ref={refs.setFloating}
 						style={floatingStyles}
 						className={styles.listbox}
+						aria-labelledby={labelId}
 						{...getFloatingProps()}
 					>
 						{isLoading ? (

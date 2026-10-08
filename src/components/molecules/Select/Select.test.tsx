@@ -77,6 +77,32 @@ describe("Select", () => {
 		expect(screen.getByText("Semaine")).toBeInTheDocument();
 	});
 
+	it("names the combobox, its listbox and the search field by the label", async () => {
+		render(
+			<Select
+				options={OPTIONS}
+				label="Période"
+				searchable
+				onChange={() => {}}
+			/>
+		);
+		const combobox = screen.getByRole("combobox", { name: "Période" });
+		expect(screen.getByLabelText("Période")).toBe(combobox);
+
+		await userEvent.click(combobox);
+		expect(
+			screen.getByRole("listbox", { name: "Période" })
+		).toBeInTheDocument();
+		expect(screen.getByRole("textbox", { name: "Période" })).toHaveFocus();
+	});
+
+	it("points at no label when it has none", () => {
+		render(<Select options={OPTIONS} onChange={() => {}} />);
+		expect(screen.getByRole("combobox")).not.toHaveAttribute(
+			"aria-labelledby"
+		);
+	});
+
 	it("opens the listbox on click and lists every option", async () => {
 		render(<Select options={OPTIONS} onChange={() => {}} />);
 		await userEvent.click(screen.getByRole("combobox"));
