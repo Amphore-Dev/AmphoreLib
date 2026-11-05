@@ -246,7 +246,7 @@ const TimePickerBase: React.ForwardRefRenderFunction<
 					className={styles.segment}
 					style={
 						hourDigits > 2
-							? { width: `${hourDigits + 0.25}ch` }
+							? { width: `${hourDigits + 1.5}ch` }
 							: undefined
 					}
 					value={hourText}
