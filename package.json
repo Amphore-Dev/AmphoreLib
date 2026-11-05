@@ -1,9 +1,22 @@
 {
 	"name": "@amphore-dev/amphore-lib",
 	"version": "1.11.0",
-	"main": "lib/index.js",
-	"module": "lib/index.esm.js",
-	"types": "lib/index.d.ts",
+	"main": "lib/cjs/index.cjs",
+	"module": "lib/esm/index.mjs",
+	"types": "lib/types/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./lib/types/index.d.ts",
+			"import": "./lib/esm/index.mjs",
+			"require": "./lib/cjs/index.cjs"
+		},
+		"./style.css": "./lib/style.css",
+		"./lib/style.css": "./lib/style.css",
+		"./package.json": "./package.json"
+	},
+	"sideEffects": [
+		"**/*.css"
+	],
 	"author": "Amphore Dev",
 	"license": "MIT",
 	"files": [
@@ -23,7 +36,7 @@
 	"scripts": {
 		"start": "storybook dev -p 6006",
 		"build-sb": "storybook build",
-		"build": "vite build && node scripts/check-built-css.mjs",
+		"build": "vite build && node scripts/check-built-css.mjs && node scripts/check-built-package.mjs",
 		"visual": "node scripts/visual.mjs",
 		"visual:ref": "node scripts/visual.mjs --update",
 		"test": "vitest",

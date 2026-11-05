@@ -7,7 +7,9 @@ import {
 	FormikProps,
 	useFormikContext,
 } from "formik";
-import { isEqual, omit } from "lodash";
+// Per-method, with the extension: see the note in UFormGroups.ts.
+import isEqual from "lodash/isEqual.js";
+import omit from "lodash/omit.js";
 
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 

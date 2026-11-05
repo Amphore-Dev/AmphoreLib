@@ -12,6 +12,8 @@ const REQUIRED = [
 	"[data-amphore-svg-wrapper]{",
 	"[data-amphore-svg-wrapper]>*{",
 	"[data-amphore-svg-wrapper] [data-amphore-svg=current]",
+	// react-day-picker's own stylesheet, DatePicker imports it for its side effect.
+	".rdp-root{",
 ];
 
 // A required selector must start a rule, not be the tail of a scoped one
@@ -62,6 +64,19 @@ if (missing.length) {
 	);
 	process.exit(1);
 }
+
+// Vite concatenates the stylesheets along the import graph, and a component's
+// override of a lower-level one only wins by coming later: a single class
+// each, equal specificity. The order must stay atoms, molecules, organisms,
+// templates (vite.config.ts's keepSourceImportOrder is what guarantees it).
+const LAYERS = ["Button", "Select", "Table", "PageHeader"];
+const positions = LAYERS.map((name) => css.indexOf(`.amp-${name}-module__`));
+if (positions.some((at, i) => at === -1 || at < positions[i - 1])) {
+	console.error(
+		`lib/style.css is out of order, expected ${LAYERS.join(" < ")}`
+	);
+	process.exit(1);
+}
 console.log(
-	`lib/style.css: ${REQUIRED.length} global rules and ${tokenNames.length} :root tokens present.`
+	`lib/style.css: ${REQUIRED.length} global rules and ${tokenNames.length} :root tokens present, component layers in order.`
 );
