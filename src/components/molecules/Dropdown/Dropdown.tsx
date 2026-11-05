@@ -1,4 +1,4 @@
-import React, { cloneElement, useRef, useState } from "react";
+import React, { cloneElement, forwardRef, useRef, useState } from "react";
 
 import {
 	flip,
@@ -17,11 +17,16 @@ import {
 
 import { AmphorePortal } from "@theme/AmphorePortal";
 
-import type { TMenuItem } from "@interfaces/index";
+import { useEscapeLayer } from "@hooks/index";
+
+import type { ITestIdProps, TMenuItem } from "@interfaces/index";
 
 import { MenuList } from "./MenuList";
 
-export interface IDropdownProps {
+export interface IDropdownProps
+	extends
+		Omit<React.ComponentPropsWithoutRef<"div">, "children">,
+		ITestIdProps {
 	items: TMenuItem[];
 	/** Single element — cloned to attach the trigger's ref/click handler. */
 	children: React.ReactElement;
@@ -32,22 +37,21 @@ export interface IDropdownProps {
 	className?: string;
 }
 
-/**
- * V2 Dropdown — click-triggered action menu (role="menu"/"menuitem", real
- * roving DOM focus). Triggers one-off actions, doesn't persist a value
- * (unlike Select). Menu rendering itself lives in shared `MenuList` (also
- * used by ContextMenu). Inline (`strategy:"fixed"`) by default, `portal`
- * opts into AmphorePortal (see memory/amphorelib-v2-conventions.md).
- * Trigger must be forwardRef.
- */
-export function Dropdown({
-	items,
-	children,
-	placement = "bottom-start",
-	disabled = false,
-	portal = false,
-	className = "",
-}: IDropdownProps) {
+const DropdownBase: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	IDropdownProps
+> = (
+	{
+		items,
+		children,
+		placement = "bottom-start",
+		disabled = false,
+		portal = false,
+		className = "",
+		...menuProps
+	},
+	ref
+) => {
 	const [open, setOpen] = useState(false);
 	const [activeIndex, setActiveIndex] = useState<number | null>(null);
 	const listRef = useRef<Array<HTMLButtonElement | null>>([]);
@@ -86,7 +90,8 @@ export function Dropdown({
 	});
 
 	const click = useClick(context, { enabled: !disabled });
-	const dismiss = useDismiss(context);
+	const dismiss = useDismiss(context, { escapeKey: false });
+	useEscapeLayer(open && !disabled, () => setOpen(false));
 	const role = useRole(context, { role: "menu" });
 	const listNav = useListNavigation(context, {
 		listRef,
@@ -100,6 +105,7 @@ export function Dropdown({
 
 	const childRef = (children as unknown as { ref?: React.Ref<unknown> }).ref;
 	const mergedRef = useMergeRefs([refs.setReference, childRef ?? null]);
+	const menuRef = useMergeRefs([refs.setFloating, ref]);
 
 	const trigger = cloneElement(
 		children,
@@ -116,9 +122,10 @@ export function Dropdown({
 		<MenuList
 			items={items}
 			context={context}
-			floatingRef={refs.setFloating}
+			floatingRef={menuRef as (node: HTMLDivElement | null) => void}
 			floatingStyles={floatingStyles}
 			getFloatingProps={getFloatingProps}
+			menuProps={menuProps}
 			getItemProps={(_item, onClick) => getItemProps({ onClick })}
 			itemRef={(node, index) => {
 				listRef.current[index] = node;
@@ -135,4 +142,19 @@ export function Dropdown({
 			{portal ? <AmphorePortal>{menu}</AmphorePortal> : menu}
 		</>
 	);
-}
+};
+
+/**
+ * V2 Dropdown — click-triggered action menu (role="menu"/"menuitem", real
+ * roving DOM focus). Triggers one-off actions, doesn't persist a value
+ * (unlike Select). Menu rendering itself lives in shared `MenuList` (also
+ * used by ContextMenu). Inline (`strategy:"fixed"`) by default, `portal`
+ * opts into AmphorePortal (see memory/amphorelib-v2-conventions.md).
+ * Trigger must be forwardRef.
+ *
+ * No root element of its own: native props and `ref` go to the menu, the
+ * trigger keeps whatever its own element was given. Derived testids:
+ * `-item-<id>`, or `-item-<position>` for an item without one.
+ */
+export const Dropdown = forwardRef(DropdownBase);
+Dropdown.displayName = "Dropdown";

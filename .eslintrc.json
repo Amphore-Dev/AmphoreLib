@@ -56,5 +56,25 @@
 				"allow": ["warn", "error"]
 			}
 		]
-	}
+	},
+	"overrides": [
+		{
+			// Same rule as yarn lint:css, for the styles SCSS cannot see.
+			"files": ["src/components/**/*.tsx"],
+			"excludedFiles": ["*.stories.tsx", "*.test.tsx"],
+			"rules": {
+				"no-restricted-syntax": [
+					"error",
+					{
+						"selector": "JSXAttribute[name.name='style'] Literal[value=/#[0-9a-fA-F]{3,8}\\b|\\b(rgb|hsl)a?\\(/]",
+						"message": "Raw color in style={{}}: use a theme token, var(--amp-color-*)."
+					},
+					{
+						"selector": "JSXAttribute[name.name='style'] TemplateElement[value.raw=/#[0-9a-fA-F]{3,8}\\b|\\b(rgb|hsl)a?\\(/]",
+						"message": "Raw color in style={{}}: use a theme token, var(--amp-color-*)."
+					}
+				]
+			}
+		}
+	]
 }

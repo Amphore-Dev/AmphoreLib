@@ -1,21 +1,22 @@
 @use "../../../styles/field" as field;
+@use "../../../styles/mixins" as *;
 
 .wrapper {
 	display: flex;
 	flex-direction: column;
-	gap: var(--amp-space-1);
+	gap: space(1.5);
 	font-family: var(--amp-font);
 }
 
 .label {
-	font-size: 0.75rem;
-	font-weight: 600;
+	font-size: var(--amp-text-xs);
+	font-weight: weight(semibold);
 	color: var(--amp-color-ink);
 }
 
 .required {
 	color: var(--amp-color-danger);
-	margin-left: 0.125rem;
+	margin-left: space(0.5);
 }
 
 .field {
@@ -25,7 +26,8 @@
 
 .segment {
 	@include field.field-text;
-	width: 2.25ch;
+	// `ch` is a digit's width: the "HH" and "mm" placeholders need more.
+	width: 3.5ch;
 	text-align: center;
 	font-variant-numeric: tabular-nums;
 
@@ -41,6 +43,6 @@
 
 .separator {
 	color: var(--amp-color-sub);
-	font-weight: 600;
-	margin-top: -0.25rem;
+	font-weight: weight(semibold);
+	margin-top: space(-1);
 }

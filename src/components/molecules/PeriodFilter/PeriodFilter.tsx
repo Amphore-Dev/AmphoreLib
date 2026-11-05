@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef } from "react";
 
 import {
 	addMonths,
@@ -19,7 +19,10 @@ import {
 	IDatePickerProps,
 } from "@components/molecules/DatePicker/DatePicker";
 
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
+
+import { ITestIdProps } from "@interfaces/index";
 
 import { RadioFilter } from "../RadioFilter/RadioFilter";
 
@@ -103,7 +106,10 @@ const getPresetDates = (preset: TPeriodPreset): { from: Date; to: Date } => {
 	}
 };
 
-export interface IPeriodFilterProps {
+export interface IPeriodFilterProps
+	extends
+		Omit<React.ComponentPropsWithoutRef<"div">, "onChange" | "children">,
+		ITestIdProps {
 	from?: Partial<IDatePickerProps>;
 	to?: Partial<IDatePickerProps>;
 	/** Called for whichever side (`from`/`to`) doesn't handle its own `onChange`. */
@@ -117,26 +123,30 @@ export interface IPeriodFilterProps {
 		onChange?: (value: TPeriodRangeType) => void;
 	};
 	disabled?: boolean;
+	/** Names the whole filter when something else labels it. */
+	"aria-label"?: string;
+	/** Id of an element naming the whole filter — an external label, like FormRenderer's. */
+	"aria-labelledby"?: string;
 	className?: string;
 }
 
-/**
- * V2 PeriodFilter — a `from`/`to` `DatePicker` pair with quick presets and
- * an optional between/starting/ending selector. Fully prop-driven: v1's
- * version wrote directly into `useFormikContext().setValues` for both the
- * preset buttons and the range-type radios — dropped, `onChange` (or the
- * per-side `from.onChange`/`to.onChange`) is the only way values change.
- */
-export const PeriodFilter: React.FC<IPeriodFilterProps> = ({
-	from = {},
-	to = {},
-	onChange,
-	showPresets = true,
-	presets = ["thisWeek", "thisMonth", "lastMonth"],
-	range,
-	disabled = false,
-	className = "",
-}) => {
+const PeriodFilterBase: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	IPeriodFilterProps
+> = (
+	{
+		from = {},
+		to = {},
+		onChange,
+		showPresets = true,
+		presets = ["thisWeek", "thisMonth", "lastMonth"],
+		range,
+		disabled = false,
+		className = "",
+		...props
+	},
+	ref
+) => {
 	const handleChange = (field: "from" | "to", value: Date | null) => {
 		const fieldProps = field === "from" ? from : to;
 		if (fieldProps.onChange) {
@@ -163,11 +173,17 @@ export const PeriodFilter: React.FC<IPeriodFilterProps> = ({
 	};
 
 	return (
-		<div className={cn([styles.wrapper, className])}>
+		<div
+			{...props}
+			ref={ref}
+			role="group"
+			className={cn([styles.wrapper, className])}
+		>
 			<div className={styles.pickers}>
 				<DatePicker
 					label="From"
 					value={null}
+					data-testid={deriveTestId(props["data-testid"], "from")}
 					{...from}
 					disabled={disabled || from.disabled}
 					onChange={(value) => handleChange("from", value)}
@@ -175,6 +191,7 @@ export const PeriodFilter: React.FC<IPeriodFilterProps> = ({
 				<DatePicker
 					label="To"
 					value={null}
+					data-testid={deriveTestId(props["data-testid"], "to")}
 					{...to}
 					disabled={disabled || to.disabled}
 					onChange={(value) => handleChange("to", value)}
@@ -191,7 +208,13 @@ export const PeriodFilter: React.FC<IPeriodFilterProps> = ({
 								isPresetActive(preset) ? "solid" : "outline"
 							}
 							disabled={disabled}
+							aria-pressed={isPresetActive(preset)}
 							onClick={() => applyPreset(preset)}
+							data-testid={deriveTestId(
+								props["data-testid"],
+								"preset",
+								preset
+							)}
 						>
 							{PRESET_LABELS[preset]}
 						</Button>
@@ -202,6 +225,8 @@ export const PeriodFilter: React.FC<IPeriodFilterProps> = ({
 			{range && (
 				<RadioFilter
 					className={styles.rangeType}
+					data-testid={deriveTestId(props["data-testid"], "range")}
+					aria-label="Range type"
 					options={RANGE_TYPE_OPTIONS}
 					value={range.value}
 					disabled={disabled}
@@ -213,3 +238,16 @@ export const PeriodFilter: React.FC<IPeriodFilterProps> = ({
 		</div>
 	);
 };
+
+/**
+ * V2 PeriodFilter — a `from`/`to` `DatePicker` pair with quick presets and
+ * an optional between/starting/ending selector. Fully prop-driven: v1's
+ * version wrote directly into `useFormikContext().setValues` for both the
+ * preset buttons and the range-type radios — dropped, `onChange` (or the
+ * per-side `from.onChange`/`to.onChange`) is the only way values change.
+ *
+ * Native props and `ref` go to the root `<div>`. Derived testids: `-from`,
+ * `-to`, `-preset-<preset>`, `-range`.
+ */
+export const PeriodFilter = forwardRef(PeriodFilterBase);
+PeriodFilter.displayName = "PeriodFilter";

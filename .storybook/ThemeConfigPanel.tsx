@@ -8,7 +8,7 @@ import { ThemeConfigControls } from "./ThemeConfigControls";
  * Global AmphoreProvider config, live-editable from Storybook's UI and
  * applied to every story via the decorator in preview.tsx. Lets you preview
  * any component under the same theme a consumer app would configure.
- * Also available as a dedicated canvas page: Concepts/Theme Configuration
+ * Also available as a dedicated canvas page: Configuration/Theme Configuration
  * (ThemeConfig.stories.tsx) — same controls, same globals, kept in sync.
  */
 export function ThemeConfigPanel() {

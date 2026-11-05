@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef } from "react";
 
 import { Pictos, TPictoName } from "@constants/index";
 
@@ -7,7 +7,10 @@ import { Pictos, TPictoName } from "@constants/index";
 // its side effect was tree-shaken out of the published lib/style.css.
 import "./Picto.scss";
 
-export interface IPictoProps {
+export interface IPictoProps extends Omit<
+	React.ComponentPropsWithoutRef<"div">,
+	"color" | "onClick" | "children"
+> {
 	icon?: TPictoName;
 	src?: string;
 	className?: string;
@@ -20,21 +23,28 @@ export interface IPictoProps {
 	rotation?: number;
 	color?: string;
 	disabled?: boolean;
+	/** Names a clickable picto (an icon-only button has no other name), or an image one that means something. Without it an icon is decorative. */
+	"aria-label"?: string;
 }
 
-export const Picto: React.FC<IPictoProps> = ({
-	icon,
-	className = "",
-	color,
-	rotation = 0,
-	style,
-	src,
-	currentColor = true,
-	onClick,
-	wrapperClassName,
-	disabled = false,
-}) => {
-	const Wrapper = onClick ? "button" : "div";
+const PictoBase: React.ForwardRefRenderFunction<HTMLElement, IPictoProps> = (
+	{
+		icon,
+		className = "",
+		color,
+		rotation = 0,
+		style,
+		src,
+		currentColor = true,
+		onClick,
+		wrapperClassName,
+		disabled = false,
+		...props
+	},
+	ref
+) => {
+	const Wrapper = (onClick ? "button" : "div") as React.ElementType;
+	const ariaLabel = props["aria-label"];
 	const wrapperProps = onClick
 		? {
 				disabled,
@@ -42,9 +52,7 @@ export const Picto: React.FC<IPictoProps> = ({
 				tabIndex: 0,
 				type: "button" as HTMLButtonElement["type"],
 			}
-		: {
-				"data-testid": icon,
-			};
+		: undefined;
 
 	if (!icon && !src) {
 		return null;
@@ -66,13 +74,17 @@ export const Picto: React.FC<IPictoProps> = ({
 
 	return (
 		<Wrapper
+			{...props}
 			{...wrapperProps}
+			ref={ref}
 			className={wrapperClassName}
 			data-amphore-svg-wrapper
+			data-picto={icon}
 		>
 			{!!SvgIcon && (
 				<SvgIcon
 					className={className}
+					aria-hidden
 					style={{
 						// Only set inline color when explicitly passed as a prop — an inline style
 						// always wins over any CSS class/module color rule (e.g. Checkbox's ".check"
@@ -91,7 +103,7 @@ export const Picto: React.FC<IPictoProps> = ({
 			{src && (
 				<img
 					src={src}
-					alt={icon || "Picto"}
+					alt={onClick ? "" : (ariaLabel ?? "")}
 					className={className}
 					style={{
 						...style,
@@ -103,3 +115,11 @@ export const Picto: React.FC<IPictoProps> = ({
 		</Wrapper>
 	);
 };
+
+/**
+ * Native props and `ref` go to the root wrapper (a `<button>` with `onClick`,
+ * a `<div>` otherwise), with `wrapperClassName`; `className` and `style` to
+ * the icon itself. `data-picto` names the icon drawn.
+ */
+export const Picto = forwardRef(PictoBase);
+Picto.displayName = "Picto";

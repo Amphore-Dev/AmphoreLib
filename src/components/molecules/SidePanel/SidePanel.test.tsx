@@ -1,6 +1,8 @@
+import React, { useState } from "react";
+
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AmphoreProvider } from "@theme/AmphoreProvider";
 
@@ -9,7 +11,7 @@ import {
 	expectPortaledWithScope,
 } from "../../../../tests/expectPortal";
 
-import { SidePanel } from "./SidePanel";
+import { ISidePanelProps, SidePanel } from "./SidePanel";
 
 const setMatchMedia = (matches: boolean) => {
 	window.matchMedia = vi.fn().mockImplementation((query: string) => ({
@@ -453,5 +455,75 @@ describe("SidePanel", () => {
 			);
 			expectInline(container, screen.getByRole("dialog"));
 		});
+	});
+});
+
+describe("SidePanel focus and naming", () => {
+	beforeEach(() => setMatchMedia(false));
+
+	const Page: React.FC<Partial<ISidePanelProps>> = (props) => {
+		const [open, setOpen] = useState(false);
+		return (
+			<>
+				<button type="button" onClick={() => setOpen(true)}>
+					Open
+				</button>
+				<SidePanel
+					title="Details"
+					{...props}
+					open={open}
+					onOpenChange={setOpen}
+				>
+					Body
+				</SidePanel>
+			</>
+		);
+	};
+
+	it("names the landmark after a rich title too", () => {
+		render(
+			<SidePanel open onOpenChange={() => {}} title={<b>Details</b>}>
+				Body
+			</SidePanel>
+		);
+		expect(
+			screen.getByRole("complementary", { name: "Details" })
+		).toBeInTheDocument();
+	});
+
+	it("leaves focus alone when the docked column opens", async () => {
+		const user = userEvent.setup();
+		render(<Page />);
+		const opener = screen.getByRole("button", { name: "Open" });
+
+		await user.click(opener);
+
+		expect(opener).toHaveFocus();
+	});
+
+	it("restores focus when closed from inside", async () => {
+		const user = userEvent.setup();
+		render(<Page />);
+		const opener = screen.getByRole("button", { name: "Open" });
+
+		await user.click(opener);
+		await user.click(screen.getByRole("button", { name: "Close" }));
+
+		expect(screen.queryByRole("complementary")).not.toBeInTheDocument();
+		expect(opener).toHaveFocus();
+	});
+
+	it("takes focus as an overlay, and closes on Escape", async () => {
+		const user = userEvent.setup();
+		render(<Page overlay />);
+		const opener = screen.getByRole("button", { name: "Open" });
+
+		await user.click(opener);
+		expect(screen.getByRole("complementary")).toHaveFocus();
+
+		await user.keyboard("{Escape}");
+
+		expect(screen.queryByRole("complementary")).not.toBeInTheDocument();
+		expect(opener).toHaveFocus();
 	});
 });

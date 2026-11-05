@@ -52,6 +52,13 @@ function mergeColors(
 			colors[tintKey] =
 				`color-mix(in srgb, ${colors[key]} 15%, ${tintMixTarget})`;
 		}
+
+		// A new base replaces the default text tone too: it would otherwise
+		// stay the default palette's hue.
+		const textKey = `${key}Text` as const;
+		if (baseOverridden && input?.[textKey] === undefined) {
+			colors[textKey] = colors[key];
+		}
 	}
 
 	return colors;
@@ -101,11 +108,49 @@ export function mergeConfig(rawInput?: TThemeConfigInput): TThemeConfig {
 		radius: { ...DEFAULT_CONFIG.radius, ...presetRadius, ...input.radius },
 		spacing: { ...DEFAULT_CONFIG.spacing, ...input.spacing },
 		typography: { ...DEFAULT_CONFIG.typography, ...input.typography },
+		text: { ...DEFAULT_CONFIG.text, ...input.text },
+		leading: { ...DEFAULT_CONFIG.leading, ...input.leading },
+		weights: { ...DEFAULT_CONFIG.weights, ...input.weights },
+		shadows: { ...DEFAULT_CONFIG.shadows, ...input.shadows },
+		shadowColors: { ...DEFAULT_CONFIG.shadowColors, ...input.shadowColors },
+		focus: { ...DEFAULT_CONFIG.focus, ...input.focus },
+		layers: { ...DEFAULT_CONFIG.layers, ...input.layers },
+		durations: { ...DEFAULT_CONFIG.durations, ...input.durations },
+		ease: input.ease ?? DEFAULT_CONFIG.ease,
+		borders: { ...DEFAULT_CONFIG.borders, ...input.borders },
+		icons: { ...DEFAULT_CONFIG.icons, ...input.icons },
 		defaults: { ...DEFAULT_CONFIG.defaults, ...input.defaults },
 		labels: mergeLabels(DEFAULT_CONFIG.labels, input.labels),
 		density: input.density ?? DEFAULT_CONFIG.density,
 		style: input.style,
 	};
+}
+
+/** Flat `{ key: value }` config sections, and the --amp-<prefix>-<key> they set. */
+const TOKEN_PREFIXES = {
+	text: "text",
+	leading: "leading",
+	weights: "weight",
+	shadows: "shadow",
+	shadowColors: "shadow-color",
+	focus: "focus",
+	layers: "z",
+	durations: "duration",
+	borders: "border-width",
+	icons: "icon",
+} as const;
+
+function scalesToCssVars(config: TThemeConfig): Record<string, string> {
+	const vars: Record<string, string> = {};
+
+	for (const [section, prefix] of Object.entries(TOKEN_PREFIXES)) {
+		const scale = config[section as keyof typeof TOKEN_PREFIXES];
+		for (const [key, value] of Object.entries(scale)) {
+			vars[`--amp-${prefix}-${key}`] = value;
+		}
+	}
+
+	return vars;
 }
 
 const toKebabCase = (key: string) =>
@@ -131,13 +176,24 @@ export function colorsToCssVars(colors: TThemeColors): CSSProperties {
 /**
  * Renders a CSSProperties object (only --amp-* custom props, in practice) as
  * `--x: y; --z: w;` for use inside a hand-written <style> rule body — needed
- * for the dark-mode block AmphoreProvider injects (see cssVarsToDeclarations
- * callers), since inline `style` can't hold a `@media` query.
+ * for the dark-mode block AmphoreProvider injects, since inline `style` can't
+ * hold a `@media` query, and for the generated `src/styles/tokens.css`.
+ *
+ * `important` is what lets a stylesheet rule override a var set inline on the
+ * same element (see AmphoreProvider).
  */
-export function cssVarsToDeclarations(vars: CSSProperties): string {
+export function cssVarsToDeclarations(
+	vars: CSSProperties,
+	{
+		important = false,
+		separator = " ",
+	}: { important?: boolean; separator?: string } = {}
+): string {
+	const priority = important ? " !important" : "";
+
 	return Object.entries(vars)
-		.map(([key, value]) => `${key}: ${value};`)
-		.join(" ");
+		.map(([key, value]) => `${key}: ${value}${priority};`)
+		.join(separator);
 }
 
 /** Turns a resolved TThemeConfig into the --amp-* custom properties every component reads. */
@@ -156,14 +212,12 @@ export function configToCssVars(config: TThemeConfig): CSSProperties {
 		"--amp-radius-lg": config.radius.lg,
 		"--amp-radius-full": config.radius.full,
 
-		"--amp-space-1": config.spacing[1],
-		"--amp-space-2": config.spacing[2],
-		"--amp-space-3": config.spacing[3],
-		"--amp-space-4": config.spacing[4],
-		"--amp-space-5": config.spacing[5],
-		"--amp-space-6": config.spacing[6],
+		"--amp-spacing": config.spacing.base,
 
 		"--amp-font": config.typography.fontFamily,
 		"--amp-font-mono": config.typography.fontFamilyMono,
+
+		"--amp-ease": config.ease,
+		...scalesToCssVars(config),
 	} as CSSProperties;
 }

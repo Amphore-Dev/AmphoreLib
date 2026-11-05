@@ -1,7 +1,13 @@
+import type { CSSProperties } from "react";
+
 import { describe, expect, it } from "vitest";
 
 import { DENSITY_PRESETS, DEFAULT_CONFIG } from "./CThemeConfig";
-import { configToCssVars, mergeConfig } from "./UThemeConfig";
+import {
+	configToCssVars,
+	cssVarsToDeclarations,
+	mergeConfig,
+} from "./UThemeConfig";
 
 describe("mergeConfig", () => {
 	it("returns the defaults untouched when no input is given", () => {
@@ -60,7 +66,72 @@ describe("mergeConfig", () => {
 	});
 });
 
+describe("cssVarsToDeclarations", () => {
+	const vars = { "--a": "1", "--b": "2" } as CSSProperties;
+
+	it("renders plain declarations by default", () => {
+		expect(cssVarsToDeclarations(vars)).toBe("--a: 1; --b: 2;");
+	});
+
+	it("marks every declaration !important on request", () => {
+		expect(cssVarsToDeclarations(vars, { important: true })).toBe(
+			"--a: 1 !important; --b: 2 !important;"
+		);
+	});
+});
+
+describe("mergeConfig text tones", () => {
+	it("replaces a color's text tone along with its base", () => {
+		const { colors } = mergeConfig({ colors: { primary: "#e2673f" } });
+		expect(colors.primaryText).toBe("#e2673f");
+	});
+
+	it("keeps an explicit text tone, and the default of an untouched color", () => {
+		const { colors } = mergeConfig({
+			colors: { primary: "#e2673f", primaryText: "#7a2f14" },
+		});
+		expect(colors.primaryText).toBe("#7a2f14");
+		expect(colors.warningText).toBe(DEFAULT_CONFIG.colors.warningText);
+	});
+});
+
 describe("configToCssVars", () => {
+	it("emits the spacing base as the only spacing variable", () => {
+		const vars = configToCssVars(
+			mergeConfig({ spacing: { base: "0.5rem" } })
+		) as Record<string, string>;
+		expect(vars["--amp-spacing"]).toBe("0.5rem");
+		expect(
+			Object.keys(vars).filter((name) => name.startsWith("--amp-space-"))
+		).toEqual([]);
+	});
+
+	it("emits every scale from the config, overridable one key at a time", () => {
+		const vars = configToCssVars(
+			mergeConfig({
+				text: { sm: "1rem" },
+				weights: { bold: "800" },
+				focus: { width: "3px" },
+				ease: "linear",
+			})
+		) as Record<string, string>;
+		expect(vars["--amp-text-sm"]).toBe("1rem");
+		expect(vars["--amp-text-2xl"]).toBe(DEFAULT_CONFIG.text["2xl"]);
+		expect(vars["--amp-leading-none"]).toBe("1");
+		expect(vars["--amp-weight-bold"]).toBe("800");
+		expect(vars["--amp-shadow-xl"]).toBe(DEFAULT_CONFIG.shadows.xl);
+		expect(vars["--amp-shadow-color-3"]).toBe(
+			DEFAULT_CONFIG.shadowColors[3]
+		);
+		expect(vars["--amp-focus-width"]).toBe("3px");
+		expect(vars["--amp-focus-color"]).toBe("var(--amp-color-primary)");
+		expect(vars["--amp-z-overlay"]).toBe("1000");
+		expect(vars["--amp-duration-fast"]).toBe("0.15s");
+		expect(vars["--amp-ease"]).toBe("linear");
+		expect(vars["--amp-border-width-sm"]).toBe("1px");
+		expect(vars["--amp-icon-md"]).toBe("1rem");
+	});
+
 	it("emits gap/card-padding/section-padding from the comfortable density preset by default", () => {
 		const vars = configToCssVars(DEFAULT_CONFIG) as Record<string, string>;
 		expect(vars["--amp-gap"]).toBe(DENSITY_PRESETS.comfortable.gap);

@@ -1,18 +1,25 @@
+@use "../../../styles/a11y";
 .list {
+	// Only ever focused from code, when its last row goes.
+	outline: none;
 	display: flex;
 	flex-direction: column;
 	list-style: none;
 	margin: 0;
 	padding: 0;
-	border: 1px solid var(--amp-color-border);
+	border: var(--amp-border-width-sm) solid var(--amp-color-border);
 	border-radius: var(--amp-radius-md);
 	overflow: hidden;
 
 	> li {
-		border-bottom: 1px solid var(--amp-color-border);
+		border-bottom: var(--amp-border-width-sm) solid var(--amp-color-border);
 	}
 
 	> li:last-child {
 		border-bottom: none;
 	}
+}
+
+.srOnly {
+	@include a11y.visually-hidden;
 }

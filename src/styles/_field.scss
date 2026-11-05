@@ -5,25 +5,26 @@
 // <input> and Select's value/search-input slot is exactly the bug this
 // exists to stop from happening again.
 
+@use "mixins" as *;
+
 @mixin field-box {
 	box-sizing: border-box;
 	display: flex;
 	align-items: center;
-	gap: var(--amp-space-2);
-	border: 1px solid var(--amp-color-border);
+	gap: space(2);
+	border: var(--amp-border-width-sm) solid var(--amp-color-border);
 	border-radius: var(--amp-radius-md);
 	background: var(--amp-color-card);
 	transition:
-		border-color 0.15s ease,
-		box-shadow 0.15s ease;
+		border-color var(--amp-duration-fast) var(--amp-ease),
+		box-shadow var(--amp-duration-fast) var(--amp-ease);
 
 	// :focus-within covers a field whose *nested* input is focused (Input);
 	// :focus-visible covers a field that's itself the focusable element
 	// (Select's trigger div, via tabIndex). Both use the same ring.
 	&:focus-within,
 	&:focus-visible {
-		outline: 2px solid var(--_field-color, var(--amp-color-primary));
-		outline-offset: 2px;
+		@include focus-ring(var(--_field-color, var(--amp-focus-color)));
 	}
 
 	&[data-invalid="true"] {
@@ -59,27 +60,32 @@
 	// The vertical padding is also exposed as `--_field-pad-y` so a slot
 	// that must reach the field's top/bottom edges through that padding
 	// (NumberInput's steppers) can cancel it with a negative margin.
+	//
+	// `min-height` is a line of text plus that padding and the borders. Without
+	// it the height comes from the content alone, and a field holding something
+	// shorter than a line (Select's chips, a lone swatch) collapses.
 	padding: var(--_field-pad-y) var(--_field-pad-x);
 
 	&[data-size="sm"] {
-		--_field-pad-y: var(--amp-space-1);
-		--_field-pad-x: var(--amp-space-2);
-		font-size: 0.75rem;
-		line-height: 1.25rem;
+		--_field-pad-y: #{space(1.5)};
+		--_field-pad-x: #{space(2)};
+		min-height: space(8.5);
+		@include text(xs);
 	}
 
 	&[data-size="md"] {
-		--_field-pad-y: var(--amp-space-2);
-		--_field-pad-x: var(--amp-space-2);
-		font-size: 0.84375rem;
-		line-height: 1.5rem;
+		--_field-pad-y: #{space(2)};
+		--_field-pad-x: #{space(2)};
+		min-height: space(10.5);
+		@include text(sm);
 	}
 
 	&[data-size="lg"] {
-		--_field-pad-y: var(--amp-space-3);
-		--_field-pad-x: var(--amp-space-3);
-		font-size: 0.9375rem;
-		line-height: 1.75rem;
+		--_field-pad-y: #{space(3.5)};
+		--_field-pad-x: #{space(3.5)};
+		min-height: space(14.5);
+		font-size: var(--amp-text-base);
+		line-height: space(7);
 	}
 }
 
@@ -110,10 +116,10 @@
 	color: var(--amp-color-ink);
 
 	// iOS Safari zooms the page in on focus of any field whose text is under
-	// 16px — every size here (12-15px) — and doesn't zoom back out. Touch-
+	// 16px — the sm and md sizes here — and doesn't zoom back out. Touch-
 	// first devices get at least 16px on the text slot; the field box keeps
 	// its line-height, so the field itself doesn't grow.
 	@media (pointer: coarse) {
-		font-size: max(1rem, 1em);
+		font-size: max(var(--amp-text-base), 1em);
 	}
 }

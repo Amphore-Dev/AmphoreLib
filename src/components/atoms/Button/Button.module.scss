@@ -1,17 +1,19 @@
+@use "../../../styles/mixins" as *;
+
 .button {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	gap: var(--amp-space-2);
+	gap: space(2);
 	font-family: var(--amp-font);
-	font-weight: 600;
-	border: 1px solid transparent;
+	font-weight: weight(semibold);
+	border: var(--amp-border-width-sm) solid transparent;
 	border-radius: var(--amp-radius-md);
 	cursor: pointer;
 	transition:
-		filter 0.15s ease,
-		transform 0.1s ease,
-		opacity 0.15s ease;
+		filter var(--amp-duration-fast) var(--amp-ease),
+		transform var(--amp-duration-instant) var(--amp-ease),
+		opacity var(--amp-duration-fast) var(--amp-ease);
 
 	&:active {
 		transform: translateY(1px);
@@ -22,11 +24,13 @@
 	// outside the box and doesn't need a background-matching color to fake
 	// the gap, unlike a box-shadow ring would.
 	&:focus-visible {
-		outline: 2px solid var(--_color, var(--amp-color-primary));
-		outline-offset: 2px;
+		@include focus-ring(var(--_color, var(--amp-focus-color)));
 	}
 
-	&:disabled {
+	// A loading button stays focusable (see Button.tsx), so it can't rely on
+	// :disabled for this.
+	&:disabled,
+	&[data-loading="true"] {
 		cursor: not-allowed;
 		opacity: 0.55;
 		transform: none;
@@ -41,69 +45,75 @@
 	// these in sync whenever ICON_SIZE changes — each must stay taller
 	// than its own size's icon, not just fit the text.
 	&[data-size="sm"] {
-		padding: var(--amp-space-1) var(--amp-space-2);
-		font-size: 0.75rem;
-		line-height: 1.25rem;
+		padding: space(1.5) space(2);
+		@include text(xs);
 	}
 
 	&[data-size="md"] {
-		padding: var(--amp-space-2) var(--amp-space-3);
-		font-size: 0.84375rem;
-		line-height: 1.5rem;
+		padding: space(2) space(3.5);
+		@include text(sm);
 	}
 
 	&[data-size="lg"] {
-		padding: var(--amp-space-3) var(--amp-space-4);
-		font-size: 0.9375rem;
-		line-height: 1.75rem;
+		padding: space(3.5) space(4.5);
+		font-size: var(--amp-text-base);
+		line-height: space(7);
 	}
 
 	// ---- color: sets local vars, consumed by the variant rules below.
 	// Adding a color later means one rule here, not one per variant.
 	&[data-color="primary"] {
 		--_color: var(--amp-color-primary);
+		--_color-text: var(--amp-color-primary-text);
 		--_color-fg: var(--amp-color-primary-fg);
 		--_color-tint: var(--amp-color-primary-tint);
 	}
 
 	&[data-color="danger"] {
 		--_color: var(--amp-color-danger);
+		--_color-text: var(--amp-color-danger-text);
 		--_color-fg: var(--amp-color-danger-fg);
 		--_color-tint: var(--amp-color-danger-tint);
 	}
 
 	&[data-color="success"] {
 		--_color: var(--amp-color-success);
+		--_color-text: var(--amp-color-success-text);
 		--_color-fg: var(--amp-color-success-fg);
 		--_color-tint: var(--amp-color-success-tint);
 	}
 
 	&[data-color="warning"] {
 		--_color: var(--amp-color-warning);
+		--_color-text: var(--amp-color-warning-text);
 		--_color-fg: var(--amp-color-warning-fg);
 		--_color-tint: var(--amp-color-warning-tint);
 	}
 
 	&[data-color="info"] {
 		--_color: var(--amp-color-info);
+		--_color-text: var(--amp-color-info-text);
 		--_color-fg: var(--amp-color-info-fg);
 		--_color-tint: var(--amp-color-info-tint);
 	}
 
 	&[data-color="neutral"] {
 		--_color: var(--amp-color-neutral);
+		--_color-text: var(--amp-color-neutral-text);
 		--_color-fg: var(--amp-color-neutral-fg);
 		--_color-tint: var(--amp-color-neutral-tint);
 	}
 
 	&[data-color="black"] {
 		--_color: var(--amp-color-black);
+		--_color-text: var(--amp-color-black-text);
 		--_color-fg: var(--amp-color-black-fg);
 		--_color-tint: var(--amp-color-black-tint);
 	}
 
 	&[data-color="white"] {
 		--_color: var(--amp-color-white);
+		--_color-text: var(--amp-color-white-text);
 		--_color-fg: var(--amp-color-white-fg);
 		--_color-tint: var(--amp-color-white-tint);
 	}
@@ -114,7 +124,7 @@
 		color: var(--_color-fg);
 
 		@media (hover: hover) {
-			&:hover:not(:disabled) {
+			&:hover:not(:disabled, [data-loading="true"]) {
 				filter: brightness(1.07);
 			}
 		}
@@ -122,11 +132,11 @@
 
 	&[data-variant="outline"] {
 		background: transparent;
-		color: var(--_color);
+		color: var(--_color-text);
 		border-color: var(--_color);
 
 		@media (hover: hover) {
-			&:hover:not(:disabled) {
+			&:hover:not(:disabled, [data-loading="true"]) {
 				background: var(--_color-tint);
 			}
 		}
@@ -137,7 +147,7 @@
 		color: var(--amp-color-ink);
 
 		@media (hover: hover) {
-			&:hover:not(:disabled) {
+			&:hover:not(:disabled, [data-loading="true"]) {
 				background: var(--_color-tint);
 			}
 		}
@@ -152,10 +162,10 @@
 		padding: 0;
 		background: transparent;
 		border-color: transparent;
-		color: var(--_color);
+		color: var(--_color-text);
 
 		@media (hover: hover) {
-			&:hover:not(:disabled) {
+			&:hover:not(:disabled, [data-loading="true"]) {
 				text-decoration: underline;
 			}
 		}
@@ -189,7 +199,7 @@
 .spinner,
 .picto {
 	flex-shrink: 0;
-	margin-bottom: 2px;
+	margin-bottom: space(0.5);
 }
 
 .spinner {
@@ -198,8 +208,9 @@
 	// line-height, so the button would grow while isLoading.
 	box-sizing: border-box;
 	border-radius: 50%;
-	border: 2px solid currentColor;
+	border: var(--amp-border-width-md) solid currentColor;
 	border-top-color: transparent;
+	// stylelint-disable-next-line declaration-property-value-disallowed-list -- loop period, not a UI transition
 	animation: amp-spin 0.6s linear infinite;
 }
 

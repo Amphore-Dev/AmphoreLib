@@ -1,22 +1,23 @@
 @use "../../../styles/field" as field;
 @use "../../../styles/touch" as touch;
+@use "../../../styles/mixins" as *;
 
 .wrapper {
 	display: flex;
 	flex-direction: column;
-	gap: var(--amp-space-1);
+	gap: space(1.5);
 	font-family: var(--amp-font);
 }
 
 .label {
-	font-size: 0.75rem;
-	font-weight: 600;
+	font-size: var(--amp-text-xs);
+	font-weight: weight(semibold);
 	color: var(--amp-color-ink);
 }
 
 .required {
 	color: var(--amp-color-danger);
-	margin-left: 0.125rem;
+	margin-left: space(0.5);
 }
 
 .field {
@@ -46,21 +47,20 @@
 	// — see TextArea.tsx for why native resize/::-webkit-resizer isn't used.
 	resize: none;
 
-	// Bottom/right get extra padding on top of the normal size scale — room
-	// for the resize handle so it doesn't sit flush against the text.
+	// The right gets extra padding on top of the normal size scale — room for
+	// the resize handle so it doesn't sit flush against the text. The block
+	// padding stays the field's, so one row is as tall as an Input.
 	.field[data-size="sm"] & {
-		padding: var(--amp-space-1) calc(var(--amp-space-2) + 0.25rem)
-			calc(var(--amp-space-1) + 0.25rem) var(--amp-space-2);
+		padding: space(1.5) calc(#{space(2)} + #{space(1)}) space(1.5) space(2);
 	}
 
 	.field[data-size="md"] & {
-		padding: var(--amp-space-2) calc(var(--amp-space-3) + 0.25rem)
-			calc(var(--amp-space-2) + 0.25rem) var(--amp-space-3);
+		padding: space(2) calc(#{space(3.5)} + #{space(1)}) space(2) space(3.5);
 	}
 
 	.field[data-size="lg"] & {
-		padding: var(--amp-space-3) calc(var(--amp-space-4) + 0.25rem)
-			calc(var(--amp-space-3) + 0.25rem) var(--amp-space-4);
+		padding: space(3.5) calc(#{space(4.5)} + #{space(1)}) space(3.5)
+			space(4.5);
 	}
 
 	&::placeholder {
@@ -74,12 +74,12 @@
 }
 
 .resizeHandle {
-	@include touch.drag-handle(1.5rem);
+	@include touch.drag-handle(space(6));
 	position: absolute;
 	right: 0;
 	bottom: 0;
-	width: 1.5rem;
-	height: 1.5rem;
+	width: space(6);
+	height: space(6);
 	cursor: ns-resize;
 
 	// The grip itself, drawn in the corner of the (larger, invisible) hit
@@ -91,10 +91,11 @@
 	&::after {
 		content: "";
 		position: absolute;
-		right: 0.25rem;
-		bottom: 0.25rem;
-		width: 1rem;
-		height: 1rem;
+		right: space(1);
+		bottom: space(1);
+		width: space(4);
+		height: space(4);
+		// stylelint-disable-next-line declaration-property-value-disallowed-list -- px: stripe geometry of the resize grip
 		background: repeating-linear-gradient(
 			135deg,
 			var(--amp-color-sub) 1px,
@@ -112,12 +113,12 @@
 	display: flex;
 	align-items: flex-start;
 	justify-content: space-between;
-	gap: var(--amp-space-2);
+	gap: space(2);
 }
 
 .counter {
 	flex-shrink: 0;
-	font-size: 0.75rem;
+	font-size: var(--amp-text-xs);
 	color: var(--amp-color-sub);
 	white-space: nowrap;
 }

@@ -1,9 +1,17 @@
+import React, { createRef } from "react";
+
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { Title } from "./Title";
 
 describe("Title", () => {
+	it("forwards its ref to the heading", () => {
+		const ref = createRef<HTMLHeadingElement>();
+		render(<Title ref={ref}>Hello</Title>);
+		expect(ref.current).toBe(screen.getByRole("heading"));
+	});
+
 	it("renders an h1 by default", () => {
 		render(<Title>Hello</Title>);
 		expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(

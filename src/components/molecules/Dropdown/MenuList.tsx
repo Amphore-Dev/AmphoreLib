@@ -3,9 +3,10 @@ import React from "react";
 import { FloatingFocusManager, type FloatingContext } from "@floating-ui/react";
 
 import { getPicto } from "@utils/UPicto";
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
-import type { TMenuItem } from "@interfaces/index";
+import type { ITestIdProps, TElementProps, TMenuItem } from "@interfaces/index";
 
 import { Picto } from "../../atoms/Picto/Picto";
 
@@ -16,7 +17,9 @@ export interface IMenuListProps {
 	context: FloatingContext;
 	floatingRef: (node: HTMLDivElement | null) => void;
 	floatingStyles: React.CSSProperties;
-	getFloatingProps: () => Record<string, unknown>;
+	getFloatingProps: (
+		userProps?: React.HTMLProps<HTMLElement>
+	) => Record<string, unknown>;
 	getItemProps: (
 		item: TMenuItem,
 		onSelect: () => void
@@ -25,6 +28,8 @@ export interface IMenuListProps {
 	onSelect: (item: TMenuItem) => void;
 	activeIndex: number | null;
 	className?: string;
+	/** Native props of the menu element. */
+	menuProps?: TElementProps<"div"> & ITestIdProps;
 }
 
 /**
@@ -32,7 +37,8 @@ export interface IMenuListProps {
  * markup/styles) — used by both Dropdown (click-triggered) and ContextMenu
  * (right-click, virtual position reference at the cursor). The two only
  * differ in *how* they open/position; once open, the menu itself is
- * identical, so it lives here once instead of being duplicated.
+ * identical, so it lives here once instead of being duplicated. Derived
+ * testids: `-item-<id>`, or `-item-<position>` for an item without one.
  */
 export const MenuList: React.FC<IMenuListProps> = ({
 	items,
@@ -45,13 +51,14 @@ export const MenuList: React.FC<IMenuListProps> = ({
 	onSelect,
 	activeIndex,
 	className = "",
+	menuProps,
 }) => (
 	<FloatingFocusManager context={context} modal={false}>
 		<div
+			{...getFloatingProps(menuProps as React.HTMLProps<HTMLElement>)}
 			ref={floatingRef}
-			style={floatingStyles}
+			style={{ ...menuProps?.style, ...floatingStyles }}
 			className={cn([styles.menu, className])}
-			{...getFloatingProps()}
 		>
 			{/* Filtered before mapping — index must match what's rendered. */}
 			{items
@@ -62,8 +69,21 @@ export const MenuList: React.FC<IMenuListProps> = ({
 						ref={(node) => itemRef(node, index)}
 						type="button"
 						role="menuitem"
+						// One tab stop: Tab leaves the menu (which closes it),
+						// the arrows move inside it.
+						tabIndex={
+							activeIndex === index ||
+							(activeIndex === null && index === 0)
+								? 0
+								: -1
+						}
 						disabled={item.disabled}
 						data-color={item.color}
+						data-testid={deriveTestId(
+							menuProps?.["data-testid"],
+							"item",
+							item.id ?? index
+						)}
 						className={cn([
 							styles.item,
 							activeIndex === index && styles.itemActive,

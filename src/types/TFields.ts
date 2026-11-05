@@ -39,7 +39,7 @@ export type TFieldPropsByType<
 	select: ISelectProps<T>;
 	date: TOmitControlled<IDatePickerProps> & {
 		value?: Date | null;
-		onChange?: (value: Date | null) => void;
+		onChange?: IDatePickerProps["onChange"];
 	};
 	period: IPeriodFilterProps;
 	time: TOmitControlled<ITimePickerProps> & {
@@ -144,6 +144,13 @@ export type TFieldState = {
 	value: unknown;
 };
 
+/**
+ * Native props sharing a name with a field definition key, which has its own
+ * meaning there (`hidden` can be a function, `onReset` gets the Formik context).
+ * Left in, each would narrow the definition's type down to the native one.
+ */
+type TDefinitionKey = "hidden" | "onReset" | "defaultValue";
+
 export type TField<
 	Name extends string = string,
 	CustomProps extends Record<string, object> = Record<never, never>,
@@ -154,7 +161,7 @@ export type TField<
 	},
 > = {
 	[Type in TFieldType<CustomProps>]: BaseField &
-		TFieldPropsByType<unknown, CustomProps>[Type];
+		Omit<TFieldPropsByType<unknown, CustomProps>[Type], TDefinitionKey>;
 }[TFieldType<CustomProps>];
 
 export type TFieldsGroup<T = TField> = {

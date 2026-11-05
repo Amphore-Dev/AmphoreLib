@@ -17,6 +17,28 @@ yarn add @amphore-dev/amphore-lib
 ```
 
 Peer dependencies: `react` and `react-dom` (`>=18.0.0 <20.0.0`).
+`react-pdf` and `pdfjs-dist` are optional: only `FileViewer` needs them, to
+render a PDF. It loads `react-pdf` lazily, so the lib imports fine without
+it, but a bundler that resolves every import up front (esbuild, for one)
+stops on that lazy import: install the package, or mark it as external.
+
+## Imports
+
+Import everything from the package root, and the stylesheet once:
+
+```tsx
+import { Button } from "@amphore-dev/amphore-lib";
+import "@amphore-dev/amphore-lib/style.css";
+```
+
+The package ships ESM and CommonJS, one file per module, and declares its
+side effects, so your bundler only keeps the components you import. The
+stylesheet is a single file covering every component.
+
+`@amphore-dev/amphore-lib/lib/style.css` still resolves. Any other path
+under `lib/` does not: the package's `exports` map only exposes the root,
+the stylesheet and `package.json`. Coming from 1.x? See the
+[migration guide](https://storybook.lib.amphore.dev/?path=/docs/guides-migrating-to-2-0--docs).
 
 ## Quick start
 
@@ -26,7 +48,7 @@ entirely to use the defaults.
 
 ```tsx
 import { AmphoreProvider, Button, Input } from "@amphore-dev/amphore-lib";
-import "@amphore-dev/amphore-lib/lib/style.css";
+import "@amphore-dev/amphore-lib/style.css";
 
 function App() {
 	const [name, setName] = useState("");
@@ -49,6 +71,24 @@ Every input-like component is controlled through `value`/`onChange` (or
 `checked`/`onChange`) and has no built-in form-library awareness — wire it
 to Formik, React Hook Form, or plain state from the outside.
 
+### Without a provider
+
+`AmphoreProvider` is optional. The stylesheet defines the default light
+theme at `:root`, so importing it is enough for components to render
+correctly:
+
+```tsx
+import { Button } from "@amphore-dev/amphore-lib";
+import "@amphore-dev/amphore-lib/lib/style.css";
+
+<Button>Save</Button>;
+```
+
+You need the provider for `config`, dark mode, `locale` and
+`config.defaults`. Without one the theme stays light whatever the OS,
+labels are in English and `size` falls back to `"md"`. Any provider you do
+add wins over these defaults for its own subtree.
+
 ## Theming
 
 Everything visual — colors, radius, spacing, typography, density — is a
@@ -59,9 +99,9 @@ inside a component's own stylesheet.
 ```tsx
 <AmphoreProvider
 	config={{
-		colors: { primary: "#0f9be8", danger: "#e2436b" },
+		colors: { primary: "#0674db", danger: "#e2436b" },
 		radius: { md: "10px" },
-		spacing: { 2: "0.5rem" },
+		spacing: { base: "0.25rem" }, // unit of every gap and padding
 		typography: { fontFamily: "'Inter', sans-serif" },
 		density: "compact", // "compact" | "comfortable"
 		style: "round", // radius preset shorthand — explicit `radius.*` still wins
@@ -69,6 +109,16 @@ inside a component's own stylesheet.
 	}}
 >
 ```
+
+A semantic color has four values: the fill (`warning`), the text on it
+(`warningForeground`), a light tint (`warningTint`) and the color for text on
+a light ground (`warningText`). Override only the fill and the others follow,
+except the foreground: set it too when the fill gets light enough to need dark
+text.
+
+Type sizes, weights, shadows, focus ring, layers, durations, borders and icon
+sizes are config too (`text`, `weights`, `shadows`, `focus`, ...), each
+overridable one key at a time; see **Guides/Theme** in Storybook.
 
 Open Storybook's **Configuration/Theme Configuration** page to try every
 option interactively and copy the resulting config.
@@ -81,10 +131,13 @@ option interactively and copy the resulting config.
 <AmphoreProvider theme="dark" config={{ ... }}>
 ```
 
-- `"system"` (default) — follows the OS (`prefers-color-scheme`), resolved
-  in CSS, not JS, so there's no hydration mismatch and no re-render on an
-  OS-level change.
-- `"light"` / `"dark"` — pins that palette regardless of the OS.
+- `"light"` (default) / `"dark"` — pins that palette regardless of the OS.
+- `"system"` — follows the OS (`prefers-color-scheme`), resolved in CSS, not
+  JS, so there's no hydration mismatch and no re-render on an OS-level change.
+
+Dark is opt-in: with `"system"`, components turn dark for anyone whose OS
+is dark, whatever the page around them looks like, so pick it once the app
+has a dark design of its own.
 
 The dark palette isn't the light one inverted — it's a separate set of
 colors (`darkColors`), with tints derived toward black instead of white.
@@ -94,8 +147,8 @@ Override it independently of the light palette:
 <AmphoreProvider
 	theme="system"
 	config={{
-		colors: { primary: "#0f9be8" },
-		darkColors: { primary: "#4f8cf7" },
+		colors: { primary: "#0674db" },
+		darkColors: { primary: "#7cbdf6" },
 	}}
 >
 ```
@@ -113,7 +166,7 @@ exhaustive list:
 - **Form atoms** — `Input`, `TextArea`, `NumberInput`, `PasswordField`,
   `Select`, `AsyncSelect`, `Checkbox`, `Radio`, `Toggle`, `Slider`,
   `DatePicker`, `TimePicker`, `ColorPicker`/`ColorPickerField`,
-  `InputFile`, `InputSearch`.
+  `InputFile`, `InputSearch`, `ChipInput`.
 - **Feedback & status** — `Spinner`, `Skeleton`, `InfoMessage`, `Progress`,
   `Badge`, `CountDown`.
 - **Overlays** — `Modal`, `ConfirmModal`, `Popover`, `Tooltip`, `Dropdown`,
@@ -121,7 +174,8 @@ exhaustive list:
   `mobileMode="modal"` — a centered `Modal`).
 - **Navigation & structure** — `Tabs`, `Accordion`, `Breadcrumb`,
   `NavItem`/`NavList`, `Card`, `Grid`/`FlexGrid`, `Divider`,
-  `SectionCard`.
+  `SectionCard`, `Tour`.
+- **Text** — `Title`, `Text`, `Link`.
 - **Data display** — `SummaryList`/`SummaryListItem`, `Table`,
   `TableHead`/`TableRow`, `TodoList`/`TodoItem`/`AddTodoItem`,
   `FileViewer` (image/PDF preview with its own zoom + page toolbar).
@@ -131,13 +185,13 @@ exhaustive list:
   `PageHeader`.
 - **Icons** — `Picto` renders any icon from the `Pictos` set; browse the
   whole set (searchable, click to copy the exact name) on Storybook's
-  **Concepts/Pictos** page.
+  **Foundations/Icons** page.
 
 ## Conventions worth knowing
 
-These are covered in depth on Storybook's **Directives/\*** pages
-(Theming, Sizing, Controlled Components, Floating Overlays,
-Accessibility, Structure, Verification) — the short version:
+These are covered in depth on Storybook's **Guides/\*** pages
+(Theme, Sizing, Controlled Components, Floating Overlays, Accessibility,
+Structure, Verification) — the short version:
 
 - **Controlled, always.** `value`/`onChange`, never an uncontrolled
   fallback or an ambient form-library subscription baked into an atom.
@@ -146,6 +200,11 @@ Accessibility, Structure, Verification) — the short version:
   them from CSS, not from JS branching.
 - **One `size` scale everywhere** (`"sm" | "md" | "lg"`), resolved as
   `sizeProp ?? config.defaults.size ?? "md"`.
+- **Native props reach the DOM.** `aria-*`, `data-*`, handlers and `ref`
+  forward on every component. The library sets no test id of its own: give a
+  component a `data-testid` and its inner parts derive theirs from it.
+- **Tokens only.** Stylelint refuses a raw color, size or duration in a
+  component's SCSS: `yarn lint:css`.
 - **User-facing strings are props with English defaults**, not a global
   i18n dictionary — override per instance (`removeLabel`, `submitLabel`,
   `zoomOutLabel`, ...).
@@ -158,9 +217,18 @@ Accessibility, Structure, Verification) — the short version:
   (`transform`, `filter`, `contain`) or trap its z-index (`sticky`, any
   stacking context). Never a bare `createPortal`/`FloatingPortal`: the
   theme is CSS variables inlined on the provider's wrapper, so anything
-  rendered outside it loses every `var(--amp-*)`. `AmphorePortal` (or
-  `AmphoreScope` around your own `createPortal`) re-applies that scope
-  inside the portal.
+  rendered outside it drops back to the default light theme at `:root`,
+  ignoring your `config` and dark mode. `AmphorePortal` (or `AmphoreScope`
+  around your own `createPortal`) re-applies that scope inside the portal.
+
+## Visual regression
+
+`yarn visual:ref` takes a screenshot of every Storybook story, `yarn visual`
+compares against them and fails on any differing pixel. Take the references
+on the starting commit, change the code, compare. It runs locally only:
+references and diffs stay in `.visual/`, out of git, because text rendering
+differs from one OS to another. Tag a story `no-visual` to exclude it. See
+Storybook's **Guides/Verification** page.
 
 ## Credits
 

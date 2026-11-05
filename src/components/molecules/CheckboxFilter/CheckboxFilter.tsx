@@ -1,12 +1,21 @@
-import React, { useId } from "react";
+import React, { forwardRef, useId } from "react";
 
 import { Checkbox, InputErrorMessage } from "@components/atoms";
 
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
+
+import { ITestIdProps, TElementProps } from "@interfaces/index";
 
 import styles from "./CheckboxFilter.module.scss";
 
-export interface ICheckboxesFilterProps {
+export interface ICheckboxesFilterProps
+	extends
+		Omit<
+			React.ComponentPropsWithoutRef<"div">,
+			"onChange" | "defaultValue" | "children"
+		>,
+		ITestIdProps {
 	options: { label: string; value: string; disabled?: boolean }[];
 	/** Controlled value — the list of currently-checked option values. */
 	value?: string[];
@@ -16,31 +25,42 @@ export interface ICheckboxesFilterProps {
 	hideError?: boolean;
 	disabled?: boolean;
 	required?: boolean;
+	/** Names the group when there's no visible `label`. */
+	"aria-label"?: string;
+	/** Id of an element naming the group — an external label, like FormRenderer's. */
+	"aria-labelledby"?: string;
 	className?: string;
 	wrapperClassName?: string;
+	/** Native props of the outer container (label, group and error message). */
+	wrapperProps?: TElementProps<"div">;
 }
 
-/**
- * V2 CheckboxFilter — a group of `Checkbox` sharing one multi-value
- * `string[]`. Fully controlled (`value`/`onChange`), no ambient form-library
- * awareness — unlike v1's equivalent, which reached into Formik itself via
- * `useFormikField` for its error display. Binding to a form (Formik or
- * otherwise) happens one layer up, in `FieldRenderer`.
- */
-export const CheckboxFilter: React.FC<ICheckboxesFilterProps> = ({
-	options,
-	value = [],
-	onChange,
-	label,
-	error,
-	hideError = false,
-	disabled = false,
-	required = false,
-	className = "",
-	wrapperClassName = "",
-}) => {
+const CheckboxFilterBase: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	ICheckboxesFilterProps
+> = (
+	{
+		options,
+		value = [],
+		onChange,
+		label,
+		error,
+		hideError = false,
+		disabled = false,
+		required = false,
+		className = "",
+		wrapperClassName = "",
+		wrapperProps,
+		"aria-label": ariaLabel,
+		"aria-labelledby": ariaLabelledBy,
+		"aria-describedby": ariaDescribedBy,
+		...props
+	},
+	ref
+) => {
 	const groupId = useId();
 	const errorId = `${groupId}-error`;
+	const labelId = `${groupId}-label`;
 
 	const handleChange = (optionValue: string, checked: boolean) => {
 		const next = checked
@@ -50,18 +70,35 @@ export const CheckboxFilter: React.FC<ICheckboxesFilterProps> = ({
 	};
 
 	return (
-		<div className={cn([styles.wrapper, wrapperClassName])}>
+		<div
+			{...wrapperProps}
+			className={cn([
+				styles.wrapper,
+				wrapperClassName,
+				wrapperProps?.className,
+			])}
+		>
 			{label && (
-				<span className={styles.label}>
+				<span id={labelId} className={styles.label}>
 					{label}
 					{required && <span className={styles.required}>*</span>}
 				</span>
 			)}
 
 			<div
+				{...props}
+				ref={ref}
 				className={cn([styles.options, className])}
 				role="group"
-				aria-describedby={error && !hideError ? errorId : undefined}
+				aria-labelledby={
+					ariaLabelledBy ??
+					(label && !ariaLabel ? labelId : undefined)
+				}
+				aria-label={ariaLabel}
+				aria-describedby={
+					cn([ariaDescribedBy, error && !hideError && errorId]) ||
+					undefined
+				}
 			>
 				{options.map((option) => (
 					<Checkbox
@@ -72,14 +109,39 @@ export const CheckboxFilter: React.FC<ICheckboxesFilterProps> = ({
 						onChange={(checked) =>
 							handleChange(option.value, checked)
 						}
+						error={error}
 						hideError
+						data-testid={deriveTestId(
+							props["data-testid"],
+							"option",
+							option.value
+						)}
 					/>
 				))}
 			</div>
 
 			{!hideError && (
-				<InputErrorMessage id={errorId}>{error}</InputErrorMessage>
+				<InputErrorMessage
+					id={errorId}
+					data-testid={deriveTestId(props["data-testid"], "error")}
+				>
+					{error}
+				</InputErrorMessage>
 			)}
 		</div>
 	);
 };
+
+/**
+ * V2 CheckboxFilter — a group of `Checkbox` sharing one multi-value
+ * `string[]`. Fully controlled (`value`/`onChange`), no ambient form-library
+ * awareness — unlike v1's equivalent, which reached into Formik itself via
+ * `useFormikField` for its error display. Binding to a form (Formik or
+ * otherwise) happens one layer up, in `FieldRenderer`.
+ *
+ * Native props, `className` and `ref` go to the `role="group"` element,
+ * `wrapperProps` to the outer container. Derived testids:
+ * `-option-<value>`, `-error`.
+ */
+export const CheckboxFilter = forwardRef(CheckboxFilterBase);
+CheckboxFilter.displayName = "CheckboxFilter";

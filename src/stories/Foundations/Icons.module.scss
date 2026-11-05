@@ -1,7 +1,9 @@
+@use "../../styles/mixins" as *;
+
 .wrapper {
 	display: flex;
 	flex-direction: column;
-	gap: var(--amp-space-4);
+	gap: space(4.5);
 	font-family: var(--amp-font);
 	color: var(--amp-color-ink);
 }
@@ -9,7 +11,7 @@
 .toolbarWrapper {
 	display: flex;
 	align-items: baseline;
-	gap: var(--amp-space-3);
+	gap: space(3.5);
 	flex-wrap: wrap;
 	flex-direction: column;
 }
@@ -17,7 +19,7 @@
 .toolbar {
 	display: flex;
 	align-items: baseline;
-	gap: var(--amp-space-3);
+	gap: space(3.5);
 	flex-wrap: wrap;
 }
 
@@ -25,29 +27,32 @@
 }
 
 .count {
-	font-size: 0.8125rem;
+	font-size: var(--amp-text-sm);
 	color: var(--amp-color-sub);
 	white-space: nowrap;
 }
 
 .grid {
 	display: grid;
+	// stylelint-disable-next-line declaration-property-value-disallowed-list -- px: story layout, rem would only match at a 16px root
 	grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
-	gap: var(--amp-space-3);
+	gap: space(3.5);
 }
 
 .item {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: var(--amp-space-2);
-	padding: var(--amp-space-3);
-	border: 1px solid var(--amp-color-border);
+	gap: space(2);
+	padding: space(3.5);
+	border: var(--amp-border-width-sm) solid var(--amp-color-border);
 	border-radius: var(--amp-radius-md);
 	background: var(--amp-color-card);
+	// stylelint-disable declaration-property-value-disallowed-list -- off scale: 120ms, story only
 	transition:
 		background 0.12s,
 		border-color 0.12s;
+	// stylelint-enable declaration-property-value-disallowed-list
 
 	@media (hover: hover) {
 		&:hover {
@@ -68,35 +73,34 @@
 	color: var(--amp-color-sub);
 
 	&:focus-visible {
-		outline: 2px solid var(--amp-color-primary);
-		outline-offset: 2px;
+		@include focus-ring;
 		border-radius: var(--amp-radius-sm);
 	}
 }
 
 .icon {
-	width: 1.75rem;
-	height: 1.75rem;
+	width: space(7);
+	height: space(7);
 }
 
 // Monospace: this label is meant to be read back verbatim as the
 // `icon="..."` string, not prose — same reasoning as any other code token.
 .name {
 	font-family: var(--amp-font-mono);
-	font-size: 0.75rem;
+	font-size: var(--amp-text-xs);
 	color: var(--amp-color-sub);
 	text-align: center;
 	word-break: break-word;
 }
 
 .copied {
-	color: var(--amp-color-primary);
-	font-weight: 600;
+	color: var(--amp-color-primary-text);
+	font-weight: weight(semibold);
 }
 
 .empty {
-	padding: var(--amp-space-6) 0;
+	padding: space(8) 0;
 	color: var(--amp-color-sub);
-	font-size: 0.875rem;
+	font-size: var(--amp-text-sm);
 	text-align: center;
 }

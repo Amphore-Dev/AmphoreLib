@@ -1,9 +1,11 @@
+@use "../../../styles/a11y";
 @use "../../../styles/touch" as touch;
+@use "../../../styles/mixins" as *;
 
 .wrapper {
 	display: flex;
 	flex-direction: column;
-	gap: var(--amp-space-1);
+	gap: space(1.5);
 	font-family: var(--amp-font);
 }
 
@@ -13,7 +15,7 @@
 // note on the bug this replaces).
 .card {
 	position: relative;
-	border: 1px solid var(--amp-color-border);
+	border: var(--amp-border-width-sm) solid var(--amp-color-border);
 	border-radius: var(--amp-radius-lg);
 	background: var(--amp-color-card);
 	overflow: hidden;
@@ -36,6 +38,15 @@
 
 .cardInvalid {
 	border-color: var(--amp-color-danger);
+}
+
+.input {
+	@include a11y.visually-hidden;
+
+	// Inset: the card clips anything drawn outside it.
+	&:focus-visible + .label {
+		@include focus-ring($inset: true);
+	}
 }
 
 .label {
@@ -73,7 +84,7 @@
 	}
 
 	.footer {
-		border-top: 1px solid var(--amp-color-border);
+		border-top: var(--amp-border-width-sm) solid var(--amp-color-border);
 	}
 }
 
@@ -81,8 +92,8 @@
 .card[data-orientation="horizontal"] {
 	.label {
 		align-items: center;
-		gap: var(--amp-space-2);
-		padding: var(--amp-space-2);
+		gap: space(2);
+		padding: space(2);
 	}
 
 	// Base case: no file yet — the placeholder (icon + text) fills the
@@ -100,16 +111,16 @@
 	.preview {
 		flex: 1 1 auto;
 		min-width: 0;
-		min-height: 2.75rem;
+		min-height: space(11);
 		border-radius: var(--amp-radius-md);
 	}
 
 	&[data-size="sm"] .preview {
-		min-height: 2rem;
+		min-height: space(8);
 	}
 
 	&[data-size="lg"] .preview {
-		min-height: 3.5rem;
+		min-height: space(14);
 	}
 
 	// Once filled: fixed-size square thumbnail instead. Without this
@@ -125,18 +136,18 @@
 	}
 
 	&[data-filled][data-size="sm"] .preview {
-		width: 2rem;
-		height: 2rem;
+		width: space(8);
+		height: space(8);
 	}
 
 	&[data-filled][data-size="md"] .preview {
-		width: 2.75rem;
-		height: 2.75rem;
+		width: space(11);
+		height: space(11);
 	}
 
 	&[data-filled][data-size="lg"] .preview {
-		width: 3.5rem;
-		height: 3.5rem;
+		width: space(14);
+		height: space(14);
 	}
 
 	// Zeroed entirely, not just padding-right: the base `.footer` rule's
@@ -166,9 +177,9 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: var(--amp-space-1);
+	gap: space(1.5);
 	color: var(--amp-color-sub);
-	padding: var(--amp-space-2);
+	padding: space(2);
 	text-align: center;
 }
 
@@ -181,54 +192,51 @@
 
 .card[data-orientation="horizontal"] .placeholderText {
 	min-width: 0;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+	@include truncate;
 }
 
 .uploadPicto {
-	width: 1.25rem;
-	height: 1.25rem;
+	width: var(--amp-icon-xl);
+	height: var(--amp-icon-xl);
 	flex-shrink: 0;
 }
 
 .placeholderText {
-	font-size: 0.8125rem;
+	font-size: var(--amp-text-sm);
 }
 
 .required {
 	color: var(--amp-color-danger);
-	margin-left: 0.125rem;
+	margin-left: space(0.5);
 }
 
 // ---- footer: name(+size) + remove, never overlapping the preview ----
 .footer {
 	display: flex;
 	align-items: center;
-	gap: var(--amp-space-2);
-	padding: var(--amp-space-2);
+	gap: space(2);
+	padding: space(2);
 	min-width: 0;
 }
 
 .info {
 	display: flex;
 	flex-direction: column;
+	// stylelint-disable-next-line declaration-property-value-disallowed-list -- off grid: 1px between name and meta
 	gap: 0.0625rem;
 	min-width: 0;
 	flex: 1;
 }
 
 .fileName {
-	font-size: 0.8125rem;
-	font-weight: 600;
+	font-size: var(--amp-text-sm);
+	font-weight: weight(semibold);
 	color: var(--amp-color-ink);
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+	@include truncate;
 }
 
 .fileSize {
-	font-size: 0.6875rem;
+	font-size: var(--amp-text-xs);
 	color: var(--amp-color-sub);
 }
 
@@ -238,8 +246,8 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 1.75rem;
-	height: 1.75rem;
+	width: space(7);
+	height: space(7);
 	border: none;
 	border-radius: var(--amp-radius-full);
 	background: transparent;

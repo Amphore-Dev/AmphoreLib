@@ -1,18 +1,34 @@
-import React, { useId, useRef, useState } from "react";
+import React, { forwardRef, useId, useRef, useState } from "react";
+
+import { useMergeRefs } from "@floating-ui/react";
 
 import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
+import { composeHandlers } from "@utils/UHandlers";
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
-import { TColor, TLabel, TSize } from "@interfaces/index";
+import {
+	ITestIdProps,
+	TColor,
+	TElementProps,
+	TLabel,
+	TSize,
+} from "@interfaces/index";
 
 import { Badge } from "../../atoms/Badge/Badge";
 import { InputErrorMessage } from "../../atoms/InputErrorMessage/InputErrorMessage";
 
 import styles from "./ChipInput.module.scss";
 
-export interface IChipInputProps {
+export interface IChipInputProps
+	extends
+		Omit<
+			React.ComponentPropsWithoutRef<"input">,
+			"value" | "onChange" | "size" | "color" | "defaultValue"
+		>,
+		ITestIdProps {
 	/** Controlled — the chips. Every add/remove calls `onChange` with the next full list. */
 	value?: string[];
 	onChange?: (value: string[]) => void;
@@ -46,62 +62,76 @@ export interface IChipInputProps {
 	addOnBlur?: boolean;
 	/** Prefix for each chip's remove button aria-label, rendered as `${removeLabel}: ${chip}`. Defaults to "Remove" (or `common.remove`/`ChipInput.removeLabel` from the nearest AmphoreProvider — see useAmphoreLabels). */
 	removeLabel?: TLabel;
+	/** Read out after an entry `validate` refused, whose color is otherwise all that sets it apart. Defaults to "(invalid)" (or `ChipInput.invalidLabel` from the nearest AmphoreProvider). */
+	invalidLabel?: TLabel;
+	/** Names the field when there's no visible `label`. */
+	"aria-label"?: string;
 	/** Applied to the field box (chips + text), not the outer wrapper — same convention as Input/TextArea. */
 	className?: string;
 	wrapperClassName?: string;
+	/** Native props of the outer container (label, field, footer). */
+	wrapperProps?: TElementProps<"div">;
 }
 
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
-export type TChipInputLabels = Pick<IChipInputProps, "removeLabel">;
+export type TChipInputLabels = Pick<
+	IChipInputProps,
+	"removeLabel" | "invalidLabel"
+>;
 
 const DEFAULT_SEPARATORS = /[,;\s]+/;
 
-/**
- * V2 ChipInput — a list of short strings (emails, tags, ticket keys...)
- * typed into one field, each shown as a removable `Badge`. Fully
- * controlled (`value`/`onChange`, a `string[]`): only the text being typed
- * lives here. Ported from v1's ChipInput, minus its withFormikWrapper
- * (wire it from the outside, or through FieldRenderer's `chips` type) and
- * its resize handle (the field grows with its chips instead).
- *
- * A chip is committed by a separator (typed or in pasted text), Enter, or
- * leaving the field; Backspace on an empty field removes the last one.
- */
-export const ChipInput: React.FC<IChipInputProps> = ({
-	value = [],
-	onChange,
-	label,
-	placeholder,
-	error,
-	hideError = false,
-	size: sizeProp,
-	color = "primary",
-	disabled = false,
-	required = false,
-	id,
-	name,
-	maxCount,
-	showCounter,
-	separators = DEFAULT_SEPARATORS,
-	normalize,
-	validate,
-	rejectInvalid = false,
-	onInvalidValue,
-	allowDuplicates = false,
-	addOnBlur = true,
-	removeLabel: removeLabelProp,
-	className = "",
-	wrapperClassName = "",
-}) => {
+const ChipInputBase: React.ForwardRefRenderFunction<
+	HTMLInputElement,
+	IChipInputProps
+> = (
+	{
+		value = [],
+		onChange,
+		label,
+		placeholder,
+		error,
+		hideError = false,
+		size: sizeProp,
+		color = "primary",
+		disabled = false,
+		required = false,
+		id,
+		name,
+		maxCount,
+		showCounter,
+		separators = DEFAULT_SEPARATORS,
+		normalize,
+		validate,
+		rejectInvalid = false,
+		onInvalidValue,
+		allowDuplicates = false,
+		addOnBlur = true,
+		removeLabel: removeLabelProp,
+		invalidLabel: invalidLabelProp,
+		"aria-label": ariaLabel,
+		className = "",
+		wrapperClassName = "",
+		wrapperProps,
+		onKeyDown,
+		onPaste,
+		onBlur,
+		"aria-describedby": ariaDescribedBy,
+		...props
+	},
+	ref
+) => {
 	const { size: defaultSize } = useAmphoreDefaults();
 	const size = sizeProp ?? defaultSize ?? "md";
 	const { resolve } = useAmphoreLabels("ChipInput");
 	const removeLabel = resolve("removeLabel", removeLabelProp, "remove");
+	const invalidLabel = resolve("invalidLabel", invalidLabelProp);
 	const generatedId = useId();
 	const inputId = id ?? generatedId;
 	const errorId = `${inputId}-error`;
 	const counterId = `${inputId}-counter`;
 	const inputRef = useRef<HTMLInputElement>(null);
+	const mergedRef = useMergeRefs([inputRef, ref]);
 	const [draft, setDraft] = useState("");
 
 	const hasMax = typeof maxCount === "number";
@@ -210,12 +240,21 @@ export const ChipInput: React.FC<IChipInputProps> = ({
 	};
 
 	const describedBy =
-		[error && !hideError && errorId, displayCounter && counterId]
-			.filter(Boolean)
-			.join(" ") || undefined;
+		cn([
+			ariaDescribedBy,
+			error && !hideError && errorId,
+			displayCounter && counterId,
+		]) || undefined;
 
 	return (
-		<div className={cn([styles.wrapper, wrapperClassName])}>
+		<div
+			{...wrapperProps}
+			className={cn([
+				styles.wrapper,
+				wrapperClassName,
+				wrapperProps?.className,
+			])}
+		>
 			{label && (
 				<label className={styles.label} htmlFor={inputId}>
 					{label}
@@ -242,18 +281,29 @@ export const ChipInput: React.FC<IChipInputProps> = ({
 						color={isValid(chip) ? color : "danger"}
 						variant="tint"
 						size="sm"
-						aria-invalid={!isValid(chip) || undefined}
+						data-invalid={!isValid(chip) || undefined}
 						onRemove={
 							disabled ? undefined : () => handleRemove(index)
 						}
 						removeLabel={`${removeLabel}: ${chip}`}
+						data-testid={deriveTestId(
+							props["data-testid"],
+							"chip",
+							index
+						)}
 					>
 						{chip}
+						{!isValid(chip) && (
+							<span className={styles.srOnly}>
+								{invalidLabel}
+							</span>
+						)}
 					</Badge>
 				))}
 
 				<input
-					ref={inputRef}
+					{...props}
+					ref={mergedRef}
 					id={inputId}
 					name={name}
 					type="text"
@@ -262,19 +312,28 @@ export const ChipInput: React.FC<IChipInputProps> = ({
 					placeholder={value.length ? undefined : placeholder}
 					disabled={disabled}
 					required={required && !value.length}
+					aria-label={ariaLabel}
 					aria-invalid={!!error}
 					aria-describedby={describedBy}
 					onChange={handleChange}
-					onPaste={handlePaste}
-					onKeyDown={handleKeyDown}
-					onBlur={() => addOnBlur && commitDraft()}
+					onPaste={composeHandlers(onPaste, handlePaste)}
+					onKeyDown={composeHandlers(onKeyDown, handleKeyDown)}
+					onBlur={composeHandlers(onBlur, () => {
+						if (addOnBlur) commitDraft();
+					})}
 				/>
 			</div>
 
 			{(!hideError || displayCounter) && (
 				<div className={styles.footer}>
 					{!hideError && (
-						<InputErrorMessage id={errorId}>
+						<InputErrorMessage
+							id={errorId}
+							data-testid={deriveTestId(
+								props["data-testid"],
+								"error"
+							)}
+						>
 							{error}
 						</InputErrorMessage>
 					)}
@@ -284,6 +343,10 @@ export const ChipInput: React.FC<IChipInputProps> = ({
 							className={styles.counter}
 							data-full={isFull || undefined}
 							aria-live="polite"
+							data-testid={deriveTestId(
+								props["data-testid"],
+								"counter"
+							)}
 						>
 							{hasMax
 								? `${value.length} / ${maxCount}`
@@ -295,3 +358,22 @@ export const ChipInput: React.FC<IChipInputProps> = ({
 		</div>
 	);
 };
+
+/**
+ * V2 ChipInput — a list of short strings (emails, tags, ticket keys...)
+ * typed into one field, each shown as a removable `Badge`. Fully
+ * controlled (`value`/`onChange`, a `string[]`): only the text being typed
+ * lives here. Ported from v1's ChipInput, minus its withFormikWrapper
+ * (wire it from the outside, or through FieldRenderer's `chips` type) and
+ * its resize handle (the field grows with its chips instead).
+ *
+ * A chip is committed by a separator (typed or in pasted text), Enter, or
+ * leaving the field; Backspace on an empty field removes the last one.
+ *
+ * Native props and `ref` go to the text `<input>` (`onKeyDown`, `onPaste` and
+ * `onBlur` run alongside the chip handling), `className` to the field box,
+ * `wrapperProps` to the outer container. Derived testids:
+ * `-chip-<position>`, `-counter`, `-error`.
+ */
+export const ChipInput = forwardRef(ChipInputBase);
+ChipInput.displayName = "ChipInput";

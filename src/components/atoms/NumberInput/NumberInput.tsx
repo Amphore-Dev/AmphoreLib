@@ -1,21 +1,32 @@
-import React, { useEffect, useId, useMemo, useState } from "react";
+import React, { forwardRef, useEffect, useId, useMemo, useState } from "react";
 
 import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
+import { composeHandlers } from "@utils/UHandlers";
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
-import { TColor, TLabel, TSize } from "@interfaces/index";
+import {
+	ITestIdProps,
+	TColor,
+	TElementProps,
+	TLabel,
+	TSize,
+} from "@interfaces/index";
 
 import { InputErrorMessage } from "../InputErrorMessage/InputErrorMessage";
 import { Picto } from "../Picto/Picto";
 
 import styles from "./NumberInput.module.scss";
 
-export interface INumberInputProps extends Omit<
-	React.InputHTMLAttributes<HTMLInputElement>,
-	"onChange" | "value" | "size" | "color" | "min" | "max" | "step"
-> {
+export interface INumberInputProps
+	extends
+		Omit<
+			React.ComponentPropsWithoutRef<"input">,
+			"onChange" | "value" | "size" | "color" | "min" | "max" | "step"
+		>,
+		ITestIdProps {
 	/** Controlled value. `null` means empty — distinct from `0`. */
 	value: number | null;
 	onChange: (value: number | null) => void;
@@ -34,8 +45,11 @@ export interface INumberInputProps extends Omit<
 	color?: TColor;
 	/** Rendered after the steppers — e.g. a unit ("j", "kg", "%"). Layout: [input | steppers | after]. */
 	after?: React.ReactNode;
+	/** The field box, not the bare `<input>` — same convention as Input. */
 	className?: string;
 	wrapperClassName?: string;
+	/** Native props of the outer container (label, field and error message). */
+	wrapperProps?: TElementProps<"div">;
 	/** aria-label for the + (increase) stepper button. Defaults to "Increase" (or `NumberInput.increaseLabel` from the nearest AmphoreProvider — see useAmphoreLabels). */
 	increaseLabel?: TLabel;
 	/** aria-label for the - (decrease) stepper button. Defaults to "Decrease" (or `NumberInput.decreaseLabel` from the nearest AmphoreProvider). */
@@ -69,40 +83,40 @@ const roundTo = (n: number, digits: number) => {
 
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-/**
- * V2 NumberInput — controlled, but `value` is `number | null` (not
- * `string`): a local `text` state renders in-progress typing ("-", "3,")
- * that doesn't parse to a number yet; `value` stays the source of truth.
- * Plain `<input type="text" inputMode="decimal">`, not `type="number"`
- * (unrestylable spinner, accepts "1e5", scroll-wheel changes the value).
- * Displays raw while focused, `Intl.NumberFormat`-formatted at rest
- * (group separators, `decimals` if set) — `onChange` always gets a plain
- * number regardless.
- */
-export const NumberInput: React.FC<INumberInputProps> = ({
-	value,
-	onChange,
-	min,
-	max,
-	step = 1,
-	decimals,
-	locale = "en-US",
-	label,
-	error,
-	hideError = false,
-	size: sizeProp,
-	color = "primary",
-	after,
-	disabled = false,
-	required = false,
-	className = "",
-	wrapperClassName = "",
-	id,
-	increaseLabel: increaseLabelProp,
-	decreaseLabel: decreaseLabelProp,
-	onKeyDown,
-	...props
-}) => {
+const NumberInputBase: React.ForwardRefRenderFunction<
+	HTMLInputElement,
+	INumberInputProps
+> = (
+	{
+		value,
+		onChange,
+		min,
+		max,
+		step = 1,
+		decimals,
+		locale = "en-US",
+		label,
+		error,
+		hideError = false,
+		size: sizeProp,
+		color = "primary",
+		after,
+		disabled = false,
+		required = false,
+		className = "",
+		wrapperClassName = "",
+		wrapperProps,
+		id,
+		increaseLabel: increaseLabelProp,
+		decreaseLabel: decreaseLabelProp,
+		onKeyDown,
+		onFocus,
+		onBlur,
+		"aria-describedby": ariaDescribedBy,
+		...props
+	},
+	ref
+) => {
 	const { size: defaultSize } = useAmphoreDefaults();
 	const size = sizeProp ?? defaultSize ?? "md";
 	const generatedId = useId();
@@ -228,7 +242,14 @@ export const NumberInput: React.FC<INumberInputProps> = ({
 	};
 
 	return (
-		<div className={cn([styles.wrapper, wrapperClassName])}>
+		<div
+			{...wrapperProps}
+			className={cn([
+				styles.wrapper,
+				wrapperClassName,
+				wrapperProps?.className,
+			])}
+		>
 			{label && (
 				<label className={styles.label} htmlFor={inputId}>
 					{label}
@@ -246,6 +267,7 @@ export const NumberInput: React.FC<INumberInputProps> = ({
 			>
 				<input
 					{...props}
+					ref={ref}
 					id={inputId}
 					type="text"
 					inputMode="decimal"
@@ -254,10 +276,13 @@ export const NumberInput: React.FC<INumberInputProps> = ({
 					disabled={disabled}
 					required={required}
 					aria-invalid={!!error}
-					aria-describedby={error && !hideError ? errorId : undefined}
+					aria-describedby={
+						cn([ariaDescribedBy, error && !hideError && errorId]) ||
+						undefined
+					}
 					onChange={handleChange}
-					onFocus={handleFocus}
-					onBlur={handleBlur}
+					onFocus={composeHandlers(onFocus, handleFocus)}
+					onBlur={composeHandlers(onBlur, handleBlur)}
 					onKeyDown={handleKeyDown}
 				/>
 
@@ -272,6 +297,10 @@ export const NumberInput: React.FC<INumberInputProps> = ({
 						}
 						onClick={() => step_(1)}
 						aria-label={increaseLabel}
+						data-testid={deriveTestId(
+							props["data-testid"],
+							"increase"
+						)}
 					>
 						<Picto icon="chevron" rotation={270} />
 					</button>
@@ -285,6 +314,10 @@ export const NumberInput: React.FC<INumberInputProps> = ({
 						}
 						onClick={() => step_(-1)}
 						aria-label={decreaseLabel}
+						data-testid={deriveTestId(
+							props["data-testid"],
+							"decrease"
+						)}
 					>
 						<Picto icon="chevron" rotation={90} />
 					</button>
@@ -294,8 +327,31 @@ export const NumberInput: React.FC<INumberInputProps> = ({
 			</div>
 
 			{!hideError && (
-				<InputErrorMessage id={errorId}>{error}</InputErrorMessage>
+				<InputErrorMessage
+					id={errorId}
+					data-testid={deriveTestId(props["data-testid"], "error")}
+				>
+					{error}
+				</InputErrorMessage>
 			)}
 		</div>
 	);
 };
+
+/**
+ * V2 NumberInput — controlled, but `value` is `number | null` (not
+ * `string`): a local `text` state renders in-progress typing ("-", "3,")
+ * that doesn't parse to a number yet; `value` stays the source of truth.
+ * Plain `<input type="text" inputMode="decimal">`, not `type="number"`
+ * (unrestylable spinner, accepts "1e5", scroll-wheel changes the value).
+ * Displays raw while focused, `Intl.NumberFormat`-formatted at rest
+ * (group separators, `decimals` if set) — `onChange` always gets a plain
+ * number regardless.
+ *
+ * Native props and `ref` go to the `<input>` (`onFocus`/`onBlur`/`onKeyDown`
+ * run alongside the internal ones), `className` to the field box,
+ * `wrapperProps` to the outer container. Derived testids: `-increase`,
+ * `-decrease`, `-error`.
+ */
+export const NumberInput = forwardRef(NumberInputBase);
+NumberInput.displayName = "NumberInput";

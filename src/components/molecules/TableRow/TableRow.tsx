@@ -1,8 +1,10 @@
 import React from "react";
 
+import { genericForwardRef } from "@utils/UForwardRef";
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
-import { TTableColumn } from "@interfaces/index";
+import { ITestIdProps, TTableColumn } from "@interfaces/index";
 
 import { Checkbox } from "../../atoms/Checkbox/Checkbox";
 import { Picto } from "../../atoms/Picto/Picto";
@@ -11,7 +13,13 @@ import { TruncatedTooltipText } from "../../atoms/TruncatedTooltipText/Truncated
 
 import styles from "./TableRow.module.scss";
 
-export interface ITableRowProps<T> {
+export interface ITableRowProps<T>
+	extends
+		Omit<
+			React.ComponentPropsWithoutRef<"div">,
+			"onClick" | "onContextMenu" | "children"
+		>,
+		ITestIdProps {
 	item: T;
 	columns: TTableColumn<T>[];
 	onClick?: (item: T, event: React.MouseEvent) => void;
@@ -25,37 +33,69 @@ export interface ITableRowProps<T> {
 	selectable?: boolean;
 	isSelected?: boolean;
 	rowKey?: React.Key;
+	/** Position among all rows, the header being 1: virtualized rows aren't all in the DOM to be counted. */
+	rowIndex?: number;
+	/** aria-label prefix for the row's checkbox, followed by the row's first value. */
+	selectRowLabel?: string;
+	/** aria-label prefix for the "⋮" button, followed by the row's first value. */
+	rowActionsLabel?: string;
+	/**
+	 * aria-label prefix for a button doing what clicking the row does, followed
+	 * by the row's first value: a row can't take focus itself (`display:
+	 * contents`), so without it `onClick` is mouse-only. Omit when the row has
+	 * no click, or a checkbox already does the same thing.
+	 */
+	rowButtonLabel?: string;
+	/** State of that button when it toggles selection. */
+	rowButtonPressed?: boolean;
 }
 
-/**
- * V2 TableRow — `display: contents` so its `Td`s land directly in
- * `Table`'s grid (a real wrapper element would add its own grid item,
- * breaking column alignment). Selection state comes down as `isSelected`/
- * `onToggleSelect` — `Table` owns the actual `Set<key>` and shift/ctrl
- * range logic, this only renders one row's worth of it.
- */
-export const TableRow = <T,>({
-	item,
-	columns,
-	onClick,
-	onContextMenu,
-	onToggleSelect,
-	className = "",
-	selectable = false,
-	isSelected = false,
-	rowKey,
-}: ITableRowProps<T>) => (
+/** What tells a row from the others: its first column, as plain text. */
+const firstValue = <T,>(item: T, columns: TTableColumn<T>[]) => {
+	const column = columns.find((col) => col.key !== "contextMenu");
+	const value = column ? item[column.key as keyof T] : undefined;
+	return typeof value === "string" || typeof value === "number"
+		? String(value)
+		: "";
+};
+
+const labelled = (label?: string, name?: string) =>
+	label && name ? `${label}: ${name}` : label;
+
+const TableRowBase = <T,>(
+	{
+		item,
+		columns,
+		onClick,
+		onContextMenu,
+		onToggleSelect,
+		className = "",
+		selectable = false,
+		isSelected = false,
+		rowKey,
+		rowIndex,
+		selectRowLabel,
+		rowActionsLabel,
+		rowButtonLabel,
+		rowButtonPressed,
+		style,
+		...props
+	}: ITableRowProps<T>,
+	ref: React.ForwardedRef<HTMLDivElement>
+) => (
 	// Same reasoning as TableHead: role="row" is the grid layout semantic
 	// (its Tds are the real grid cells via display:contents); onClick here
-	// is an optional mouse convenience (selectOnClick / onRowClick), not the
-	// row becoming a single keyboard-focusable control — the row's own
-	// interactive elements (checkbox, buttons) already are.
+	// is the mouse's way to the row's action, the keyboard's is the button in
+	// its first cell (`rowButtonLabel`).
 	// eslint-disable-next-line jsx-a11y/interactive-supports-focus, jsx-a11y/click-events-have-key-events
 	<div
+		{...props}
+		ref={ref}
 		role="row"
+		aria-rowindex={rowIndex}
 		data-row-key={rowKey}
 		data-selected={isSelected || undefined}
-		style={{ display: "contents" }}
+		style={{ ...style, display: "contents" }}
 		className={cn([styles.row, onClick && styles.clickable, className])}
 		onClick={onClick ? (e) => onClick(item, e) : undefined}
 		onContextMenu={
@@ -70,7 +110,12 @@ export const TableRow = <T,>({
 		{selectable && (
 			<Td className={styles.selectCell}>
 				<Checkbox
+					aria-label={labelled(
+						selectRowLabel,
+						firstValue(item, columns)
+					)}
 					checked={isSelected}
+					data-testid={deriveTestId(props["data-testid"], "select")}
 					// The actual selection logic lives in onClick below (it
 					// needs shiftKey/ctrlKey/metaKey, which onChange doesn't
 					// carry) — a controlled checkbox still requires an
@@ -88,13 +133,22 @@ export const TableRow = <T,>({
 			</Td>
 		)}
 
-		{columns.map((col) => {
+		{columns.map((col, index) => {
 			if (col.key === "contextMenu" && onContextMenu) {
 				return (
 					<Td key="contextMenu" className={styles.contextMenuCell}>
 						<button
 							type="button"
 							className={styles.contextMenuButton}
+							aria-label={labelled(
+								rowActionsLabel,
+								firstValue(item, columns)
+							)}
+							aria-haspopup="menu"
+							data-testid={deriveTestId(
+								props["data-testid"],
+								"actions"
+							)}
 							onClick={(e) => {
 								e.stopPropagation();
 								onContextMenu(item, e, true);
@@ -111,8 +165,33 @@ export const TableRow = <T,>({
 			return (
 				<Td
 					key={col.key}
+					data-testid={deriveTestId(props["data-testid"], col.key)}
 					onClick={col.onClick ? () => col.onClick!(item) : undefined}
+					className={
+						index === 0 && rowButtonLabel
+							? styles.rowButtonCell
+							: undefined
+					}
 				>
+					{index === 0 && rowButtonLabel && onClick && (
+						<button
+							type="button"
+							className={styles.rowButton}
+							aria-label={labelled(
+								rowButtonLabel,
+								firstValue(item, columns)
+							)}
+							aria-pressed={rowButtonPressed}
+							data-testid={deriveTestId(
+								props["data-testid"],
+								"row-button"
+							)}
+							onClick={(e) => {
+								e.stopPropagation();
+								onClick(item, e);
+							}}
+						/>
+					)}
 					{typeof col.before === "function"
 						? col.before(item)
 						: undefined}
@@ -131,6 +210,19 @@ export const TableRow = <T,>({
 		})}
 
 		{/* Absorbs Table's trailing "1fr" filler grid track. */}
-		<Td />
+		<Td aria-hidden />
 	</div>
 );
+
+/**
+ * V2 TableRow — `display: contents` so its `Td`s land directly in
+ * `Table`'s grid (a real wrapper element would add its own grid item,
+ * breaking column alignment). Selection state comes down as `isSelected`/
+ * `onToggleSelect` — `Table` owns the actual `Set<key>` and shift/ctrl
+ * range logic, this only renders one row's worth of it.
+ *
+ * Native props and `ref` go to the `role="row"` element; `onClick` and
+ * `onContextMenu` are the row-level ones declared above. Derived testids:
+ * `-select`, `-actions`, `-row-button`, `-<column key>` per cell.
+ */
+export const TableRow = genericForwardRef(TableRowBase, "TableRow");

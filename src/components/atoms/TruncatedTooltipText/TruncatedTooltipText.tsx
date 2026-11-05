@@ -1,6 +1,12 @@
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, {
+	ComponentPropsWithoutRef,
+	forwardRef,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from "react";
 
-import { type Placement } from "@floating-ui/react";
+import { useMergeRefs, type Placement } from "@floating-ui/react";
 
 import { cn } from "@utils/cn";
 
@@ -8,7 +14,7 @@ import { Tooltip } from "../../molecules/Tooltip/Tooltip";
 
 import styles from "./TruncatedTooltipText.module.scss";
 
-export interface ITruncatedTooltipTextProps {
+export interface ITruncatedTooltipTextProps extends ComponentPropsWithoutRef<"span"> {
 	children: React.ReactNode;
 	/** Lines before truncating. 1 = single-line ellipsis, >1 = multi-line clamp. Defaults to 1. */
 	maxLines?: number;
@@ -19,33 +25,33 @@ export interface ITruncatedTooltipTextProps {
 	tooltipClassName?: string;
 }
 
-/**
- * V2 TruncatedTooltipText — truncates text (ellipsis, 1 or more lines) and
- * only enables a Tooltip with the full content once it's actually
- * overflowing (measured via ResizeObserver, re-checked on content/maxLines
- * change). Always renders the same `<Tooltip disabled={!isTruncated}>`
- * tree rather than conditionally mounting it — swapping element types once
- * truncation is detected would remount the trigger into a new DOM node,
- * losing hover state if the user's pointer was already over it (a real
- * timing race, not hypothetical: hovering right as a Storybook story
- * settles hits it easily). `useLayoutEffect` measures before paint too, so
- * there's no frame where the untruncated/disabled version is visible.
- */
-export const TruncatedTooltipText: React.FC<ITruncatedTooltipTextProps> = ({
-	children,
-	maxLines = 1,
-	placement = "top",
-	tooltip = true,
-	className = "",
-	tooltipClassName = "",
-}) => {
+const TruncatedTooltipTextBase: React.ForwardRefRenderFunction<
+	HTMLSpanElement,
+	ITruncatedTooltipTextProps
+> = (
+	{
+		children,
+		maxLines = 1,
+		placement = "top",
+		tooltip = true,
+		className = "",
+		tooltipClassName = "",
+		style,
+		...props
+	},
+	forwardedRef
+) => {
 	const ref = useRef<HTMLSpanElement>(null);
+	const mergedRef = useMergeRefs([ref, forwardedRef]);
 	const [isTruncated, setIsTruncated] = useState(false);
+	const [insideControl, setInsideControl] = useState(false);
 	const isMultiLine = maxLines > 1;
 
 	useLayoutEffect(() => {
 		const el = ref.current;
 		if (!el) return;
+
+		setInsideControl(!!el.closest("a, button"));
 
 		const checkTruncated = () => {
 			setIsTruncated(
@@ -64,13 +70,20 @@ export const TruncatedTooltipText: React.FC<ITruncatedTooltipTextProps> = ({
 
 	const content = (
 		<span
-			ref={ref}
+			{...props}
+			ref={mergedRef}
+			// eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- what's focused is what shows the tooltip
+			tabIndex={
+				tooltip && isTruncated && !insideControl ? 0 : props.tabIndex
+			}
 			className={cn([
 				styles.text,
 				isMultiLine ? styles.multiLine : styles.singleLine,
 				className,
 			])}
-			style={isMultiLine ? { WebkitLineClamp: maxLines } : undefined}
+			style={
+				isMultiLine ? { ...style, WebkitLineClamp: maxLines } : style
+			}
 		>
 			{children}
 		</span>
@@ -86,3 +99,25 @@ export const TruncatedTooltipText: React.FC<ITruncatedTooltipTextProps> = ({
 		</Tooltip>
 	);
 };
+
+/**
+ * V2 TruncatedTooltipText — truncates text (ellipsis, 1 or more lines) and
+ * only enables a Tooltip with the full content once it's actually
+ * overflowing (measured via ResizeObserver, re-checked on content/maxLines
+ * change). Always renders the same `<Tooltip disabled={!isTruncated}>`
+ * tree rather than conditionally mounting it — swapping element types once
+ * truncation is detected would remount the trigger into a new DOM node,
+ * losing hover state if the user's pointer was already over it (a real
+ * timing race, not hypothetical: hovering right as a Storybook story
+ * settles hits it easily). `useLayoutEffect` measures before paint too, so
+ * there's no frame where the untruncated/disabled version is visible.
+ *
+ * Text that's cut off takes keyboard focus, or the tooltip with the rest of
+ * it would be a mouse-only thing. Not inside a link or a button, already a
+ * tab stop of its own (and which the tooltip then won't help: their name is
+ * read in full anyway).
+ *
+ * Native props and `ref` go to the text `<span>`.
+ */
+export const TruncatedTooltipText = forwardRef(TruncatedTooltipTextBase);
+TruncatedTooltipText.displayName = "TruncatedTooltipText";

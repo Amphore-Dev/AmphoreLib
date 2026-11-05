@@ -1,3 +1,5 @@
+@use "../../../styles/mixins" as *;
+
 .table {
 	display: grid;
 	align-content: start;
@@ -9,6 +11,7 @@
 	// measures 0 and silently renders nothing at all, no error. A min-height
 	// guarantees *some* rows show even then; an explicit height/className
 	// from the consumer still wins as usual.
+	// stylelint-disable-next-line declaration-property-value-disallowed-list -- px: rem would only match at a 16px root
 	min-height: 200px;
 	overflow: auto;
 	font-family: var(--amp-font);
@@ -18,7 +21,7 @@
 	grid-column: 1 / -1;
 	display: flex;
 	justify-content: center;
-	padding: var(--amp-space-5) 0;
+	padding: space(6) 0;
 	color: var(--amp-color-sub);
-	font-size: 0.8125rem;
+	font-size: var(--amp-text-sm);
 }

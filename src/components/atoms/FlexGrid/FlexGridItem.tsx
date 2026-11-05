@@ -1,24 +1,22 @@
-import React, { HTMLAttributes } from "react";
+import React, { ComponentPropsWithoutRef, forwardRef } from "react";
 
 import { cn } from "@utils/cn";
 
 import styles from "./FlexGrid.module.scss";
 
-export interface IFlexGridItemProps extends HTMLAttributes<HTMLDivElement> {
+export interface IFlexGridItemProps extends ComponentPropsWithoutRef<"div"> {
 	/** Number of columns this item spans. Only meaningful inside a `FlexGrid` with a fixed `columns` count. Defaults to 1. */
 	span?: number;
 	className?: string;
 }
 
-export const FlexGridItem: React.FC<IFlexGridItemProps> = ({
-	span = 1,
-	children,
-	className = "",
-	style,
-	...props
-}) => (
+const FlexGridItemBase: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	IFlexGridItemProps
+> = ({ span = 1, children, className = "", style, ...props }, ref) => (
 	<div
 		{...props}
+		ref={ref}
 		className={cn([styles.item, className])}
 		style={
 			span > 1
@@ -32,3 +30,7 @@ export const FlexGridItem: React.FC<IFlexGridItemProps> = ({
 		{children}
 	</div>
 );
+
+/** One cell of a `FlexGrid`. Native props and `ref` go to the root `<div>`. */
+export const FlexGridItem = forwardRef(FlexGridItemBase);
+FlexGridItem.displayName = "FlexGridItem";

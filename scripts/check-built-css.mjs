@@ -12,6 +12,8 @@ const REQUIRED = [
 	"[data-amphore-svg-wrapper]{",
 	"[data-amphore-svg-wrapper]>*{",
 	"[data-amphore-svg-wrapper] [data-amphore-svg=current]",
+	// react-day-picker's own stylesheet, DatePicker imports it for its side effect.
+	".rdp-root{",
 ];
 
 // A required selector must start a rule, not be the tail of a scoped one
@@ -30,10 +32,51 @@ const startsARule = (needle) => {
 };
 
 const missing = REQUIRED.filter((selector) => !startsARule(selector));
+
+// The default theme: without it every `var(--amp-*)` outside an
+// AmphoreProvider is unresolved and components render unstyled. Names come
+// from the generated source, so a new token is checked with no change here.
+// Each must sit in a top-level `:root` rule: `:root{` alone could just as well
+// come from a dependency's stylesheet.
+const tokenNames = [
+	...readFileSync(
+		new URL("../src/styles/tokens.css", import.meta.url),
+		"utf8"
+	).matchAll(/^\s*(--amp-[\w-]+):/gm),
+].map((match) => match[1]);
+
+const rootDeclarations = new Set(
+	[...css.matchAll(/(?:^|[};]):root\{([^}]*)\}/g)]
+		.flatMap((match) => match[1].split(";"))
+		.map((declaration) => declaration.split(":")[0])
+);
+
+if (!tokenNames.length) missing.push("src/styles/tokens.css has no tokens");
+missing.push(
+	...tokenNames
+		.filter((name) => !rootDeclarations.has(name))
+		.map((name) => `:root ${name}`)
+);
+
 if (missing.length) {
 	console.error(
 		`lib/style.css is missing global rules:\n${missing.map((s) => `  ${s}`).join("\n")}`
 	);
 	process.exit(1);
 }
-console.log(`lib/style.css: ${REQUIRED.length} global rules present.`);
+
+// Vite concatenates the stylesheets along the import graph, and a component's
+// override of a lower-level one only wins by coming later: a single class
+// each, equal specificity. The order must stay atoms, molecules, organisms,
+// templates (vite.config.ts's keepSourceImportOrder is what guarantees it).
+const LAYERS = ["Button", "Select", "Table", "PageHeader"];
+const positions = LAYERS.map((name) => css.indexOf(`.amp-${name}-module__`));
+if (positions.some((at, i) => at === -1 || at < positions[i - 1])) {
+	console.error(
+		`lib/style.css is out of order, expected ${LAYERS.join(" < ")}`
+	);
+	process.exit(1);
+}
+console.log(
+	`lib/style.css: ${REQUIRED.length} global rules and ${tokenNames.length} :root tokens present, component layers in order.`
+);

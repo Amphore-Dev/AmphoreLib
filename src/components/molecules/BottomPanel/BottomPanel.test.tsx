@@ -149,3 +149,67 @@ describe("BottomPanel", () => {
 		});
 	});
 });
+
+describe("BottomPanel keyboard", () => {
+	it("closes on Escape", () => {
+		const onOpenChange = vi.fn();
+		render(
+			<BottomPanel open onOpenChange={onOpenChange}>
+				content
+			</BottomPanel>
+		);
+
+		fireEvent.keyDown(document.body, { key: "Escape" });
+
+		expect(onOpenChange).toHaveBeenCalledWith(false);
+	});
+
+	it("ties the handle to the content it toggles", () => {
+		render(
+			<BottomPanel open onOpenChange={() => {}}>
+				<p>Details</p>
+			</BottomPanel>
+		);
+		const handle = screen.getByRole("button", { name: "Collapse panel" });
+		const content = screen.getByText("Details").parentElement;
+
+		expect(handle).toHaveAttribute("aria-controls", content?.id);
+	});
+
+	it("moves focus to the handle when closed with focus inside", () => {
+		const { rerender } = render(
+			<BottomPanel open onOpenChange={() => {}}>
+				<button type="button">Inside</button>
+			</BottomPanel>
+		);
+		screen.getByRole("button", { name: "Inside" }).focus();
+
+		rerender(
+			<BottomPanel open={false} onOpenChange={() => {}}>
+				<button type="button">Inside</button>
+			</BottomPanel>
+		);
+
+		expect(
+			screen.getByRole("button", { name: "Expand panel" })
+		).toHaveFocus();
+	});
+
+	it("takes focus on open only when asked to", () => {
+		const { rerender } = render(
+			<BottomPanel open onOpenChange={() => {}}>
+				content
+			</BottomPanel>
+		);
+		expect(document.body).toHaveFocus();
+
+		rerender(
+			<BottomPanel open onOpenChange={() => {}} focusOnOpen>
+				content
+			</BottomPanel>
+		);
+		expect(
+			screen.getByRole("button", { name: "Collapse panel" })
+		).toHaveFocus();
+	});
+});

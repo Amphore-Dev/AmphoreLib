@@ -1,0 +1,94 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Guides/Migrating to 2.0" />
+
+# Migrating to 2.0
+
+What can break when moving from 1.x. Most apps only need the first section: the rest is worth checking if you target the listed APIs in tests or in your own CSS.
+
+## Imports
+
+The package now has an `exports` map, so only three paths resolve: the package root, its stylesheet and `package.json`.
+
+```tsx
+import { Button } from "@amphore-dev/amphore-lib";
+import "@amphore-dev/amphore-lib/style.css";
+```
+
+- `@amphore-dev/amphore-lib/lib/style.css` still works.
+- Any other path under `lib/` no longer does, `lib/index.js` included. Import from the root instead.
+- Dependencies are no longer bundled into the package, so they are installed and deduplicated by your package manager.
+
+## Theme
+
+| Before | Now |
+|---|---|
+| `theme` defaults to `"system"` | Defaults to `"light"`. Pass `theme="system"` to follow the OS |
+| `darkColors` had no effect | They apply with `theme="dark"`, and with `theme="system"` on a dark OS |
+| `config.spacing: { 1: ..., 6: ... }` | `config.spacing: { base: "0.25rem" }` only |
+| `--amp-space-1` to `--amp-space-6` | Removed. Use `calc(var(--amp-spacing) * n)`, or `space(n)` in the lib's SCSS |
+
+`--amp-space-*` map to these values of `n`:
+
+| Variable | Value | `n` |
+|---|---|---|
+| `--amp-space-1` | 0.375rem | 1.5 |
+| `--amp-space-2` | 0.5rem | 2 |
+| `--amp-space-3` | 0.875rem | 3.5 |
+| `--amp-space-4` | 1.125rem | 4.5 |
+| `--amp-space-5` | 1.5rem | 6 |
+| `--amp-space-6` | 2rem | 8 |
+
+An app that renders dark on purpose should check its screens: dark mode did not actually apply before 2.0.
+
+## Rendering
+
+Nothing to change in code, but tight layouts deserve a look.
+
+- **New default palette.** `primary` moves from `#0f9be8` to `#0674db`, and every other color and surface changes too. White on the old primary was 3.05:1, the new one reaches 4.64:1. Pin `colors` to keep the old look.
+- `warning` is now a bright amber with dark text on it. Set both `warning` and `warningForeground` if you override one.
+- **Text is larger.** The type scale moved to Tailwind's sizes: 13px and 13.5px become 14px, 15px becomes 16px, 17px becomes 18px. `Title` h1 and h2 shrink from 40 and 32px to 36 and 30px.
+- **Field heights stay 34, 42 and 58px**, and are now a minimum: a field no longer collapses when its content is short.
+- `TextArea` is 4px shorter: one row is 42px, each further row adds 24px.
+- `Checkbox` and `Radio` go from 17 to 16px, with a 2px border. `Slider` thumbs are 16, 20 and 24px.
+- `Card` sets its text color, so raw text inside it moves from black to `--amp-color-ink`.
+- `TimePicker` segments are wider.
+- `Modal` backdrop goes from .45 to .5. Tooltips now sit above modals.
+
+## Tests and selectors
+
+Fixed test ids are gone: the library no longer picks one for you. Set `data-testid` on a component, and its inner parts derive theirs from it.
+
+| Removed | Replacement |
+|---|---|
+| `data-testid={icon}` on `Picto` | `data-picto={icon}` |
+| `input-file`, `input-file-remove` | Your own `data-testid`, with derived ids such as `-remove` |
+| `textarea-resize-handle` | Your own `data-testid`, with the derived `-resize-handle` |
+
+Roles changed too, which affects `getByRole` queries:
+
+| Component | Before | Now |
+|---|---|---|
+| `Table` | `grid` | `table` |
+| `Td` | `gridcell` | `cell` |
+| `Select`, search input | `textbox` | `combobox` |
+| `Select`, loading and empty rows | plain rows | disabled options |
+| `Button` while loading | `disabled` | `aria-disabled`, so it keeps focus |
+
+## Behavior
+
+- `Popover` moves focus inside when it opens, and closes when focus tabs out.
+- `FormRenderer` now shows validation errors.
+- `SummaryListItem` renders its own `dl`, so it can stand alone.
+- `className` on `FilesField` goes to the grid rather than to each slot.
+- `type` can no longer be set on `DatePicker` or `ColorPickerField`.
+- Native props now reach a defined element for every component, see [Structure](?path=/docs/guides-structure--docs). On `Select`, `DatePicker` and `ColorPickerField` that is the trigger.
+
+## New in 2.0
+
+- Tree-shakable build: `import { Button }` no longer pulls in the whole library.
+- The library renders without `AmphoreProvider`, from the default tokens at `:root`.
+- `Text`, `FormRenderer` `readOnly`, `DatePicker` week mode and marked days, filters `params: false`.
+- A `-text` color for each semantic color, such as `--amp-color-warning-text`, for text on a light ground. It follows the base color when you override it.
+- Design tokens for type, weights, shadows, focus, layers, durations, borders and icons, overridable through `config`.
+- `data-testid` and every native prop forwarded on all components, `deriveTestId` exported.

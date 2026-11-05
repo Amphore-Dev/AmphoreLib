@@ -14,7 +14,8 @@ export interface IAmphoreScopeProps extends PropsWithChildren {
  * block matches on the `data-amp-scope` attribute alone, not on DOM
  * position, so it already applies here — nothing to duplicate.
  *
- * Passthrough when no provider is above: renders children bare.
+ * Passthrough when no provider is above: renders children bare, on the
+ * default tokens at `:root` (src/styles/tokens.css).
  *
  * Plain `div` on purpose (not `display: contents`) — an inline `style`
  * carrying custom properties must live on a real box for descendants to

@@ -1,0 +1,144 @@
+{/* Structure.mdx */}
+
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Guides/Structure" />
+
+# Structure & naming
+
+## One folder per component
+
+```
+Button/
+  Button.tsx
+  Button.module.scss
+  Button.test.tsx
+  Button.stories.tsx
+```
+
+One barrel `index.ts` only at the category level (`atoms/index.ts`, `molecules/index.ts`, `organisms/index.ts`, `templates/index.ts`) — never an `index.ts` per component.
+
+## Naming conventions
+
+| Prefix | For |
+|---|---|
+| `TFoo` | data type (`TColor`, `TTabItem`) |
+| `IFooProps` | a component's props interface |
+| `CFoo` | constants file (`CPictos`, `CThemeConfig`) |
+| `UFoo` | grouped utilities file (`UPicto`, `UFormGroups`) |
+
+## Where does a type live?
+
+A component file exports **only** its own `IFooProps`. Every other type (`TFooVariant`, an item shape like `TTabItem`/`TAccordionItem`) stays local to that component (it plus its test/story) **as long as nothing else uses it** — it doesn't move up to `src/types/` just because it's exported.
+
+It moves up to `src/types/` only once it's actually used by more than one component module — check with a `grep` of the name before moving anything:
+
+```bash
+grep -rn "TTabItem" src/components --include="*.tsx" | grep -v "Tabs.tsx\|Tabs.test\|Tabs.stories"
+```
+
+Zero results → stays local. A hit in ANOTHER component → move it to `src/types/`, import it via `@interfaces`, don't leave a re-export in the original file. Real examples: `TMenuItem` (Dropdown + ContextMenu + MenuList), `TSummaryListItem` (SummaryList + EditableCard), `TTabItem` (Tabs + PageHeader) — all three made that move to `src/types/` the moment a second component needed them, not before.
+
+## Files not exported by the lib
+
+`src/index.ts` only re-exports `./components`, `./theme`, `./contexts`, `./hooks`, `./types`, `./utils`, `./constants` — that's the only list that matters for what ends up in the published package. `src/stories/` (this page included, and `StoriesArgs.ts` — see [Guides/Verification](?path=/docs/guides-verification--docs)) isn't in it: everything living there stays invisible to the package, usable only by the `*.stories.tsx`/`*.mdx` files themselves.
+
+## Native props
+
+Every component accepts the native attributes of the element it renders (`aria-*`, `data-*`, event handlers, `id`, `style`...) and forwards them. A component's props interface declares this itself, omitting only what it redefines:
+
+```ts
+export interface IBadgeProps extends Omit<React.ComponentPropsWithoutRef<"span">, "color"> {
+```
+
+**Where they go.** Native props and `ref` always land on the same element, named in the component's JSDoc. The rule is that an attribute has to mean something where it lands: `aria-label` on a role-less layout `<div>` does nothing.
+
+| Kind | Native props and `ref` | Other props |
+|---|---|---|
+| Display and containers (`Badge`, `Card`, `Table`, `Modal`, `Tour`) | the root, or the panel with the `dialog` role | |
+| Form controls (`Input`, `TextArea`, `NumberInput`, `Slider`, `Checkbox`, `Radio`, `Toggle`, `ChipInput`) | the `<input>`/`<textarea>` | `wrapperProps`: the outer container |
+| One trigger (`Select`, `DatePicker`, `ColorPickerField`) | the trigger, the element with the role | `wrapperProps`, and for `Select` `menuProps`, `inputProps` |
+| One element with the role inside a layout wrapper (`Tabs`, `Progress`, `CheckboxFilter`, `RadioFilter`) | the `tablist`, the `progressbar`, the group | `wrapperProps` |
+| Several inner controls (`TimePicker`, `InputFile`, `FilesField`, `PeriodFilter`, `TimeRangeFilter`) | the box or grid holding them | `wrapperProps`, `hoursInputProps`/`minutesInputProps`, `inputProps` |
+| No element of their own (`Tooltip`, `Popover`, `Dropdown`, `ContextMenu`) | the floating panel | the trigger is the consumer's own element |
+
+`className` follows them, with three exceptions, each for a reason. On `Input`, `TextArea`, `NumberInput`, `Slider` and `ChipInput` it goes to the field box around the `<input>`: a width class has to size the box with its icons and buttons, not the text inside it. On `Progress` it goes to the outer container, for the same reason. On `Picto` it goes to the `<svg>`, which is what it styles.
+
+**Merge, never overwrite.**
+
+- `{...rest}` comes first, internal attributes after: a stray `data-size` can't override the real one. A default a consumer may replace (`aria-label={navigationLabel}`) comes before it.
+- `className` through `cn`, `style` spread into the component's own, `aria-describedby` joined with the error's id.
+- A handler the component also needs is composed, both run: `composeHandlers(onBlur, handleBlur)`, from `@utils/UHandlers`. On a floating-ui element, pass the props through `getFloatingProps(rest)` / `getReferenceProps(rest)`, which compose them too.
+- A second internal ref merges with `useMergeRefs`.
+- Every component with an element of its own is a `forwardRef`, so any of them can be a floating trigger. The render function keeps its indentation: `const XBase = (...) => {...}; export const X = forwardRef(XBase);`. Generic components use `genericForwardRef` (`@utils/UForwardRef`), which keeps their type parameters.
+
+## Test ids
+
+The application sets `data-testid` on a component, like any native prop. Inner parts derive theirs from it with `deriveTestId` (exported), each component listing them in its JSDoc:
+
+```tsx
+<Modal data-testid="invoice" title="Invoice" open onClose={close} />
+// dialog: invoice, title: invoice-title, close button: invoice-close,
+// body: invoice-content, footer: invoice-footer, overlay: invoice-overlay
+
+<ConfirmModal data-testid="delete" ... />
+// also: delete-primary (confirm), delete-secondary (cancel)
+
+<Dropdown data-testid="actions" items={[{ id: "rename", ... }, { ... }]}>
+// actions-item-rename, then actions-item-1: the id, else the position
+```
+
+Without a `data-testid` there is nothing to derive from, and nothing is set: the library never invents a test id, so it can never collide with one of the application's, nor change under its tests. Give `id`s to the items a test targets (`TMenuItem.id`, `TNavItem.id`, `TTableItemAction.id`): a position moves when the list does.
+
+Reach for a role and a name first (`getByRole("button", { name: "Save" })`); a test id is for what those can't tell apart. `Picto` marks the icon it draws with `data-picto`, which isn't a test id, for a stylesheet or a test that needs to tell icons apart.
+
+`tests/expectNativeProps.tsx` holds the contract, and `src/components/nativeProps.test.tsx` applies it: one entry per exported component, and a test that fails when a component has none.
+
+---
+
+## Styles
+
+No raw design value in SCSS: colors, type, spacing, sizes, radius, shadows, layers, durations, borders and outlines go through a token or a scale function from `src/styles/_mixins.scss`. `yarn lint:css` (Stylelint, in CI) enforces it, on values only: formatting stays with Prettier. A hex, `rgb()` or `hsl()` in a component's `style={{}}` fails ESLint for the same reason.
+
+```scss
+@use "../../../styles/mixins" as *;
+
+.title {
+	@include text(sm, semibold); // size + line height + weight
+	gap: space(2);
+	--_size: #{space(7)}; // Sass does not evaluate functions in a custom property
+	padding: calc(#{space(2)} - 1px); // a border compensation, written as one
+	transition: color var(--amp-duration-fast) var(--amp-ease);
+
+	&:focus-visible {
+		@include focus-ring;
+	}
+}
+```
+
+One value goes through `var()` or `space()`. A mixin (`text`, `focus-ring`, `truncate`) groups declarations that repeat, and only holds `var()`. `space()`, `text()` and `weight()` fail compilation off scale. Inside `calc()`, `min()` and `max()`, interpolate: `#{space(2)}`.
+
+**What stays legal:** `0`, keywords, `1px` as a hairline (a rem would not stay one), `%` and `em` (relative, so on no absolute scale), z-index 0 to 3 inside a component.
+
+**An exception** is a `stylelint-disable-next-line` with its reason after `--`, which the lint requires:
+
+```scss
+// stylelint-disable-next-line scale-unlimited/declaration-strict-value -- off scale: 9px, below text-xs
+font-size: 0.5625rem;
+```
+
+Use it for a value a token cannot express without changing what renders. Never round to the nearest step to avoid one: an off-scale value is a design decision, not a lint fix. Tokens available and how to override them: [Guides/Theme](?path=/docs/guides-theme--docs).
+
+`scripts/migrate-tokens.mjs <file or folder>` moves raw values onto tokens, exact matches only.
+
+---
+
+## Two recurring CSS recipes
+
+**Collapse/expand (`grid-template-rows: 0fr → 1fr`)** — the element whose row track collapses to `0fr` must carry `overflow: hidden` **and** zero padding/margin of its own (padding is a fixed floor, unaffected by `min-height: 0` — the content visibly overflows, cut off mid-character). Fix: nest one level deeper — the collapsing element only has `min-height: 0; overflow: hidden;`, a child carries the padding. Seen twice on `Accordion`.
+
+**`<input type="range">`** — don't style it via `::-webkit-slider-*`/`::-moz-range-*` (cross-browser support is too uneven). Absolutely-positioned `div`s for track/fill/thumb (`aria-hidden`, plain CSS); the real `<input type="range">` sits on top at `opacity: 0`, doing all the actual work (drag, keyboard, focus, a11y). See `Slider.tsx`.
+
+---
+
+See also: `Button/`, `TMenuItem` (`src/types/TMenuItem.ts`), [Guides/Verification](?path=/docs/guides-verification--docs).

@@ -28,7 +28,7 @@ export const cleanSlice = <S extends object>(
 	return out;
 };
 
-/** Encodes a filters slice into URL params, using each key's codec (`true` = raw value, or a `{get,set,key}` accessor). Only declared keys are emitted. */
+/** Encodes a filters slice into URL params, using each key's codec (`true` = raw value, or a `{get,set,key}` accessor). Only declared keys are emitted, and never one declared `false`. */
 export const genFiltersParams = <S extends TFiltersSlice<object>>(
 	filters: S,
 	paramsCodecs?: Partial<TParamsCodecs<S>>

@@ -1,0 +1,130 @@
+{/* Theming.mdx */}
+
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Guides/Theme" />
+
+# Theming
+
+The whole lib is driven via **CSS variables** set by `AmphoreProvider` — never a hardcoded color/spacing in a `.module.scss`, never a JS branch on a theme.
+
+```tsx
+<AmphoreProvider config={{ colors: { primary: "#e2673f" }, style: "round" }}>
+  <App />
+</AmphoreProvider>
+```
+
+Without a config, the default theme applies (`DEFAULT_CONFIG` in `CThemeConfig.ts`) — `typography.fontFamily` defaults to `"inherit"`: the lib doesn't load any webfont itself, it lets the host app's font cascade naturally (see `CThemeConfig.ts` for the detail behind this decision).
+
+---
+
+## `--amp-*` variables
+
+Every component reads its styles via `var(--amp-*)`, never a literal value:
+
+```scss
+.button {
+	font-family: var(--amp-font);
+	border-radius: var(--amp-radius-md);
+	padding: space(2) space(3.5);
+	color: var(--amp-color-ink);
+}
+```
+
+`AmphoreProvider` computes these variables (`configToCssVars` in `UThemeConfig.ts`) and sets them as inline `style` on its own wrapper — every descendant component inherits them.
+
+The flip side: anything rendered **outside** that wrapper in the DOM — a portal to `document.body` — doesn't inherit them, and falls back to the default theme at `:root` (see below) instead of the provider's. `AmphoreScope` re-applies the nearest provider's wrapper attributes and vars (read from `AmphoreScopeContext`) around such content, and `AmphorePortal` bundles it with `FloatingPortal`. See [Guides/Floating Overlays](?path=/docs/guides-floating-overlays--docs).
+
+## Without a provider
+
+`AmphoreProvider` is optional. `lib/style.css` also defines the default light theme at `:root`, so components render correctly with no provider at all ([Configuration/Without a provider](?path=/story/configuration-without-a-provider--components)):
+
+```tsx
+import { Button } from "@amphore-dev/amphore-lib";
+import "@amphore-dev/amphore-lib/lib/style.css";
+
+<Button>Save</Button>;
+```
+
+What you don't get without one: `config`, the dark palette (the fallback stays light whatever the OS, since dark mode is the provider's `theme`), `locale`, and `config.defaults`. Labels stay in English and `size` falls back to `"md"`.
+
+A provider always wins over the fallback: `:root` is only the far end of inheritance, and the provider sets every one of these variables on its own wrapper, closer to the component. Same for a nested provider, the dark palette, and `AmphoreScope` inside a portal.
+
+The rule comes from `src/styles/tokens.css`, generated from the same defaults as the provider (`mergeConfig` + `configToCssVars`), never edited by hand:
+
+- After changing a default in `CThemeConfig.ts`, run `yarn tokens` and commit the result. `src/theme/tokens.test.ts` fails while the file is stale.
+- That test also fails on any `var(--amp-*)` read in `src/` that the fallback doesn't define: a typo'd or removed token can't ship unnoticed. A variable a component sets for itself should be named `--_x`, which the check ignores.
+- `scripts/check-built-css.mjs` fails `yarn build` if any token didn't reach a `:root` rule in `lib/style.css`.
+
+## `data-*`, never a conditional className
+
+Variant/color/size/state go through `data-*` attributes, read in CSS — not `cn([styles.x, condition && styles.y])` for this:
+
+```tsx
+<div data-color={color} data-variant={variant} data-size={size} />
+```
+
+```scss
+.button {
+	&[data-color="primary"] {
+		--_color: var(--amp-color-primary);
+		--_color-fg: var(--amp-color-primary-fg);
+		--_color-tint: var(--amp-color-primary-tint);
+	}
+
+	&[data-variant="solid"] {
+		background: var(--_color);
+		color: var(--_color-fg);
+	}
+}
+```
+
+One `[data-color="x"]` block per color sets local variables (`--_color`/`--_color-fg`/`--_color-tint`); the `[data-variant]` blocks consume them. Adding a color means one rule here, not one per variant — see `Button.module.scss`, `Badge.module.scss`.
+
+## Text colors
+
+A semantic color has four tokens: `--amp-color-warning` fills, `-fg` is the text on that fill, `-tint` is a light background, and `-text` is text in that color on a light ground. A fill too light for text keeps a darker tone there, which is why `warning` can be bright. Overriding a color resets its `-text` to the same value, so set `warningText` too if your color is too light to read.
+
+## Density
+
+`density: "comfortable" | "compact"` drives layout spacing (gaps, `Card`/`SectionCard` padding) — purely via CSS variables (`DENSITY_PRESETS` in `CThemeConfig.ts`), no JS context/hook needed.
+
+## Dark theme
+
+`<AmphoreProvider theme="light" | "dark" | "system">` (default `"light"`). A separate `darkColors` palette (not a JS inversion of `colors`) is resolved **in CSS** — a `<style>` scoped to the provider instance + `@media (prefers-color-scheme)` — never a JS media-query detection (risk of SSR/hydration mismatch).
+
+Those dark declarations are `!important` on purpose: the light palette is inlined on the same element, and an inline declaration beats any plain stylesheet rule regardless of specificity. The rule only matches that provider's own scope id, so it can't reach a nested provider's node.
+
+Dark is opt-in: with `"system"`, components turn dark for anyone whose OS is dark, whatever the page around them looks like, so pick it once the app has a dark design of its own.
+
+## Scales
+
+Every design value has a token, and every token's default lives in the config (`DEFAULT_CONFIG` in `CThemeConfig.ts`), never in SCSS. Each section below is overridable one key at a time: `config={{ text: { sm: "0.875rem" }, durations: { fast: "0.2s" } }}`.
+
+| Config | Variables | Read with |
+|---|---|---|
+| `spacing.base` | `--amp-spacing` | `space($n)` |
+| `text` | `--amp-text-{xs,sm,base,lg,xl,2xl,3xl,4xl}`, sized like Tailwind | `@include text(sm)` with its line height, `var()` alone |
+| `leading` | `--amp-leading-<text step>`, `--amp-leading-{none,tight,snug,normal}` | `@include text(sm)`, `var()` alone |
+| `weights` | `--amp-weight-{regular,medium,semibold,bold}` | `weight(semibold)` |
+| `shadows` | `--amp-shadow-{sm,md,lg,xl}` | `var()` |
+| `shadowColors` | `--amp-shadow-color-{1..5}`, one per `Card` elevation | `var()` |
+| `focus` | `--amp-focus-{color,width,offset}` | `@include focus-ring` |
+| `layers` | `--amp-z-{sticky,raised,overlay,tooltip}` | `var()` |
+| `durations`, `ease` | `--amp-duration-{instant,fast,base,slow}`, `--amp-ease` | `var()` |
+| `borders` | `--amp-border-width-{sm,md}` | `var()` |
+| `icons` | `--amp-icon-{xs,sm,md,lg,xl,2xl}` | `var()` |
+
+**`space()` is one linear scale**, `$n` units of `--amp-spacing`: `space(2)` is `0.5rem`, `space(1.5)` is `0.375rem`, and `$n` must be a multiple of 0.5.
+
+**It is the only spacing scale.** Changing `spacing.base` moves every gap and padding of the lib at once.
+
+`--amp-focus-color` defaults to `var(--amp-color-primary)`, so the ring follows the palette in force.
+
+## Radius: `sm` / `md` / `lg` / `full`
+
+Three progressive presets (`sharp` < default < `round`), plus `full` (pill/circle, outside this progression). Always usable — check that the default theme actually differentiates the three before adding a new component that depends on it (a bug already fixed once: the default's `sm` was identical to `sharp`).
+
+---
+
+See also: `AmphoreProvider.tsx`, `CThemeConfig.ts`, `UThemeConfig.ts`, `tokens.test.ts`, [Guides/Sizing](?path=/docs/guides-sizing--docs).

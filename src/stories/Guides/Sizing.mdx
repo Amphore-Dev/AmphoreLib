@@ -2,7 +2,7 @@
 
 import { Meta } from "@storybook/addon-docs/blocks";
 
-<Meta title="Directives/Sizing" />
+<Meta title="Guides/Sizing" />
 
 # Sizing
 
@@ -22,7 +22,7 @@ const size = sizeProp ?? defaultSize ?? "md";
 </AmphoreProvider>
 ```
 
-Applied everywhere `size` exists: `Button`, `Input`, `TextArea`, `NumberInput`, `Select`, `Badge`, `Spinner`, `Tabs`, `Accordion`, `DatePicker`, `TimePicker`, `ColorPickerField`, `Modal`, `ConfirmModal`, `Progress`, `Slider`, `InfoMessage`.
+Applied everywhere `size` exists: `Button`, `Input`, `TextArea`, `NumberInput`, `Select`, `Badge`, `Spinner`, `Tabs`, `Accordion`, `DatePicker`, `TimePicker`, `ColorPickerField`, `Modal`, `ConfirmModal`, `Progress`, `Slider`, `InfoMessage`, `Text`.
 
 **Story convention**: every component with a `size` has a `DefaultSizeFromConfig` story that demonstrates this dual behavior (inherited default + explicit prop winning) — see `Button.stories.tsx`/`Select.stories.tsx` for the pattern.
 
@@ -34,4 +34,4 @@ A prop (`color`, or any other) only gets added when a real use case exists — n
 
 ---
 
-See also: `useAmphoreDefaults.ts`, [Directives/Theming](?path=/docs/directives-theming--docs) (radius `sm`/`md`/`lg`, the same conceptual progression but a separate system).
+See also: `useAmphoreDefaults.ts`, [Guides/Theme](?path=/docs/guides-theme--docs) (radius `sm`/`md`/`lg`, the same conceptual progression but a separate system).

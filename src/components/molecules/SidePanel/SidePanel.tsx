@@ -1,13 +1,16 @@
-import React, { PropsWithChildren } from "react";
+import React, { forwardRef, useEffect, useId, useRef } from "react";
+
+import { useMergeRefs } from "@floating-ui/react";
 
 import { AmphorePortal } from "@theme/AmphorePortal";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
-import { useMediaQuery } from "@hooks/index";
+import { useEscapeLayer, useMediaQuery, useRestoreFocus } from "@hooks/index";
 
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
-import type { TLabel } from "@interfaces/index";
+import type { ITestIdProps, TLabel } from "@interfaces/index";
 
 import { Card, ICardProps } from "../../atoms/Card/Card";
 import { Picto } from "../../atoms/Picto/Picto";
@@ -16,7 +19,8 @@ import { IModalProps, Modal } from "../Modal/Modal";
 
 import styles from "./SidePanel.module.scss";
 
-export interface ISidePanelProps extends PropsWithChildren {
+export interface ISidePanelProps
+	extends Omit<React.ComponentPropsWithoutRef<"div">, "title">, ITestIdProps {
 	/** Controlled — same convention as Modal/ConfirmModal. */
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
@@ -121,38 +125,45 @@ export interface ISidePanelProps extends PropsWithChildren {
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
 export type TSidePanelLabels = Pick<ISidePanelProps, "closeLabel">;
 
-/**
- * V2 SidePanel — a docked detail panel: a sticky right-hand column on
- * desktop, and below `mobileBreakpoint` either a draggable BottomPanel
- * sliding up from the bottom (default) or a centered Modal
- * (`mobileMode="modal"`). The one legitimate use of `useMediaQuery` in
- * this lib (see its own doc comment) — desktop and mobile aren't the same
- * tree styled differently, they're two different components. Closing
- * behaves the same on both by default (fully gone) — `keepDockedOnMobile`
- * opts the mobile BottomPanel into its own native closed-but-peeking
- * behavior instead, for the cases that actually want it.
- */
-export const SidePanel: React.FC<ISidePanelProps> = ({
-	open,
-	onOpenChange,
-	title,
-	header,
-	hideCloseButton = false,
-	mobileBreakpoint = 1280,
-	mobileMode = "bottomPanel",
-	overlay = false,
-	keepDockedOnMobile = false,
-	bottomPanelProps,
-	modalProps,
-	cardProps,
-	closeLabel: closeLabelProp,
-	portal = false,
-	className = "",
-	children,
-}) => {
+const SidePanelBase: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	ISidePanelProps
+> = (
+	{
+		open,
+		onOpenChange,
+		title,
+		header,
+		hideCloseButton = false,
+		mobileBreakpoint = 1280,
+		mobileMode = "bottomPanel",
+		overlay = false,
+		keepDockedOnMobile = false,
+		bottomPanelProps,
+		modalProps,
+		cardProps,
+		closeLabel: closeLabelProp,
+		portal = false,
+		className = "",
+		children,
+		...props
+	},
+	ref
+) => {
 	const isMobile = useMediaQuery(`(max-width: ${mobileBreakpoint - 1}px)`);
 	const { resolve } = useAmphoreLabels("SidePanel");
 	const closeLabel = resolve("closeLabel", closeLabelProp, "close");
+	const testId = props["data-testid"];
+	const titleId = useId();
+	const panelRef = useRef<HTMLDivElement>(null);
+	const mergedRef = useMergeRefs([panelRef, ref]);
+	const floats = open && overlay && !isMobile;
+
+	useRestoreFocus(open);
+	useEscapeLayer(floats, () => onOpenChange(false));
+	useEffect(() => {
+		if (floats) panelRef.current?.focus({ preventScroll: true });
+	}, [floats]);
 
 	if (isMobile && mobileMode === "modal") {
 		// Modal's `title` is a plain string (it doubles as the dialog's
@@ -161,7 +172,9 @@ export const SidePanel: React.FC<ISidePanelProps> = ({
 		const titleIsString = typeof title === "string";
 		return (
 			<Modal
+				{...props}
 				{...modalProps}
+				ref={ref}
 				open={open}
 				onClose={() => onOpenChange(false)}
 				title={titleIsString ? title : undefined}
@@ -184,13 +197,23 @@ export const SidePanel: React.FC<ISidePanelProps> = ({
 
 		return (
 			<BottomPanel
+				{...props}
 				{...bottomPanelProps}
+				ref={ref}
 				open={open}
 				onOpenChange={onOpenChange}
+				focusOnOpen
 				portal={portal}
 				className={className}
 			>
-				{title && <h2 className={styles.mobileTitle}>{title}</h2>}
+				{title && (
+					<h2
+						className={styles.mobileTitle}
+						data-testid={deriveTestId(testId, "title")}
+					>
+						{title}
+					</h2>
+				)}
 				{header}
 				{children}
 			</BottomPanel>
@@ -202,8 +225,15 @@ export const SidePanel: React.FC<ISidePanelProps> = ({
 	const panel = (
 		<Card
 			elevation={overlay ? 4 : 2}
-			aria-label={typeof title === "string" ? title : undefined}
+			tabIndex={overlay ? -1 : undefined}
+			aria-labelledby={
+				title && !props["aria-label"] && !cardProps?.["aria-label"]
+					? titleId
+					: undefined
+			}
+			{...props}
 			{...cardProps}
+			ref={mergedRef}
 			noPadding
 			className={cn([styles.panel, className])}
 			data-overlay={overlay || undefined}
@@ -211,7 +241,15 @@ export const SidePanel: React.FC<ISidePanelProps> = ({
 		>
 			{(title || header || !hideCloseButton) && (
 				<div className={styles.header}>
-					{title && <h2 className={styles.title}>{title}</h2>}
+					{title && (
+						<h2
+							id={titleId}
+							className={styles.title}
+							data-testid={deriveTestId(testId, "title")}
+						>
+							{title}
+						</h2>
+					)}
 					{header && (
 						<div className={styles.headerSlot}>{header}</div>
 					)}
@@ -221,15 +259,46 @@ export const SidePanel: React.FC<ISidePanelProps> = ({
 							className={styles.close}
 							onClick={() => onOpenChange(false)}
 							aria-label={closeLabel}
+							data-testid={deriveTestId(testId, "close")}
 						>
 							<Picto icon="cross" />
 						</button>
 					)}
 				</div>
 			)}
-			<div className={styles.body}>{children}</div>
+			<div
+				className={styles.body}
+				data-testid={deriveTestId(testId, "content")}
+			>
+				{children}
+			</div>
 		</Card>
 	);
 
 	return portal && overlay ? <AmphorePortal>{panel}</AmphorePortal> : panel;
 };
+
+/**
+ * V2 SidePanel — a docked detail panel: a sticky right-hand column on
+ * desktop, and below `mobileBreakpoint` either a draggable BottomPanel
+ * sliding up from the bottom (default) or a centered Modal
+ * (`mobileMode="modal"`). The one legitimate use of `useMediaQuery` in
+ * this lib (see its own doc comment) — desktop and mobile aren't the same
+ * tree styled differently, they're two different components. Closing
+ * behaves the same on both by default (fully gone) — `keepDockedOnMobile`
+ * opts the mobile BottomPanel into its own native closed-but-peeking
+ * behavior instead, for the cases that actually want it.
+ *
+ * Focus: the sticky column is part of the page and never takes focus, an
+ * `overlay` panel or a mobile sheet does when it opens (rendered last in the
+ * document, it would otherwise be a long way off by Tab), and Escape closes
+ * those two. Closing with focus inside hands it back to whoever had it, in
+ * every mode. No focus trap: the page stays usable next to the panel.
+ *
+ * Native props and `ref` go to whichever panel is showing: the docked Card,
+ * the BottomPanel sheet or the Modal dialog. Derived testids: `-title`,
+ * `-close`, `-content` on the docked panel, BottomPanel's or Modal's own
+ * below the breakpoint.
+ */
+export const SidePanel = forwardRef(SidePanelBase);
+SidePanel.displayName = "SidePanel";

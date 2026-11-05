@@ -212,3 +212,57 @@ describe("TimePicker", () => {
 		expect(screen.getByText("Requis")).toBeInTheDocument();
 	});
 });
+
+describe("TimePicker accessibility", () => {
+	it("groups its segments under the label", () => {
+		render(<TimePicker label="Start" value={null} onChange={() => {}} />);
+		expect(
+			screen.getByRole("group", { name: "Start" })
+		).toBeInTheDocument();
+	});
+
+	it("focuses the hours when the label is clicked", async () => {
+		const user = userEvent.setup();
+		render(<TimePicker label="Start" value={null} onChange={() => {}} />);
+
+		await user.click(screen.getByText("Start"));
+
+		expect(screen.getByRole("textbox", { name: /hours/ })).toHaveFocus();
+	});
+
+	it("takes a group name without a visible label", () => {
+		render(
+			<TimePicker aria-label="From" value={null} onChange={() => {}} />
+		);
+		expect(screen.getByRole("group", { name: "From" })).toBeInTheDocument();
+	});
+
+	it("links the error to both segments", () => {
+		render(
+			<TimePicker
+				label="Start"
+				value={null}
+				onChange={() => {}}
+				error="Required"
+			/>
+		);
+		for (const segment of screen.getAllByRole("textbox")) {
+			expect(segment).toBeInvalid();
+			expect(segment).toHaveAccessibleDescription("Required");
+		}
+	});
+
+	it("states required on both segments", () => {
+		render(
+			<TimePicker
+				label="Start"
+				value={null}
+				onChange={() => {}}
+				required
+			/>
+		);
+		for (const segment of screen.getAllByRole("textbox")) {
+			expect(segment).toBeRequired();
+		}
+	});
+});

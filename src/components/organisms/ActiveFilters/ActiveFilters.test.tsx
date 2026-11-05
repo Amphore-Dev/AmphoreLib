@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { fireEvent, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import { IUseFiltersContext, TFiltersModalGroup } from "@interfaces/index";
@@ -75,7 +76,7 @@ describe("ActiveFilters", () => {
 				)}
 			/>
 		);
-		screen.getByLabelText("Remove").click();
+		screen.getByRole("button", { name: /^Remove/ }).click();
 		expect(setFilter).toHaveBeenCalledWith("status", null);
 	});
 
@@ -111,7 +112,7 @@ describe("ActiveFilters", () => {
 				)}
 			/>
 		);
-		screen.getAllByLabelText("Remove")[0].click();
+		screen.getAllByRole("button", { name: /^Remove/ })[0].click();
 		expect(setFilter).toHaveBeenCalledWith("tags", ["b"]);
 	});
 
@@ -145,7 +146,7 @@ describe("ActiveFilters", () => {
 		expect(
 			screen.getByText(/From 2024-01-01 to 2024-01-31/)
 		).toBeInTheDocument();
-		screen.getByLabelText("Remove").click();
+		screen.getByRole("button", { name: /^Remove/ }).click();
 		expect(setFilters).toHaveBeenCalledWith({
 			start: null,
 			end: null,
@@ -281,7 +282,78 @@ describe("ActiveFilters", () => {
 					"clientWidth",
 					clientWidthDescriptor
 				);
+			} else {
+				// clientWidth lives on Element: nothing to put back here.
+				delete (HTMLElement.prototype as { clientWidth?: number })
+					.clientWidth;
 			}
 		}
+	});
+});
+
+describe("ActiveFilters keyboard", () => {
+	/** A context whose filters really change, so chips really unmount. */
+	const Live: React.FC<{ initial: TSlice }> = ({ initial }) => {
+		const [filters, setFiltersState] = useState<TSlice>(initial);
+		const context = makeFiltersContext(filters, {
+			setFilter: ((name: keyof TSlice, value: never) =>
+				setFiltersState((prev) => {
+					const next = { ...prev, [name]: value };
+					if (value === null) delete next[name];
+					return next;
+				})) as never,
+			setFilters: ((values: TSlice) => setFiltersState(values)) as never,
+			options: {
+				countCallback: () =>
+					Object.values(filters).flat().filter(Boolean).length,
+				defaultValues: {},
+			} as never,
+		});
+		return (
+			<ActiveFilters filters={filterGroups} filtersContext={context} />
+		);
+	};
+
+	it("names each chip's remove button after the chip", () => {
+		render(<Live initial={{ status: "open" }} />);
+		expect(
+			screen.getByRole("button", { name: "Remove: Statut: open" })
+		).toBeInTheDocument();
+	});
+
+	it("moves focus to the next chip after removing one", async () => {
+		const user = userEvent.setup();
+		render(<Live initial={{ tags: ["a", "b"] }} />);
+
+		await user.click(
+			screen.getByRole("button", { name: "Remove: Tags: a" })
+		);
+
+		expect(
+			screen.getByRole("button", { name: "Remove: Tags: b" })
+		).toHaveFocus();
+	});
+
+	it("keeps focus in the component when the last chip goes", async () => {
+		const user = userEvent.setup();
+		const { container } = render(<Live initial={{ status: "open" }} />);
+
+		await user.click(screen.getByRole("button", { name: /Remove/ }));
+
+		expect(container.firstElementChild).toHaveFocus();
+	});
+
+	it("keeps focus in the component after a reset", async () => {
+		const user = userEvent.setup();
+		const { container } = render(<Live initial={{ status: "open" }} />);
+
+		await user.click(screen.getByRole("button", { name: "Reset" }));
+
+		expect(container.firstElementChild).toHaveFocus();
+	});
+
+	it("announces the count", () => {
+		render(<Live initial={{ status: "open" }} />);
+		expect(screen.getByRole("status")).toHaveTextContent("1 active filter");
 	});
 });

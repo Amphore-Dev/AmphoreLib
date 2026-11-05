@@ -1,4 +1,6 @@
-import React, { useId } from "react";
+import React, { forwardRef, useId, useRef } from "react";
+
+import { useMergeRefs } from "@floating-ui/react";
 
 import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
@@ -6,9 +8,16 @@ import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 import type { TPictoName } from "@constants/index";
 
 import { getPicto } from "@utils/UPicto";
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
-import { TColor, TLabel, TSize } from "@interfaces/index";
+import {
+	ITestIdProps,
+	TColor,
+	TElementProps,
+	TLabel,
+	TSize,
+} from "@interfaces/index";
 
 import { InputErrorMessage } from "../InputErrorMessage/InputErrorMessage";
 import type { IPictoProps } from "../Picto/Picto";
@@ -16,10 +25,13 @@ import { Picto } from "../Picto/Picto";
 
 import styles from "./Input.module.scss";
 
-export interface IInputProps extends Omit<
-	React.InputHTMLAttributes<HTMLInputElement>,
-	"onChange" | "value" | "size" | "color"
-> {
+export interface IInputProps
+	extends
+		Omit<
+			React.ComponentPropsWithoutRef<"input">,
+			"onChange" | "value" | "size" | "color"
+		>,
+		ITestIdProps {
 	/** Controlled value. Always `string` — pass `""`, never `null`/`undefined`, to stay controlled. */
 	value?: string;
 	onChange?: (value: string, e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -34,8 +46,11 @@ export interface IInputProps extends Omit<
 	isClearable?: boolean;
 	/** Rendered after the clear button — e.g. a visibility toggle (PasswordField), a unit. Same convention as NumberInput's `after`. */
 	after?: React.ReactNode;
+	/** The field box (border, icons, `<input>`), not the bare `<input>`: width and positioning classes have to apply to the whole box. */
 	className?: string;
 	wrapperClassName?: string;
+	/** Native props of the outer container (label, field and error message). */
+	wrapperProps?: TElementProps<"div">;
 	/** aria-label for the clear (×) button. Defaults to "Clear" (or `common.clear`/`Input.clearLabel` from the nearest AmphoreProvider — see useAmphoreLabels). No effect without `isClearable`. */
 	clearLabel?: TLabel;
 }
@@ -43,32 +58,33 @@ export interface IInputProps extends Omit<
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
 export type TInputLabels = Pick<IInputProps, "clearLabel">;
 
-/**
- * V2 Input — fully controlled (value/onChange only), no ambient form-library
- * awareness. See memory/react-library-fields-audit.md: v1's withFormikWrapper
- * silently rewired every input's behavior based on Formik context, which is
- * exactly what V2 does not reproduce. Wire it to Formik/RHF/whatever from
- * the outside (`<Field as={Input} />`, a controller, or your own state).
- */
-export const Input: React.FC<IInputProps> = ({
-	value = "",
-	onChange,
-	label,
-	error,
-	hideError = false,
-	size: sizeProp,
-	color = "primary",
-	picto,
-	isClearable = false,
-	after,
-	disabled = false,
-	required = false,
-	className = "",
-	wrapperClassName = "",
-	id,
-	clearLabel: clearLabelProp,
-	...props
-}) => {
+const InputBase: React.ForwardRefRenderFunction<
+	HTMLInputElement,
+	IInputProps
+> = (
+	{
+		value = "",
+		onChange,
+		label,
+		error,
+		hideError = false,
+		size: sizeProp,
+		color = "primary",
+		picto,
+		isClearable = false,
+		after,
+		disabled = false,
+		required = false,
+		className = "",
+		wrapperClassName = "",
+		wrapperProps,
+		id,
+		clearLabel: clearLabelProp,
+		"aria-describedby": ariaDescribedBy,
+		...props
+	},
+	ref
+) => {
 	const { size: defaultSize } = useAmphoreDefaults();
 	const size = sizeProp ?? defaultSize ?? "md";
 	const generatedId = useId();
@@ -76,6 +92,8 @@ export const Input: React.FC<IInputProps> = ({
 	const errorId = `${inputId}-error`;
 	const { resolve } = useAmphoreLabels("Input");
 	const clearLabel = resolve("clearLabel", clearLabelProp, "clear");
+	const inputRef = useRef<HTMLInputElement>(null);
+	const mergedRef = useMergeRefs([inputRef, ref]);
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		onChange?.(e.target.value, e);
@@ -87,10 +105,19 @@ export const Input: React.FC<IInputProps> = ({
 			target: { value: "" },
 		} as React.ChangeEvent<HTMLInputElement>;
 		onChange("", fakeEvent);
+		// The button unmounts with the value.
+		inputRef.current?.focus();
 	};
 
 	return (
-		<div className={cn([styles.wrapper, wrapperClassName])}>
+		<div
+			{...wrapperProps}
+			className={cn([
+				styles.wrapper,
+				wrapperClassName,
+				wrapperProps?.className,
+			])}
+		>
 			{label && (
 				<label className={styles.label} htmlFor={inputId}>
 					{label}
@@ -112,13 +139,17 @@ export const Input: React.FC<IInputProps> = ({
 				<input
 					placeholder={label}
 					{...props}
+					ref={mergedRef}
 					id={inputId}
 					className={styles.input}
 					value={value}
 					disabled={disabled}
 					required={required}
 					aria-invalid={!!error}
-					aria-describedby={error && !hideError ? errorId : undefined}
+					aria-describedby={
+						cn([ariaDescribedBy, error && !hideError && errorId]) ||
+						undefined
+					}
 					onChange={handleChange}
 				/>
 
@@ -128,6 +159,10 @@ export const Input: React.FC<IInputProps> = ({
 						className={styles.clear}
 						onClick={handleClear}
 						aria-label={clearLabel}
+						data-testid={deriveTestId(
+							props["data-testid"],
+							"clear"
+						)}
 					>
 						<Picto icon="cross" />
 					</button>
@@ -137,8 +172,26 @@ export const Input: React.FC<IInputProps> = ({
 			</div>
 
 			{!hideError && (
-				<InputErrorMessage id={errorId}>{error}</InputErrorMessage>
+				<InputErrorMessage
+					id={errorId}
+					data-testid={deriveTestId(props["data-testid"], "error")}
+				>
+					{error}
+				</InputErrorMessage>
 			)}
 		</div>
 	);
 };
+
+/**
+ * V2 Input — fully controlled (value/onChange only), no ambient form-library
+ * awareness. See memory/react-library-fields-audit.md: v1's withFormikWrapper
+ * silently rewired every input's behavior based on Formik context, which is
+ * exactly what V2 does not reproduce. Wire it to Formik/RHF/whatever from
+ * the outside (`<Field as={Input} />`, a controller, or your own state).
+ *
+ * Native props and `ref` go to the `<input>`, `className` to the field box,
+ * `wrapperProps` to the outer container. Derived testids: `-clear`, `-error`.
+ */
+export const Input = forwardRef(InputBase);
+Input.displayName = "Input";

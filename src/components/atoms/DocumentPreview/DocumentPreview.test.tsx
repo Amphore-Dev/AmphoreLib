@@ -3,6 +3,8 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { queryPicto } from "../../../../tests/queryPicto";
+
 import { DocumentPreview } from "./DocumentPreview";
 
 describe("DocumentPreview", () => {
@@ -27,6 +29,6 @@ describe("DocumentPreview", () => {
 		});
 		render(<DocumentPreview file={file} />);
 		expect(screen.queryByRole("img")).not.toBeInTheDocument();
-		expect(screen.getByTestId("fileText")).toBeInTheDocument();
+		expect(queryPicto("fileText")).toBeInTheDocument();
 	});
 });

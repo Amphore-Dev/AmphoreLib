@@ -18,8 +18,9 @@ export interface IAmphoreScope {
  * The theme is applied by *DOM ancestry* — CSS vars inlined on the provider's
  * wrapper node, inherited by descendants. Anything rendered through a portal
  * (React tree child, DOM child of `document.body`) loses that inheritance and
- * renders with every `var(--amp-*)` unresolved. This context carries the
- * wrapper's attributes so `AmphoreScope` can re-apply them inside the portal.
+ * falls back to the default tokens at `:root`, not this provider's. This
+ * context carries the wrapper's attributes so `AmphoreScope` can re-apply them
+ * inside the portal.
  *
  * `null` (no provider above) — nothing to re-apply, AmphoreScope becomes a
  * passthrough.

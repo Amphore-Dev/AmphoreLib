@@ -1,12 +1,15 @@
 .card {
 	box-sizing: border-box;
 	background: var(--amp-color-card);
-	border: 1px solid var(--amp-color-border);
+	// A surface sets its text color too: raw content would keep the page's,
+	// black on a dark card.
+	color: var(--amp-color-ink);
+	border: var(--amp-border-width-sm) solid var(--amp-color-border);
 	border-radius: var(--amp-radius-lg);
 	padding: var(--amp-card-padding);
 	transition:
-		box-shadow 0.15s ease,
-		border-color 0.15s ease;
+		box-shadow var(--amp-duration-fast) var(--amp-ease),
+		border-color var(--amp-duration-fast) var(--amp-ease);
 
 	// Base shadow geometry, scaled per elevation level below. Overridable
 	// from the `shadow` prop (set as inline style vars). Units are
@@ -31,26 +34,26 @@
 
 	&[data-elevation="1"] {
 		box-shadow: var(--_shadow-x) var(--_shadow-y) var(--_shadow-blur)
-			rgba(0, 0, 0, 0.06);
+			var(--amp-shadow-color-1);
 	}
 
 	&[data-elevation="2"] {
 		box-shadow: calc(var(--_shadow-x) * 2) calc(var(--_shadow-y) * 2)
-			calc(var(--_shadow-blur) * 2) rgba(0, 0, 0, 0.08);
+			calc(var(--_shadow-blur) * 2) var(--amp-shadow-color-2);
 	}
 
 	&[data-elevation="3"] {
 		box-shadow: calc(var(--_shadow-x) * 4) calc(var(--_shadow-y) * 4)
-			calc(var(--_shadow-blur) * 4) rgba(0, 0, 0, 0.1);
+			calc(var(--_shadow-blur) * 4) var(--amp-shadow-color-3);
 	}
 
 	&[data-elevation="4"] {
 		box-shadow: calc(var(--_shadow-x) * 8) calc(var(--_shadow-y) * 8)
-			calc(var(--_shadow-blur) * 8) rgba(0, 0, 0, 0.12);
+			calc(var(--_shadow-blur) * 8) var(--amp-shadow-color-4);
 	}
 
 	&[data-elevation="5"] {
 		box-shadow: calc(var(--_shadow-x) * 12) calc(var(--_shadow-y) * 12)
-			calc(var(--_shadow-blur) * 12) rgba(0, 0, 0, 0.16);
+			calc(var(--_shadow-blur) * 12) var(--amp-shadow-color-5);
 	}
 }

@@ -2,7 +2,7 @@ import { createRef } from "react";
 
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { AmphoreProvider } from "@theme/AmphoreProvider";
 
@@ -14,6 +14,27 @@ import {
 import { Tooltip } from "./Tooltip";
 
 describe("Tooltip", () => {
+	it("leaves Space to a control nested in the trigger", async () => {
+		const user = userEvent.setup();
+		const onChange = vi.fn();
+		render(
+			<Tooltip content="Hint">
+				<span>
+					<input
+						type="checkbox"
+						aria-label="Accept"
+						onChange={onChange}
+					/>
+				</span>
+			</Tooltip>
+		);
+
+		await user.tab();
+		await user.keyboard(" ");
+
+		expect(onChange).toHaveBeenCalledTimes(1);
+	});
+
 	it("does not render the tooltip content until triggered", () => {
 		render(
 			<Tooltip content="Astuce">

@@ -1,6 +1,7 @@
 import React from "react";
 
 import { fireEvent, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { Formik } from "formik";
 import { describe, expect, it } from "vitest";
 
@@ -315,5 +316,34 @@ describe("EditableCard", () => {
 		const input = screen.getByLabelText("Titre") as HTMLInputElement;
 		fireEvent.change(input, { target: { value: "Updated" } });
 		expect(input).toHaveValue("Updated");
+	});
+});
+
+describe("EditableCard inline focus", () => {
+	it("moves focus into the form when editing starts", async () => {
+		const user = userEvent.setup();
+		render(
+			<EditableCard
+				title="Profile"
+				editInModal={false}
+				fields={[{ name: "text", type: "input", label: "Text" }]}
+			/>
+		);
+
+		await user.click(screen.getByRole("button", { name: "Edit" }));
+
+		expect(screen.getByLabelText("Text")).toHaveFocus();
+	});
+
+	it("leaves focus alone when mounted already editing", () => {
+		render(
+			<EditableCard
+				title="Profile"
+				editInModal={false}
+				defaultIsEditing
+				fields={[{ name: "text", type: "input", label: "Text" }]}
+			/>
+		);
+		expect(document.body).toHaveFocus();
 	});
 });

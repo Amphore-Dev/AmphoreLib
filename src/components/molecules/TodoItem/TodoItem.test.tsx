@@ -1,6 +1,7 @@
 import React from "react";
 
 import { fireEvent, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import { TodoItem } from "./TodoItem";
@@ -90,5 +91,47 @@ describe("TodoItem", () => {
 		expect(
 			screen.getByRole("button", { name: "Déplacer" })
 		).toBeInTheDocument();
+	});
+});
+
+describe("TodoItem keyboard", () => {
+	it("names the edit field", async () => {
+		const user = userEvent.setup();
+		render(<TodoItem text="Buy milk" />);
+
+		await user.click(screen.getByRole("button", { name: "Buy milk" }));
+
+		expect(
+			screen.getByRole("textbox", { name: "Edit: Buy milk" })
+		).toHaveFocus();
+	});
+
+	it.each([
+		["Enter", "{Enter}"],
+		["Escape", "{Escape}"],
+	])("goes back to the text on %s", async (_name, key) => {
+		const user = userEvent.setup();
+		render(<TodoItem text="Buy milk" />);
+
+		await user.tab();
+		await user.keyboard("{Enter}");
+		await user.keyboard(key);
+
+		expect(screen.getByRole("button", { name: "Buy milk" })).toHaveFocus();
+	});
+
+	it("leaves focus alone when the edit ends by moving elsewhere", async () => {
+		const user = userEvent.setup();
+		render(
+			<>
+				<TodoItem text="Buy milk" />
+				<button type="button">After</button>
+			</>
+		);
+
+		await user.click(screen.getByRole("button", { name: "Buy milk" }));
+		await user.click(screen.getByRole("button", { name: "After" }));
+
+		expect(screen.getByRole("button", { name: "After" })).toHaveFocus();
 	});
 });

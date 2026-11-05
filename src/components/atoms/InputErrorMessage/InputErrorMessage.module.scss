@@ -1,7 +1,7 @@
 .message {
 	margin: 0;
 	font-family: var(--amp-font);
-	font-size: 0.75rem;
-	line-height: 1.4;
+	font-size: var(--amp-text-xs);
+	line-height: var(--amp-leading-snug);
 	color: var(--amp-color-danger);
 }

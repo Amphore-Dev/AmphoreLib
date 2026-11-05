@@ -1,4 +1,5 @@
 @use "../../../styles/touch" as touch;
+@use "../../../styles/mixins" as *;
 
 .overlay {
 	display: flex;
@@ -10,14 +11,14 @@
 	// but naturally collapses to 0 and top-aligns once it doesn't fit,
 	// keeping the whole thing reachable by scrolling.
 	justify-content: center;
-	padding: var(--amp-space-4);
+	padding: space(4.5);
 	// Notch / home indicator (viewport-fit=cover draws under them).
-	padding-top: max(var(--amp-space-4), env(safe-area-inset-top, 0px));
-	padding-bottom: max(var(--amp-space-4), env(safe-area-inset-bottom, 0px));
+	padding-top: max(#{space(4.5)}, env(safe-area-inset-top, 0px));
+	padding-bottom: max(#{space(4.5)}, env(safe-area-inset-bottom, 0px));
 	overflow-y: auto;
 	overscroll-behavior: contain;
-	background: rgba(0, 0, 0, 0.45);
-	z-index: 1000;
+	background: var(--amp-color-backdrop);
+	z-index: var(--amp-z-overlay);
 }
 
 // Background/radius/shadow come from Card (elevation prop) — this only
@@ -31,10 +32,10 @@
 	// A floor for the whole panel, not just .body (see below) — a short
 	// screen otherwise let flexbox shrink the panel down to header+footer
 	// with barely any room left for content between them.
-	max-height: calc(100vh - var(--amp-space-6) * 2);
+	max-height: calc(100vh - #{space(8)} * 2);
 	// The visible viewport on mobile, under the browser's own URL bar —
 	// 100vh is the largest one and puts the panel's bottom behind it.
-	max-height: calc(100dvh - var(--amp-space-6) * 2);
+	max-height: calc(100dvh - #{space(8)} * 2);
 	font-family: var(--amp-font);
 	outline: none;
 	// Card sets border-radius but nothing clips to it — the sticky header/
@@ -43,15 +44,15 @@
 	overflow: hidden;
 
 	&[data-size="sm"] {
-		max-width: 24rem;
+		max-width: space(96);
 	}
 
 	&[data-size="md"] {
-		max-width: 32rem;
+		max-width: space(128);
 	}
 
 	&[data-size="lg"] {
-		max-width: 48rem;
+		max-width: space(192);
 	}
 }
 
@@ -68,10 +69,10 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: var(--amp-space-3);
-	padding: var(--amp-space-4);
+	gap: space(3.5);
+	padding: space(4.5);
 	background: var(--amp-color-card);
-	border-bottom: 1px solid var(--amp-color-border);
+	border-bottom: var(--amp-border-width-sm) solid var(--amp-color-border);
 }
 
 // Whatever's left between the title and the close button — min-width: 0
@@ -83,8 +84,8 @@
 
 .title {
 	margin: 0;
-	font-size: 1.0625rem;
-	font-weight: 700;
+	font-size: var(--amp-text-lg);
+	font-weight: weight(bold);
 	color: var(--amp-color-ink);
 }
 
@@ -94,8 +95,8 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 1.5rem;
-	height: 1.5rem;
+	width: space(6);
+	height: space(6);
 	margin-left: auto;
 	padding: 0;
 	border: none;
@@ -112,8 +113,7 @@
 	}
 
 	&:focus-visible {
-		outline: 2px solid var(--amp-color-primary);
-		outline-offset: 2px;
+		@include focus-ring;
 	}
 }
 
@@ -123,9 +123,9 @@
 	// Reaching the end of the body doesn't scroll (or pull-to-refresh) the
 	// page behind the modal.
 	overscroll-behavior: contain;
-	padding: var(--amp-space-4);
+	padding: space(4.5);
 	color: var(--amp-color-ink);
-	font-size: 0.9375rem;
+	font-size: var(--amp-text-base);
 }
 
 .footer {
@@ -135,8 +135,8 @@
 	display: flex;
 	align-items: center;
 	justify-content: flex-end;
-	gap: var(--amp-space-2);
-	padding: var(--amp-space-4);
+	gap: space(2);
+	padding: space(4.5);
 	background: var(--amp-color-card);
-	border-top: 1px solid var(--amp-color-border);
+	border-top: var(--amp-border-width-sm) solid var(--amp-color-border);
 }

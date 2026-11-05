@@ -1,10 +1,11 @@
 @use "../../../styles/touch" as touch;
+@use "../../../styles/mixins" as *;
 
 .row {
 	display: flex;
 	align-items: flex-start;
-	gap: var(--amp-space-2);
-	padding: var(--amp-space-2) var(--amp-space-2);
+	gap: space(2);
+	padding: space(2) space(2);
 	font-family: var(--amp-font);
 	background: var(--amp-color-card);
 
@@ -20,24 +21,24 @@
 		position: relative;
 		z-index: 1;
 		background: var(--amp-color-primary-tint);
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+		box-shadow: var(--amp-shadow-sm);
 	}
 
 	&[data-size="sm"] {
-		padding: var(--amp-space-1) var(--amp-space-2);
+		padding: space(1.5) space(2);
 	}
 
 	&[data-size="lg"] {
-		padding: var(--amp-space-3) var(--amp-space-2);
+		padding: space(3.5) space(2);
 	}
 }
 
 .handle {
 	// 2rem, not the 44px default: a wider hit area would spill over the
 	// row's text/badge, which have their own tap actions.
-	@include touch.drag-handle(2rem);
+	@include touch.drag-handle(space(8));
 	flex-shrink: 0;
-	margin-top: 0.125rem;
+	margin-top: space(0.5);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -59,18 +60,18 @@
 	}
 
 	&:focus-visible {
-		outline: 2px solid var(--amp-color-primary);
-		outline-offset: 2px;
+		@include focus-ring;
 	}
 }
 
 .handleIcon {
-	width: 1rem;
-	height: 1rem;
+	width: var(--amp-icon-md);
+	height: var(--amp-icon-md);
 }
 
 .before {
 	flex-shrink: 0;
+	// stylelint-disable-next-line declaration-property-value-disallowed-list -- off grid: 1px optical nudge against the first text line
 	margin-top: 0.0625rem;
 	display: flex;
 	align-items: center;
@@ -82,11 +83,12 @@
 	text-align: left;
 	background: none;
 	border: none;
+	// stylelint-disable-next-line declaration-property-value-disallowed-list -- off grid: 1px around the text
 	padding: 0.0625rem 0;
 	margin: 0;
 	font-family: var(--amp-font);
-	font-size: 0.8125rem;
-	line-height: 1.4;
+	font-size: var(--amp-text-sm);
+	line-height: var(--amp-leading-snug);
 	color: var(--amp-color-ink);
 	cursor: text;
 
@@ -98,8 +100,7 @@
 	}
 
 	&:focus-visible {
-		outline: 2px solid var(--amp-color-primary);
-		outline-offset: 2px;
+		@include focus-ring;
 	}
 }
 
@@ -107,9 +108,7 @@
 // is inline-block by default and text-overflow needs a block container.
 .row[data-multiline="false"] .text {
 	display: block;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+	@include truncate;
 }
 
 span.text {
@@ -123,7 +122,7 @@ span.text {
 }
 
 .editor {
-	font-size: 0.8125rem;
+	font-size: var(--amp-text-sm);
 }
 
 .editorWrapper {
@@ -133,8 +132,9 @@ span.text {
 
 .remove {
 	// 2rem, same as the handle: rows are tight.
-	@include touch.touch-target(2rem);
+	@include touch.touch-target(space(8));
 	flex-shrink: 0;
+	// stylelint-disable-next-line declaration-property-value-disallowed-list -- off grid: 1px optical nudge against the first text line
 	margin-top: 0.0625rem;
 	display: flex;
 	align-items: center;
@@ -164,12 +164,11 @@ span.text {
 	}
 
 	&:focus-visible {
-		outline: 2px solid var(--amp-color-primary);
-		outline-offset: 2px;
+		@include focus-ring;
 	}
 }
 
 .removeIcon {
-	width: 1rem;
-	height: 1rem;
+	width: var(--amp-icon-md);
+	height: var(--amp-icon-md);
 }

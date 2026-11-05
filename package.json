@@ -1,9 +1,22 @@
 {
 	"name": "@amphore-dev/amphore-lib",
-	"version": "1.11.0",
-	"main": "lib/index.js",
-	"module": "lib/index.esm.js",
-	"types": "lib/index.d.ts",
+	"version": "2.0.0",
+	"main": "lib/cjs/index.cjs",
+	"module": "lib/esm/index.mjs",
+	"types": "lib/types/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./lib/types/index.d.ts",
+			"import": "./lib/esm/index.mjs",
+			"require": "./lib/cjs/index.cjs"
+		},
+		"./style.css": "./lib/style.css",
+		"./lib/style.css": "./lib/style.css",
+		"./package.json": "./package.json"
+	},
+	"sideEffects": [
+		"**/*.css"
+	],
 	"author": "Amphore Dev",
 	"license": "MIT",
 	"files": [
@@ -23,7 +36,9 @@
 	"scripts": {
 		"start": "storybook dev -p 6006",
 		"build-sb": "storybook build",
-		"build": "vite build && node scripts/check-built-css.mjs",
+		"build": "vite build && node scripts/check-built-css.mjs && node scripts/check-built-package.mjs",
+		"visual": "node scripts/visual.mjs",
+		"visual:ref": "node scripts/visual.mjs --update",
 		"test": "vitest",
 		"test:watch": "vitest --watch",
 		"test:ci": "vitest run",
@@ -31,10 +46,12 @@
 		"typecheck": "tsc --noEmit -p tsconfig.json",
 		"lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
 		"lint:fix": "eslint 'src/**/*.{js,jsx,ts,tsx}' --fix",
+		"lint:css": "stylelint 'src/**/*.scss'",
 		"prettier": "prettier --check 'src/**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
 		"prettier:fix": "yarn prettier --write",
 		"format": "prettier --write 'src/**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
 		"picto": "node scripts/convert-svg.js",
+		"tokens": "UPDATE_TOKENS=1 vitest run src/theme/tokens.test.ts",
 		"reset": "rm -rf node_modules dist && yarn install"
 	},
 	"peerDependencies": {
@@ -83,17 +100,26 @@
 		"eslint-plugin-react-hooks": "^4.6.2",
 		"jsdom": "^26.0.0",
 		"pdfjs-dist": "4.8.69",
+		"pixelmatch": "^8.0.0",
+		"playwright": "1.64.1",
+		"pngjs": "^7.0.0",
+		"postcss": "^8.5.32",
+		"postcss-scss": "^4.0.9",
 		"prettier": "^3.3.3",
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1",
 		"react-pdf": "^9.2.1",
+		"remark-gfm": "^4.0.1",
 		"sass": "^1.77.8",
 		"storybook": "^10.6.0",
 		"storybook-dark-mode": "^5.0.0",
+		"stylelint": "^18.0.0",
+		"stylelint-declaration-strict-value": "^1.12.1",
 		"typescript": "^5.9.3",
 		"vite": "^6.2.6",
 		"vite-plugin-dts": "^5.1.0",
-		"vitest": "^3.0.7"
+		"vitest": "^3.0.7",
+		"vitest-axe": "^0.1.0"
 	},
 	"packageManager": "yarn@4.14.1",
 	"resolutions": {

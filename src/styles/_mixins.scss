@@ -1,0 +1,68 @@
+// Scale functions and mixins shared by the CSS modules:
+//   @use "../../../styles/mixins" as *;
+//
+// A single value goes through var() or space(); a mixin groups declarations
+// that repeat, and holds nothing but var() so it stays themable. Every default
+// lives in the theme config (src/theme/CThemeConfig.ts), none here.
+
+@use "sass:list";
+@use "sass:math";
+@use "sass:meta";
+
+$_text-steps: (xs, sm, base, lg, xl, 2xl, 3xl, 4xl);
+$_weights: (regular, medium, semibold, bold);
+
+// $n units of --amp-spacing, so space(1.5) is 0.375rem by default. $n is a
+// multiple of 0.5, negative for a negative margin. Sass does not evaluate
+// functions inside a custom property: write `--_gap: #{space(2)}` there.
+@function space($n) {
+	@if meta.type-of($n) != "number" or not math.is-unitless($n) {
+		@error "space(#{$n}): expected a unitless number.";
+	}
+	@if math.round($n * 2) != $n * 2 {
+		@error "space(#{$n}) is off scale: expected a multiple of 0.5.";
+	}
+	@if $n == 0 {
+		@return 0;
+	}
+	@return calc(var(--amp-spacing) * #{$n});
+}
+
+// Font size and line height of one step, with an optional weight. A size set
+// on its own, inheriting its line height, reads var(--amp-text-<step>) instead.
+@mixin text($step, $weight: null) {
+	@if not list.index($_text-steps, $step) {
+		@error "text(#{$step}) is off scale: expected one of #{$_text-steps}.";
+	}
+	font-size: var(--amp-text-#{$step});
+	line-height: var(--amp-leading-#{$step});
+	@if $weight {
+		font-weight: weight($weight);
+	}
+}
+
+// weight(medium) is var(--amp-weight-medium).
+@function weight($name) {
+	@if not list.index($_weights, $name) {
+		@error "weight(#{$name}) is off scale: expected one of #{$_weights}.";
+	}
+	@return var(--amp-weight-#{$name});
+}
+
+// Keyboard focus ring. $inset draws it inside the element, for one whose
+// parent would clip it.
+@mixin focus-ring($color: var(--amp-focus-color), $inset: false) {
+	outline: var(--amp-focus-width) solid $color;
+	@if $inset {
+		outline-offset: calc(var(--amp-focus-offset) * -1);
+	} @else {
+		outline-offset: var(--amp-focus-offset);
+	}
+}
+
+// One line of text, cut with an ellipsis.
+@mixin truncate {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}

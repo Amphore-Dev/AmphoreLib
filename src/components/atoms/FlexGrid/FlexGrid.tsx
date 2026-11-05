@@ -1,4 +1,9 @@
-import React, { Children, HTMLAttributes, isValidElement } from "react";
+import React, {
+	ComponentPropsWithoutRef,
+	Children,
+	forwardRef,
+	isValidElement,
+} from "react";
 
 import { cn } from "@utils/cn";
 
@@ -6,7 +11,7 @@ import { FlexGridItem } from "./FlexGridItem";
 
 import styles from "./FlexGrid.module.scss";
 
-export interface IFlexGridProps extends HTMLAttributes<HTMLDivElement> {
+export interface IFlexGridProps extends ComponentPropsWithoutRef<"div"> {
 	/** Number of columns. Omit for a free-flowing layout (no fixed column count, items just wrap at `minItemWidth`) — `span` has no effect without a column count to size against. */
 	columns?: number;
 	minItemWidth?: string;
@@ -15,26 +20,21 @@ export interface IFlexGridProps extends HTMLAttributes<HTMLDivElement> {
 	className?: string;
 }
 
-/**
- * V2 FlexGrid — responsive flexbox-based layout (port of the reference's
- * own `FlexGrid`, ex-`Grid` in V2 — see the sibling `Grid` atom for its
- * classic CSS-grid counterpart, ex-`Grid` in the reference). Every child is
- * auto-wrapped in a `FlexGridItem` (span 1) unless it already is one, or
- * carries its own `data-span` (works on any element, no wrapper needed).
- * Because it wraps every child in its own real element, a child that is
- * itself a multi-field wrapper (e.g. a `<div>` grouping several fields)
- * collapses into *one* opaque flex item — reach for `Grid` instead when
- * children need to flow individually regardless of intermediate wrapper
- * elements (see EditableCard's per-group display).
- */
-export const FlexGrid: React.FC<IFlexGridProps> = ({
-	columns,
-	minItemWidth = "200px",
-	gap = "1rem",
-	children,
-	className = "",
-	...props
-}) => {
+const FlexGridBase: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	IFlexGridProps
+> = (
+	{
+		columns,
+		minItemWidth = "200px",
+		gap = "1rem",
+		children,
+		className = "",
+		style,
+		...props
+	},
+	ref
+) => {
 	const [rowGap, columnGap = rowGap] = gap.split(" ");
 
 	const items = Children.map(children, (child) => {
@@ -51,9 +51,11 @@ export const FlexGrid: React.FC<IFlexGridProps> = ({
 	return (
 		<div
 			{...props}
+			ref={ref}
 			className={cn([styles.flexGrid, className])}
 			style={
 				{
+					...style,
 					gap: `${rowGap} ${columnGap}`,
 					"--_column-count": columns,
 					"--_gap": columnGap,
@@ -74,3 +76,20 @@ export const FlexGrid: React.FC<IFlexGridProps> = ({
 		</div>
 	);
 };
+
+/**
+ * V2 FlexGrid — responsive flexbox-based layout (port of the reference's
+ * own `FlexGrid`, ex-`Grid` in V2 — see the sibling `Grid` atom for its
+ * classic CSS-grid counterpart, ex-`Grid` in the reference). Every child is
+ * auto-wrapped in a `FlexGridItem` (span 1) unless it already is one, or
+ * carries its own `data-span` (works on any element, no wrapper needed).
+ * Because it wraps every child in its own real element, a child that is
+ * itself a multi-field wrapper (e.g. a `<div>` grouping several fields)
+ * collapses into *one* opaque flex item — reach for `Grid` instead when
+ * children need to flow individually regardless of intermediate wrapper
+ * elements (see EditableCard's per-group display).
+ *
+ * Native props and `ref` go to the root `<div>`.
+ */
+export const FlexGrid = forwardRef(FlexGridBase);
+FlexGrid.displayName = "FlexGrid";

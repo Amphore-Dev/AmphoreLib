@@ -178,7 +178,7 @@ const sizedColumns: TTableColumn<TUser>[] = [
 		render: (u) => (
 			<span
 				style={{
-					padding: "0 var(--amp-space-2)",
+					padding: "0 calc(var(--amp-spacing) * 2)",
 					borderRadius: "999px",
 					background: "var(--amp-color-primary-tint)",
 					color: "var(--amp-color-primary)",

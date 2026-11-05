@@ -1,23 +1,25 @@
+@use "../../../styles/mixins" as *;
+
 .wrapper {
 	display: flex;
 	flex-direction: column;
-	gap: var(--amp-space-1);
+	gap: space(1.5);
 	font-family: var(--amp-font);
 }
 
 .label {
-	font-size: 0.8125rem;
-	font-weight: 600;
+	font-size: var(--amp-text-sm);
+	font-weight: weight(semibold);
 	color: var(--amp-color-ink);
 }
 
 .required {
 	color: var(--amp-color-danger);
-	margin-left: 0.125rem;
+	margin-left: space(0.5);
 }
 
 .options {
 	display: flex;
 	flex-wrap: wrap;
-	gap: var(--amp-space-1) var(--amp-space-3);
+	gap: space(1.5) space(3.5);
 }

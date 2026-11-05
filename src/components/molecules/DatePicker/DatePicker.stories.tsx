@@ -12,6 +12,8 @@ export default {
 	component: DatePicker,
 	argTypes: {
 		portal: { control: "boolean" },
+		mode: { control: "select", options: ["single", "week"] },
+		weekStartsOn: { control: "select", options: [0, 1, 6] },
 		size: sizeArgType,
 		color: colorArgType,
 		disabled: { control: { type: "boolean" } },
@@ -35,6 +37,38 @@ WithBounds.args = {
 	min: new Date(),
 	max: new Date(new Date().setDate(new Date().getDate() + 30)),
 };
+
+/** `mode="week"`: a click selects the whole week of that day, hovering previews it. */
+export const Week = Template.bind({});
+Week.args = {
+	label: "Planning week",
+	mode: "week",
+	value: new Date(2026, 2, 4),
+};
+
+/** The first day of the week comes from `locale`, unless `weekStartsOn` says otherwise. */
+export const WeekStartingOnSunday = Template.bind({});
+WeekStartingOnSunday.args = {
+	label: "Planning week",
+	mode: "week",
+	weekStartsOn: 0,
+	value: new Date(2026, 2, 4),
+};
+
+/** `markers`: a bar under the number; `label` joins the day's name and tooltip. */
+export const WithMarkers = Template.bind({});
+WithMarkers.args = {
+	label: "Timesheet",
+	value: new Date(2026, 2, 4),
+	markers: [
+		{ date: new Date(2026, 2, 2), label: "2 entries to fill in" },
+		{ date: new Date(2026, 2, 4), label: "1 entry to fill in" },
+		{ date: new Date(2026, 2, 12) },
+	],
+};
+
+export const WeekWithMarkers = Template.bind({});
+WeekWithMarkers.args = { ...WithMarkers.args, mode: "week" };
 
 export const WithError = Template.bind({});
 WithError.args = { label: "Date", error: "Invalid date" };

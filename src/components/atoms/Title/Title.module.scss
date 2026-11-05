@@ -1,41 +1,37 @@
+@use "../../../styles/mixins" as *;
+
 .title {
 	font-family: var(--amp-font);
-	font-weight: 700;
+	font-weight: weight(bold);
 	color: var(--amp-color-ink);
 	margin: 0;
 
 	&[data-size="h1"] {
-		font-size: 2.5rem;
-		line-height: 3rem;
+		@include text(4xl);
 	}
 
 	&[data-size="h2"] {
-		font-size: 2rem;
-		line-height: 2.5rem;
+		@include text(3xl);
 	}
 
 	&[data-size="h3"] {
-		font-size: 1.5rem;
-		line-height: 2rem;
+		@include text(2xl);
 	}
 
 	&[data-size="h4"] {
-		font-size: 1.25rem;
-		line-height: 1.75rem;
+		@include text(xl);
 	}
 
 	&[data-size="h5"] {
-		font-size: 1.125rem;
-		line-height: 1.5rem;
+		@include text(lg);
 	}
 
 	&[data-size="h6"] {
-		font-size: 1rem;
-		line-height: 1.5rem;
+		@include text(base);
 	}
 
 	&[data-color="primary"] {
-		color: var(--amp-color-primary);
+		color: var(--amp-color-primary-text);
 	}
 
 	&[data-color="danger"] {
@@ -47,11 +43,11 @@
 	}
 
 	&[data-color="warning"] {
-		color: var(--amp-color-warning);
+		color: var(--amp-color-warning-text);
 	}
 
 	&[data-color="info"] {
-		color: var(--amp-color-info);
+		color: var(--amp-color-info-text);
 	}
 
 	&[data-color="neutral"] {

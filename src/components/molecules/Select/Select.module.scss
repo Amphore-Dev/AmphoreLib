@@ -1,22 +1,24 @@
+@use "../../../styles/a11y";
 @use "../../../styles/field" as field;
 @use "../../../styles/touch" as touch;
+@use "../../../styles/mixins" as *;
 
 .wrapper {
 	display: flex;
 	flex-direction: column;
-	gap: var(--amp-space-1);
+	gap: space(1.5);
 	font-family: var(--amp-font);
 }
 
 .label {
-	font-size: 0.75rem;
-	font-weight: 600;
+	font-size: var(--amp-text-xs);
+	font-weight: weight(semibold);
 	color: var(--amp-color-ink);
 }
 
 .required {
 	color: var(--amp-color-danger);
-	margin-left: 0.125rem;
+	margin-left: space(0.5);
 }
 
 .field {
@@ -30,8 +32,8 @@
 
 .picto {
 	flex-shrink: 0;
-	width: 1rem;
-	height: 1rem;
+	width: var(--amp-icon-md);
+	height: var(--amp-icon-md);
 	color: var(--amp-color-sub);
 }
 
@@ -46,9 +48,7 @@
 // even at the same font-size).
 .value {
 	@include field.field-text;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+	@include truncate;
 	display: block;
 }
 
@@ -66,24 +66,24 @@
 .chips {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 0.25rem;
+	gap: space(1);
 }
 
 .indicators {
 	display: flex;
 	align-items: center;
-	gap: 0.375rem;
+	gap: space(1.5);
 	flex-shrink: 0;
 }
 
 .clear {
 	// 2rem: inside the field, a wider target would cover the value.
-	@include touch.touch-target(2rem);
+	@include touch.touch-target(space(8));
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 1rem;
-	height: 1rem;
+	width: space(4);
+	height: space(4);
 	padding: 0;
 	border: none;
 	border-radius: var(--amp-radius-sm);
@@ -98,39 +98,38 @@
 	}
 
 	&:focus-visible {
-		outline: 2px solid var(--amp-color-primary);
-		outline-offset: 2px;
+		@include focus-ring;
 	}
 }
 
 .chevron {
-	width: 0.75rem;
-	height: 0.75rem;
+	width: var(--amp-icon-xs);
+	height: var(--amp-icon-xs);
 	color: var(--amp-color-sub);
-	transition: transform 0.15s ease;
+	transition: transform var(--amp-duration-fast) var(--amp-ease);
 }
 
 .loadingIcon {
-	width: 0.75rem;
-	height: 0.75rem;
+	width: var(--amp-icon-xs);
+	height: var(--amp-icon-xs);
 }
 
 .listbox {
 	box-sizing: border-box;
-	max-height: 16rem;
+	max-height: space(64);
 	overflow-y: auto;
 	overscroll-behavior: contain;
-	border: 1px solid var(--amp-color-border);
+	border: var(--amp-border-width-sm) solid var(--amp-color-border);
 	border-radius: var(--amp-radius-md);
 	background: var(--amp-color-card);
-	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+	box-shadow: var(--amp-shadow-lg);
 	font-family: var(--amp-font);
-	z-index: 50;
+	z-index: var(--amp-z-raised);
 }
 
 .option {
-	padding: var(--amp-space-2) var(--amp-space-3);
-	font-size: 0.84375rem;
+	padding: space(2) space(3.5);
+	font-size: var(--amp-text-sm);
 	color: var(--amp-color-ink);
 	cursor: pointer;
 
@@ -145,34 +144,38 @@
 }
 
 .option[data-selected="true"] {
-	font-weight: 600;
+	font-weight: weight(semibold);
 	background: var(--amp-color-primary-tint);
 }
 
 .noResults {
-	padding: var(--amp-space-2) var(--amp-space-3);
-	font-size: 0.8125rem;
+	padding: space(2) space(3.5);
+	font-size: var(--amp-text-sm);
 	color: var(--amp-color-sub);
 }
 
 .loading {
 	display: flex;
 	align-items: center;
-	gap: var(--amp-space-2);
-	padding: var(--amp-space-2) var(--amp-space-3);
-	font-size: 0.8125rem;
+	gap: space(2);
+	padding: space(2) space(3.5);
+	font-size: var(--amp-text-sm);
 	color: var(--amp-color-sub);
 }
 
 .groupHeading {
-	padding: var(--amp-space-2) var(--amp-space-3) var(--amp-space-1);
-	font-size: 0.75rem;
-	font-weight: 600;
+	padding: space(2) space(3.5) space(1.5);
+	font-size: var(--amp-text-xs);
+	font-weight: weight(semibold);
 	color: var(--amp-color-sub);
 	text-transform: uppercase;
-	letter-spacing: 0.02em;
+	letter-spacing: 0.025em;
 }
 
 .listboxFooter {
-	border-top: 1px solid var(--amp-color-border);
+	border-top: var(--amp-border-width-sm) solid var(--amp-color-border);
+}
+
+.srOnly {
+	@include a11y.visually-hidden;
 }

@@ -1,9 +1,11 @@
+@use "../../../styles/mixins" as *;
+
 .breadcrumb {
 	display: flex;
 	align-items: center;
-	gap: var(--amp-space-2);
+	gap: space(2);
 	font-family: var(--amp-font);
-	font-size: 0.8125rem;
+	font-size: var(--amp-text-sm);
 }
 
 .item {
@@ -12,7 +14,7 @@
 
 	&[data-current] {
 		color: var(--amp-color-ink);
-		font-weight: 600;
+		font-weight: weight(semibold);
 	}
 }
 

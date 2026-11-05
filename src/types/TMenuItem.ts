@@ -6,6 +6,8 @@ import type { TColor } from "./TColor";
 
 /** Shared menu item shape — Dropdown, ContextMenu (and their common MenuList). */
 export interface TMenuItem {
+	/** Names the item in its derived testid (`<testid>-item-<id>`). Falls back to its position. */
+	id?: string;
 	label: string;
 	/** Receives the item itself — handy for a handler shared across several items, on top of whatever a per-item closure already captures. */
 	onClick: (item: TMenuItem) => void;

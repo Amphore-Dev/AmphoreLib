@@ -81,3 +81,17 @@ describe("InputSearch", () => {
 		expect(screen.getByRole("textbox")).toHaveValue("external");
 	});
 });
+
+describe("InputSearch name", () => {
+	it("is named when it shows nothing but its icon", () => {
+		render(<InputSearch onChange={() => {}} />);
+		expect(
+			screen.getByRole("textbox", { name: "Search" })
+		).toBeInTheDocument();
+	});
+
+	it("defers to a placeholder or a label", () => {
+		render(<InputSearch onChange={() => {}} placeholder="Find a client" />);
+		expect(screen.getByRole("textbox")).not.toHaveAttribute("aria-label");
+	});
+});

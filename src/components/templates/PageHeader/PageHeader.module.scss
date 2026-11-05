@@ -1,18 +1,20 @@
+@use "../../../styles/mixins" as *;
+
 .header {
 	display: flex;
 	flex-direction: column;
-	gap: var(--amp-space-2);
+	gap: space(2);
 	font-family: var(--amp-font);
 }
 
 .backButton {
 	align-self: flex-start;
-	margin-left: calc(var(--amp-space-1) * -1);
+	margin-left: calc(#{space(1.5)} * -1);
 }
 
 .top {
 	display: grid;
-	gap: var(--amp-space-2);
+	gap: space(2);
 }
 
 .topWithTabs {
@@ -31,18 +33,18 @@
 .leftContent {
 	display: flex;
 	flex-direction: column;
-	gap: var(--amp-space-1);
+	gap: space(1.5);
 }
 
 .titleBlock {
 	display: flex;
 	align-items: center;
-	gap: var(--amp-space-2);
+	gap: space(2);
 }
 
 .title {
-	font-size: 1.5rem;
-	font-weight: 700;
+	font-size: var(--amp-text-2xl);
+	font-weight: weight(bold);
 	color: var(--amp-color-ink);
 	margin: 0;
 }
@@ -53,7 +55,7 @@
 }
 
 .subtitle {
-	font-size: 0.8125rem;
+	font-size: var(--amp-text-sm);
 	color: var(--amp-color-sub);
 	margin: 0;
 }
@@ -70,22 +72,23 @@
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: var(--amp-space-2);
+	gap: space(2);
 }
 
 .customActions {
 	display: flex;
 	align-items: center;
-	gap: var(--amp-space-2);
+	gap: space(2);
 }
 
 .buttons {
 	display: flex;
 	align-items: center;
-	gap: var(--amp-space-1);
+	gap: space(1.5);
 }
 
 .search {
+	// stylelint-disable-next-line declaration-property-value-disallowed-list -- px: rem would only match at a 16px root
 	min-width: 200px;
 }
 

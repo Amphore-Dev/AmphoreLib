@@ -1,21 +1,22 @@
 @use "../../../styles/field" as field;
+@use "../../../styles/mixins" as *;
 
 .wrapper {
 	display: flex;
 	flex-direction: column;
-	gap: var(--amp-space-1);
+	gap: space(1.5);
 	font-family: var(--amp-font);
 }
 
 .label {
-	font-size: 0.75rem;
-	font-weight: 600;
+	font-size: var(--amp-text-xs);
+	font-weight: weight(semibold);
 	color: var(--amp-color-ink);
 }
 
 .required {
 	color: var(--amp-color-danger);
-	margin-left: 0.125rem;
+	margin-left: space(0.5);
 }
 
 .field {
@@ -28,7 +29,8 @@
 
 	&[data-after] {
 		.steppers {
-			border-right: 1px solid var(--amp-color-border);
+			border-right: var(--amp-border-width-sm) solid
+				var(--amp-color-border);
 		}
 	}
 }
@@ -54,12 +56,12 @@
 	// vertical padding makes the column (and its left border) run edge to
 	// edge, top to bottom.
 	margin-block: calc(-1 * var(--_field-pad-y));
-	border-left: 1px solid var(--amp-color-border);
+	border-left: var(--amp-border-width-sm) solid var(--amp-color-border);
 	// Hidden at rest, revealed on hover / keyboard focus — keeps the field
 	// reading like a plain input until it's being interacted with. Touch
 	// devices have no hover, so there they stay visible.
 	opacity: 0;
-	transition: opacity 0.15s ease;
+	transition: opacity var(--amp-duration-fast) var(--amp-ease);
 
 	.field:hover &,
 	.field:focus-within & {
@@ -76,7 +78,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 1rem;
+	width: space(4);
 	padding: 0;
 	border: none;
 	background: transparent;
@@ -95,12 +97,12 @@
 	}
 
 	& svg {
-		width: 0.625rem;
-		height: 0.625rem;
+		width: space(2.5);
+		height: space(2.5);
 	}
 
 	&:not(:last-child) {
-		border-bottom: 1px solid var(--amp-color-border);
+		border-bottom: var(--amp-border-width-sm) solid var(--amp-color-border);
 	}
 
 	@media (hover: hover) {
@@ -124,8 +126,8 @@
 	flex-shrink: 0;
 	display: flex;
 	align-items: center;
-	padding-right: var(--amp-space-2);
+	padding-right: space(2);
 	color: var(--amp-color-sub);
-	font-size: 0.8125rem;
+	font-size: var(--amp-text-sm);
 	white-space: nowrap;
 }

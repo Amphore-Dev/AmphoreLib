@@ -1,4 +1,5 @@
 @use "../../../styles/touch" as touch;
+@use "../../../styles/mixins" as *;
 
 .wrapper {
 	position: relative;
@@ -10,8 +11,8 @@
 	display: flex;
 	align-items: flex-end;
 	flex: 1;
-	gap: var(--amp-space-4);
-	border-bottom: 1px solid var(--amp-color-border);
+	gap: space(4.5);
+	border-bottom: var(--amp-border-width-sm) solid var(--amp-color-border);
 	font-family: var(--amp-font);
 	overflow-x: auto;
 	scrollbar-width: none;
@@ -23,18 +24,18 @@
 
 	// ---- size ----
 	&[data-size="sm"] .tab {
-		padding: var(--amp-space-1) 0;
-		font-size: 0.8125rem;
+		padding: space(1.5) 0;
+		font-size: var(--amp-text-sm);
 	}
 
 	&[data-size="md"] .tab {
-		padding: var(--amp-space-2) 0;
-		font-size: 0.875rem;
+		padding: space(2) 0;
+		font-size: var(--amp-text-sm);
 	}
 
 	&[data-size="lg"] .tab {
-		padding: var(--amp-space-2) 0;
-		font-size: 0.9375rem;
+		padding: space(2) 0;
+		font-size: var(--amp-text-base);
 	}
 }
 
@@ -42,51 +43,59 @@
 	display: inline-flex;
 	flex-shrink: 0;
 	align-items: center;
-	gap: var(--amp-space-1);
+	gap: space(1.5);
 	margin: 0;
 	white-space: nowrap;
 	border: none;
-	border-bottom: 2px solid transparent;
+	border-bottom: var(--amp-border-width-md) solid transparent;
 	background: transparent;
 	font-family: inherit;
-	font-weight: 600;
+	font-weight: weight(semibold);
 	color: var(--amp-color-sub);
 	cursor: pointer;
 	transition:
-		color 0.15s ease,
-		border-color 0.15s ease;
+		color var(--amp-duration-fast) var(--amp-ease),
+		border-color var(--amp-duration-fast) var(--amp-ease);
 
 	// ---- color: sets the local var the active state reads below.
 	&[data-color="primary"] {
 		--_color: var(--amp-color-primary);
+		--_color-text: var(--amp-color-primary-text);
 	}
 
 	&[data-color="danger"] {
 		--_color: var(--amp-color-danger);
+		--_color-text: var(--amp-color-danger-text);
 	}
 
 	&[data-color="success"] {
 		--_color: var(--amp-color-success);
+		--_color-text: var(--amp-color-success-text);
 	}
 
 	&[data-color="warning"] {
 		--_color: var(--amp-color-warning);
+		--_color-text: var(--amp-color-warning-text);
 	}
 
 	&[data-color="info"] {
 		--_color: var(--amp-color-info);
+		--_color-text: var(--amp-color-info-text);
 	}
 
 	&[data-color="neutral"] {
 		--_color: var(--amp-color-neutral);
+		--_color-text: var(--amp-color-neutral-text);
 	}
 
 	&[data-color="black"] {
 		--_color: var(--amp-color-black);
+		--_color-text: var(--amp-color-black-text);
 	}
 
 	&[data-color="white"] {
 		--_color: var(--amp-color-white);
+		--_color-text: var(--amp-color-white-text);
 	}
 
 	@media (hover: hover) {
@@ -101,13 +110,12 @@
 	}
 
 	&:focus-visible {
-		outline: 2px solid var(--_color, var(--amp-color-primary));
-		outline-offset: 2px;
+		@include focus-ring(var(--_color, var(--amp-focus-color)));
 	}
 }
 
 .tabActive {
-	color: var(--_color);
+	color: var(--_color-text);
 	border-bottom-color: var(--_color);
 }
 
@@ -123,7 +131,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 1.5rem;
+	width: space(6);
 	margin: 0;
 	padding: 0;
 	border: none;
@@ -135,8 +143,8 @@
 	cursor: pointer;
 
 	& svg {
-		width: 0.875rem;
-		height: 0.875rem;
+		width: var(--amp-icon-sm);
+		height: var(--amp-icon-sm);
 	}
 
 	@media (hover: hover) {
@@ -158,21 +166,20 @@
 	}
 
 	&:focus-visible {
-		outline: 2px solid var(--amp-color-primary);
-		outline-offset: -2px;
+		@include focus-ring($inset: true);
 	}
 }
 
 .arrowLeft {
-	padding-right: 0.125rem;
+	padding-right: space(0.5);
 }
 
 .arrowRight {
-	padding-left: 0.125rem;
+	padding-left: space(0.5);
 }
 
 .panel {
-	padding-top: var(--amp-space-4);
+	padding-top: space(4.5);
 	font-family: var(--amp-font);
 	color: var(--amp-color-ink);
 }

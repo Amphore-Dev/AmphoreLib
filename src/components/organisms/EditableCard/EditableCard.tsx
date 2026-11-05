@@ -1,6 +1,14 @@
-import React, { Fragment, useState } from "react";
+import React, {
+	forwardRef,
+	Fragment,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
 
 import { FormikContextType } from "formik";
+import omit from "lodash/omit.js";
+import pick from "lodash/pick.js";
 
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
@@ -14,6 +22,7 @@ import {
 	getDefaultValueDisplay,
 	hasValue,
 } from "@utils/UFormGroups";
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
 import { TFieldsGroup, TLabel, TSummaryListItem } from "@interfaces/index";
@@ -27,6 +36,37 @@ import {
 import styles from "./EditableCard.module.scss";
 
 const NOOP = () => {};
+
+/** Props for the edit form. Everything else is a native prop of the card. */
+const FORM_PROP_KEYS = [
+	"initialValues",
+	"initialTouched",
+	"displayGroupTitles",
+	"groupBackground",
+	"fieldsRenderers",
+	"showResetFieldButton",
+	"showFieldLabels",
+	"size",
+	"inModal",
+	"formikCtx",
+	"setFieldValue",
+	"defaultValues",
+	"minItemWidth",
+	"gap",
+	"wrapperGridProps",
+	"submitLabel",
+	"cancelLabel",
+	"resetLabel",
+	"open",
+	"onClose",
+	"header",
+	"footer",
+	"closeOnOverlayClick",
+	"closeOnEscape",
+	"hideCloseButton",
+	"closeLabel",
+	"portal",
+] as const satisfies readonly (keyof IFormRendererProps)[];
 
 export interface IEditableCardProps<K = object> extends Omit<
 	IFormRendererProps<K>,
@@ -79,39 +119,68 @@ export type TEditableCardLabels = Pick<
 	"editLabel" | "addLabel"
 >;
 
-export const EditableCard: React.FC<IEditableCardProps> = ({
-	title,
-	fields,
-	actions,
-	className,
-	modalProps,
-	onSubmit = () => {},
-	onCancel,
-	onClickOnEdit,
-	hideEditButton,
-	readOnly = false,
-	values = {},
-	columns = 4,
-	editColumns = 1,
-	editItemsColumns = 1,
-	mergeGroupsForDisplay = true,
-	validationSchema,
-	displayRequiredAsterisk = true,
-	editInModal = true,
-	defaultIsEditing,
-	disableFields,
-	addOnEmptyValue = true,
-	formikWrapper = true,
-	displayGridProps,
-	editLabel: editLabelProp,
-	addLabel: addLabelProp,
-	...editModalProps
-}) => {
+const EditableCardBase: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	IEditableCardProps
+> = (
+	{
+		title,
+		fields,
+		actions,
+		className,
+		modalProps,
+		onSubmit = () => {},
+		onCancel,
+		onClickOnEdit,
+		hideEditButton,
+		readOnly = false,
+		values = {},
+		columns = 4,
+		editColumns = 1,
+		editItemsColumns = 1,
+		mergeGroupsForDisplay = true,
+		validationSchema,
+		displayRequiredAsterisk = true,
+		editInModal = true,
+		defaultIsEditing,
+		disableFields,
+		addOnEmptyValue = true,
+		formikWrapper = true,
+		displayGridProps,
+		editLabel: editLabelProp,
+		addLabel: addLabelProp,
+		...props
+	},
+	ref
+) => {
 	const { resolve } = useAmphoreLabels("EditableCard");
+	const editModalProps = pick(props, FORM_PROP_KEYS);
+	const testId = props["data-testid"];
 	const editLabel = resolve("editLabel", editLabelProp, "edit");
 	const addLabel = resolve("addLabel", addLabelProp, "add");
 	const shouldHideEditButton = readOnly || !!hideEditButton;
 	const [isEditing, setIsEditing] = useState(defaultIsEditing ?? false);
+
+	// Inline, entering edit hides the Edit button and drops the Add button
+	// that was just pressed: focus goes to the form, and back on the way out.
+	// (In a Modal, the Modal does this.)
+	const formRef = useRef<HTMLDivElement>(null);
+	const editButtonRef = useRef<HTMLButtonElement>(null);
+	const wasEditing = useRef(isEditing);
+	useEffect(() => {
+		if (wasEditing.current === isEditing) return;
+		wasEditing.current = isEditing;
+		if (editInModal) return;
+		if (isEditing) {
+			formRef.current
+				?.querySelector<HTMLElement>(
+					'input, textarea, button, [tabindex="0"]'
+				)
+				?.focus();
+		} else if (document.activeElement === document.body) {
+			editButtonRef.current?.focus();
+		}
+	}, [isEditing, editInModal]);
 
 	const handleClose = () => {
 		setIsEditing(false);
@@ -127,6 +196,8 @@ export const EditableCard: React.FC<IEditableCardProps> = ({
 
 	return (
 		<SectionCard
+			{...omit(props, FORM_PROP_KEYS)}
+			ref={ref}
 			className={cn([styles.card, className])}
 			title={title}
 			actions={
@@ -134,10 +205,12 @@ export const EditableCard: React.FC<IEditableCardProps> = ({
 					{actions}
 					{!shouldHideEditButton && (
 						<Button
+							ref={editButtonRef}
 							color="neutral"
 							variant="outline"
 							size="sm"
 							picto="edit"
+							data-testid={deriveTestId(testId, "edit")}
 							className={cn([
 								styles.editBtn,
 								isEditing &&
@@ -168,36 +241,48 @@ export const EditableCard: React.FC<IEditableCardProps> = ({
 					readOnly={readOnly}
 					gridProps={displayGridProps}
 					addLabel={addLabel}
+					testId={testId}
 				/>
 			)}
 
 			{isEditing && (
-				<FormWrapperComponent
-					title={title as string}
-					fields={fields}
-					showFieldLabels
-					validationSchema={validationSchema}
-					modalProps={modalProps}
-					{...editModalProps}
-					disableFields={readOnly || disableFields}
-					wrapperGridProps={{
-						columns: editColumns,
-						...editModalProps.wrapperGridProps,
-					}}
-					columns={editItemsColumns}
-					initialValues={{
-						...values,
-						...(editModalProps.initialValues || {}),
-					}}
-					onSubmit={handleSubmit}
-					open={isEditing}
-					onClose={handleClose}
-					inModal={editInModal}
-				/>
+				<div ref={formRef} style={{ display: "contents" }}>
+					<FormWrapperComponent
+						data-testid={deriveTestId(testId, "form")}
+						title={title as string}
+						fields={fields}
+						showFieldLabels
+						validationSchema={validationSchema}
+						modalProps={modalProps}
+						{...editModalProps}
+						disableFields={readOnly || disableFields}
+						wrapperGridProps={{
+							columns: editColumns,
+							...editModalProps.wrapperGridProps,
+						}}
+						columns={editItemsColumns}
+						initialValues={{
+							...values,
+							...(editModalProps.initialValues || {}),
+						}}
+						onSubmit={handleSubmit}
+						open={isEditing}
+						onClose={handleClose}
+						inModal={editInModal}
+					/>
+				</div>
 			)}
 		</SectionCard>
 	);
 };
+
+/**
+ * Native props and `ref` go to the SectionCard root, what configures the form
+ * to the form. Derived testids: SectionCard's own, `-edit`, `-form` (and the
+ * form's below it, `-form-primary`...), `-field-<name>`, `-add-<name>`.
+ */
+export const EditableCard = forwardRef(EditableCardBase);
+EditableCard.displayName = "EditableCard";
 
 interface IDisplayFieldsProps {
 	fields?: IFormRendererProps["fields"];
@@ -212,6 +297,7 @@ interface IDisplayFieldsProps {
 	readOnly?: boolean;
 	gridProps?: IGridProps;
 	addLabel: string;
+	testId?: string;
 }
 
 const DisplayFields: React.FC<IDisplayFieldsProps> = ({
@@ -226,6 +312,7 @@ const DisplayFields: React.FC<IDisplayFieldsProps> = ({
 	readOnly = false,
 	gridProps,
 	addLabel,
+	testId,
 }) => {
 	if (!fields) return null;
 
@@ -302,6 +389,7 @@ const DisplayFields: React.FC<IDisplayFieldsProps> = ({
 					size="sm"
 					picto="add"
 					onClick={() => setIsEditing(true)}
+					data-testid={deriveTestId(testId, "add", field.name)}
 				>
 					{addLabel}
 				</Button>
@@ -348,7 +436,10 @@ const DisplayFields: React.FC<IDisplayFieldsProps> = ({
 					className={displayProps?.className}
 					style={{ order }}
 				>
-					<SummaryListItem {...item} />
+					<SummaryListItem
+						{...item}
+						data-testid={deriveTestId(testId, "field", field.name)}
+					/>
 				</div>
 			);
 		});

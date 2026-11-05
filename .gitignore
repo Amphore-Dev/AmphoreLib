@@ -35,3 +35,6 @@ debug-storybook.log
 
 # vitest coverage output
 coverage/
+
+# visual regression: local build, references and diffs (see scripts/visual.mjs)
+.visual/

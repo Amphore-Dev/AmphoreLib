@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { forwardRef, useState } from "react";
 
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
@@ -11,9 +11,11 @@ import {
 } from "@components/organisms";
 
 import { genGroups } from "@utils/UFormGroups";
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
 import {
+	ITestIdProps,
 	IUseFiltersContext,
 	TFieldRendererMap,
 	TFiltersModalGroup,
@@ -70,7 +72,11 @@ export type TPageHeaderTab<Value extends string = string> = TTabItem<Value> &
  */
 export type TPageHeaderActionsPosition = "aboveTabs" | "underTabs";
 
-export interface IPageHeaderProps extends TPageHeaderFilters {
+export interface IPageHeaderProps
+	extends
+		TPageHeaderFilters,
+		Omit<React.ComponentPropsWithoutRef<"div">, "title" | "children">,
+		ITestIdProps {
 	title?: React.ReactNode;
 	titleAfter?: React.ReactNode;
 	/** Free-form content at the head of the actions row, before `buttons`. */
@@ -99,33 +105,41 @@ export type TPageHeaderLabels = Pick<
 	"loadingLabel" | "onBackLabel"
 >;
 
-export const PageHeader: React.FC<IPageHeaderProps> = ({
-	title,
-	actions,
-	buttons,
-	secondaryButtons,
-	actionsPosition = "underTabs",
-	className,
-	filtersContext,
-	searchValue,
-	onSearchChange,
-	searchInputProps,
-	isLoading,
-	totalCount,
-	countMessage,
-	loadingLabel: loadingLabelProp,
-	filters,
-	tabs,
-	fieldsRenderers,
-	onBack,
-	onBackLabel: onBackLabelProp,
-	onFiltersChange,
-	titleAfter,
-	selectedTabId,
-	onSelectTab,
-	initialTabId,
-}) => {
+const PageHeaderBase: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	IPageHeaderProps
+> = (
+	{
+		title,
+		actions,
+		buttons,
+		secondaryButtons,
+		actionsPosition = "underTabs",
+		className,
+		filtersContext,
+		searchValue,
+		onSearchChange,
+		searchInputProps,
+		isLoading,
+		totalCount,
+		countMessage,
+		loadingLabel: loadingLabelProp,
+		filters,
+		tabs,
+		fieldsRenderers,
+		onBack,
+		onBackLabel: onBackLabelProp,
+		onFiltersChange,
+		titleAfter,
+		selectedTabId,
+		onSelectTab,
+		initialTabId,
+		...props
+	},
+	ref
+) => {
 	const { resolve } = useAmphoreLabels("PageHeader");
+	const testId = props["data-testid"];
 	const loadingLabel = resolve("loadingLabel", loadingLabelProp);
 	const onBackLabel = resolve("onBackLabel", onBackLabelProp, "back");
 
@@ -188,6 +202,7 @@ export const PageHeader: React.FC<IPageHeaderProps> = ({
 
 				{!!activeFilters && (
 					<FiltersModal
+						data-testid={deriveTestId(testId, "filters")}
 						filters={activeFilters}
 						filtersContext={activeFiltersContext}
 						key={activeFiltersContext?.filtersKey?.toString()}
@@ -205,6 +220,7 @@ export const PageHeader: React.FC<IPageHeaderProps> = ({
 							key={`${activeTab?.value ?? "default"}-search`}
 							name="page-header-search"
 							placeholder="Search"
+							data-testid={deriveTestId(testId, "search")}
 							{...activeSearch}
 							onChange={activeSearch.onChange}
 							value={activeSearch.value}
@@ -230,6 +246,7 @@ export const PageHeader: React.FC<IPageHeaderProps> = ({
 
 	const tabBar = tabs ? (
 		<Tabs
+			data-testid={deriveTestId(testId, "tabs")}
 			items={visibleTabs}
 			value={activeTab?.value ?? ""}
 			onChange={setActiveTab}
@@ -247,12 +264,13 @@ export const PageHeader: React.FC<IPageHeaderProps> = ({
 	) as TFiltersModalGroup[];
 
 	return (
-		<div className={cn([styles.header, className])}>
+		<div {...props} ref={ref} className={cn([styles.header, className])}>
 			{onBack && (
 				<Button
 					onClick={onBack}
 					aria-label={onBackLabel}
 					className={styles.backButton}
+					data-testid={deriveTestId(testId, "back")}
 					variant="link"
 					color="neutral"
 					picto={{
@@ -273,14 +291,22 @@ export const PageHeader: React.FC<IPageHeaderProps> = ({
 			>
 				<div className={styles.leftContent}>
 					<div className={styles.titleBlock}>
-						<h1 className={styles.title}>{title}</h1>
+						{!!title && (
+							<h1
+								className={styles.title}
+								data-testid={deriveTestId(testId, "title")}
+							>
+								{title}
+							</h1>
+						)}
 						{titleAfter && (
 							<div className={styles.titleAfter}>
 								{titleAfter}
 							</div>
 						)}
 					</div>
-					<p className={styles.subtitle}>
+					{/* Stays mounted: a live region only speaks about changes. */}
+					<p className={styles.subtitle} role="status">
 						{isLoading
 							? loadingLabel
 							: totalCount !== undefined
@@ -300,6 +326,7 @@ export const PageHeader: React.FC<IPageHeaderProps> = ({
 							filtersContext={activeFiltersContext}
 							filters={activeFiltersList}
 							className={styles.activeFilters}
+							data-testid={deriveTestId(testId, "active-filters")}
 							key={activeTab?.value}
 							rightContent={renderActions()}
 						/>
@@ -314,6 +341,7 @@ export const PageHeader: React.FC<IPageHeaderProps> = ({
 					<ActiveFilters
 						filtersContext={activeFiltersContext}
 						filters={activeFiltersList}
+						data-testid={deriveTestId(testId, "active-filters")}
 					/>
 				</div>
 			)}
@@ -324,3 +352,10 @@ export const PageHeader: React.FC<IPageHeaderProps> = ({
 		</div>
 	);
 };
+
+/**
+ * Native props and `ref` go to the root `<div>`. Derived testids: `-back`,
+ * `-title`, `-tabs`, `-filters`, `-search`, `-active-filters`.
+ */
+export const PageHeader = forwardRef(PageHeaderBase);
+PageHeader.displayName = "PageHeader";

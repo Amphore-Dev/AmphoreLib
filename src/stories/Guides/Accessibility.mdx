@@ -1,0 +1,89 @@
+{/* Accessibility.mdx */}
+
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Guides/Accessibility" />
+
+# Accessibility
+
+Recurring rules across the lib — not a per-component add-on, a standard. Where each component stands: [Guides/Accessibility Audit](?path=/docs/guides-accessibility-audit--docs).
+
+## Focus ring: `outline`, never `box-shadow`
+
+```scss
+&:focus-visible {
+	outline: 2px solid var(--_color, var(--amp-color-primary));
+	outline-offset: 2px;
+}
+```
+
+`outline` stays visible regardless of the background (drawn outside the box, with real spacing via `outline-offset`) — a `box-shadow` has to guess at a color that contrasts with the background, which isn't reliable.
+
+## `aria-invalid` only where the role supports it
+
+Don't set `aria-invalid` on `role="radio"`/`role="switch"` — ARIA doesn't allow it on these roles (`jsx-a11y/role-supports-aria-props` flags it). Check the role before adding this attribute to a new component.
+
+## Keyboard-navigable lists: manual activation
+
+`Tabs` (and any similar component): arrows/Home/End move **focus** only (roving tabindex) — they don't change the selected value. Committing a selection needs Enter/Space (free via native `<button>` semantics) or a click. Never auto-select on an arrow key by default.
+
+## Disclosure widgets (Accordion)
+
+The trigger carries `aria-expanded`/`aria-controls`; the panel carries `aria-labelledby` pointing at the trigger's `id`.
+
+```tsx
+<button aria-expanded={open} aria-controls={panelId}>...</button>
+<div id={panelId} aria-labelledby={triggerId}>...</div>
+```
+
+## Sortable interactive elements (Th)
+
+A sortable column header needs real keyboard support (`tabIndex` + Enter/Space), not just `onClick`.
+
+## A button named by a `<label>` loses its content
+
+`<label htmlFor>` replaces a `<button>`'s name outright: a date or a color shown in the trigger is never read out. Name it by the label *and* the value:
+
+```tsx
+<label id={labelId} htmlFor={triggerId}>Start</label>
+<button id={triggerId} aria-labelledby={`${labelId} ${valueId}`}>
+	<span id={valueId}>15/03/2024</span>
+</button>
+```
+
+`htmlFor` only reaches a native control at all. A combobox `div` or a group of controls takes `aria-labelledby`; a field accepting a label from outside takes both `aria-label` and `aria-labelledby` (`FormRenderer` passes one or the other).
+
+## Never remove the focused element without moving focus
+
+Anything that unmounts or disables the element just pressed (clear ×, remove chip, delete row, Reset, closing a panel) drops focus on the body, and a keyboard user starts over from the top of the page. Move focus first, to whatever takes its place:
+
+- `isLoading` keeps a `Button` focusable: `aria-disabled` + `aria-busy`, never `disabled`.
+- A non-modal panel uses `useRestoreFocus(open)`. Modal, Popover and the menus get the same from `FloatingFocusManager`.
+- Pressed by keyboard only, when moving focus to an input would raise a phone's keyboard (`event.detail === 0`).
+
+## Escape closes one layer
+
+Every overlay goes through `useEscapeLayer(open, onEscape)` with `useDismiss`'s `escapeKey: false`: floating-ui alone closes all of them at once without a `FloatingTree`. A field using Escape for itself calls `preventDefault()` and nothing closes.
+
+## Anything that changes without moving focus is announced
+
+A new Tour step, a Select's "no results", a count coming back, a moved row: nothing is read out unless it's in a live region (`role="status"`) that was already in the DOM before the text changed.
+
+## Hidden means hidden
+
+A collapsed panel at 0 height stays in the tab order and the accessibility tree: use `visibility: hidden`. A control styled away stays operable with the `visually-hidden` mixin (`src/styles/_a11y.scss`), never the `hidden` attribute, which is `display: none`.
+
+## Testing it
+
+```tsx
+import { expectNoA11yViolations } from "../../../../tests/axe";
+
+render(<Thing />);
+await expectNoA11yViolations();
+```
+
+Every exported component needs an assertion in `tests/a11y/`, default state plus open, error and disabled: `coverage.test.ts` fails otherwise. axe sees neither the keyboard nor focus, so behaviour gets its own test next to the component. It can't see color contrast either: jsdom resolves no color, so that's left to Storybook's a11y addon.
+
+---
+
+See also: [Guides/Floating Overlays](?path=/docs/guides-floating-overlays--docs), `Tabs.tsx`, `Accordion.tsx`, `Th.tsx`, `useEscapeLayer.ts`, `useRestoreFocus.ts`.

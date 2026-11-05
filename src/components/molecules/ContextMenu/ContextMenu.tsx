@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import {
 	flip,
@@ -8,44 +8,49 @@ import {
 	useFloating,
 	useInteractions,
 	useListNavigation,
+	useMergeRefs,
 	useRole,
 } from "@floating-ui/react";
 
 import { AmphorePortal } from "@theme/AmphorePortal";
 
-import type { TMenuItem } from "@interfaces/index";
+import { useEscapeLayer } from "@hooks/index";
+
+import { genericForwardRef } from "@utils/UForwardRef";
+
+import type { ITestIdProps, TMenuItem } from "@interfaces/index";
 
 import { MenuList } from "../Dropdown/MenuList";
 
 import type { IContextMenuController } from "./useContextMenu";
 
-export interface IContextMenuProps<T> {
+export interface IContextMenuProps<T>
+	extends
+		Omit<React.ComponentPropsWithoutRef<"div">, "children">,
+		ITestIdProps {
 	/** From `useContextMenu()`. Any number of elements can call `menu.show` — this renders once, shared by all of them. */
 	menu: IContextMenuController<T>;
 	/** Static list, or resolved from whatever `data` the triggering `show(event, data)` call passed. */
 	items: TMenuItem[] | ((data: T) => TMenuItem[]);
 	disabled?: boolean;
+	/** Names the menu: there's no trigger element to take its name from, unlike Dropdown. */
+	"aria-label"?: string;
 	/** Renders the menu into `document.body` via AmphorePortal (theme scope re-applied) — escapes any ancestor stacking context/`transform`/`overflow` that would trap or clip it. Defaults to false (inline, `position: fixed`). */
 	portal?: boolean;
 	className?: string;
 }
 
-/**
- * V2 ContextMenu — one shared instance, many right-click triggers
- * (react-contexify's model): `useContextMenu()`'s `show(event, data)` from
- * as many `onContextMenu` handlers as needed, `items` resolved against
- * whatever `data` the triggering call passed. Reuses Dropdown's `MenuList`,
- * positions via a virtual reference at the cursor (`refs.setPositionReference`)
- * — no trigger ref/forwardRef needed, unlike Dropdown. Inline
- * (`strategy:"fixed"`) by default, `portal` opts into AmphorePortal.
- */
-export function ContextMenu<T = undefined>({
-	menu,
-	items,
-	disabled = false,
-	portal = false,
-	className = "",
-}: IContextMenuProps<T>) {
+function ContextMenuBase<T = undefined>(
+	{
+		menu,
+		items,
+		disabled = false,
+		portal = false,
+		className = "",
+		...menuProps
+	}: IContextMenuProps<T>,
+	ref: React.ForwardedRef<HTMLDivElement>
+) {
 	const [activeIndex, setActiveIndex] = useState<number | null>(null);
 	const listRef = useRef<Array<HTMLButtonElement | null>>([]);
 	const open = !disabled && menu.state !== null;
@@ -84,7 +89,8 @@ export function ContextMenu<T = undefined>({
 		],
 	});
 
-	const dismiss = useDismiss(context);
+	const dismiss = useDismiss(context, { escapeKey: false });
+	useEscapeLayer(open, menu.hide);
 	const role = useRole(context, { role: "menu" });
 	const listNav = useListNavigation(context, {
 		listRef,
@@ -98,6 +104,8 @@ export function ContextMenu<T = undefined>({
 		role,
 		listNav,
 	]);
+
+	const menuRef = useMergeRefs([refs.setFloating, ref]);
 
 	// Re-anchors to the new cursor position every time a trigger calls
 	// `show` — including while already open (right-clicking a different
@@ -135,9 +143,10 @@ export function ContextMenu<T = undefined>({
 		<MenuList
 			items={resolvedItems}
 			context={context}
-			floatingRef={refs.setFloating}
+			floatingRef={menuRef as (node: HTMLDivElement | null) => void}
 			floatingStyles={floatingStyles}
 			getFloatingProps={getFloatingProps}
+			menuProps={menuProps}
 			getItemProps={(_item, onClick) => getItemProps({ onClick })}
 			itemRef={(node, index) => {
 				listRef.current[index] = node;
@@ -150,3 +159,17 @@ export function ContextMenu<T = undefined>({
 
 	return portal ? <AmphorePortal>{list}</AmphorePortal> : list;
 }
+
+/**
+ * V2 ContextMenu — one shared instance, many right-click triggers
+ * (react-contexify's model): `useContextMenu()`'s `show(event, data)` from
+ * as many `onContextMenu` handlers as needed, `items` resolved against
+ * whatever `data` the triggering call passed. Reuses Dropdown's `MenuList`,
+ * positions via a virtual reference at the cursor (`refs.setPositionReference`)
+ * — no trigger ref/forwardRef needed, unlike Dropdown. Inline
+ * (`strategy:"fixed"`) by default, `portal` opts into AmphorePortal.
+ *
+ * Native props and `ref` go to the menu. Derived testids: `-item-<id>`, or
+ * `-item-<position>` for an item without one.
+ */
+export const ContextMenu = genericForwardRef(ContextMenuBase, "ContextMenu");

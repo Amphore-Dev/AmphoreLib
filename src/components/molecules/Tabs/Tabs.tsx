@@ -1,24 +1,58 @@
-import React, { useEffect, useId, useRef, useState } from "react";
+import React, {
+	ComponentPropsWithoutRef,
+	useEffect,
+	useId,
+	useRef,
+	useState,
+} from "react";
+
+import { useMergeRefs } from "@floating-ui/react";
 
 import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
+import { genericForwardRef } from "@utils/UForwardRef";
 import { getPicto } from "@utils/UPicto";
+import { deriveTestId, testIdPart } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
-import { TColor, TLabel, TSize, TTabItem } from "@interfaces/index";
+import {
+	ITestIdProps,
+	TColor,
+	TElementProps,
+	TLabel,
+	TSize,
+	TTabItem,
+} from "@interfaces/index";
 
 import { Picto } from "../../atoms/Picto/Picto";
 
 import styles from "./Tabs.module.scss";
 
-export interface ITabsProps<T = string> {
+export interface ITabsProps<T = string>
+	extends
+		Omit<
+			React.ComponentPropsWithoutRef<"div">,
+			"onChange" | "color" | "defaultValue" | "children"
+		>,
+		ITestIdProps {
 	items: TTabItem<T>[];
 	value: T;
 	onChange: (value: T) => void;
 	size?: TSize;
 	color?: TColor;
 	className?: string;
+	/** Native props of the outer container (tab strip and scroll arrows). */
+	wrapperProps?: TElementProps<"div">;
+	/** Names the tablist. */
+	"aria-label"?: string;
+	/**
+	 * Ties each tab to its `TabPanel`: tabs get the ids
+	 * `${idPrefix}-tab-${value}` and `aria-controls` pointing at the panel
+	 * with the same `idPrefix`. Without it the two know nothing of each other
+	 * and the panel has no name.
+	 */
+	idPrefix?: string;
 	/** aria-label for the left scroll arrow, shown once the tab strip overflows. Defaults to "Scroll left" (or `Tabs.scrollLeftLabel` from the nearest AmphoreProvider — see useAmphoreLabels). */
 	scrollLeftLabel?: TLabel;
 	/** aria-label for the right scroll arrow. Defaults to "Scroll right" (or `Tabs.scrollRightLabel` from the nearest AmphoreProvider). */
@@ -31,23 +65,23 @@ export type TTabsLabels = Pick<
 	"scrollLeftLabel" | "scrollRightLabel"
 >;
 
-/**
- * V2 Tabs — controlled tab strip, manual activation (WAI-ARIA "tabs"
- * pattern): arrows/Home/End move focus only, Enter/Space/click selects.
- * Data-driven `items`, not compound `<Tab>`/`<TabPanel>` children — renders
- * only the tablist; panel content is the consumer's own via the separate
- * `TabPanel` below, both reading the same controlled `value`.
- */
-export function Tabs<T = string>({
-	items,
-	value,
-	onChange,
-	size: sizeProp,
-	color = "primary",
-	className = "",
-	scrollLeftLabel: scrollLeftLabelProp,
-	scrollRightLabel: scrollRightLabelProp,
-}: ITabsProps<T>) {
+function TabsBase<T = string>(
+	{
+		items,
+		value,
+		onChange,
+		size: sizeProp,
+		color = "primary",
+		className = "",
+		scrollLeftLabel: scrollLeftLabelProp,
+		scrollRightLabel: scrollRightLabelProp,
+		"aria-label": ariaLabel,
+		idPrefix,
+		wrapperProps,
+		...props
+	}: ITabsProps<T>,
+	ref: React.ForwardedRef<HTMLDivElement>
+) {
 	const { size: defaultSize } = useAmphoreDefaults();
 	const size = sizeProp ?? defaultSize ?? "md";
 	const { resolve } = useAmphoreLabels("Tabs");
@@ -56,6 +90,7 @@ export function Tabs<T = string>({
 	const tabsId = useId();
 	const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
 	const listRef = useRef<HTMLDivElement>(null);
+	const mergedRef = useMergeRefs([listRef, ref]);
 	const [canScrollLeft, setCanScrollLeft] = useState(false);
 	const [canScrollRight, setCanScrollRight] = useState(false);
 	const [isScrollable, setIsScrollable] = useState(false);
@@ -73,6 +108,11 @@ export function Tabs<T = string>({
 	const [focusedIndex, setFocusedIndex] = useState(
 		selectedIndex !== -1 ? selectedIndex : (enabledIndexes[0] ?? 0)
 	);
+	// A disabled tab can't hold the one tab stop: the browser would skip it,
+	// and the whole strip with it, since every other tab is -1.
+	const tabStop = items[focusedIndex]?.disabled
+		? (enabledIndexes[0] ?? -1)
+		: focusedIndex;
 
 	// Keeps the roving tabindex in sync when `value` changes from outside
 	// (e.g. a consumer switching tabs programmatically), without fighting
@@ -196,7 +236,10 @@ export function Tabs<T = string>({
 	};
 
 	return (
-		<div className={styles.wrapper}>
+		<div
+			{...wrapperProps}
+			className={cn([styles.wrapper, wrapperProps?.className])}
+		>
 			{isScrollable && (
 				<button
 					type="button"
@@ -204,6 +247,10 @@ export function Tabs<T = string>({
 					onClick={() => scrollByDirection(-1)}
 					disabled={!canScrollLeft}
 					aria-label={scrollLeftLabel}
+					data-testid={deriveTestId(
+						props["data-testid"],
+						"scroll-left"
+					)}
 					// Not part of the tablist's own roving-tabindex sequence —
 					// scrolling is a viewport concern, not a tab to select.
 					tabIndex={-1}
@@ -213,8 +260,10 @@ export function Tabs<T = string>({
 			)}
 
 			<div
-				ref={listRef}
+				{...props}
+				ref={mergedRef}
 				role="tablist"
+				aria-label={ariaLabel}
 				className={cn([styles.tabs, className])}
 				data-size={size}
 			>
@@ -226,14 +275,28 @@ export function Tabs<T = string>({
 							ref={(node) => {
 								tabRefs.current[index] = node;
 							}}
-							id={`${tabsId}-tab-${index}`}
+							id={
+								idPrefix
+									? `${idPrefix}-tab-${String(item.value)}`
+									: `${tabsId}-tab-${index}`
+							}
 							type="button"
 							role="tab"
 							aria-selected={selected}
 							aria-disabled={item.disabled || undefined}
-							tabIndex={index === focusedIndex ? 0 : -1}
+							aria-controls={
+								idPrefix && selected
+									? `${idPrefix}-panel-${String(item.value)}`
+									: undefined
+							}
+							tabIndex={index === tabStop ? 0 : -1}
 							disabled={item.disabled}
 							data-color={color}
+							data-testid={deriveTestId(
+								props["data-testid"],
+								"tab",
+								testIdPart(item.value, index)
+							)}
 							className={cn([
 								styles.tab,
 								selected && styles.tabActive,
@@ -260,6 +323,10 @@ export function Tabs<T = string>({
 					onClick={() => scrollByDirection(1)}
 					disabled={!canScrollRight}
 					aria-label={scrollRightLabel}
+					data-testid={deriveTestId(
+						props["data-testid"],
+						"scroll-right"
+					)}
 					tabIndex={-1}
 				>
 					<Picto icon="chevron" />
@@ -269,29 +336,74 @@ export function Tabs<T = string>({
 	);
 }
 
-export interface ITabPanelProps {
+/**
+ * V2 Tabs — controlled tab strip, manual activation (WAI-ARIA "tabs"
+ * pattern): arrows/Home/End move focus only, Enter/Space/click selects.
+ * Data-driven `items`, not compound `<Tab>`/`<TabPanel>` children — renders
+ * only the tablist; panel content is the consumer's own via the separate
+ * `TabPanel` below, both reading the same controlled `value`.
+ *
+ * Native props, `className` and `ref` go to the `role="tablist"` element,
+ * `wrapperProps` to the outer container. Derived testids: `-tab-<value>`
+ * (position when `value` is an object), `-scroll-left`, `-scroll-right`.
+ */
+export const Tabs = genericForwardRef(TabsBase, "Tabs");
+
+export interface ITabPanelProps extends ComponentPropsWithoutRef<"div"> {
 	active: boolean;
+	/** With `value`: the same `idPrefix` as `Tabs`, which names this panel after its tab. */
+	idPrefix?: string;
+	/** The `value` of the tab this panel belongs to. */
+	value?: unknown;
+	/** Names the panel when it isn't tied to a tab by `idPrefix`. */
+	"aria-label"?: string;
 	children?: React.ReactNode;
 	className?: string;
 }
+
+const TabPanelBase = (
+	{
+		active,
+		idPrefix,
+		value,
+		"aria-label": ariaLabel,
+		children,
+		className = "",
+		...props
+	}: ITabPanelProps,
+	ref: React.ForwardedRef<HTMLDivElement>
+) => {
+	if (!active) return null;
+
+	const linked = idPrefix !== undefined && value !== undefined;
+
+	return (
+		<div
+			{...props}
+			ref={ref}
+			role="tabpanel"
+			id={linked ? `${idPrefix}-panel-${String(value)}` : props.id}
+			aria-labelledby={
+				linked && !ariaLabel
+					? `${idPrefix}-tab-${String(value)}`
+					: props["aria-labelledby"]
+			}
+			aria-label={ariaLabel}
+			className={cn([styles.panel, className])}
+		>
+			{children}
+		</div>
+	);
+};
 
 /**
  * Pairs with `Tabs` via the same controlled `value` the consumer already
  * owns — pass `active={value === "..."}`. Deliberately not wired through
  * context/ids: keeping both components ignorant of each other's internals
  * means either can be used alone (a `Tabs` strip driving something other
- * than a panel, e.g. filtering a list) without dragging the other in.
+ * than a panel, e.g. filtering a list) without dragging the other in. The one
+ * link is an `idPrefix` string given to both, for the ARIA ids.
+ *
+ * Native props and `ref` go to the `role="tabpanel"` element.
  */
-export const TabPanel: React.FC<ITabPanelProps> = ({
-	active,
-	children,
-	className = "",
-}) => {
-	if (!active) return null;
-
-	return (
-		<div role="tabpanel" className={cn([styles.panel, className])}>
-			{children}
-		</div>
-	);
-};
+export const TabPanel = genericForwardRef(TabPanelBase, "TabPanel");

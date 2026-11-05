@@ -1,3 +1,5 @@
+@use "../../../styles/mixins" as *;
+
 // Only ever matches when `onClick` is given (Picto.tsx renders a real
 // <button> then, for a11y/keyboard support) — native UA button chrome
 // (border, background, padding) otherwise shows through, since nothing
@@ -31,12 +33,14 @@ button[data-amphore-svg-wrapper] {
 		width: 100%;
 	}
 
-	&:focus-visible {
+	&:focus {
 		outline: none;
 	}
 
-	&:focus {
-		outline: none;
+	// The wrapper is a <button> with `onClick`, and this is its only focus
+	// indicator. Last: :focus above has the same specificity.
+	&:focus-visible {
+		@include focus-ring(currentColor);
 	}
 
 	& > *:focus,

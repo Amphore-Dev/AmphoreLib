@@ -2,7 +2,7 @@
 
 import { Meta } from "@storybook/addon-docs/blocks";
 
-<Meta title="Concepts/FiltersContext" />
+<Meta title="Guides/FiltersContext" />
 
 # 🧩 Filters Context
 
@@ -159,7 +159,7 @@ interface IUseFiltersContext<T, K, S = T[K]> {
 - `getPagination()` / `setPagination(p)`: read/write `{page, limit, total}`
 - `getParams(filters?)` / `getQueryKeys(filters?)`: serialization to the URL / query keys
 - `count` / `setCount(n)`: active-filters counter (prefer `countCallback` in options over manually calling `setCount`)
-- `fieldRenderers`: see [Concepts/Fields](?path=/docs/concepts-fields--docs), `FiltersContext` level
+- `fieldRenderers`: see [Guides/Fields](?path=/docs/guides-fields--docs), `FiltersContext` level
 
 ---
 
@@ -180,7 +180,7 @@ type TFiltersContextOptions<S> = {
 
 ### The `params` option
 
-Each key can be `true` (value encoded as-is) or an object `{ get?, set?, key? }`:
+Each key can be `true` (value encoded as-is), an object `{ get?, set?, key? }`, or `false`:
 
 ```ts
 const { filters } = useFiltersContext("planning", {
@@ -192,9 +192,14 @@ const { filters } = useFiltersContext("planning", {
       set: (raw) => ({ id: raw }), // URL -> value
     },
     status: true, // encoded as-is, e.g.: ?status=draft
+    page: false, // stays in state, kept out of the URL
   },
 });
 ```
+
+`false` keeps a key out of the URL while still managing it: it is never written, never read from the URL, and removed from it on every sync (a param left by another screen, for example). A key that is simply missing from `params` is not touched in the URL at all.
+
+`getParams()` and `getQueryKeys()` leave a `false` key out too, except `page` and `limit`, which they always include: requests and their query keys still depend on them.
 
 ---
 

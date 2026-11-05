@@ -50,7 +50,7 @@ describe("AmphoreScope", () => {
 
 	it("omits data-amp-theme in system mode, like the provider", () => {
 		render(
-			<AmphoreProvider>
+			<AmphoreProvider theme="system">
 				<AmphoreScope>
 					<span data-testid="probe">x</span>
 				</AmphoreScope>

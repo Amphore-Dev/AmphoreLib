@@ -1,13 +1,16 @@
-import React, { useRef, useState } from "react";
+import React, { forwardRef, useEffect, useRef, useState } from "react";
+
+import { useMergeRefs } from "@floating-ui/react";
 
 import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
 import { useAutoScroll, useDrag } from "@hooks/index";
 
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
-import { TLabel, TSize } from "@interfaces/index";
+import { ITestIdProps, TLabel, TSize } from "@interfaces/index";
 
 import { TodoItem } from "../../molecules/TodoItem/TodoItem";
 
@@ -20,7 +23,10 @@ export interface TTodoItem {
 	before?: React.ReactNode;
 }
 
-export interface ITodoListProps {
+export interface ITodoListProps
+	extends
+		Omit<React.ComponentPropsWithoutRef<"ul">, "onChange" | "children">,
+		ITestIdProps {
 	/** Controlled — every mutation (edit, remove, reorder) calls `onChange` with the next full array, this component holds no list state of its own. */
 	items: TTodoItem[];
 	onChange: (items: TTodoItem[]) => void;
@@ -34,42 +40,42 @@ export interface ITodoListProps {
 	reorderable?: boolean;
 	/** aria-label for each row's drag handle. Defaults to "Move (up/down arrows)" (or `TodoList.moveLabel` from the nearest AmphoreProvider — see useAmphoreLabels). No effect without `reorderable`. */
 	moveLabel?: TLabel;
+	/** Announced after a keyboard move, `{position}` and `{total}` replaced. Defaults to "Moved to position {position} of {total}" (or `TodoList.movedLabel` from the nearest AmphoreProvider). */
+	movedLabel?: TLabel;
 	size?: TSize;
 	className?: string;
 }
 
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
-export type TTodoListLabels = Pick<ITodoListProps, "moveLabel">;
+export type TTodoListLabels = Pick<ITodoListProps, "moveLabel" | "movedLabel">;
 
-/**
- * V2 TodoList — a controlled, reorderable list of `TodoItem` rows. Reorder
- * is custom pointer-based (no DnD dependency, `useDrag` like every other
- * drag in this lib): a `pointerdown` on a handle starts tracking, `move`
- * measures sibling midpoints to find the drop index and splices `items`
- * immediately (once per index crossed, same as the original prototype this
- * was ported from) — not just on drop. Near the edge of the scroll
- * container (or the screen), `useAutoScroll` scrolls so a long list can be
- * reordered past what's visible — on a phone, the finger on the handle
- * can't scroll it any other way. Arrow-up/down on the handle reorders by
- * one without needing a drag at all.
- */
-export const TodoList: React.FC<ITodoListProps> = ({
-	items,
-	onChange,
-	editable = true,
-	removable = true,
-	multiline = false,
-	reorderable = true,
-	moveLabel: moveLabelProp,
-	size: sizeProp,
-	className = "",
-}) => {
+const TodoListBase: React.ForwardRefRenderFunction<
+	HTMLUListElement,
+	ITodoListProps
+> = (
+	{
+		items,
+		onChange,
+		editable = true,
+		removable = true,
+		multiline = false,
+		reorderable = true,
+		moveLabel: moveLabelProp,
+		movedLabel: movedLabelProp,
+		size: sizeProp,
+		className = "",
+		...props
+	},
+	ref
+) => {
 	const { size: defaultSize } = useAmphoreDefaults();
 	const size = sizeProp ?? defaultSize ?? "md";
 	const { resolve } = useAmphoreLabels("TodoList");
 	const moveLabel = resolve("moveLabel", moveLabelProp);
+	const movedLabel = resolve("movedLabel", movedLabelProp);
 
 	const listRef = useRef<HTMLUListElement>(null);
+	const mergedRef = useMergeRefs([listRef, ref]);
 	const itemsRef = useRef(items);
 	itemsRef.current = items;
 	const onChangeRef = useRef(onChange);
@@ -77,6 +83,19 @@ export const TodoList: React.FC<ITodoListProps> = ({
 
 	const [dragIndex, setDragIndex] = useState<number | null>(null);
 	const dragIndexRef = useRef<number | null>(null);
+	const [announcement, setAnnouncement] = useState("");
+
+	// Moving a row can detach it from the DOM for an instant and removing one
+	// takes the pressed button with it: either way focus falls to the body.
+	// Once `items` has settled, this says where it goes instead.
+	const pendingFocus = useRef<(() => void) | null>(null);
+	useEffect(() => {
+		pendingFocus.current?.();
+		pendingFocus.current = null;
+	}, [items]);
+
+	const rowButtons = (index: number) =>
+		listRef.current?.children[index]?.querySelectorAll("button");
 
 	const move = (from: number, to: number) => {
 		const current = itemsRef.current;
@@ -142,14 +161,41 @@ export const TodoList: React.FC<ITodoListProps> = ({
 	};
 
 	const handleRemove = (index: number) => {
+		// The row that takes its place, or the last one, or the list itself.
+		pendingFocus.current = () => {
+			const row = Math.min(index, items.length - 2);
+			const buttons = rowButtons(row);
+			(buttons?.[buttons.length - 1] ?? listRef.current)?.focus();
+		};
 		onChange(items.filter((_, i) => i !== index));
 	};
 
-	return (
-		<ul ref={listRef} className={cn([styles.list, className])}>
+	const moveByKeyboard = (from: number, to: number) => {
+		if (to < 0 || to >= items.length) return;
+		pendingFocus.current = () => rowButtons(to)?.[0]?.focus();
+		move(from, to);
+		setAnnouncement(
+			movedLabel
+				.replace("{position}", String(to + 1))
+				.replace("{total}", String(items.length))
+		);
+	};
+
+	const list = (
+		<ul
+			tabIndex={-1}
+			{...props}
+			ref={mergedRef}
+			className={cn([styles.list, className])}
+		>
 			{items.map((item, index) => (
 				<TodoItem
 					key={item.id}
+					data-testid={deriveTestId(
+						props["data-testid"],
+						"item",
+						item.id
+					)}
 					text={item.text}
 					before={item.before}
 					editable={editable}
@@ -162,7 +208,7 @@ export const TodoList: React.FC<ITodoListProps> = ({
 					dragHandleProps={
 						reorderable
 							? {
-									"aria-label": moveLabel,
+									"aria-label": `${moveLabel}: ${item.text}`,
 									onPointerDown: (e) => {
 										dragIndexRef.current = index;
 										drag.handleProps.onPointerDown(e);
@@ -170,10 +216,10 @@ export const TodoList: React.FC<ITodoListProps> = ({
 									onKeyDown: (e) => {
 										if (e.key === "ArrowUp") {
 											e.preventDefault();
-											move(index, index - 1);
+											moveByKeyboard(index, index - 1);
 										} else if (e.key === "ArrowDown") {
 											e.preventDefault();
-											move(index, index + 1);
+											moveByKeyboard(index, index + 1);
 										}
 									},
 								}
@@ -183,4 +229,31 @@ export const TodoList: React.FC<ITodoListProps> = ({
 			))}
 		</ul>
 	);
+
+	return (
+		<>
+			{list}
+			<span role="status" className={styles.srOnly}>
+				{announcement}
+			</span>
+		</>
+	);
 };
+
+/**
+ * V2 TodoList — a controlled, reorderable list of `TodoItem` rows. Reorder
+ * is custom pointer-based (no DnD dependency, `useDrag` like every other
+ * drag in this lib): a `pointerdown` on a handle starts tracking, `move`
+ * measures sibling midpoints to find the drop index and splices `items`
+ * immediately (once per index crossed, same as the original prototype this
+ * was ported from) — not just on drop. Near the edge of the scroll
+ * container (or the screen), `useAutoScroll` scrolls so a long list can be
+ * reordered past what's visible — on a phone, the finger on the handle
+ * can't scroll it any other way. Arrow-up/down on the handle reorders by
+ * one without needing a drag at all.
+ *
+ * Native props and `ref` go to the `<ul>`. Derived testids: `-item-<id>`,
+ * each row then deriving its own.
+ */
+export const TodoList = forwardRef(TodoListBase);
+TodoList.displayName = "TodoList";

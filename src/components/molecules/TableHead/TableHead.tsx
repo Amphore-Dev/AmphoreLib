@@ -1,6 +1,10 @@
 import React from "react";
 
-import { TSortDirection, TTableColumn } from "@interfaces/index";
+import { genericForwardRef } from "@utils/UForwardRef";
+import { composeHandlers } from "@utils/UHandlers";
+import { deriveTestId } from "@utils/UTestId";
+
+import { ITestIdProps, TSortDirection, TTableColumn } from "@interfaces/index";
 
 import { Checkbox } from "../../atoms/Checkbox/Checkbox";
 import { Picto } from "../../atoms/Picto/Picto";
@@ -8,7 +12,10 @@ import { Th } from "../../atoms/Th/Th";
 
 import styles from "./TableHead.module.scss";
 
-export interface ITableHeadProps<T> {
+export interface ITableHeadProps<T>
+	extends
+		Omit<React.ComponentPropsWithoutRef<"div">, "children">,
+		ITestIdProps {
 	columns: TTableColumn<T>[];
 	activeSortKey?: keyof T & string;
 	sortDirection?: TSortDirection;
@@ -22,51 +29,75 @@ export interface ITableHeadProps<T> {
 	allSelected?: boolean;
 	someSelected?: boolean;
 	onSelectAll?: () => void;
+	/** aria-label for the select-all checkbox. */
+	selectAllLabel?: string;
+	/** aria-label for the row-actions column. */
+	rowActionsLabel?: string;
+	/** aria-label for the button acting on the whole selection. */
+	bulkActionsLabel?: string;
+	/** aria-label for the button opening the column-visibility menu, the keyboard's way to it: `onColumnsContextMenu` is otherwise a right-click. */
+	columnsLabel?: string;
 }
 
-/**
- * V2 TableHead — v1 called `useContextMenu({ id: columnsMenuId })` directly
- * (react-contexify's global id registry lets any component reference a menu
- * by string). V2's `useContextMenu<T>()` controller has no such registry —
- * it's an object, not an id — so `Table` owns it and passes down a plain
- * `onColumnsContextMenu` callback instead.
- */
-export const TableHead = <T,>({
-	columns,
-	activeSortKey,
-	sortDirection,
-	onSort,
-	onColumnsContextMenu,
-	hasContextMenuColumn = false,
-	onGlobalContextMenu,
-	selectable = false,
-	allSelected = false,
-	someSelected = false,
-	onSelectAll,
-}: ITableHeadProps<T>) => (
+const TableHeadBase = <T,>(
+	{
+		columns,
+		activeSortKey,
+		sortDirection,
+		onSort,
+		onColumnsContextMenu,
+		hasContextMenuColumn = false,
+		onGlobalContextMenu,
+		selectable = false,
+		allSelected = false,
+		someSelected = false,
+		onSelectAll,
+		selectAllLabel,
+		rowActionsLabel,
+		bulkActionsLabel,
+		columnsLabel,
+		style,
+		onContextMenu,
+		...props
+	}: ITableHeadProps<T>,
+	ref: React.ForwardedRef<HTMLDivElement>
+) => (
 	// role="row" is a layout/grid semantic (this div's Ths are its real grid
 	// cells, via display:contents) — right-click-to-open-a-menu is a mouse
 	// affordance layered on top, not the row itself becoming a single
 	// keyboard-focusable interactive control (individual Ths already are).
 	// eslint-disable-next-line jsx-a11y/interactive-supports-focus
 	<div
+		{...props}
+		ref={ref}
 		role="row"
-		style={{ display: "contents" }}
-		onContextMenu={
+		aria-rowindex={1}
+		style={{ ...style, display: "contents" }}
+		onContextMenu={composeHandlers(
+			onContextMenu,
 			onColumnsContextMenu
 				? (e) => {
 						e.preventDefault();
 						onColumnsContextMenu(e);
 					}
 				: undefined
-		}
+		)}
 	>
 		{selectable && (
-			<Th key="select" className={styles.selectCell}>
+			<Th
+				key="select"
+				className={styles.selectCell}
+				aria-label={selectAllLabel}
+			>
 				<Checkbox
+					aria-label={selectAllLabel}
 					checked={allSelected}
 					indeterminate={someSelected}
 					onChange={() => onSelectAll?.()}
+					data-testid={deriveTestId(
+						props["data-testid"],
+						"select-all"
+					)}
 				/>
 			</Th>
 		)}
@@ -82,11 +113,19 @@ export const TableHead = <T,>({
 							key="contextMenu"
 							className={styles.contextMenuCell}
 						>
+							<span className={styles.srOnly}>
+								{rowActionsLabel}
+							</span>
 							{onGlobalContextMenu &&
 							(someSelected || allSelected) ? (
 								<button
 									type="button"
 									className={styles.contextMenuButton}
+									aria-label={bulkActionsLabel}
+									data-testid={deriveTestId(
+										props["data-testid"],
+										"actions"
+									)}
 									onClick={(e) => {
 										e.stopPropagation();
 										onGlobalContextMenu?.(e);
@@ -105,6 +144,11 @@ export const TableHead = <T,>({
 			return (
 				<Th
 					key={col.key}
+					data-testid={deriveTestId(
+						props["data-testid"],
+						"column",
+						col.key
+					)}
 					sortable={col.sortable}
 					sortDirection={isActive ? sortDirection : undefined}
 					onSort={
@@ -118,7 +162,36 @@ export const TableHead = <T,>({
 			);
 		})}
 
-		{/* Absorbs Table's trailing "1fr" filler grid track. */}
-		<Th />
+		{/* Absorbs Table's trailing "1fr" filler grid track, not a column as
+		    far as assistive tech is concerned. Visually hidden until focused,
+		    the button leaves the design alone. */}
+		{onColumnsContextMenu ? (
+			<Th aria-label={columnsLabel}>
+				<button
+					type="button"
+					className={styles.columnsButton}
+					aria-label={columnsLabel}
+					aria-haspopup="menu"
+					onClick={onColumnsContextMenu}
+					data-testid={deriveTestId(props["data-testid"], "columns")}
+				>
+					<Picto icon="more" />
+				</button>
+			</Th>
+		) : (
+			<Th aria-hidden />
+		)}
 	</div>
 );
+
+/**
+ * V2 TableHead — v1 called `useContextMenu({ id: columnsMenuId })` directly
+ * (react-contexify's global id registry lets any component reference a menu
+ * by string). V2's `useContextMenu<T>()` controller has no such registry —
+ * it's an object, not an id — so `Table` owns it and passes down a plain
+ * `onColumnsContextMenu` callback instead.
+ *
+ * Native props and `ref` go to the `role="row"` element. Derived testids:
+ * `-select-all`, `-column-<key>`, `-actions`, `-columns`.
+ */
+export const TableHead = genericForwardRef(TableHeadBase, "TableHead");

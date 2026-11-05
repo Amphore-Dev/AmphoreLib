@@ -2,7 +2,7 @@
 
 import { Meta } from "@storybook/addon-docs/blocks";
 
-<Meta title="Concepts/Fields" />
+<Meta title="Guides/Fields" />
 
 # Fields system
 
@@ -59,7 +59,7 @@ The renderer is selected automatically based on the `type` property.
 - `number`: numeric field (`NumberInput`)
 - `textarea`: multi-line text (`TextArea`)
 - `select`: dropdown list (`Select`)
-- `date`: date picker (`DatePicker`, `Date` value)
+- `date`: date picker (`DatePicker`, `Date` value). `mode: "week"` picks a whole week and stores its first day; `markers` flags days in the calendar
 - `period`: from/to period with presets (`PeriodFilter`)
 - `time`: time picker (`TimePicker`, `"HH:mm"` value)
 - `timeRange`: from/to time range (`TimeRangeFilter`)
@@ -256,8 +256,31 @@ Reset handling:
 
 ---
 
+## Read-only forms
+
+`readOnly` on `FormRenderer`/`FormRendererWithFormik` shows a form for consultation:
+
+```tsx
+<FormRendererWithFormik
+  fields={fields}
+  initialValues={contact}
+  inModal
+  open={open}
+  onClose={close}
+  readOnly
+/>
+```
+
+- Every field type renders disabled, custom renderers included: they receive `disabled` like any other field.
+- Field reset buttons are hidden, whatever `showResetFieldButton` says.
+- In a modal, "Close" is the only action (`closeLabel`, or `common.close`/`FormRenderer.closeLabel` in `labels`): submit is gone and `resetFormButton` is ignored. A `modalProps.footer` you pass yourself is kept.
+
+`disableFields` differs: it only disables the fields, and the form's own actions stay. To display values as text rather than as disabled controls, use `EditableCard`'s display mode (`valueDisplay`, `valueRenderer`).
+
+---
+
 ## Sync / async handling (apply / submit)
 
 Callbacks (`onSubmit`, `onApply`) can be sync or async — normalized via `Promise.resolve(...)`, which guarantees consistent behavior (the modal closes only once processing has finished).
 
-See also: [Concepts/FiltersContext](?path=/docs/concepts-filterscontext--docs), `FormRenderer`, `FiltersModal`, `EditableCard`, `FieldRenderer`.
+See also: [Guides/FiltersContext](?path=/docs/guides-filterscontext--docs), `FormRenderer`, `FiltersModal`, `EditableCard`, `FieldRenderer`.

@@ -1,0 +1,50 @@
+@use "../../../styles/mixins" as *;
+
+$colors:
+	"primary", "danger", "warning", "success", "info", "neutral", "black",
+	"white";
+
+.text {
+	font-family: var(--amp-font);
+	margin: 0;
+
+	// Same pairs as a field of that size (see _field.scss).
+	&[data-size="sm"] {
+		@include text(xs);
+	}
+
+	&[data-size="md"] {
+		@include text(sm);
+	}
+
+	&[data-size="lg"] {
+		font-size: var(--amp-text-base);
+		line-height: space(7);
+	}
+
+	&[data-weight="regular"] {
+		font-weight: weight(regular);
+	}
+
+	&[data-weight="semibold"] {
+		font-weight: weight(semibold);
+	}
+
+	&[data-weight="bold"] {
+		font-weight: weight(bold);
+	}
+
+	&[data-color="ink"] {
+		color: var(--amp-color-ink);
+	}
+
+	&[data-color="sub"] {
+		color: var(--amp-color-sub);
+	}
+
+	@each $color in $colors {
+		&[data-color="#{$color}"] {
+			color: var(--amp-color-#{$color}-text);
+		}
+	}
+}

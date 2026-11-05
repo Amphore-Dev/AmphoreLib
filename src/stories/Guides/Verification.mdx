@@ -1,0 +1,110 @@
+{/* Verification.mdx */}
+
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Guides/Verification" />
+
+# Writing a story, a test, verifying a change
+
+## Story convention
+
+```tsx
+const Template: StoryFn<IButtonProps> = (args) => <Button {...args} />;
+
+export const Base = Template.bind({});
+Base.args = { children: "Button", color: "primary" };
+```
+
+**Always** go through `Template.bind({})` + `.args` — never a function with no args that hardcodes local state and ignores the `args` it receives. Check every story in a new file, not just the first one.
+
+Accepted exception: a demo function with no `Template` when the story shows **several variants at once** rather than one drivable instance (`Divider`'s `Vertical`/`BetweenSections`, `Title`'s `AllLevels`/`Colored`).
+
+`argTypes` only for genuinely controllable primitives (size/color/variant/booleans) — never for `items`/`value`/`onChange` of a data-driven component.
+
+## Shared `StoriesArgs`
+
+`size`/`color`/`picto` repeat identically across some twenty files — factored out into `src/stories/StoriesArgs.ts` (not exported by the lib, see [Guides/Structure](?path=/docs/guides-structure--docs)):
+
+```tsx
+import { colorArgType, pictoArgType, sizeArgType } from "@stories/StoriesArgs";
+
+export default {
+	argTypes: { size: sizeArgType, color: colorArgType, picto: pictoArgType },
+};
+```
+
+A sized component always has a `DefaultSizeFromConfig` story (see [Guides/Sizing](?path=/docs/guides-sizing--docs)). A component that fills its own viewport inline (`Modal` without `portal`) needs `parameters.docs.story.height` — addon-docs' default iframe height is too short otherwise; a `Portaled` story can reset it to `"auto"`.
+
+---
+
+## jsdom limitations
+
+No real layout: `getBoundingClientRect`, `scrollWidth`/`clientWidth` are always 0. Behavior that depends on scroll/overflow (`Tabs`'s scroll arrows) can't be tested that way — test what's actually measurable, never fake it.
+
+Nothing without the polyfills already set up in `tests/setup.js`: no `PointerEvent`/`ResizeObserver` without them.
+
+`@tanstack/react-virtual` measures its container's actual rendered size — jsdom always reports 0×0: **virtualized rows never render in a test**, regardless of item count. Test the rest (header, empty/loading state, `grid-template-columns`); actually demonstrate the rest in Storybook.
+
+## Fake timers
+
+A single grouped advance (`vi.advanceTimersByTime(N * 1000)`) doesn't reliably flush a chain of `setTimeout`s driven by a React effect over N ticks — advance once per expected tick (`N` separate calls) instead.
+
+`vi.useFakeTimers()` blocks any component based on floating-ui's `autoUpdate` (`Select`, anything using `whileElementsMounted: autoUpdate`) — a real rAF loop runs internally, so even a plain `userEvent.click` stays blocked. Use real timers with a short/zero debounce in the test instead (see `AsyncSelect.test.tsx`).
+
+---
+
+## Visual regression
+
+Local screenshot comparison over every story, to prove that a change leaves static rendering untouched (a CSS refactor, a token migration):
+
+```
+yarn visual:ref   # on the starting commit: build Storybook, take the references
+# ...change the code...
+yarn visual       # build Storybook again, compare, exit 1 on any difference
+```
+
+`scripts/visual.mjs` builds Storybook into `.visual/storybook`, reads its `index.json`, then opens each story in Chromium through Playwright: full page at 1280×800. It is not a Vitest test: `vitest run` and `yarn test` never run it.
+
+Overlays stay closed until someone opens them, so a capture of the story as rendered would never show a Modal, a Select menu or a Tooltip. When a story has a trigger, the script opens it and takes a second image, `<story-id>--open.png`, portals included. The `OPENERS` table in the script says how: `aria-haspopup`/`aria-expanded` triggers by default, a plain button for the Modal family, hover for Tooltip, right-click for ContextMenu. Only the first trigger of a story is opened, so a panel that only appears behind a second trigger, or further interaction, is not covered: give it its own story.
+
+Everything lives in `.visual/`, out of git. Text rendering differs from one OS to another, so a reference only means something on the machine that took it, against the Chromium pinned by the `playwright` dev dependency. Failures land in `.visual/diff/<story-id>/` as `reference.png`, `actual.png` and `diff.png`.
+
+**There is no tolerance**: one differing pixel fails, and so do a story that errors, a story with no reference and a reference that was not captured (a story removed, an overlay that no longer opens). If a story is flaky, make it deterministic or exclude it. Never add a threshold.
+
+What the script pins down for you:
+
+- animations, transitions and the caret are off from the first paint (injected into `iframe.html`), canvases are hidden (pdf.js paints them progressively);
+- `Date` is frozen, the timezone is UTC, the locale is `en-US`, the color scheme is light;
+- `Math.random` is seeded and `crypto.randomUUID` is a counter;
+- remote requests never leave the machine: images become a fixed placeholder, anything else fails;
+- Chromium runs with `--disable-partial-raster`: repainting over an already painted tile leaves anti-aliased corners 1/255 off, depending on the paint history;
+- each story gets a fresh browser context, and only counts as settled once no request or short timeout is pending and consecutive captures are identical.
+
+A story that stays nondeterministic despite all this (it never stops ticking, or renders its own URL) takes the `no-visual` tag. No story needs it today: a timer chain that ends, like `CountDown`, is simply waited for, and the final state is what gets compared.
+
+```tsx
+export const Ticking = Template.bind({});
+Ticking.tags = ["no-visual"];
+```
+
+A story that never settles fails the run and tells you so. `yarn visual --no-build` reuses the last build (only when `src/` did not change since), and `--filter=<text>` compares only the story ids containing `<text>`. Chromium missing from the cache: `npx playwright install chromium`.
+
+---
+
+## Pipeline, on every change
+
+```
+yarn vitest run          # full suite
+npx tsc --noEmit -p tsconfig.json
+eslint --fix (touched files), re-check
+storybook build --quiet  # or dev --ci, grep error/ready
+yarn build               # periodic, not necessarily on every commit
+```
+
+`yarn build` also checks what it emitted: `scripts/check-built-css.mjs` (rules and order of `style.css`) and `scripts/check-built-package.mjs` (`exports` targets, both entries loading in plain Node with no optional peer, side effects, path aliases left in a `.d.ts`). Neither Storybook nor the tests can catch these: they load the sources.
+
+One commit per logical change, a detailed message (root cause, not just the symptom), ending with `Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>`.
+
+---
+
+See also: `StoriesArgs.ts`, `tests/setup.js`, [Guides/Structure](?path=/docs/guides-structure--docs), [Guides/Sizing](?path=/docs/guides-sizing--docs).

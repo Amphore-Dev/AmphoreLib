@@ -1,70 +1,79 @@
 @use "../../../styles/touch" as touch;
+@use "../../../styles/mixins" as *;
 
 .message {
 	display: flex;
 	align-items: flex-start;
 	border-radius: var(--amp-radius-md);
-	border: 1px solid transparent;
+	border: var(--amp-border-width-sm) solid transparent;
 	font-family: var(--amp-font);
-	line-height: 1.4;
+	line-height: var(--amp-leading-snug);
 
 	// ---- size
 	&[data-size="sm"] {
-		gap: var(--amp-space-1);
-		padding: var(--amp-space-1) var(--amp-space-2);
-		font-size: 0.75rem;
+		gap: space(1.5);
+		padding: space(1.5) space(2);
+		font-size: var(--amp-text-xs);
 	}
 
 	&[data-size="md"] {
-		gap: var(--amp-space-2);
-		padding: var(--amp-space-2) var(--amp-space-3);
-		font-size: 0.8125rem;
+		gap: space(2);
+		padding: space(2) space(3.5);
+		font-size: var(--amp-text-sm);
 	}
 
 	&[data-size="lg"] {
-		gap: var(--amp-space-2);
-		padding: var(--amp-space-3) var(--amp-space-4);
-		font-size: 0.9375rem;
+		gap: space(2);
+		padding: space(3.5) space(4.5);
+		font-size: var(--amp-text-base);
 	}
 
 	// ---- color: sets local vars, consumed by the variant rules below.
 	&[data-color="primary"] {
 		--_color: var(--amp-color-primary);
+		--_color-text: var(--amp-color-primary-text);
 		--_color-fg: var(--amp-color-primary-fg);
 		--_color-tint: var(--amp-color-primary-tint);
 	}
 	&[data-color="danger"] {
 		--_color: var(--amp-color-danger);
+		--_color-text: var(--amp-color-danger-text);
 		--_color-fg: var(--amp-color-danger-fg);
 		--_color-tint: var(--amp-color-danger-tint);
 	}
 	&[data-color="success"] {
 		--_color: var(--amp-color-success);
+		--_color-text: var(--amp-color-success-text);
 		--_color-fg: var(--amp-color-success-fg);
 		--_color-tint: var(--amp-color-success-tint);
 	}
 	&[data-color="warning"] {
 		--_color: var(--amp-color-warning);
+		--_color-text: var(--amp-color-warning-text);
 		--_color-fg: var(--amp-color-warning-fg);
 		--_color-tint: var(--amp-color-warning-tint);
 	}
 	&[data-color="info"] {
 		--_color: var(--amp-color-info);
+		--_color-text: var(--amp-color-info-text);
 		--_color-fg: var(--amp-color-info-fg);
 		--_color-tint: var(--amp-color-info-tint);
 	}
 	&[data-color="neutral"] {
 		--_color: var(--amp-color-neutral);
+		--_color-text: var(--amp-color-neutral-text);
 		--_color-fg: var(--amp-color-neutral-fg);
 		--_color-tint: var(--amp-color-neutral-tint);
 	}
 	&[data-color="black"] {
 		--_color: var(--amp-color-black);
+		--_color-text: var(--amp-color-black-text);
 		--_color-fg: var(--amp-color-black-fg);
 		--_color-tint: var(--amp-color-black-tint);
 	}
 	&[data-color="white"] {
 		--_color: var(--amp-color-white);
+		--_color-text: var(--amp-color-white-text);
 		--_color-fg: var(--amp-color-white-fg);
 		--_color-tint: var(--amp-color-white-tint);
 	}
@@ -72,13 +81,13 @@
 	// ---- variant
 	&[data-variant="tint"] {
 		background: var(--_color-tint);
-		color: var(--_color);
+		color: var(--_color-text);
 	}
 
 	&[data-variant="outline"] {
 		background: transparent;
 		border-color: var(--_color);
-		color: var(--_color);
+		color: var(--_color-text);
 	}
 
 	&[data-variant="solid"] {
@@ -89,18 +98,19 @@
 
 .picto {
 	flex-shrink: 0;
-	width: 1.125rem;
-	height: 1.125rem;
+	width: var(--amp-icon-lg);
+	height: var(--amp-icon-lg);
+	// stylelint-disable-next-line declaration-property-value-disallowed-list -- off grid: 1px optical nudge against the first text line
 	margin-top: 0.0625rem;
 
 	[data-size="sm"] > & {
-		width: 0.9375rem;
-		height: 0.9375rem;
+		width: var(--amp-icon-md);
+		height: var(--amp-icon-md);
 	}
 
 	[data-size="lg"] > & {
-		width: 1.25rem;
-		height: 1.25rem;
+		width: var(--amp-icon-xl);
+		height: var(--amp-icon-xl);
 	}
 }
 
@@ -115,11 +125,11 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 1.375rem;
-	height: 1.375rem;
+	width: space(5.5);
+	height: space(5.5);
 	// Pulls the button up so its box centres on the first text line
 	// instead of stacking its own height above the content's baseline.
-	margin: -0.125rem -0.25rem -0.125rem 0;
+	margin: space(-0.5) space(-1) space(-0.5) 0;
 	padding: 0;
 	border: none;
 	background: transparent;
@@ -135,12 +145,13 @@
 	}
 
 	&:focus-visible {
-		outline: 2px solid currentColor;
+		outline: var(--amp-focus-width) solid currentColor;
+		// stylelint-disable-next-line scale-unlimited/declaration-strict-value -- off standard: focus ring at 1px, not --amp-focus-offset
 		outline-offset: 1px;
 	}
 
 	[data-size="sm"] > & {
-		width: 1.25rem;
-		height: 1.25rem;
+		width: space(5);
+		height: space(5);
 	}
 }

@@ -1,14 +1,16 @@
+@use "../../../styles/mixins" as *;
+
 .accordion {
 	display: flex;
 	flex-direction: column;
 	font-family: var(--amp-font);
-	border: 1px solid var(--amp-color-border);
+	border: var(--amp-border-width-sm) solid var(--amp-color-border);
 	border-radius: var(--amp-radius-md);
 	overflow: hidden;
 }
 
 .item {
-	border-bottom: 1px solid var(--amp-color-border);
+	border-bottom: var(--amp-border-width-sm) solid var(--amp-color-border);
 
 	&:last-child {
 		border-bottom: none;
@@ -37,12 +39,12 @@
 	flex: 1;
 	align-items: center;
 	min-width: 0;
-	gap: var(--amp-space-2);
+	gap: space(2);
 	margin: 0;
 	border: none;
 	background: transparent;
 	font-family: inherit;
-	font-weight: 600;
+	font-weight: weight(semibold);
 	color: var(--amp-color-ink);
 	text-align: left;
 	cursor: pointer;
@@ -53,8 +55,7 @@
 	}
 
 	&:focus-visible {
-		outline: 2px solid var(--amp-color-primary);
-		outline-offset: -2px;
+		@include focus-ring($inset: true);
 	}
 }
 
@@ -62,52 +63,52 @@
 	display: flex;
 	flex-shrink: 0;
 	align-items: center;
-	gap: var(--amp-space-2);
+	gap: space(2);
 }
 
 // ---- size: header padding/font + panel padding, kept in sync per level.
 .accordion[data-size="sm"] {
 	.actions {
-		padding-right: var(--amp-space-3);
+		padding-right: space(3.5);
 	}
 
 	.header {
-		padding: var(--amp-space-2) var(--amp-space-3);
-		font-size: 0.8125rem;
+		padding: space(2) space(3.5);
+		font-size: var(--amp-text-sm);
 	}
 
 	.panelContent {
-		padding: var(--amp-space-2) var(--amp-space-3) var(--amp-space-2);
+		padding: space(2) space(3.5) space(2);
 	}
 }
 
 .accordion[data-size="md"] {
 	.actions {
-		padding-right: var(--amp-space-4);
+		padding-right: space(4.5);
 	}
 
 	.header {
-		padding: var(--amp-space-3) var(--amp-space-4);
-		font-size: 0.875rem;
+		padding: space(3.5) space(4.5);
+		font-size: var(--amp-text-sm);
 	}
 
 	.panelContent {
-		padding: var(--amp-space-3) var(--amp-space-4) var(--amp-space-3);
+		padding: space(3.5) space(4.5) space(3.5);
 	}
 }
 
 .accordion[data-size="lg"] {
 	.actions {
-		padding-right: var(--amp-space-4);
+		padding-right: space(4.5);
 	}
 
 	.header {
-		padding: var(--amp-space-4) var(--amp-space-4);
-		font-size: 0.9375rem;
+		padding: space(4.5) space(4.5);
+		font-size: var(--amp-text-base);
 	}
 
 	.panelContent {
-		padding: var(--amp-space-4) var(--amp-space-4) var(--amp-space-4);
+		padding: space(4.5) space(4.5) space(4.5);
 	}
 }
 
@@ -125,10 +126,10 @@
 
 .chevron {
 	flex-shrink: 0;
-	width: 0.75rem;
-	height: 0.75rem;
+	width: var(--amp-icon-xs);
+	height: var(--amp-icon-xs);
 	color: var(--amp-color-sub);
-	transition: transform 0.15s ease;
+	transition: transform var(--amp-duration-fast) var(--amp-ease);
 }
 
 // The animation: grid-template-rows from 0fr to 1fr on an intrinsically-
@@ -140,14 +141,24 @@
 // own box to 0 height, but without clipping its own overflow, the content
 // just keeps painting past that 0-height box instead of disappearing,
 // visibly bleeding into/overlapping the next item.
+//
+// `visibility: hidden` is what actually closes it: a 0-height box is still in
+// the tab order and the accessibility tree, so the keyboard walked into
+// content nobody could see, and a screen reader read every closed section.
+// It flips at the end of the collapse, not the start, so nothing vanishes
+// mid-animation.
 .panel {
 	display: grid;
 	grid-template-rows: 0fr;
 	overflow: hidden;
-	transition: grid-template-rows 0.2s ease;
+	visibility: hidden;
+	transition:
+		grid-template-rows var(--amp-duration-base) var(--amp-ease),
+		visibility var(--amp-duration-base);
 
 	&[data-open="true"] {
 		grid-template-rows: 1fr;
+		visibility: visible;
 	}
 }
 

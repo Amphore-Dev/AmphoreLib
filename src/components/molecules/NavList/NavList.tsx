@@ -1,8 +1,11 @@
-import React from "react";
+import React, { forwardRef } from "react";
 
 import type { TPictoName } from "@constants/index";
 
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
+
+import type { ITestIdProps } from "@interfaces/index";
 
 import { NavItem } from "../../atoms/NavItem/NavItem";
 import type { IPictoProps } from "../../atoms/Picto/Picto";
@@ -10,6 +13,8 @@ import type { IPictoProps } from "../../atoms/Picto/Picto";
 import styles from "./NavList.module.scss";
 
 export interface TNavItem {
+	/** Names the item in its derived testid (`<testid>-item-<id>`). Falls back to its position. */
+	id?: string;
 	href: string;
 	label: React.ReactNode;
 	picto?: TPictoName | IPictoProps;
@@ -19,7 +24,10 @@ export interface TNavItem {
 	hidden?: boolean;
 }
 
-export interface INavListProps {
+export interface INavListProps
+	extends
+		Omit<React.ComponentPropsWithoutRef<"nav">, "children">,
+		ITestIdProps {
 	items: TNavItem[];
 	/** Icon-only sidebar (see NavItem's own `isReduced`). */
 	isReduced?: boolean;
@@ -28,28 +36,28 @@ export interface INavListProps {
 	className?: string;
 }
 
-/**
- * V2 NavList — a persistent nav-sidebar list, data-driven (`items`) over
- * the shared `NavItem`. Not to be confused with Dropdown/ContextMenu's
- * `TMenuItem`/`MenuList` — a transient floating action menu, unrelated
- * despite the naming echo (see NavItem's own doc comment).
- */
-export const NavList: React.FC<INavListProps> = ({
-	items,
-	isReduced = false,
-	onNavigate,
-	className = "",
-}) => (
-	<nav className={cn([styles.list, className])}>
+const NavListBase: React.ForwardRefRenderFunction<
+	HTMLElement,
+	INavListProps
+> = (
+	{ items, isReduced = false, onNavigate, className = "", ...props },
+	ref
+) => (
+	<nav {...props} ref={ref} className={cn([styles.list, className])}>
 		{items
 			.filter((item) => !item.hidden)
-			.map((item) => (
+			.map((item, index) => (
 				<NavItem
 					key={item.href}
 					href={item.href}
 					picto={item.picto}
 					isActive={item.isActive}
 					isReduced={isReduced}
+					data-testid={deriveTestId(
+						props["data-testid"],
+						"item",
+						item.id ?? index
+					)}
 					onClick={
 						onNavigate ? (e) => onNavigate(item, e) : undefined
 					}
@@ -59,3 +67,15 @@ export const NavList: React.FC<INavListProps> = ({
 			))}
 	</nav>
 );
+
+/**
+ * V2 NavList — a persistent nav-sidebar list, data-driven (`items`) over
+ * the shared `NavItem`. Not to be confused with Dropdown/ContextMenu's
+ * `TMenuItem`/`MenuList` — a transient floating action menu, unrelated
+ * despite the naming echo (see NavItem's own doc comment).
+ *
+ * Native props and `ref` go to the `<nav>`. Derived testids: `-item-<id>`, or
+ * `-item-<position>` for an item without one.
+ */
+export const NavList = forwardRef(NavListBase);
+NavList.displayName = "NavList";

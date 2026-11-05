@@ -6,9 +6,20 @@ import { Badge } from "../components/atoms/Badge/Badge";
 import { AmphoreProvider } from "./AmphoreProvider";
 
 describe("AmphoreProvider theme", () => {
-	it("sets no data-amp-theme by default (system mode)", () => {
+	it("pins the light palette by default", () => {
 		render(
 			<AmphoreProvider>
+				<span data-testid="probe">x</span>
+			</AmphoreProvider>
+		);
+		expect(
+			screen.getByTestId("probe").closest(".amp-root")
+		).toHaveAttribute("data-amp-theme", "light");
+	});
+
+	it("sets no data-amp-theme in system mode", () => {
+		render(
+			<AmphoreProvider theme="system">
 				<span data-testid="probe">x</span>
 			</AmphoreProvider>
 		);
@@ -59,6 +70,39 @@ describe("AmphoreProvider theme", () => {
 		const innerScope = inner.getAttribute("data-amp-scope");
 		expect(innerScope).toBeTruthy();
 		expect(innerScope).not.toBe(outerScope);
+	});
+
+	// jsdom doesn't model the cascade (it can't tell inline from !important),
+	// so this pins the mechanism: the light palette is inline on the same
+	// element, and only `!important` lets the dark rule beat it in a browser.
+	it("marks the dark palette !important so it can beat the inline light palette", () => {
+		render(
+			<AmphoreProvider
+				theme="dark"
+				config={{
+					colors: { primary: "#111111" },
+					darkColors: { primary: "#222222" },
+				}}
+			>
+				<span data-testid="probe">x</span>
+			</AmphoreProvider>
+		);
+		const root = screen
+			.getByTestId("probe")
+			.closest(".amp-root") as HTMLElement;
+
+		expect(root.style.getPropertyValue("--amp-color-primary")).toBe(
+			"#111111"
+		);
+
+		const css = root.querySelector("style")?.textContent ?? "";
+		const scoped = `[data-amp-scope="${root.getAttribute("data-amp-scope")}"]`;
+		expect(css).toContain(`${scoped}[data-amp-theme="dark"]`);
+		expect(css).toContain(`${scoped}:not([data-amp-theme="light"])`);
+		// Once in the pinned rule, once in the prefers-color-scheme one.
+		expect(
+			css.match(/--amp-color-primary: #222222 !important;/g)
+		).toHaveLength(2);
 	});
 });
 

@@ -7,13 +7,18 @@ import React, {
 	useState,
 } from "react";
 
+import { useMergeRefs } from "@floating-ui/react";
+
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
 import { Badge, Button } from "@components/atoms";
 
+import { genericForwardRef } from "@utils/UForwardRef";
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
 import {
+	ITestIdProps,
 	IUseFiltersContext,
 	TFieldType,
 	TFilterModalFilter,
@@ -28,7 +33,10 @@ export interface IActiveFiltersProps<
 	T extends Record<string, TFiltersSlice<object>>,
 	K extends keyof T,
 	S = T[K],
-> {
+>
+	extends
+		Omit<React.ComponentPropsWithoutRef<"div">, "children">,
+		ITestIdProps {
 	filters?: TFiltersModalGroup[];
 	filtersContext?: IUseFiltersContext<T, K, S>;
 	className?: string;
@@ -41,6 +49,8 @@ export interface IActiveFiltersProps<
 	showMoreLabel?: TLabel;
 	/** Defaults to "Show less" (or `ActiveFilters.showLessLabel` from the nearest AmphoreProvider). */
 	showLessLabel?: TLabel;
+	/** Prefix for each chip's remove button, as `${removeLabel}: ${chip}` when the chip's text is known. Defaults to "Remove" (or `common.remove`/`ActiveFilters.removeLabel` from the nearest AmphoreProvider). */
+	removeLabel?: TLabel;
 	/** i18n hook for the count label — `count => "3 active filters"`. */
 	countLabel?: (count: number) => string;
 	/** i18n for the period filter's implicit chip — `(from, to) => "From ... to ..."`. */
@@ -50,7 +60,7 @@ export interface IActiveFiltersProps<
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
 export type TActiveFiltersLabels = Pick<
 	IActiveFiltersProps<Record<string, TFiltersSlice<object>>, string>,
-	"resetLabel" | "showMoreLabel" | "showLessLabel"
+	"resetLabel" | "showMoreLabel" | "showLessLabel" | "removeLabel"
 >;
 
 type TRenderResultObject = {
@@ -65,38 +75,36 @@ type TFiltersMap = {
 	) => null | TRenderResultObject | JSX.Element;
 };
 
-/**
- * V2 ActiveFilters — a chip list of every non-empty filter, with a
- * "see more"/"see less" row once they overflow their container.
- * Removing a chip clears just that filter (or, for a `period` filter, both
- * `from`/`to`) via `filtersContext.setFilter`/`setFilters` — the same
- * `Badge`'s `onRemove` used everywhere else a removable tag is needed
- * (decision 5), no separate `Chip` component.
- */
-export const ActiveFilters = <
+const ActiveFiltersBase = <
 	T extends Record<string, TFiltersSlice<object>>,
 	K extends keyof T,
 	S = T[K],
->({
-	filters = [],
-	filtersContext,
-	className,
-	clearFieldsOnReset = [],
-	rightContent,
-	resetLabel: resetLabelProp,
-	showMoreLabel: showMoreLabelProp,
-	showLessLabel: showLessLabelProp,
-	countLabel = (count) => `${count} active filter${count > 1 ? "s" : ""}`,
-	periodLabel = (from, to) => (
-		<>
-			From {String(from ?? "…")} to {String(to ?? "…")}
-		</>
-	),
-}: IActiveFiltersProps<T, K, S>) => {
+>(
+	{
+		filters = [],
+		filtersContext,
+		className,
+		clearFieldsOnReset = [],
+		rightContent,
+		resetLabel: resetLabelProp,
+		showMoreLabel: showMoreLabelProp,
+		showLessLabel: showLessLabelProp,
+		removeLabel: removeLabelProp,
+		countLabel = (count) => `${count} active filter${count > 1 ? "s" : ""}`,
+		periodLabel = (from, to) => (
+			<>
+				From {String(from ?? "…")} to {String(to ?? "…")}
+			</>
+		),
+		...props
+	}: IActiveFiltersProps<T, K, S>,
+	ref: React.ForwardedRef<HTMLDivElement>
+) => {
 	const { resolve } = useAmphoreLabels("ActiveFilters");
 	const resetLabel = resolve("resetLabel", resetLabelProp, "reset");
 	const showMoreLabel = resolve("showMoreLabel", showMoreLabelProp);
 	const showLessLabel = resolve("showLessLabel", showLessLabelProp);
+	const removeLabel = resolve("removeLabel", removeLabelProp, "remove");
 
 	const { setFilters, options, setFilter } = (filtersContext ??
 		{}) as Partial<IUseFiltersContext<T, K, TFiltersSlice<S>>>;
@@ -105,6 +113,17 @@ export const ActiveFilters = <
 		? options.countCallback(contextFilters) || 0
 		: 0;
 	const [totalFiltersCount, setTotalFiltersCount] = useState(count);
+
+	// Clearing the last filter or resetting removes the whole list, and the
+	// focused button with it: the wrapper, which stays, takes focus.
+	const wrapperRef = useRef<HTMLDivElement>(null);
+	const mergedRef = useMergeRefs([wrapperRef, ref]);
+	const refocusWrapper = useRef(false);
+	useEffect(() => {
+		if (count || !refocusWrapper.current) return;
+		refocusWrapper.current = false;
+		wrapperRef.current?.focus();
+	}, [count]);
 
 	const filtersMap: TFiltersMap = {
 		period: (filter, _value) => {
@@ -155,13 +174,18 @@ export const ActiveFilters = <
 	};
 
 	return (
-		<div className={cn([styles.wrapper, className])}>
+		<div
+			tabIndex={-1}
+			{...props}
+			ref={mergedRef}
+			className={cn([styles.wrapper, className])}
+		>
 			{(!!count || !!rightContent) && (
 				<div className={styles.header}>
 					<div className={styles.headerLeft}>
 						{!!count && (
 							<div className={styles.countRow}>
-								<p className={styles.title}>
+								<p className={styles.title} role="status">
 									{countLabel(totalFiltersCount)}
 								</p>
 								<Button
@@ -170,7 +194,12 @@ export const ActiveFilters = <
 									variant="ghost"
 									color="neutral"
 									className={styles.resetBtn}
+									data-testid={deriveTestId(
+										props["data-testid"],
+										"reset"
+									)}
 									onClick={() => {
+										refocusWrapper.current = true;
 										const values = {
 											...((options?.defaultValues ||
 												{}) as TFiltersSlice<S>),
@@ -201,6 +230,11 @@ export const ActiveFilters = <
 								onCountChange={setTotalFiltersCount}
 								showMoreLabel={showMoreLabel}
 								showLessLabel={showLessLabel}
+								testId={props["data-testid"]}
+								removeLabel={removeLabel}
+								onEmptying={() => {
+									refocusWrapper.current = true;
+								}}
 							/>
 						)}
 					</div>
@@ -211,6 +245,22 @@ export const ActiveFilters = <
 	);
 };
 
+/**
+ * V2 ActiveFilters — a chip list of every non-empty filter, with a
+ * "see more"/"see less" row once they overflow their container.
+ * Removing a chip clears just that filter (or, for a `period` filter, both
+ * `from`/`to`) via `filtersContext.setFilter`/`setFilters` — the same
+ * `Badge`'s `onRemove` used everywhere else a removable tag is needed
+ * (decision 5), no separate `Chip` component.
+ *
+ * Native props and `ref` go to the root `<div>`. Derived testids: `-reset`,
+ * `-show-more`, `-show-less`, `-chip-<name>-<position>`.
+ */
+export const ActiveFilters = genericForwardRef(
+	ActiveFiltersBase,
+	"ActiveFilters"
+);
+
 interface IActiveFiltersListProps<S> {
 	flatFilters: TFilterModalFilter[];
 	contextFilters: TFiltersSlice<S>;
@@ -219,6 +269,10 @@ interface IActiveFiltersListProps<S> {
 	onCountChange: (count: number) => void;
 	showMoreLabel: string;
 	showLessLabel: string;
+	testId?: string;
+	removeLabel: string;
+	/** The chip being removed may be the last: the list goes with it. */
+	onEmptying: () => void;
 }
 
 const ActiveFiltersList = <S,>({
@@ -229,6 +283,9 @@ const ActiveFiltersList = <S,>({
 	onCountChange,
 	showMoreLabel,
 	showLessLabel,
+	testId,
+	removeLabel,
+	onEmptying,
 }: IActiveFiltersListProps<S>) => {
 	const [expanded, setExpanded] = useState(false);
 	const [isMeasuring, setIsMeasuring] = useState(true);
@@ -236,6 +293,8 @@ const ActiveFiltersList = <S,>({
 	const containerRef = useRef<HTMLDivElement>(null);
 	const seeMoreRef = useRef<HTMLButtonElement>(null);
 	const prevChipsRef = useRef<React.ReactElement[] | null>(null);
+	// Index of the chip just removed: the next one's button takes focus.
+	const refocusChip = useRef<number | null>(null);
 	const lastWidthRef = useRef(0);
 
 	const { chips, totalCount } = useMemo(() => {
@@ -337,13 +396,29 @@ const ActiveFiltersList = <S,>({
 
 					if (!label) return null;
 
-					total++;
+					const chipIndex = total++;
+					const chipText =
+						typeof content === "string" ||
+						typeof content === "number"
+							? `${String(filter.label ?? filter.name)}: ${content}`
+							: String(filter.label ?? filter.name);
 					return (
 						<Badge
 							key={`${String(filter.name)}-${idx}-${String(singleValue)}`}
-							onRemove={onClear}
+							onRemove={() => {
+								refocusChip.current = chipIndex;
+								onEmptying();
+								onClear();
+							}}
+							removeLabel={`${removeLabel}: ${chipText}`}
 							variant="outline"
 							data-active-filter-chip=""
+							data-testid={deriveTestId(
+								testId,
+								"chip",
+								String(filter.name),
+								idx
+							)}
 						>
 							{label}
 						</Badge>
@@ -353,7 +428,8 @@ const ActiveFiltersList = <S,>({
 		});
 
 		return { chips: mappedChips, totalCount: total };
-	}, [contextFilters, filtersMap, flatFilters, onSetFilter]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- labels and the focus callback don't change what the chips are
+	}, [contextFilters, filtersMap, flatFilters, onSetFilter, testId]);
 
 	// Re-measure synchronously (before paint) whenever the chip set itself
 	// changes — avoids a flash of the wrong overflow state.
@@ -431,6 +507,17 @@ const ActiveFiltersList = <S,>({
 		onCountChange(totalCount);
 	}, [onCountChange, totalCount]);
 
+	useEffect(() => {
+		const index = refocusChip.current;
+		if (index === null) return;
+		refocusChip.current = null;
+		const buttons =
+			containerRef.current?.querySelectorAll<HTMLButtonElement>(
+				"[data-active-filter-chip] button"
+			);
+		(buttons?.[index] ?? buttons?.[index - 1])?.focus();
+	}, [chips]);
+
 	const showAll = expanded || isMeasuring;
 	const visibleChips = showAll
 		? chips
@@ -443,27 +530,30 @@ const ActiveFiltersList = <S,>({
 		<div ref={containerRef} className={styles.list}>
 			{visibleChips}
 
-			{(showSeeMore || isMeasuring) && (
+			{/* One element for both labels: swapping two would drop the focus
+			    of whoever just pressed it. */}
+			{(showSeeMore || isMeasuring || expanded) && (
 				<button
 					ref={seeMoreRef}
+					type="button"
 					className={styles.seeMore}
-					style={isMeasuring ? { visibility: "hidden" } : undefined}
-					tabIndex={isMeasuring ? -1 : 0}
-					onClick={() => setExpanded(true)}
-				>
-					{showMoreLabel}
-				</button>
-			)}
-
-			{expanded && (
-				<button
-					className={styles.seeMore}
+					style={
+						isMeasuring && !expanded
+							? { visibility: "hidden" }
+							: undefined
+					}
+					tabIndex={isMeasuring && !expanded ? -1 : 0}
+					aria-expanded={expanded}
+					data-testid={deriveTestId(
+						testId,
+						expanded ? "show-less" : "show-more"
+					)}
 					onClick={() => {
-						setExpanded(false);
-						setIsMeasuring(true);
+						setExpanded(!expanded);
+						if (expanded) setIsMeasuring(true);
 					}}
 				>
-					{showLessLabel}
+					{expanded ? showLessLabel : showMoreLabel}
 				</button>
 			)}
 		</div>

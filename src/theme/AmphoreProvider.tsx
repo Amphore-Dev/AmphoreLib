@@ -26,9 +26,9 @@ export interface IAmphoreProviderProps extends PropsWithChildren {
 	 */
 	locale?: TAmphoreLocale;
 	/**
-	 * "light"/"dark" pin that palette (sets `data-amp-theme`). "system"
-	 * (default) follows the OS via `prefers-color-scheme` — resolved in CSS,
-	 * not JS, so there's no hydration mismatch and no re-render on OS change.
+	 * "light" (default) and "dark" pin that palette (sets `data-amp-theme`).
+	 * "system" follows the OS via `prefers-color-scheme` — resolved in CSS, not
+	 * JS, so there's no hydration mismatch and no re-render on OS change.
 	 */
 	theme?: TThemeMode;
 	/** Element type for the wrapping node. Defaults to "div". */
@@ -46,7 +46,7 @@ export interface IAmphoreProviderProps extends PropsWithChildren {
 export function AmphoreProvider({
 	config,
 	locale,
-	theme = "system",
+	theme = "light",
 	as = "div",
 	children,
 }: IAmphoreProviderProps) {
@@ -71,7 +71,15 @@ export function AmphoreProvider({
 	// nested providers each get their own id, so an outer dark theme never
 	// leaks its override into an inner provider's own subtree.
 	const scopeId = useId().replace(/:/g, "");
-	const darkDeclarations = cssVarsToDeclarations(darkColorVars);
+
+	// `!important` is load-bearing: the light palette is inlined on this same
+	// element, and an inline declaration beats any plain stylesheet rule
+	// whatever its specificity, so without it the dark palette never applies.
+	// It stays contained: the rule only matches nodes carrying this exact
+	// scope id, so a nested provider's own node keeps its own values.
+	const darkDeclarations = cssVarsToDeclarations(darkColorVars, {
+		important: true,
+	});
 
 	// What AmphoreScope needs to rebuild this wrapper inside a portal — see
 	// AmphoreScopeContext. Memoized so portaled subtrees don't re-render on

@@ -26,3 +26,4 @@ jobs:
             - run: yarn typecheck
             - run: yarn test:ci
             - run: yarn lint
+            - run: yarn lint:css

@@ -4,6 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import { AmphoreProvider } from "@theme/AmphoreProvider";
 
+import { queryPicto } from "../../../../tests/queryPicto";
+
 import { Button } from "./Button";
 
 describe("Button", () => {
@@ -74,16 +76,41 @@ describe("Button", () => {
 		);
 	});
 
-	it("disables the button and blocks clicks while isLoading", async () => {
+	it("blocks clicks while isLoading, and says so", async () => {
 		const onClick = vi.fn();
 		render(<Button label="Envoyer" isLoading onClick={onClick} />);
 		const btn = screen.getByRole("button", { name: "Envoyer" });
 
-		expect(btn).toBeDisabled();
+		expect(btn).toHaveAttribute("aria-disabled", "true");
+		expect(btn).toHaveAttribute("aria-busy", "true");
 		expect(btn).toHaveAttribute("data-loading", "true");
 
 		await userEvent.click(btn);
 		expect(onClick).not.toHaveBeenCalled();
+	});
+
+	it("keeps keyboard focus when it starts loading", () => {
+		const { rerender } = render(<Button label="Envoyer" />);
+		const btn = screen.getByRole("button", { name: "Envoyer" });
+		btn.focus();
+
+		rerender(<Button label="Envoyer" isLoading />);
+
+		expect(btn).not.toBeDisabled();
+		expect(btn).toHaveFocus();
+	});
+
+	it("doesn't submit its form while isLoading", async () => {
+		const onSubmit = vi.fn((e: React.FormEvent) => e.preventDefault());
+		render(
+			<form onSubmit={onSubmit}>
+				<Button label="Envoyer" type="submit" isLoading />
+			</form>
+		);
+
+		await userEvent.click(screen.getByRole("button", { name: "Envoyer" }));
+
+		expect(onSubmit).not.toHaveBeenCalled();
 	});
 
 	it("respects an explicit disabled prop", () => {
@@ -93,14 +120,14 @@ describe("Button", () => {
 
 	it("renders a leading picto when given", () => {
 		render(<Button label="Rechercher" picto="search" />);
-		expect(screen.getByTestId("search")).toBeInTheDocument();
+		expect(queryPicto("search")).toBeInTheDocument();
 	});
 
 	it("scales the picto's size with the button's own size", () => {
 		render(<Button label="Rechercher" picto="search" size="lg" />);
-		const svg = screen
-			.getByTestId("search")
-			.querySelector("svg") as unknown as HTMLElement;
+		const svg = queryPicto("search").querySelector(
+			"svg"
+		) as unknown as HTMLElement;
 		expect(svg).toHaveStyle({ width: "1.5rem", height: "1.5rem" });
 	});
 
@@ -108,7 +135,7 @@ describe("Button", () => {
 		const { container } = render(
 			<Button label="Envoyer" picto="search" isLoading />
 		);
-		expect(screen.queryByTestId("search")).not.toBeInTheDocument();
+		expect(queryPicto("search")).not.toBeInTheDocument();
 		expect(container.querySelector("[aria-hidden]")).toBeInTheDocument();
 	});
 

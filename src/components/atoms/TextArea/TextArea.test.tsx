@@ -122,7 +122,14 @@ describe("TextArea", () => {
 	});
 
 	it("resizes the textarea by dragging the custom handle", () => {
-		render(<TextArea label="Description" value="" onChange={() => {}} />);
+		render(
+			<TextArea
+				data-testid="textarea"
+				label="Description"
+				value=""
+				onChange={() => {}}
+			/>
+		);
 		const textarea = screen.getByLabelText(
 			"Description"
 		) as HTMLTextAreaElement;
@@ -140,7 +147,14 @@ describe("TextArea", () => {
 	});
 
 	it("clamps the dragged height to a sane minimum", () => {
-		render(<TextArea label="Description" value="" onChange={() => {}} />);
+		render(
+			<TextArea
+				data-testid="textarea"
+				label="Description"
+				value=""
+				onChange={() => {}}
+			/>
+		);
 		const textarea = screen.getByLabelText(
 			"Description"
 		) as HTMLTextAreaElement;
@@ -160,6 +174,7 @@ describe("TextArea", () => {
 	it("hides the resize handle when resizable is false", () => {
 		render(
 			<TextArea
+				data-testid="textarea"
 				label="Description"
 				value=""
 				onChange={() => {}}
@@ -174,6 +189,7 @@ describe("TextArea", () => {
 	it("hides the resize handle when disabled", () => {
 		render(
 			<TextArea
+				data-testid="textarea"
 				label="Description"
 				value=""
 				onChange={() => {}}
@@ -203,7 +219,12 @@ describe("TextArea", () => {
 		it("shows no resize handle", () => {
 			setCoarsePointer();
 			render(
-				<TextArea label="Description" value="" onChange={() => {}} />
+				<TextArea
+					data-testid="textarea"
+					label="Description"
+					value=""
+					onChange={() => {}}
+				/>
 			);
 			expect(
 				screen.queryByTestId("textarea-resize-handle")
@@ -213,7 +234,12 @@ describe("TextArea", () => {
 		it("grows with its content instead", () => {
 			setCoarsePointer();
 			render(
-				<TextArea label="Description" value="" onChange={() => {}} />
+				<TextArea
+					data-testid="textarea"
+					label="Description"
+					value=""
+					onChange={() => {}}
+				/>
 			);
 			const textarea = screen.getByLabelText(
 				"Description"
@@ -226,6 +252,7 @@ describe("TextArea", () => {
 			setCoarsePointer();
 			render(
 				<TextArea
+					data-testid="textarea"
 					label="Description"
 					value=""
 					onChange={() => {}}
@@ -242,6 +269,7 @@ describe("TextArea", () => {
 	it("still shows the resize handle when autoGrow is set — the two combine, not replace", () => {
 		render(
 			<TextArea
+				data-testid="textarea"
 				label="Description"
 				value=""
 				onChange={() => {}}
@@ -256,6 +284,7 @@ describe("TextArea", () => {
 	it("does not force overflowY when maxRows isn't set — that's the scroll-disappears bug", () => {
 		const { rerender } = render(
 			<TextArea
+				data-testid="textarea"
 				label="Description"
 				value="a"
 				onChange={() => {}}
@@ -271,6 +300,7 @@ describe("TextArea", () => {
 		});
 		rerender(
 			<TextArea
+				data-testid="textarea"
 				label="Description"
 				value="a\nb"
 				onChange={() => {}}
@@ -283,6 +313,7 @@ describe("TextArea", () => {
 	it("a manual drag sets a floor autoGrow won't shrink below on the next value change", () => {
 		const { rerender } = render(
 			<TextArea
+				data-testid="textarea"
 				label="Description"
 				value="a"
 				onChange={() => {}}
@@ -312,6 +343,7 @@ describe("TextArea", () => {
 		// back down — the manual size is a standing floor, not a one-off.
 		rerender(
 			<TextArea
+				data-testid="textarea"
 				label="Description"
 				value="a\nb"
 				onChange={() => {}}

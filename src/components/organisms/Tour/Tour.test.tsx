@@ -497,3 +497,95 @@ describe("Tour", () => {
 		});
 	});
 });
+
+describe("Tour accessibility", () => {
+	afterEach(() => {
+		vi.restoreAllMocks();
+	});
+
+	it("is a modal dialog named and described by its step", async () => {
+		mockViewport(false);
+		render(
+			<Page>
+				<Tour steps={STEPS} open onClose={() => {}} />
+			</Page>
+		);
+
+		const dialog = await screen.findByRole("dialog", { name: "Menu" });
+
+		expect(dialog).toHaveAttribute("aria-modal", "true");
+		expect(dialog).toHaveAccessibleDescription("The menu");
+	});
+
+	it("moves focus to the primary button, and keeps it there step to step", async () => {
+		mockViewport(false);
+		const user = userEvent.setup();
+		render(
+			<Page>
+				<Tour steps={STEPS} open onClose={() => {}} />
+			</Page>
+		);
+
+		const next = await screen.findByRole("button", { name: "Next" });
+		await waitFor(() => expect(next).toHaveFocus());
+
+		await user.keyboard("{Enter}");
+		await screen.findByRole("dialog", { name: "View" });
+
+		expect(screen.getByRole("button", { name: "Next" })).toHaveFocus();
+	});
+
+	it("announces the new step through a live region", async () => {
+		mockViewport(false);
+		const user = userEvent.setup();
+		render(
+			<Page>
+				<Tour steps={STEPS} open onClose={() => {}} />
+			</Page>
+		);
+
+		const region = (await screen.findByText("Menu")).closest("[aria-live]");
+		expect(region).toHaveAttribute("aria-live", "polite");
+
+		await user.click(screen.getByRole("button", { name: "Next" }));
+		await screen.findByRole("dialog", { name: "View" });
+
+		expect(screen.getByText("View").closest("[aria-live]")).toBe(region);
+	});
+
+	it("traps focus, and hands it back on close", async () => {
+		mockViewport(false);
+		const user = userEvent.setup();
+		const App = () => {
+			const [open, setOpen] = useState(false);
+			return (
+				<Page>
+					<button type="button" onClick={() => setOpen(true)}>
+						Start
+					</button>
+					<Tour
+						steps={STEPS}
+						open={open}
+						onClose={() => setOpen(false)}
+					/>
+				</Page>
+			);
+		};
+		render(<App />);
+		const start = screen.getByRole("button", { name: "Start" });
+
+		await user.click(start);
+		const next = await screen.findByRole("button", { name: "Next" });
+		await waitFor(() => expect(next).toHaveFocus());
+
+		await user.tab();
+		await waitFor(() =>
+			expect(screen.getByRole("dialog")).toContainElement(
+				document.activeElement as HTMLElement
+			)
+		);
+
+		await user.keyboard("{Escape}");
+		await waitFor(() => expect(start).toHaveFocus());
+	});
+});

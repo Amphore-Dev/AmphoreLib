@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { TruncatedTooltipText } from "./TruncatedTooltipText";
 
@@ -87,5 +87,47 @@ describe("TruncatedTooltipText", () => {
 			<TruncatedTooltipText className="custom">Text</TruncatedTooltipText>
 		);
 		expect(screen.getByText("Text")).toHaveClass("custom");
+	});
+});
+
+describe("TruncatedTooltipText keyboard", () => {
+	const truncate = () => {
+		vi.spyOn(HTMLElement.prototype, "scrollWidth", "get").mockReturnValue(
+			200
+		);
+		vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(
+			100
+		);
+	};
+
+	afterEach(() => {
+		vi.restoreAllMocks();
+	});
+
+	it("shows the full text on focus once truncated", async () => {
+		truncate();
+		const user = userEvent.setup();
+		render(<TruncatedTooltipText>Long text</TruncatedTooltipText>);
+
+		await user.tab();
+
+		expect(await screen.findByRole("tooltip")).toHaveTextContent(
+			"Long text"
+		);
+	});
+
+	it("adds no tab stop when nothing is cut off", () => {
+		render(<TruncatedTooltipText>Short</TruncatedTooltipText>);
+		expect(screen.getByText("Short")).not.toHaveAttribute("tabindex");
+	});
+
+	it("adds no tab stop inside a link", () => {
+		truncate();
+		render(
+			<a href="/x">
+				<TruncatedTooltipText>Long text</TruncatedTooltipText>
+			</a>
+		);
+		expect(screen.getByText("Long text")).not.toHaveAttribute("tabindex");
 	});
 });

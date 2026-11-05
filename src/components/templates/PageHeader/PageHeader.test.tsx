@@ -98,3 +98,20 @@ describe("PageHeader", () => {
 		).toBeInTheDocument();
 	});
 });
+
+describe("PageHeader accessibility", () => {
+	it("renders no empty heading", () => {
+		render(<PageHeader totalCount={3} />);
+		expect(screen.queryByRole("heading")).not.toBeInTheDocument();
+	});
+
+	it("announces the count when loading ends", () => {
+		const { rerender } = render(<PageHeader title="Orders" isLoading />);
+		const status = screen.getByRole("status");
+
+		rerender(<PageHeader title="Orders" totalCount={3} />);
+
+		expect(screen.getByRole("status")).toBe(status);
+		expect(status).toHaveTextContent("3 results");
+	});
+});

@@ -1,0 +1,115 @@
+@use "../../styles/mixins" as *;
+
+.page {
+	display: flex;
+	flex-direction: column;
+	gap: space(8);
+	max-width: space(240);
+	margin: 0 auto;
+	font-family: var(--amp-font);
+	color: var(--amp-color-ink);
+}
+
+.title {
+	margin: 0;
+	@include text(3xl, bold);
+}
+
+.section {
+	display: flex;
+	flex-direction: column;
+	gap: space(3);
+}
+
+.sectionTitle {
+	margin: 0;
+	@include text(lg, semibold);
+}
+
+.intro {
+	margin: 0;
+	max-width: 70ch;
+	font-size: var(--amp-text-sm);
+	color: var(--amp-color-sub);
+}
+
+.code {
+	font-family: monospace;
+	font-size: var(--amp-text-xs);
+}
+
+.table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: var(--amp-text-sm);
+
+	th,
+	td {
+		padding: space(2) space(3);
+		text-align: left;
+		border-bottom: var(--amp-border-width-sm) solid var(--amp-color-border);
+	}
+
+	th {
+		font-size: var(--amp-text-xs);
+		font-weight: weight(semibold);
+		color: var(--amp-color-sub);
+	}
+}
+
+.swatchRow {
+	display: grid;
+	grid-template-columns: space(45) 1fr;
+	gap: space(4);
+	align-items: start;
+}
+
+.swatchTitle {
+	margin: 0;
+	font-size: var(--amp-text-sm);
+	font-weight: weight(semibold);
+	text-transform: capitalize;
+}
+
+.swatches {
+	display: grid;
+	gap: space(2);
+}
+
+.swatch {
+	display: flex;
+	flex-direction: column;
+	gap: space(1);
+	min-width: 0;
+}
+
+.swatchColor {
+	height: space(12);
+	border: var(--amp-border-width-sm) solid var(--amp-color-border);
+	border-radius: var(--amp-radius-sm);
+}
+
+.mono {
+	font-family: monospace;
+	font-size: var(--amp-text-xs);
+	overflow-wrap: anywhere;
+}
+
+.sub {
+	color: var(--amp-color-sub);
+}
+
+.bar {
+	display: block;
+	height: space(3);
+	border-radius: var(--amp-radius-sm);
+	background: var(--amp-color-primary);
+}
+
+.box {
+	display: block;
+	width: space(16);
+	height: space(10);
+	border: var(--amp-border-width-sm) solid var(--amp-color-border);
+	background: var(--amp-color-card);
+}

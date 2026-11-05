@@ -1,4 +1,5 @@
 @use "../../../styles/touch" as touch;
+@use "../../../styles/mixins" as *;
 
 .panel {
 	position: sticky;
@@ -11,6 +12,8 @@
 	overflow: hidden;
 	border-radius: var(--amp-radius-lg) 0 0 var(--amp-radius-lg);
 	font-family: var(--amp-font);
+	// Focused programmatically when it opens as an overlay.
+	outline: none;
 	// position:sticky always opens its own stacking context (per spec,
 	// regardless of this z-index value) — anything overlaid rendered
 	// inline inside this panel (a ConfirmModal without `portal`, say) has
@@ -20,7 +23,7 @@
 	// value that already fixed exactly this in a real consumer app. The
 	// cleaner fix on the consumer side is `<Modal portal>`, which escapes
 	// this context entirely.
-	z-index: 20;
+	z-index: var(--amp-z-sticky);
 
 	// `overlay` — floats above the page instead of sitting in the flow as
 	// a real column. Same z-index tier as Modal/Dropdown/Popover/Tooltip
@@ -33,7 +36,7 @@
 		right: 0;
 		bottom: 0;
 		height: auto;
-		z-index: 1000;
+		z-index: var(--amp-z-overlay);
 	}
 }
 
@@ -41,11 +44,11 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: var(--amp-space-2);
+	gap: space(2);
 	flex-shrink: 0;
 	padding: var(--amp-card-padding);
-	padding-bottom: var(--amp-space-2);
-	border-bottom: 1px solid var(--amp-color-border);
+	padding-bottom: space(2);
+	border-bottom: var(--amp-border-width-sm) solid var(--amp-color-border);
 }
 
 // Whatever's left between the title and the close button — min-width: 0
@@ -57,8 +60,8 @@
 
 .title {
 	margin: 0;
-	font-size: 1.0625rem;
-	font-weight: 600;
+	font-size: var(--amp-text-lg);
+	font-weight: weight(semibold);
 	color: var(--amp-color-ink);
 }
 
@@ -68,8 +71,8 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 1.75rem;
-	height: 1.75rem;
+	width: space(7);
+	height: space(7);
 	border: none;
 	border-radius: var(--amp-radius-sm);
 	background: transparent;
@@ -84,8 +87,7 @@
 	}
 
 	&:focus-visible {
-		outline: 2px solid var(--amp-color-primary);
-		outline-offset: 2px;
+		@include focus-ring;
 	}
 }
 
@@ -97,8 +99,8 @@
 }
 
 .mobileTitle {
-	margin: 0 0 var(--amp-space-2);
-	font-size: 1.0625rem;
-	font-weight: 600;
+	margin: 0 0 space(2);
+	font-size: var(--amp-text-lg);
+	font-weight: weight(semibold);
 	color: var(--amp-color-ink);
 }
