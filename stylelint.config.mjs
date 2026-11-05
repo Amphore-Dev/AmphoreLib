@@ -1,7 +1,7 @@
 // Keeps every design value on a theme token (var(--amp-*)) or a scale function
 // from src/styles/_mixins.scss. Values only: formatting stays with Prettier.
 
-const TEXT_STEPS = "2xs|xs|sm|md|lg|xl|2xl|3xl|4xl|5xl|6xl";
+const TEXT_STEPS = "xs|sm|base|lg|xl|2xl|3xl|4xl";
 
 /** Neutral values, with no scale to respect. */
 const KEYWORDS = [
@@ -85,6 +85,8 @@ export default {
 						"inherit",
 						"normal",
 						`/^var\\(--amp-leading-(${TEXT_STEPS}|none|tight|snug|normal)\\)$/`,
+						// A control holding its height with another step's size.
+						"/^space\\([\\d.]+\\)$/",
 					],
 					"font-weight": ["inherit", "/\\bweight\\(/"],
 					"/radius$/": [...KEYWORDS, ...TOKEN_VALUES, "/^\\d+%$/"],

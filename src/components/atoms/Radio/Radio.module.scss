@@ -72,8 +72,7 @@
 }
 
 .label {
-	// stylelint-disable-next-line scale-unlimited/declaration-strict-value -- off scale: 13.5px, between text-sm and text-md
-	font-size: 0.84375rem;
+	font-size: var(--amp-text-sm);
 	line-height: var(--amp-leading-none);
 	color: var(--amp-color-ink);
 }

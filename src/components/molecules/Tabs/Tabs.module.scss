@@ -30,12 +30,12 @@
 
 	&[data-size="md"] .tab {
 		padding: space(2) 0;
-		font-size: var(--amp-text-md);
+		font-size: var(--amp-text-sm);
 	}
 
 	&[data-size="lg"] .tab {
 		padding: space(2) 0;
-		font-size: var(--amp-text-lg);
+		font-size: var(--amp-text-base);
 	}
 }
 

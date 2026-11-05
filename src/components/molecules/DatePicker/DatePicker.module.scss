@@ -75,7 +75,7 @@
 }
 
 .calendar :global(.rdp-month_caption) {
-	font-size: var(--amp-text-md);
+	font-size: var(--amp-text-sm);
 	text-transform: capitalize;
 	// lib sets align-content, which is a no-op on a single-line flex box.
 	align-items: center;

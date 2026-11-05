@@ -65,17 +65,14 @@ export type TThemeTypography = {
 
 /** Steps of the text scale, read through `--amp-text-*` and `--amp-leading-*`. */
 export type TThemeTextStep =
-	| "2xs"
 	| "xs"
 	| "sm"
-	| "md"
+	| "base"
 	| "lg"
 	| "xl"
 	| "2xl"
 	| "3xl"
-	| "4xl"
-	| "5xl"
-	| "6xl";
+	| "4xl";
 
 /** Font sizes (`--amp-text-*`). */
 export type TThemeText = Record<TThemeTextStep, string>;

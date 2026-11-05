@@ -96,13 +96,13 @@ $_dim-spread: 9999px;
 
 .title {
 	margin: 0;
-	font-size: var(--amp-text-xl);
+	font-size: var(--amp-text-base);
 	font-weight: weight(semibold);
 	line-height: var(--amp-leading-tight);
 }
 
 .content {
-	font-size: var(--amp-text-md);
+	font-size: var(--amp-text-sm);
 	line-height: var(--amp-leading-normal);
 	color: var(--amp-color-sub);
 

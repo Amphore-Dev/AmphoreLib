@@ -51,14 +51,13 @@
 
 	&[data-size="md"] {
 		padding: space(2) space(3.5);
-		// stylelint-disable-next-line scale-unlimited/declaration-strict-value -- off scale: 13.5px, between text-sm and text-md
-		font-size: 0.84375rem;
-		line-height: var(--amp-leading-md);
+		@include text(sm);
 	}
 
 	&[data-size="lg"] {
 		padding: space(3.5) space(4.5);
-		@include text(lg);
+		font-size: var(--amp-text-base);
+		line-height: space(7);
 	}
 
 	// ---- color: sets local vars, consumed by the variant rules below.

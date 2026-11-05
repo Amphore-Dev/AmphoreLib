@@ -71,15 +71,14 @@
 	&[data-size="md"] {
 		--_field-pad-y: #{space(2)};
 		--_field-pad-x: #{space(2)};
-		// stylelint-disable-next-line scale-unlimited/declaration-strict-value -- off scale: 13.5px, between text-sm and text-md
-		font-size: 0.84375rem;
-		line-height: var(--amp-leading-md);
+		@include text(sm);
 	}
 
 	&[data-size="lg"] {
 		--_field-pad-y: #{space(3.5)};
 		--_field-pad-x: #{space(3.5)};
-		@include text(lg);
+		font-size: var(--amp-text-base);
+		line-height: space(7);
 	}
 }
 
@@ -110,10 +109,10 @@
 	color: var(--amp-color-ink);
 
 	// iOS Safari zooms the page in on focus of any field whose text is under
-	// 16px — every size here (12-15px) — and doesn't zoom back out. Touch-
+	// 16px — the sm and md sizes here — and doesn't zoom back out. Touch-
 	// first devices get at least 16px on the text slot; the field box keeps
 	// its line-height, so the field itself doesn't grow.
 	@media (pointer: coarse) {
-		font-size: max(var(--amp-text-xl), 1em);
+		font-size: max(var(--amp-text-base), 1em);
 	}
 }
