@@ -99,3 +99,23 @@ describe("truncate", () => {
 		expect(css).toContain("white-space:nowrap");
 	});
 });
+
+describe("field-box", () => {
+	it("holds a field at its height whatever it contains", () => {
+		const css = compileString(
+			'@use "field"; .x { @include field.field-box; }',
+			{ loadPaths: [path.resolve(__dirname)], style: "compressed" }
+		).css;
+		for (const [size, units] of [
+			["sm", 8.5],
+			["md", 10.5],
+			["lg", 14.5],
+		]) {
+			expect(css).toMatch(
+				new RegExp(
+					`\\[data-size=['"]?${size}['"]?\\]\\{[^}]*min-height:calc\\(var\\(--amp-spacing\\)\\*${units}\\)`
+				)
+			);
+		}
+	});
+});

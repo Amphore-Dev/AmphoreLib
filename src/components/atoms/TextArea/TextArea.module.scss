@@ -47,21 +47,20 @@
 	// — see TextArea.tsx for why native resize/::-webkit-resizer isn't used.
 	resize: none;
 
-	// Bottom/right get extra padding on top of the normal size scale — room
-	// for the resize handle so it doesn't sit flush against the text.
+	// The right gets extra padding on top of the normal size scale — room for
+	// the resize handle so it doesn't sit flush against the text. The block
+	// padding stays the field's, so one row is as tall as an Input.
 	.field[data-size="sm"] & {
-		padding: space(1.5) calc(#{space(2)} + #{space(1)})
-			calc(#{space(1.5)} + #{space(1)}) space(2);
+		padding: space(1.5) calc(#{space(2)} + #{space(1)}) space(1.5) space(2);
 	}
 
 	.field[data-size="md"] & {
-		padding: space(2) calc(#{space(3.5)} + #{space(1)})
-			calc(#{space(2)} + #{space(1)}) space(3.5);
+		padding: space(2) calc(#{space(3.5)} + #{space(1)}) space(2) space(3.5);
 	}
 
 	.field[data-size="lg"] & {
-		padding: space(3.5) calc(#{space(4.5)} + #{space(1)})
-			calc(#{space(3.5)} + #{space(1)}) space(4.5);
+		padding: space(3.5) calc(#{space(4.5)} + #{space(1)}) space(3.5)
+			space(4.5);
 	}
 
 	&::placeholder {
