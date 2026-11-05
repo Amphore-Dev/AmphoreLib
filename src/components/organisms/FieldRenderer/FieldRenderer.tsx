@@ -69,7 +69,7 @@ const KEYS_UNKNOWN_TO: Partial<Record<TFieldType, string[]>> = {
 	checkbox: ["name", "picto"],
 	radio: ["picto"],
 	toggle: ["value", "picto"],
-	file: ["picto"],
+	file: ["label", "picto"],
 	color: ["picto"],
 };
 

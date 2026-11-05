@@ -950,9 +950,9 @@ describe("FieldRenderer", () => {
 	const TYPES: [string, object][] = [
 		["select", { options }],
 		["date", {}],
-		["period", {}],
+		["period", { value: "2024" }],
 		["time", {}],
-		["timeRange", {}],
+		["timeRange", { value: "10:00" }],
 		["input", {}],
 		["number", {}],
 		["textarea", {}],
@@ -998,12 +998,14 @@ describe("FieldRenderer", () => {
 				"displayprops",
 				"chip",
 				"chiplabel",
+				"label",
 			]) {
 				expect(attributes).not.toContain(key);
 			}
 			expect(
 				container.querySelector(`[type="${type}"]:not(input)`)
 			).toBeNull();
+			expect(container.querySelector("div[value]")).toBeNull();
 			expect(error).not.toHaveBeenCalled();
 			error.mockRestore();
 		}
