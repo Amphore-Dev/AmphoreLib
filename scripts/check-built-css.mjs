@@ -30,10 +30,38 @@ const startsARule = (needle) => {
 };
 
 const missing = REQUIRED.filter((selector) => !startsARule(selector));
+
+// The default theme: without it every `var(--amp-*)` outside an
+// AmphoreProvider is unresolved and components render unstyled. Names come
+// from the generated source, so a new token is checked with no change here.
+// Each must sit in a top-level `:root` rule: `:root{` alone could just as well
+// come from a dependency's stylesheet.
+const tokenNames = [
+	...readFileSync(
+		new URL("../src/styles/tokens.css", import.meta.url),
+		"utf8"
+	).matchAll(/^\s*(--amp-[\w-]+):/gm),
+].map((match) => match[1]);
+
+const rootDeclarations = new Set(
+	[...css.matchAll(/(?:^|[};]):root\{([^}]*)\}/g)]
+		.flatMap((match) => match[1].split(";"))
+		.map((declaration) => declaration.split(":")[0])
+);
+
+if (!tokenNames.length) missing.push("src/styles/tokens.css has no tokens");
+missing.push(
+	...tokenNames
+		.filter((name) => !rootDeclarations.has(name))
+		.map((name) => `:root ${name}`)
+);
+
 if (missing.length) {
 	console.error(
 		`lib/style.css is missing global rules:\n${missing.map((s) => `  ${s}`).join("\n")}`
 	);
 	process.exit(1);
 }
-console.log(`lib/style.css: ${REQUIRED.length} global rules present.`);
+console.log(
+	`lib/style.css: ${REQUIRED.length} global rules and ${tokenNames.length} :root tokens present.`
+);

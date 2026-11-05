@@ -35,6 +35,7 @@
 		"prettier:fix": "yarn prettier --write",
 		"format": "prettier --write 'src/**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
 		"picto": "node scripts/convert-svg.js",
+		"tokens": "UPDATE_TOKENS=1 vitest run src/theme/tokens.test.ts",
 		"reset": "rm -rf node_modules dist && yarn install"
 	},
 	"peerDependencies": {
