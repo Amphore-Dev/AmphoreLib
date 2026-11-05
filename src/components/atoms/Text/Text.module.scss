@@ -1,0 +1,41 @@
+$colors:
+	ink, sub, primary, danger, success, warning, info, neutral, black, white;
+
+.text {
+	font-family: var(--amp-font);
+	margin: 0;
+
+	// Same pairs as a field of that size (see _field.scss).
+	&[data-size="sm"] {
+		font-size: 0.75rem;
+		line-height: 1.25rem;
+	}
+
+	&[data-size="md"] {
+		font-size: 0.84375rem;
+		line-height: 1.5rem;
+	}
+
+	&[data-size="lg"] {
+		font-size: 0.9375rem;
+		line-height: 1.75rem;
+	}
+
+	&[data-weight="regular"] {
+		font-weight: 400;
+	}
+
+	&[data-weight="semibold"] {
+		font-weight: 600;
+	}
+
+	&[data-weight="bold"] {
+		font-weight: 700;
+	}
+
+	@each $color in $colors {
+		&[data-color="#{$color}"] {
+			color: var(--amp-color-#{$color});
+		}
+	}
+}

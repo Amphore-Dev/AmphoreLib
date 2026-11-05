@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { StoryFn } from "@storybook/react";
+
+import { Button } from "@components/atoms";
 
 import { TField, TFieldsGroup } from "@interfaces/index";
 
@@ -19,6 +21,7 @@ export default {
 		showResetFieldButton: { control: { type: "boolean" } },
 		showFieldLabels: { control: { type: "boolean" } },
 		disableFields: { control: { type: "boolean" } },
+		readOnly: { control: { type: "boolean" } },
 		resetFormButton: { control: { type: "boolean" } },
 		columns: { control: "number" },
 		inModal: { control: { type: "boolean" } },
@@ -26,6 +29,7 @@ export default {
 		cancelLabel: { control: "text" },
 		resetLabel: { control: "text" },
 		resetFormLabel: { control: "text" },
+		closeLabel: { control: "text" },
 		// Data-driven/complex props — no meaningful Storybook control.
 		fields: { control: false },
 		initialValues: { control: false },
@@ -122,6 +126,41 @@ InModal.args = {
 	resetFormButton: true,
 	onSubmit: () => {},
 	onClose: () => {},
+};
+
+/** `readOnly` in the page: disabled fields, no field reset button. */
+export const ReadOnly = Template.bind({});
+ReadOnly.args = {
+	fields: basicFields,
+	initialValues: { name: "Jane Doe", email: "jane@example.com", bio: "" },
+	defaultValues: { name: "", email: "", bio: "" },
+	showResetFieldButton: true,
+	readOnly: true,
+};
+
+const ModalTemplate: StoryFn<IFormRendererWithFormikProps> = (args) => {
+	const [open, setOpen] = useState(false);
+	return (
+		<>
+			<Button onClick={() => setOpen(true)}>View contact</Button>
+			<FormRendererWithFormik
+				{...args}
+				open={open}
+				onClose={() => setOpen(false)}
+			/>
+		</>
+	);
+};
+
+/** `readOnly` in a modal: "Close" is the only action, `resetFormButton` is ignored. */
+export const ReadOnlyInModal = ModalTemplate.bind({});
+ReadOnlyInModal.args = {
+	fields: basicFields,
+	initialValues: { name: "Jane Doe", email: "jane@example.com", bio: "" },
+	inModal: true,
+	readOnly: true,
+	resetFormButton: true,
+	title: "Contact",
 };
 
 export const DisabledFields = Template.bind({});

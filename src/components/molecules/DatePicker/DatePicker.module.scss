@@ -67,6 +67,8 @@
 	--rdp-day_button-width: #{space(7)};
 	// -radius-md, not -full: a day is a squarish control (like Button), not a pill.
 	--rdp-day_button-border-radius: var(--amp-radius-md);
+	// mode="week", a range: tinted between its first and last day.
+	--rdp-range_middle-background-color: var(--amp-color-primary-tint);
 	font-family: var(--amp-font);
 	font-size: var(--amp-text-sm);
 	color: var(--amp-color-ink);
@@ -101,10 +103,52 @@
 	}
 }
 
+// mode="week": the hovered week, as one strip. On the <td>, which unlike the
+// button fills its cell.
+@media (hover: hover) {
+	.calendar .hoverWeek:not([data-selected="true"]) {
+		background: var(--amp-color-ghost-bg);
+	}
+}
+
 // "selected" modifier lands on the <td> ([data-selected]), not the <button>.
 .calendar :global(.rdp-day)[data-selected="true"] :global(.rdp-day_button) {
 	background: var(--amp-color-primary);
 	color: var(--amp-color-primary-fg);
 	font-size: var(--amp-text-sm);
 	font-weight: weight(regular);
+}
+
+// Same selector plus the range class, to undo the solid fill above: the <td>
+// carries the tint.
+.calendar
+	:global(.rdp-day)[data-selected="true"]:global(.rdp-range_middle)
+	:global(.rdp-day_button) {
+	background: transparent;
+	color: var(--amp-color-ink);
+}
+
+// A marked day: a short bar under the number, on the button so it stays on
+// top of a selected day's fill.
+.calendar :global(.rdp-day_button)[data-marked="true"] {
+	position: relative;
+
+	&::after {
+		content: "";
+		position: absolute;
+		left: 50%;
+		bottom: 0.125rem;
+		width: var(--amp-space-3);
+		height: 0.125rem;
+		transform: translateX(-50%);
+		border-radius: var(--amp-radius-full);
+		background: var(--amp-color-primary);
+		pointer-events: none;
+	}
+}
+
+.calendar
+	:global(.rdp-day)[data-selected="true"]:not(:global(.rdp-range_middle))
+	:global(.rdp-day_button)[data-marked="true"]::after {
+	background: var(--amp-color-primary-fg);
 }

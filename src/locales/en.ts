@@ -84,6 +84,7 @@ export const en: TRequiredThemeLabels = {
 		submitLabel: "Submit",
 		cancelLabel: "Cancel",
 		resetLabel: "Reset",
+		closeLabel: "Close",
 		resetFormLabel: "Reset fields",
 	},
 	HeadBar: {

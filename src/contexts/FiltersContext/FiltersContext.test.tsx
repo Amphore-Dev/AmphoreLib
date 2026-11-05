@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { createFiltersContext } from "./FiltersContext";
 
-type TPlanningFilters = { status?: string | null };
+type TPlanningFilters = { status?: string | null; tab?: string };
 type TSlices = { planning: TPlanningFilters };
 
 const { Provider, useFiltersContext } = createFiltersContext<TSlices>();
@@ -114,6 +114,90 @@ describe("createFiltersContext / useFiltersContext", () => {
 			</Provider>
 		);
 		expect(screen.getByTestId("status")).toHaveTextContent("closed");
+	});
+
+	describe("a key declared false in params", () => {
+		const ParamsConsumer: React.FC<{
+			onReady?: (
+				ctx: ReturnType<typeof useFiltersContext<"planning">>
+			) => void;
+		}> = ({ onReady }) => {
+			const ctx = useFiltersContext("planning", {
+				updateUrlParams: true,
+				params: { status: true, tab: false, page: false },
+			});
+			onReady?.(ctx);
+			return (
+				<div>
+					<span data-testid="tab">{ctx.filters.tab ?? "∅"}</span>
+					<button onClick={() => ctx.setFilter("tab", "details")}>
+						setTab
+					</button>
+					<button onClick={() => ctx.setFilter("status", "open")}>
+						setStatus
+					</button>
+				</div>
+			);
+		};
+
+		const renderParams = (
+			onReady?: React.ComponentProps<typeof ParamsConsumer>["onReady"]
+		) =>
+			render(
+				<Provider
+					defaultFilters={{ planning: { status: null, tab: "main" } }}
+				>
+					<ParamsConsumer onReady={onReady} />
+				</Provider>
+			);
+
+		it("is never written to the URL", () => {
+			renderParams();
+			act(() => screen.getByText("setTab").click());
+			act(() => screen.getByText("setStatus").click());
+			expect(screen.getByTestId("tab")).toHaveTextContent("details");
+			expect(window.location.search).toBe("?status=open");
+		});
+
+		it("is removed from the URL, next to no other managed param", () => {
+			window.history.replaceState(null, "", "/?tab=old&other=1");
+			renderParams();
+			expect(window.location.search).toBe("?other=1");
+		});
+
+		it("is removed from the URL, next to a managed param", () => {
+			window.history.replaceState(null, "", "/?tab=old&status=closed");
+			renderParams();
+			expect(window.location.search).toBe("?status=closed");
+		});
+
+		it("isn't read from the URL", () => {
+			window.history.replaceState(null, "", "/?tab=old&status=closed");
+			renderParams();
+			expect(screen.getByTestId("tab")).toHaveTextContent("main");
+		});
+
+		it("stays out of getParams, except the pagination a request needs", () => {
+			let ctx: ReturnType<typeof useFiltersContext<"planning">>;
+			renderParams((next) => {
+				ctx = next;
+			});
+			act(() => screen.getByText("setTab").click());
+			act(() => ctx.setPagination({ page: 3 }));
+			expect(ctx!.getParams()).toEqual({ limit: "20", page: "3" });
+			expect(ctx!.getQueryKeys()).toContain("page=3");
+		});
+	});
+
+	it("leaves a key missing from params alone in the URL", () => {
+		window.history.replaceState(null, "", "/?other=1");
+		render(
+			<Provider defaultFilters={{ planning: { status: null } }}>
+				<Consumer updateUrlParams />
+			</Provider>
+		);
+		act(() => screen.getByText("setStatus").click());
+		expect(window.location.search).toBe("?other=1&status=open");
 	});
 
 	it("throws when used outside a Provider", () => {

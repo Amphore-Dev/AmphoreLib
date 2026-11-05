@@ -52,8 +52,15 @@ export type TParamsAccessors<S> = {
 	key?: string;
 };
 
-/** `true` means "use the raw value as-is"; an object customizes the URL key/encoding/decoding. */
-export type TParamCodec<V> = true | TParamsAccessors<V>;
+/**
+ * How one state key relates to the URL:
+ * - `true`: written and read as-is;
+ * - an object: customizes the URL key/encoding/decoding;
+ * - `false`: managed, but kept out of the URL. Never written, never read, and
+ *   removed from the URL on every sync (a param another screen left behind,
+ *   say), where a key left out of `params` is not touched at all.
+ */
+export type TParamCodec<V> = boolean | TParamsAccessors<V>;
 
 export type TParamsCodecs<S extends object> = {
 	[P in keyof S]?: TParamCodec<S[P]>;

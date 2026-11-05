@@ -4,6 +4,8 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { Formik, FormikProps } from "formik";
 import { describe, expect, it, vi } from "vitest";
 
+import { AmphoreProvider } from "@theme/AmphoreProvider";
+
 import { TField } from "@interfaces/index";
 
 import {
@@ -239,5 +241,182 @@ describe("FormRendererWithFormik", () => {
 		expect(
 			screen.getByRole("button", { name: "Reset fields" })
 		).toBeInTheDocument();
+	});
+});
+
+describe("FormRenderer readOnly", () => {
+	const allFieldTypes: TField[] = [
+		{ name: "input", type: "input", isClearable: true },
+		{ name: "number", type: "number" },
+		{ name: "textarea", type: "textarea" },
+		{
+			name: "select",
+			type: "select",
+			options: [{ label: "One", value: "one" }],
+		},
+		{ name: "date", type: "date" },
+		{ name: "time", type: "time" },
+		{ name: "period", type: "period", range: {} },
+		{ name: "timeRange", type: "timeRange" },
+		{ name: "chips", type: "chips" },
+		{
+			name: "checkbox",
+			type: "checkbox",
+			options: [{ label: "One", value: "one" }],
+		},
+		{
+			name: "radio",
+			type: "radio",
+			options: [{ label: "One", value: "one" }],
+		},
+		{ name: "toggle", type: "toggle" },
+		{ name: "file", type: "file" },
+		{ name: "color", type: "color" },
+	];
+
+	const filledValues = {
+		input: "text",
+		number: 2,
+		textarea: "note",
+		select: "one",
+		date: new Date(2024, 2, 15),
+		time: "10:30",
+		chips: ["a", "b"],
+		checkbox: ["one"],
+		radio: "one",
+		toggle: true,
+		file: [new File(["x"], "a.txt")],
+		color: "#3663dd",
+	};
+
+	it.each(allFieldTypes.map((field) => [field.type, field] as const))(
+		"leaves no enabled control for a %s field",
+		(_type, field) => {
+			const { container } = render(
+				<FormRendererWithFormik
+					initialValues={filledValues}
+					fields={[field]}
+					readOnly
+				/>
+			);
+			expect(
+				container.querySelectorAll(
+					"input:enabled, textarea:enabled, button:enabled, select:enabled, [tabindex='0']"
+				)
+			).toHaveLength(0);
+		}
+	);
+
+	it("hands `disabled` to a custom renderer", () => {
+		render(
+			<FormRendererWithFormik
+				initialValues={{ title: "" }}
+				fields={[
+					{
+						name: "title",
+						type: "input",
+						renderer: ({ disabled }) => (
+							<span>{disabled ? "locked" : "open"}</span>
+						),
+					},
+				]}
+				readOnly
+			/>
+		);
+		expect(screen.getByText("locked")).toBeInTheDocument();
+	});
+
+	it("hides the field reset buttons", () => {
+		render(
+			<FormRendererWithFormik
+				initialValues={{ title: "changed" }}
+				defaultValues={{ title: "default" }}
+				fields={[{ name: "title", type: "input", label: "Titre" }]}
+				showResetFieldButton
+				readOnly
+			/>
+		);
+		expect(
+			screen.queryByRole("button", { name: "Reset" })
+		).not.toBeInTheDocument();
+	});
+
+	it("leaves only a close action in the modal, resetFormButton included", () => {
+		const onClose = vi.fn();
+		render(
+			<FormRendererWithFormik
+				initialValues={{ title: "x" }}
+				fields={[{ name: "title", type: "input", label: "Titre" }]}
+				inModal
+				open
+				readOnly
+				resetFormButton
+				onClose={onClose}
+			/>
+		);
+		expect(
+			screen.queryByRole("button", { name: "Submit" })
+		).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole("button", { name: "Cancel" })
+		).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole("button", { name: "Reset fields" })
+		).not.toBeInTheDocument();
+
+		// The modal's header cross carries the same name.
+		const footerClose = screen
+			.getAllByRole("button", { name: "Close" })
+			.at(-1) as HTMLElement;
+		fireEvent.click(footerClose);
+		expect(onClose).toHaveBeenCalledTimes(1);
+	});
+
+	it("does the same on a plain FormRenderer", () => {
+		renderForm({
+			fields: [{ name: "title", type: "input", label: "Titre" }],
+			inModal: true,
+			open: true,
+			readOnly: true,
+		});
+		expect(
+			screen.queryByRole("button", { name: "Submit" })
+		).not.toBeInTheDocument();
+		expect(
+			screen.getAllByRole("button", { name: "Close" }).length
+		).toBeGreaterThan(0);
+	});
+
+	it("resolves the close label like the other footer labels", () => {
+		render(
+			<AmphoreProvider
+				config={{ labels: { FormRenderer: { closeLabel: "Done" } } }}
+			>
+				<FormRendererWithFormik
+					initialValues={{ title: "x" }}
+					fields={[{ name: "title", type: "input", label: "Titre" }]}
+					inModal
+					open
+					readOnly
+				/>
+			</AmphoreProvider>
+		);
+		expect(
+			screen.getByRole("button", { name: "Done" })
+		).toBeInTheDocument();
+	});
+
+	it("keeps a footer the caller passed", () => {
+		render(
+			<FormRendererWithFormik
+				initialValues={{ title: "x" }}
+				fields={[{ name: "title", type: "input", label: "Titre" }]}
+				inModal
+				open
+				readOnly
+				modalProps={{ footer: <p>Custom footer</p> }}
+			/>
+		);
+		expect(screen.getByText("Custom footer")).toBeInTheDocument();
 	});
 });

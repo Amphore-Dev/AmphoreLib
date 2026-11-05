@@ -112,10 +112,15 @@ export const useFiltersContext = <
 
 	const getParams = (_filters?: TSlice) => {
 		const filters = _filters || getFilters();
+		const params = (options?.params || {}) as Partial<
+			TParamsCodecs<TSlice>
+		>;
 		return genFiltersParams(filters, {
-			page: true,
-			limit: true,
-			...((options?.params || {}) as Partial<TParamsCodecs<TSlice>>),
+			...params,
+			// `false` only keeps a key out of the URL: a request (and its
+			// query key) still needs to know which page it is on.
+			page: params.page || true,
+			limit: params.limit || true,
 		});
 	};
 
@@ -145,6 +150,10 @@ export const useFiltersContext = <
 		if (options?.updateUrlParams) {
 			for (const stateKey of Object.keys(slice) as (keyof TSlice)[]) {
 				const cfg = enabled[stateKey];
+				// Not the URL's to set: whatever is there is a leftover, and
+				// the sync below removes it.
+				if (cfg === false) continue;
+
 				const urlKey =
 					cfg && typeof cfg === "object" && cfg.key
 						? cfg.key
