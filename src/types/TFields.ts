@@ -39,7 +39,7 @@ export type TFieldPropsByType<
 	select: ISelectProps<T>;
 	date: TOmitControlled<IDatePickerProps> & {
 		value?: Date | null;
-		onChange?: (value: Date | null) => void;
+		onChange?: IDatePickerProps["onChange"];
 	};
 	period: IPeriodFilterProps;
 	time: TOmitControlled<ITimePickerProps> & {
