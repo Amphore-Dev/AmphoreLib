@@ -3,6 +3,7 @@ import React, { cloneElement, useState } from "react";
 import {
 	flip,
 	offset,
+	safePolygon,
 	shift,
 	useClick,
 	useDismiss,
@@ -45,6 +46,12 @@ export interface ITooltipProps {
  * on for elements it deems clickable, so a tooltip on a plain element
  * never opened there. A tap now toggles it (useClick with `ignoreMouse`,
  * so a mouse click doesn't fight the hover), and a tap elsewhere closes it.
+ *
+ * Keyboard stays out of that: focus already opens the tooltip, and useClick's
+ * key handling would swallow Space on any control nested in the trigger (it
+ * only spares real buttons). `safePolygon` keeps it open while the pointer
+ * travels onto it, so someone zoomed in can read what's under the cursor
+ * (WCAG 1.4.13).
  */
 export const Tooltip: React.FC<ITooltipProps> = ({
 	content,
@@ -64,9 +71,17 @@ export const Tooltip: React.FC<ITooltipProps> = ({
 		middleware: [offset(6), flip({ padding: 8 }), shift({ padding: 8 })],
 	});
 
-	const hover = useHover(context, { move: false, enabled: !disabled });
+	const hover = useHover(context, {
+		move: false,
+		enabled: !disabled,
+		handleClose: safePolygon(),
+	});
 	const focus = useFocus(context, { enabled: !disabled });
-	const tap = useClick(context, { ignoreMouse: true, enabled: !disabled });
+	const tap = useClick(context, {
+		ignoreMouse: true,
+		keyboardHandlers: false,
+		enabled: !disabled,
+	});
 	const dismiss = useDismiss(context, { escapeKey: false });
 	useEscapeLayer(open && !disabled, () => setOpen(false));
 	const role = useRole(context, { role: "tooltip" });
