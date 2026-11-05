@@ -162,6 +162,15 @@ Accessibility, Structure, Verification) — the short version:
   `AmphoreScope` around your own `createPortal`) re-applies that scope
   inside the portal.
 
+## Visual regression
+
+`yarn visual:ref` takes a screenshot of every Storybook story, `yarn visual`
+compares against them and fails on any differing pixel. Take the references
+on the starting commit, change the code, compare. It runs locally only:
+references and diffs stay in `.visual/`, out of git, because text rendering
+differs from one OS to another. Tag a story `no-visual` to exclude it. See
+Storybook's **Directives/Verification** page.
+
 ## Credits
 
 Most icons in the `Pictos` set are adapted from

@@ -53,6 +53,44 @@ A single grouped advance (`vi.advanceTimersByTime(N * 1000)`) doesn't reliably f
 
 ---
 
+## Visual regression
+
+Local screenshot comparison over every story, to prove that a change leaves static rendering untouched (a CSS refactor, a token migration):
+
+```
+yarn visual:ref   # on the starting commit: build Storybook, take the references
+# ...change the code...
+yarn visual       # build Storybook again, compare, exit 1 on any difference
+```
+
+`scripts/visual.mjs` builds Storybook into `.visual/storybook`, reads its `index.json`, then opens each story in Chromium through Playwright: full page at 1280×800. It is not a Vitest test: `vitest run` and `yarn test` never run it.
+
+Overlays stay closed until someone opens them, so a capture of the story as rendered would never show a Modal, a Select menu or a Tooltip. When a story has a trigger, the script opens it and takes a second image, `<story-id>--open.png`, portals included. The `OPENERS` table in the script says how: `aria-haspopup`/`aria-expanded` triggers by default, a plain button for the Modal family, hover for Tooltip, right-click for ContextMenu. Only the first trigger of a story is opened, so a panel that only appears behind a second trigger, or further interaction, is not covered: give it its own story.
+
+Everything lives in `.visual/`, out of git. Text rendering differs from one OS to another, so a reference only means something on the machine that took it, against the Chromium pinned by the `playwright` dev dependency. Failures land in `.visual/diff/<story-id>/` as `reference.png`, `actual.png` and `diff.png`.
+
+**There is no tolerance**: one differing pixel fails, and so do a story that errors, a story with no reference and a reference that was not captured (a story removed, an overlay that no longer opens). If a story is flaky, make it deterministic or exclude it. Never add a threshold.
+
+What the script pins down for you:
+
+- animations, transitions and the caret are off from the first paint (injected into `iframe.html`), canvases are hidden (pdf.js paints them progressively);
+- `Date` is frozen, the timezone is UTC, the locale is `en-US`, the color scheme is light;
+- `Math.random` is seeded and `crypto.randomUUID` is a counter;
+- remote requests never leave the machine: images become a fixed placeholder, anything else fails;
+- Chromium runs with `--disable-partial-raster`: repainting over an already painted tile leaves anti-aliased corners 1/255 off, depending on the paint history;
+- each story gets a fresh browser context, and only counts as settled once no request or short timeout is pending and consecutive captures are identical.
+
+A story that stays nondeterministic despite all this (it never stops ticking, or renders its own URL) takes the `no-visual` tag. No story needs it today: a timer chain that ends, like `CountDown`, is simply waited for, and the final state is what gets compared.
+
+```tsx
+export const Ticking = Template.bind({});
+Ticking.tags = ["no-visual"];
+```
+
+A story that never settles fails the run and tells you so. `yarn visual --no-build` reuses the last build (only when `src/` did not change since), and `--filter=<text>` compares only the story ids containing `<text>`. Chromium missing from the cache: `npx playwright install chromium`.
+
+---
+
 ## Pipeline, on every change
 
 ```
