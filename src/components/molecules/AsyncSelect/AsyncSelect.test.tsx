@@ -45,7 +45,7 @@ describe("AsyncSelect", () => {
 		loadOptions.mockClear();
 
 		await userEvent.click(screen.getByRole("combobox"));
-		const input = screen.getByRole("textbox");
+		const input = screen.getByRole("combobox");
 		await userEvent.type(input, "al");
 
 		expect(loadOptions).not.toHaveBeenCalled();
@@ -78,7 +78,7 @@ describe("AsyncSelect", () => {
 		// mount call is the first mockImplementationOnce — trigger a second
 		// request (search) which resolves *before* the first one.
 		await userEvent.click(screen.getByRole("combobox"));
-		await userEvent.type(screen.getByRole("textbox"), "a");
+		await userEvent.type(screen.getByRole("combobox"), "a");
 		await waitFor(() => expect(loadOptions).toHaveBeenCalledTimes(2));
 
 		await act(async () => {

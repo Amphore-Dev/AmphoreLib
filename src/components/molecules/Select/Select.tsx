@@ -68,6 +68,10 @@ export interface ISelectProps<T = string> {
 	/** Leading icon (see Picto), same convention as Input — an icon name, or an `IPictoProps` object to pass other Picto props. */
 	picto?: TPictoName | IPictoProps;
 	label?: string;
+	/** Names the field when there's no visible `label`. */
+	"aria-label"?: string;
+	/** Id of an element naming the field — an external label, like FormRenderer's. */
+	"aria-labelledby"?: string;
 	error?: string;
 	hideError?: boolean;
 	disabled?: boolean;
@@ -172,6 +176,8 @@ export function Select<T = string>({
 	clearLabel: clearLabelProp,
 	picto,
 	label,
+	"aria-label": ariaLabel,
+	"aria-labelledby": ariaLabelledBy,
 	error,
 	hideError = false,
 	disabled = false,
@@ -201,6 +207,8 @@ export function Select<T = string>({
 	// <label htmlFor> cannot name: the label gets an id and the combobox,
 	// its listbox and the search field point at it instead.
 	const labelId = label ? `${selectId}-label` : undefined;
+	const labelledBy = ariaLabelledBy ?? labelId;
+	const errorId = `${selectId}-error`;
 	const [open, setOpen] = useState(false);
 	const [search, setSearch] = useState("");
 	const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -340,10 +348,17 @@ export function Select<T = string>({
 		keyboardHandlers: false,
 	});
 	const dismiss = useDismiss(context, { escapeKey: false });
-	useEscapeLayer(open, () => {
+	// Closing drops the search input, and focus with it unless it's sent back
+	// to the trigger first. Not for an outside press: that's somewhere else
+	// the person chose to go.
+	const focusTrigger = () =>
+		(refs.domReference.current as HTMLElement | null)?.focus();
+	const closeAndFocusTrigger = () => {
+		focusTrigger();
 		setOpen(false);
 		setSearch("");
-	});
+	};
+	useEscapeLayer(open, closeAndFocusTrigger);
 	const role = useRole(context, { role: "listbox" });
 	// virtual: true keeps real DOM focus on the trigger (or the search input),
 	// options are only "active" via aria-activedescendant — the correct
@@ -380,6 +395,7 @@ export function Select<T = string>({
 			commit(next);
 		} else {
 			commit([option.value]);
+			focusTrigger();
 			setOpen(false);
 		}
 
@@ -391,7 +407,21 @@ export function Select<T = string>({
 	// since it broke Space-while-typing — so opening AND committing on Enter
 	// are both entirely on us here.
 	const handleTriggerKeyDown = (e: React.KeyboardEvent) => {
-		if (e.key !== "Enter") return;
+		// A chip's remove button or the clear button: their keys are their own.
+		// preventDefault below would stop Enter from ever clicking them.
+		if (e.target !== e.currentTarget && e.target !== searchInputRef.current)
+			return;
+
+		if (e.key === "Tab" && open) {
+			closeAndFocusTrigger();
+			return;
+		}
+
+		// Space behaves like Enter, except where it's text: in the search
+		// input, or mid-typeahead ("new y" reaching "New York").
+		const isSpace =
+			e.key === " " && !searchable && !context.dataRef.current.typing;
+		if (e.key !== "Enter" && !isSpace) return;
 
 		if (!open) {
 			// Arrow keys already open via useListNavigation's default
@@ -402,8 +432,7 @@ export function Select<T = string>({
 			return;
 		}
 
-		// Enter only, not Space — Space needs to stay a literal character when
-		// `searchable` (typing it into the filter input), not a commit key.
+		if (isSpace) e.preventDefault();
 		if (activeIndex != null) {
 			const option = filteredOptions[activeIndex];
 			if (option) {
@@ -413,15 +442,18 @@ export function Select<T = string>({
 		}
 	};
 
+	// Both of these unmount the button that was just pressed.
 	const handleClear = (e: React.MouseEvent) => {
 		e.stopPropagation();
 		commit([]);
+		focusTrigger();
 	};
 
 	// Badge's remove button already stops propagation internally (see
 	// Badge.tsx) before calling onRemove, so no event to handle here.
 	const handleRemoveChip = (optionValue: T) => {
 		commit(selectedValues.filter((v) => !valuesEqual(v, optionValue)));
+		focusTrigger();
 	};
 
 	const selectedOptions = flatOptions.filter((o) => isSelected(o));
@@ -434,6 +466,46 @@ export function Select<T = string>({
 	useEffect(() => {
 		if (searchable && open) searchInputRef.current?.focus();
 	}, [searchable, open]);
+
+	const fieldState = {
+		"aria-invalid": !!error || undefined,
+		"aria-required": required || undefined,
+		"aria-describedby": error && !hideError ? errorId : undefined,
+		"aria-labelledby": labelledBy,
+		"aria-label": labelledBy ? undefined : ariaLabel,
+	};
+
+	const {
+		role: comboboxRole,
+		"aria-expanded": ariaExpanded,
+		"aria-haspopup": ariaHasPopup,
+		"aria-controls": ariaControls,
+		"aria-autocomplete": ariaAutocomplete,
+		"aria-activedescendant": ariaActiveDescendant,
+		...triggerProps
+	} = getReferenceProps({ onKeyDown: handleTriggerKeyDown });
+	const comboboxProps = {
+		role: comboboxRole,
+		"aria-expanded": ariaExpanded,
+		"aria-haspopup": ariaHasPopup,
+		"aria-controls": ariaControls,
+		"aria-autocomplete": ariaAutocomplete,
+		"aria-activedescendant": ariaActiveDescendant,
+		...fieldState,
+	} as React.HTMLAttributes<HTMLElement>;
+
+	// While searching, focus is on the input: it has to be the combobox,
+	// carrying aria-activedescendant, or arrowing through the options is
+	// silent. The field around it goes back to being a plain box.
+	const isSearching = searchable && open && !(multiple && hasValue);
+
+	const status = !open
+		? ""
+		: isLoading
+			? loadingMessage
+			: filteredOptions.length === 0
+				? noResultsMessage
+				: "";
 
 	return (
 		<div className={cn([styles.wrapper, wrapperClassName])}>
@@ -451,9 +523,10 @@ export function Select<T = string>({
 				data-color={color}
 				data-disabled={disabled || undefined}
 				data-invalid={!!error || undefined}
-				tabIndex={disabled ? undefined : 0}
-				aria-labelledby={labelId}
-				{...getReferenceProps({ onKeyDown: handleTriggerKeyDown })}
+				tabIndex={disabled ? undefined : isSearching ? -1 : 0}
+				aria-disabled={disabled || undefined}
+				{...(isSearching ? {} : comboboxProps)}
+				{...triggerProps}
 			>
 				{!!picto && (
 					<Picto {...getPicto(picto)} className={styles.picto} />
@@ -489,7 +562,8 @@ export function Select<T = string>({
 						<input
 							ref={searchInputRef}
 							className={styles.searchInput}
-							aria-labelledby={labelId}
+							{...comboboxProps}
+							aria-autocomplete="list"
 							value={search}
 							placeholder={
 								selectedOptions[0]?.label ?? placeholder
@@ -538,10 +612,20 @@ export function Select<T = string>({
 						className={styles.chevron}
 					/>
 					{isLoading && (
-						<Spinner size="sm" className={styles.loadingIcon} />
+						<Spinner
+							size="sm"
+							className={styles.loadingIcon}
+							aria-hidden
+						/>
 					)}
 				</div>
 			</div>
+
+			{/* The listbox's own messages can't be announced: that's not
+			    something a listbox may contain. */}
+			<span role="status" className={styles.srOnly}>
+				{status}
+			</span>
 
 			{open && (
 				// Inline by default — can get clipped by an ancestor's
@@ -553,12 +637,14 @@ export function Select<T = string>({
 						ref={refs.setFloating}
 						style={floatingStyles}
 						className={styles.listbox}
-						aria-labelledby={labelId}
+						aria-labelledby={labelledBy}
+						aria-label={labelledBy ? undefined : ariaLabel}
+						aria-multiselectable={multiple || undefined}
 						{...getFloatingProps()}
 					>
 						{isLoading ? (
 							<div className={styles.loading}>
-								<Spinner size="sm" />
+								<Spinner size="sm" aria-hidden />
 								{loadingMessage}
 							</div>
 						) : filteredOptions.length === 0 ? (
@@ -627,7 +713,9 @@ export function Select<T = string>({
 				</PortalOrInline>
 			)}
 
-			{!hideError && <InputErrorMessage>{error}</InputErrorMessage>}
+			{!hideError && (
+				<InputErrorMessage id={errorId}>{error}</InputErrorMessage>
+			)}
 		</div>
 	);
 }

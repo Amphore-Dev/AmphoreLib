@@ -1,3 +1,4 @@
+@use "../../../styles/a11y";
 @use "../../../styles/field" as field;
 @use "../../../styles/touch" as touch;
 
@@ -175,4 +176,8 @@
 
 .listboxFooter {
 	border-top: 1px solid var(--amp-color-border);
+}
+
+.srOnly {
+	@include a11y.visually-hidden;
 }
