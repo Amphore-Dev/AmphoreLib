@@ -1,6 +1,8 @@
-import React, { forwardRef, HTMLAttributes } from "react";
+import React, { ComponentPropsWithoutRef, forwardRef } from "react";
 
 import { cn } from "@utils/cn";
+
+import { ITestIdProps } from "@interfaces/index";
 
 import styles from "./Card.module.scss";
 
@@ -18,7 +20,8 @@ export interface ICardShadow {
 	blur?: number;
 }
 
-export interface ICardProps extends HTMLAttributes<HTMLDivElement> {
+export interface ICardProps
+	extends ComponentPropsWithoutRef<"div">, ITestIdProps {
 	children?: React.ReactNode;
 	/** Drop shadow depth (1 = subtle, 5 = furthest off the page), border removed. Omit for a plain bordered card. */
 	elevation?: TCardElevation;
@@ -41,6 +44,8 @@ export interface ICardProps extends HTMLAttributes<HTMLDivElement> {
  * forwardRef so it can double as the DOM node a floating/positioned
  * component (e.g. Modal's panel) attaches its own ref to, instead of that
  * consumer having to wrap a second plain div around it just for the ref.
+ *
+ * Native props and `ref` go to the root `<div>`.
  */
 export const Card = forwardRef<HTMLDivElement, ICardProps>(
 	(

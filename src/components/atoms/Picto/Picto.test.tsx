@@ -1,7 +1,9 @@
 import React from "react";
 
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+
+import { queryPicto } from "../../../../tests/queryPicto";
 
 import { Picto } from "./Picto";
 
@@ -11,7 +13,7 @@ describe("Picto", () => {
 		"draws the %s picto by name",
 		(icon) => {
 			const { container } = render(<Picto icon={icon} />);
-			expect(screen.getByTestId(icon)).toBeInTheDocument();
+			expect(queryPicto(icon)).toBeInTheDocument();
 			expect(container.querySelector("svg")).toBeInTheDocument();
 		}
 	);

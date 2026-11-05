@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ComponentPropsWithoutRef, forwardRef } from "react";
 
 import type { TPictoName } from "@constants/index";
 
@@ -11,10 +11,7 @@ import type { IPictoProps } from "../Picto/Picto";
 
 import styles from "./NavItem.module.scss";
 
-export interface INavItemProps extends Omit<
-	React.AnchorHTMLAttributes<HTMLAnchorElement>,
-	"className" | "children"
-> {
+export interface INavItemProps extends ComponentPropsWithoutRef<"a"> {
 	href: string;
 	/** Highlights this item as the current page — router-agnostic: the caller decides (`useLocation`, `NavLink`'s own match logic, ...) and passes the result in. */
 	isActive?: boolean;
@@ -33,20 +30,27 @@ export interface INavItemProps extends Omit<
  * routing, spread your router's own navigation over it (an `onClick` that
  * calls `e.preventDefault()` + `navigate(href)` is the common, accessible
  * way to do that without needing a polymorphic `as` — every native anchor
- * prop passes through).
+ * prop passes through). Native props and `ref` go to the `<a>`.
  */
-export const NavItem: React.FC<INavItemProps> = ({
-	href,
-	isActive = false,
-	isReduced = false,
-	picto,
-	children,
-	className = "",
-	...props
-}) => {
+const NavItemBase: React.ForwardRefRenderFunction<
+	HTMLAnchorElement,
+	INavItemProps
+> = (
+	{
+		href,
+		isActive = false,
+		isReduced = false,
+		picto,
+		children,
+		className = "",
+		...props
+	},
+	ref
+) => {
 	const link = (
 		<a
 			{...props}
+			ref={ref}
 			href={href}
 			className={cn([styles.link, className])}
 			data-active={isActive || undefined}
@@ -68,3 +72,6 @@ export const NavItem: React.FC<INavItemProps> = ({
 		</Tooltip>
 	);
 };
+
+export const NavItem = forwardRef(NavItemBase);
+NavItem.displayName = "NavItem";

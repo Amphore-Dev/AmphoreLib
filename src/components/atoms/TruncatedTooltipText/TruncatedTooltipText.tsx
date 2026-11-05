@@ -1,6 +1,12 @@
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, {
+	ComponentPropsWithoutRef,
+	forwardRef,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from "react";
 
-import { type Placement } from "@floating-ui/react";
+import { useMergeRefs, type Placement } from "@floating-ui/react";
 
 import { cn } from "@utils/cn";
 
@@ -8,7 +14,7 @@ import { Tooltip } from "../../molecules/Tooltip/Tooltip";
 
 import styles from "./TruncatedTooltipText.module.scss";
 
-export interface ITruncatedTooltipTextProps {
+export interface ITruncatedTooltipTextProps extends ComponentPropsWithoutRef<"span"> {
 	children: React.ReactNode;
 	/** Lines before truncating. 1 = single-line ellipsis, >1 = multi-line clamp. Defaults to 1. */
 	maxLines?: number;
@@ -30,16 +36,27 @@ export interface ITruncatedTooltipTextProps {
  * timing race, not hypothetical: hovering right as a Storybook story
  * settles hits it easily). `useLayoutEffect` measures before paint too, so
  * there's no frame where the untruncated/disabled version is visible.
+ *
+ * Native props and `ref` go to the text `<span>`.
  */
-export const TruncatedTooltipText: React.FC<ITruncatedTooltipTextProps> = ({
-	children,
-	maxLines = 1,
-	placement = "top",
-	tooltip = true,
-	className = "",
-	tooltipClassName = "",
-}) => {
+const TruncatedTooltipTextBase: React.ForwardRefRenderFunction<
+	HTMLSpanElement,
+	ITruncatedTooltipTextProps
+> = (
+	{
+		children,
+		maxLines = 1,
+		placement = "top",
+		tooltip = true,
+		className = "",
+		tooltipClassName = "",
+		style,
+		...props
+	},
+	forwardedRef
+) => {
 	const ref = useRef<HTMLSpanElement>(null);
+	const mergedRef = useMergeRefs([ref, forwardedRef]);
 	const [isTruncated, setIsTruncated] = useState(false);
 	const isMultiLine = maxLines > 1;
 
@@ -64,13 +81,16 @@ export const TruncatedTooltipText: React.FC<ITruncatedTooltipTextProps> = ({
 
 	const content = (
 		<span
-			ref={ref}
+			{...props}
+			ref={mergedRef}
 			className={cn([
 				styles.text,
 				isMultiLine ? styles.multiLine : styles.singleLine,
 				className,
 			])}
-			style={isMultiLine ? { WebkitLineClamp: maxLines } : undefined}
+			style={
+				isMultiLine ? { ...style, WebkitLineClamp: maxLines } : style
+			}
 		>
 			{children}
 		</span>
@@ -86,3 +106,6 @@ export const TruncatedTooltipText: React.FC<ITruncatedTooltipTextProps> = ({
 		</Tooltip>
 	);
 };
+
+export const TruncatedTooltipText = forwardRef(TruncatedTooltipTextBase);
+TruncatedTooltipText.displayName = "TruncatedTooltipText";

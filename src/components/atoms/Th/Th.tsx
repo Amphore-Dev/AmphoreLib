@@ -1,5 +1,6 @@
-import React, { HTMLAttributes } from "react";
+import React, { ComponentPropsWithoutRef, forwardRef } from "react";
 
+import { composeHandlers } from "@utils/UHandlers";
 import { cn } from "@utils/cn";
 
 import { TSortDirection } from "@interfaces/index";
@@ -8,7 +9,7 @@ import { Picto } from "../Picto/Picto";
 
 import styles from "./Th.module.scss";
 
-export interface IThProps extends HTMLAttributes<HTMLDivElement> {
+export interface IThProps extends ComponentPropsWithoutRef<"div"> {
 	sortable?: boolean;
 	sortDirection?: TSortDirection;
 	onSort?: () => void;
@@ -16,18 +17,28 @@ export interface IThProps extends HTMLAttributes<HTMLDivElement> {
 	className?: string;
 }
 
-/** V2 Th — a grid column header, same "not a real `<th>`" reasoning as Td. */
-export const Th: React.FC<IThProps> = ({
-	children,
-	className = "",
-	sortable = false,
-	sortDirection,
-	onSort,
-	sticky,
-	...props
-}) => (
+/**
+ * V2 Th — a grid column header, same "not a real `<th>`" reasoning as Td.
+ * Native props and `ref` go to the root `<div>`; `onClick`/`onKeyDown` run
+ * alongside the sort handling.
+ */
+const ThBase: React.ForwardRefRenderFunction<HTMLDivElement, IThProps> = (
+	{
+		children,
+		className = "",
+		sortable = false,
+		sortDirection,
+		onSort,
+		sticky,
+		onClick,
+		onKeyDown,
+		...props
+	},
+	ref
+) => (
 	<div
 		{...props}
+		ref={ref}
 		role="columnheader"
 		aria-sort={
 			sortDirection
@@ -36,17 +47,19 @@ export const Th: React.FC<IThProps> = ({
 					: "descending"
 				: undefined
 		}
-		onClick={sortable ? onSort : undefined}
+		onClick={
+			sortable ? composeHandlers(onClick, () => onSort?.()) : onClick
+		}
 		onKeyDown={
 			sortable
-				? (e) => {
+				? composeHandlers(onKeyDown, (e) => {
 						if (e.key !== "Enter" && e.key !== " ") return;
 						e.preventDefault();
 						onSort?.();
-					}
-				: undefined
+					})
+				: onKeyDown
 		}
-		tabIndex={sortable ? 0 : undefined}
+		tabIndex={sortable ? 0 : props.tabIndex}
 		data-sortable={sortable || undefined}
 		data-sticky={sticky}
 		className={cn([styles.th, className])}
@@ -65,3 +78,6 @@ export const Th: React.FC<IThProps> = ({
 		)}
 	</div>
 );
+
+export const Th = forwardRef(ThBase);
+Th.displayName = "Th";

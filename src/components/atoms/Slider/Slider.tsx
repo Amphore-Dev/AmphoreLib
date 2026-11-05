@@ -1,19 +1,23 @@
-import React, { useId } from "react";
+import React, { forwardRef, useId } from "react";
 
 import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
 
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
-import { TColor, TSize } from "@interfaces/index";
+import { ITestIdProps, TColor, TElementProps, TSize } from "@interfaces/index";
 
 import { InputErrorMessage } from "../InputErrorMessage/InputErrorMessage";
 
 import styles from "./Slider.module.scss";
 
-export interface ISliderProps extends Omit<
-	React.InputHTMLAttributes<HTMLInputElement>,
-	"onChange" | "value" | "size" | "color" | "min" | "max" | "step"
-> {
+export interface ISliderProps
+	extends
+		Omit<
+			React.ComponentPropsWithoutRef<"input">,
+			"onChange" | "value" | "size" | "color" | "min" | "max" | "step"
+		>,
+		ITestIdProps {
 	value: number;
 	onChange: (value: number) => void;
 	min?: number;
@@ -32,8 +36,11 @@ export interface ISliderProps extends Omit<
 	color?: TColor;
 	disabled?: boolean;
 	required?: boolean;
+	/** The field box (track and `<input>`) — same convention as Input. */
 	className?: string;
 	wrapperClassName?: string;
+	/** Native props of the outer container (label, field and error message). */
+	wrapperProps?: TElementProps<"div">;
 }
 
 /**
@@ -44,31 +51,44 @@ export interface ISliderProps extends Omit<
  * `<input type="range">` sits on top, fully transparent — it's what
  * actually receives drag/keyboard/focus and is the only thing screen
  * readers see; the divs are purely visual, `aria-hidden`.
+ *
+ * Native props and `ref` go to the `<input>`, `className` to the field box,
+ * `wrapperProps` to the outer container. Derived testid: `-error`.
  */
-export const Slider: React.FC<ISliderProps> = ({
-	value,
-	onChange,
-	min = 0,
-	max = 100,
-	step = 1,
-	label,
-	showValue = true,
-	showThumb = false,
-	centered = false,
-	error,
-	hideError = false,
-	size: sizeProp,
-	color = "primary",
-	disabled = false,
-	required = false,
-	className = "",
-	wrapperClassName = "",
-	...props
-}) => {
+const SliderBase: React.ForwardRefRenderFunction<
+	HTMLInputElement,
+	ISliderProps
+> = (
+	{
+		value,
+		onChange,
+		min = 0,
+		max = 100,
+		step = 1,
+		label,
+		showValue = true,
+		showThumb = false,
+		centered = false,
+		error,
+		hideError = false,
+		size: sizeProp,
+		color = "primary",
+		disabled = false,
+		required = false,
+		className = "",
+		wrapperClassName = "",
+		wrapperProps,
+		id,
+		"aria-describedby": ariaDescribedBy,
+		...props
+	},
+	ref
+) => {
 	const { size: defaultSize } = useAmphoreDefaults();
 	const size = sizeProp ?? defaultSize ?? "md";
 	const generatedId = useId();
-	const errorId = `${generatedId}-error`;
+	const inputId = id ?? generatedId;
+	const errorId = `${inputId}-error`;
 
 	const percent = max === min ? 0 : ((value - min) / (max - min)) * 100;
 	const centerPercent =
@@ -77,11 +97,18 @@ export const Slider: React.FC<ISliderProps> = ({
 	const fillWidth = centered ? Math.abs(percent - centerPercent) : percent;
 
 	return (
-		<div className={cn([styles.wrapper, wrapperClassName])}>
+		<div
+			{...wrapperProps}
+			className={cn([
+				styles.wrapper,
+				wrapperClassName,
+				wrapperProps?.className,
+			])}
+		>
 			{(label || showValue) && (
 				<div className={styles.head}>
 					{label && (
-						<label className={styles.label} htmlFor={generatedId}>
+						<label className={styles.label} htmlFor={inputId}>
 							{label}
 							{required && (
 								<span className={styles.required}>*</span>
@@ -113,7 +140,8 @@ export const Slider: React.FC<ISliderProps> = ({
 
 				<input
 					{...props}
-					id={generatedId}
+					ref={ref}
+					id={inputId}
 					type="range"
 					min={min}
 					max={max}
@@ -121,15 +149,26 @@ export const Slider: React.FC<ISliderProps> = ({
 					value={value}
 					disabled={disabled}
 					aria-invalid={!!error}
-					aria-describedby={error && !hideError ? errorId : undefined}
+					aria-describedby={
+						cn([ariaDescribedBy, error && !hideError && errorId]) ||
+						undefined
+					}
 					onChange={(e) => onChange(Number(e.target.value))}
 					className={styles.input}
 				/>
 			</div>
 
 			{!hideError && (
-				<InputErrorMessage id={errorId}>{error}</InputErrorMessage>
+				<InputErrorMessage
+					id={errorId}
+					data-testid={deriveTestId(props["data-testid"], "error")}
+				>
+					{error}
+				</InputErrorMessage>
 			)}
 		</div>
 	);
 };
+
+export const Slider = forwardRef(SliderBase);
+Slider.displayName = "Slider";

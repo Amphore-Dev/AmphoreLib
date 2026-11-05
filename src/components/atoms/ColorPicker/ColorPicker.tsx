@@ -1,9 +1,12 @@
-import React from "react";
+import React, { forwardRef } from "react";
 
+import { omit, pick } from "lodash";
 import ReactGPicker from "react-gcolor-picker";
 import { type IPropsMain } from "react-gcolor-picker/dist/components/Colorpicker/types";
 
 import { cn } from "@utils/cn";
+
+import { COLOR_PICKER_OPTION_KEYS } from "./CColorPicker";
 
 import styles from "./ColorPicker.module.scss";
 
@@ -28,10 +31,13 @@ const DEFAULT_COLORS = [
 	"#000000",
 ];
 
-export interface IColorPickerProps extends Omit<
-	IPropsMain,
-	"onChange" | "value"
-> {
+export interface IColorPickerProps
+	extends
+		Omit<IPropsMain, "onChange" | "value">,
+		Omit<
+			React.ComponentPropsWithoutRef<"div">,
+			"onChange" | "value" | "children"
+		> {
 	value: string;
 	onChange: (value: string) => void;
 	/** Removes the panel's own padding — e.g. when it's already framed by whatever renders it (a Popover with its own padding). */
@@ -47,24 +53,35 @@ export interface IColorPickerProps extends Omit<
  * `value`/`onChange` contract already matches this lib's — restyled via
  * `:global()` overrides on its class names (see .module.scss) instead of
  * a from-scratch color picker, same reasoning as DatePicker/react-day-picker.
+ *
+ * Native props and `ref` go to the root `<div>`; the picker's own options
+ * (`showAlpha`, `gradient`...) to the picker.
  */
-export const ColorPicker: React.FC<IColorPickerProps> = ({
-	value,
-	onChange,
-	format = "hex",
-	defaultColors = DEFAULT_COLORS,
-	noPadding = false,
-	noElevation = false,
-	className = "",
-	...props
-}) => (
+const ColorPickerBase: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	IColorPickerProps
+> = (
+	{
+		value,
+		onChange,
+		format = "hex",
+		defaultColors = DEFAULT_COLORS,
+		noPadding = false,
+		noElevation = false,
+		className = "",
+		...props
+	},
+	ref
+) => (
 	<div
+		{...omit(props, COLOR_PICKER_OPTION_KEYS)}
+		ref={ref}
 		className={cn([styles.picker, className])}
 		data-no-padding={noPadding || undefined}
 		data-no-elevation={noElevation || undefined}
 	>
 		<ReactGPicker
-			{...props}
+			{...pick(props, COLOR_PICKER_OPTION_KEYS)}
 			value={value}
 			onChange={onChange}
 			format={format}
@@ -72,3 +89,6 @@ export const ColorPicker: React.FC<IColorPickerProps> = ({
 		/>
 	</div>
 );
+
+export const ColorPicker = forwardRef(ColorPickerBase);
+ColorPicker.displayName = "ColorPicker";

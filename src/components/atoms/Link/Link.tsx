@@ -1,4 +1,4 @@
-import React, { AnchorHTMLAttributes } from "react";
+import React, { forwardRef } from "react";
 
 import { cn } from "@utils/cn";
 
@@ -10,7 +10,10 @@ import styles from "./Link.module.scss";
 
 export type TLinkUnderline = "always" | "hover" | "none";
 
-export interface ILinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
+export interface ILinkProps extends Omit<
+	React.ComponentPropsWithoutRef<"a">,
+	"color"
+> {
 	color?: TColor;
 	underline?: TLinkUnderline;
 	/** Adds target="_blank" rel="noopener noreferrer" and a trailing icon. */
@@ -30,20 +33,29 @@ export interface ILinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
  * polymorphic; keeping it a plain anchor means it works with zero
  * router-specific code, same "no ambient coupling" rule as the form fields
  * (see memory/react-library-fields-audit.md).
+ *
+ * Native props and `ref` go to the `<a>`.
  */
-export const Link: React.FC<ILinkProps> = ({
-	color = "primary",
-	underline = "hover",
-	external = false,
-	disabled = false,
-	className = "",
-	children,
-	href,
-	...props
-}) => {
+const LinkBase: React.ForwardRefRenderFunction<
+	HTMLAnchorElement,
+	ILinkProps
+> = (
+	{
+		color = "primary",
+		underline = "hover",
+		external = false,
+		disabled = false,
+		className = "",
+		children,
+		href,
+		...props
+	},
+	ref
+) => {
 	return (
 		<a
 			{...props}
+			ref={ref}
 			{...(external
 				? { target: "_blank", rel: "noopener noreferrer" }
 				: {})}
@@ -60,3 +72,6 @@ export const Link: React.FC<ILinkProps> = ({
 		</a>
 	);
 };
+
+export const Link = forwardRef(LinkBase);
+Link.displayName = "Link";

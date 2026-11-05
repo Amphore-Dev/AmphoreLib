@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef } from "react";
 
 import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
@@ -10,7 +10,7 @@ import { TColor, TLabel, TSize } from "@interfaces/index";
 import styles from "./Spinner.module.scss";
 
 export interface ISpinnerProps extends Omit<
-	React.HTMLAttributes<HTMLSpanElement>,
+	React.ComponentPropsWithoutRef<"span">,
 	"color"
 > {
 	color?: TColor;
@@ -29,15 +29,23 @@ export type TSpinnerLabels = Pick<ISpinnerProps, "label">;
  * Button's internal `loading` state but standalone (e.g. inside a Card,
  * over a section). role="status" + visually-hidden label, no aria-busy on
  * itself — that belongs on whatever container it's loading into.
+ *
+ * Native props and `ref` go to the root `<span>`.
  */
-export const Spinner: React.FC<ISpinnerProps> = ({
-	color = "primary",
-	size: sizeProp,
-	label: labelProp,
-	className = "",
-	inline = false,
-	...props
-}) => {
+const SpinnerBase: React.ForwardRefRenderFunction<
+	HTMLSpanElement,
+	ISpinnerProps
+> = (
+	{
+		color = "primary",
+		size: sizeProp,
+		label: labelProp,
+		className = "",
+		inline = false,
+		...props
+	},
+	ref
+) => {
 	const { size: defaultSize } = useAmphoreDefaults();
 	const size = sizeProp ?? defaultSize ?? "md";
 	const { resolve } = useAmphoreLabels("Spinner");
@@ -46,6 +54,7 @@ export const Spinner: React.FC<ISpinnerProps> = ({
 	return (
 		<span
 			{...props}
+			ref={ref}
 			role="status"
 			className={cn([styles.spinner, className, inline && styles.inline])}
 			data-color={color}
@@ -55,3 +64,6 @@ export const Spinner: React.FC<ISpinnerProps> = ({
 		</span>
 	);
 };
+
+export const Spinner = forwardRef(SpinnerBase);
+Spinner.displayName = "Spinner";

@@ -4,6 +4,8 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { queryPicto } from "../../../../tests/queryPicto";
+
 import { Tabs, TabPanel } from "./Tabs";
 
 /** jsdom always reports scrollWidth/clientWidth as 0 — Tabs' scroll-arrow
@@ -158,7 +160,7 @@ describe("Tabs", () => {
 				onChange={() => {}}
 			/>
 		);
-		expect(screen.getByTestId("calendar")).toBeInTheDocument();
+		expect(queryPicto("calendar")).toBeInTheDocument();
 	});
 
 	describe("scroll arrows (overflowing tablist)", () => {

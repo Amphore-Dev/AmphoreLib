@@ -10,6 +10,7 @@ import {
 	expectInline,
 	expectPortaledWithScope,
 } from "../../../../tests/expectPortal";
+import { queryPicto } from "../../../../tests/queryPicto";
 
 import { ISelectProps, Select } from "./Select";
 
@@ -69,7 +70,7 @@ describe("Select", () => {
 		render(
 			<Select options={OPTIONS} onChange={() => {}} picto="calendar" />
 		);
-		expect(screen.getByTestId("calendar")).toBeInTheDocument();
+		expect(queryPicto("calendar")).toBeInTheDocument();
 	});
 
 	it("shows the selected option's label", () => {

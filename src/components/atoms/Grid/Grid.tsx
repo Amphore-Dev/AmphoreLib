@@ -1,10 +1,10 @@
-import React, { HTMLAttributes } from "react";
+import React, { ComponentPropsWithoutRef, forwardRef } from "react";
 
 import { cn } from "@utils/cn";
 
 import styles from "./Grid.module.scss";
 
-export interface IGridProps extends HTMLAttributes<HTMLDivElement> {
+export interface IGridProps extends ComponentPropsWithoutRef<"div"> {
 	/** Number of columns. Omit for a free-flowing layout (no fixed column count, items just auto-fill at `minItemWidth`). */
 	columns?: number;
 	minItemWidth?: string;
@@ -27,23 +27,31 @@ export interface IGridProps extends HTMLAttributes<HTMLDivElement> {
  * context, own `order` scoping), stacked by a plain flex-column wrapper;
  * see its own comment for why a single shared instance doesn't work for
  * that particular case regardless of Grid vs FlexGrid.
+ *
+ * Native props and `ref` go to the root `<div>`.
  */
-export const Grid: React.FC<IGridProps> = ({
-	columns,
-	minItemWidth = "200px",
-	gap = "1rem",
-	children,
-	className = "",
-	...props
-}) => {
+const GridBase: React.ForwardRefRenderFunction<HTMLDivElement, IGridProps> = (
+	{
+		columns,
+		minItemWidth = "200px",
+		gap = "1rem",
+		children,
+		className = "",
+		style,
+		...props
+	},
+	ref
+) => {
 	const [rowGap, columnGap = rowGap] = gap.split(" ");
 
 	return (
 		<div
 			{...props}
+			ref={ref}
 			className={cn([styles.grid, className])}
 			style={
 				{
+					...style,
 					gap: `${rowGap} ${columnGap}`,
 					"--_item-min-width": minItemWidth,
 					"--_gap": columnGap,
@@ -64,3 +72,6 @@ export const Grid: React.FC<IGridProps> = ({
 		</div>
 	);
 };
+
+export const Grid = forwardRef(GridBase);
+Grid.displayName = "Grid";

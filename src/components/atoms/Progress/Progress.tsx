@@ -1,14 +1,17 @@
-import React from "react";
+import React, { forwardRef } from "react";
 
 import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
 
 import { cn } from "@utils/cn";
 
-import { TColor, TSize } from "@interfaces/index";
+import { TColor, TElementProps, TSize } from "@interfaces/index";
 
 import styles from "./Progress.module.scss";
 
-export interface IProgressProps {
+export interface IProgressProps extends Omit<
+	React.ComponentPropsWithoutRef<"div">,
+	"color" | "children"
+> {
 	/** 0-100. Ignored (and not required) when `indeterminate`. */
 	value?: number;
 	/** Animated, unknown-duration state — no `value` to show. */
@@ -19,35 +22,55 @@ export interface IProgressProps {
 	label?: string;
 	/** Renders a "NN%" label next to the bar. No effect when `indeterminate`. */
 	showValue?: boolean;
+	/** The outer container (bar and value), like `wrapperProps`. */
 	className?: string;
+	/** Native props of the outer container (bar and value). */
+	wrapperProps?: TElementProps<"div">;
 }
 
 /**
  * V2 Progress — linear progress bar. Not a user input (no onChange): it's a
  * status display, so unlike the form fields `value` is just a plain prop,
  * not part of the "fully controlled" value/onChange contract those follow.
+ *
+ * Native props and `ref` go to the `role="progressbar"` element, the one
+ * `aria-*` attributes apply to; `className` and `wrapperProps` to the outer
+ * container.
  */
-export const Progress: React.FC<IProgressProps> = ({
-	value = 0,
-	indeterminate = false,
-	color = "primary",
-	size: sizeProp,
-	label,
-	showValue = false,
-	className = "",
-}) => {
+const ProgressBase: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	IProgressProps
+> = (
+	{
+		value = 0,
+		indeterminate = false,
+		color = "primary",
+		size: sizeProp,
+		label,
+		showValue = false,
+		className = "",
+		wrapperProps,
+		...props
+	},
+	ref
+) => {
 	const { size: defaultSize } = useAmphoreDefaults();
 	const size = sizeProp ?? defaultSize ?? "md";
 	const clamped = Math.min(100, Math.max(0, value));
 
 	return (
-		<div className={cn([styles.wrapper, className])}>
+		<div
+			{...wrapperProps}
+			className={cn([styles.wrapper, className, wrapperProps?.className])}
+		>
 			<div
+				aria-label={label}
+				{...props}
+				ref={ref}
 				role="progressbar"
 				aria-valuenow={indeterminate ? undefined : clamped}
 				aria-valuemin={0}
 				aria-valuemax={100}
-				aria-label={label}
 				className={styles.track}
 				data-size={size}
 				data-color={color}
@@ -65,3 +88,6 @@ export const Progress: React.FC<IProgressProps> = ({
 		</div>
 	);
 };
+
+export const Progress = forwardRef(ProgressBase);
+Progress.displayName = "Progress";

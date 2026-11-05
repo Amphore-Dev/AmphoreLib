@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef } from "react";
 
 import { cn } from "@utils/cn";
 
@@ -7,7 +7,7 @@ import styles from "./Skeleton.module.scss";
 export type TSkeletonVariant = "text" | "circle" | "rect";
 
 export interface ISkeletonProps extends Omit<
-	React.HTMLAttributes<HTMLDivElement>,
+	React.ComponentPropsWithoutRef<"div">,
 	"children"
 > {
 	variant?: TSkeletonVariant;
@@ -21,20 +21,25 @@ export interface ISkeletonProps extends Omit<
  * the same neutral shimmer, dimensions via `width`/`height` instead of a
  * fixed scale. `aria-hidden="true"` on every instance — announce the
  * loading state via a wrapping `role="status"`, not each shape.
+ *
+ * Native props and `ref` go to the root `<div>`.
  */
-export const Skeleton: React.FC<ISkeletonProps> = ({
-	variant = "text",
-	width,
-	height,
-	className = "",
-	style,
-	...props
-}) => (
+const SkeletonBase: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	ISkeletonProps
+> = (
+	{ variant = "text", width, height, className = "", style, ...props },
+	ref
+) => (
 	<div
 		{...props}
+		ref={ref}
 		aria-hidden="true"
 		className={cn([styles.skeleton, className])}
 		data-variant={variant}
 		style={{ width, height, ...style }}
 	/>
 );
+
+export const Skeleton = forwardRef(SkeletonBase);
+Skeleton.displayName = "Skeleton";

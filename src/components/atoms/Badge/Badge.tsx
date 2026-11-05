@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef } from "react";
 
 import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
@@ -6,9 +6,10 @@ import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 import type { TPictoName } from "@constants/index";
 
 import { getPicto } from "@utils/UPicto";
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
-import { TColor, TLabel, TSize } from "@interfaces/index";
+import { ITestIdProps, TColor, TLabel, TSize } from "@interfaces/index";
 
 import type { IPictoProps } from "../Picto/Picto";
 import { Picto } from "../Picto/Picto";
@@ -17,10 +18,10 @@ import styles from "./Badge.module.scss";
 
 export type TBadgeVariant = "solid" | "outline" | "tint";
 
-export interface IBadgeProps extends Omit<
-	React.HTMLAttributes<HTMLSpanElement>,
-	"color"
-> {
+export interface IBadgeProps
+	extends
+		Omit<React.ComponentPropsWithoutRef<"span">, "color">,
+		ITestIdProps {
 	children?: React.ReactNode;
 	color?: TColor;
 	variant?: TBadgeVariant;
@@ -52,19 +53,27 @@ export type TBadgeLabels = Pick<IBadgeProps, "removeLabel">;
  * V2 Badge — status/label pill, optionally removable (chip/tag usage). Same
  * convention as Button (data-* attributes, `--_color*` local vars per
  * [data-color], config.defaults.size fallback).
+ *
+ * Native props and `ref` go to the root `<span>`. Derived testid: `-remove`.
  */
-export const Badge: React.FC<IBadgeProps> = ({
-	children,
-	color = "primary",
-	variant = "tint",
-	size: sizeProp,
-	pill = false,
-	picto,
-	onRemove,
-	removeLabel: removeLabelProp,
-	className = "",
-	...props
-}) => {
+const BadgeBase: React.ForwardRefRenderFunction<
+	HTMLSpanElement,
+	IBadgeProps
+> = (
+	{
+		children,
+		color = "primary",
+		variant = "tint",
+		size: sizeProp,
+		pill = false,
+		picto,
+		onRemove,
+		removeLabel: removeLabelProp,
+		className = "",
+		...props
+	},
+	ref
+) => {
 	const { size: defaultSize } = useAmphoreDefaults();
 	const size = sizeProp ?? defaultSize ?? "md";
 	const { resolve } = useAmphoreLabels("Badge");
@@ -73,6 +82,7 @@ export const Badge: React.FC<IBadgeProps> = ({
 	return (
 		<span
 			{...props}
+			ref={ref}
 			className={cn([styles.badge, className])}
 			data-color={color}
 			data-variant={variant}
@@ -90,6 +100,7 @@ export const Badge: React.FC<IBadgeProps> = ({
 						onRemove();
 					}}
 					aria-label={removeLabel}
+					data-testid={deriveTestId(props["data-testid"], "remove")}
 				>
 					<Picto icon="cross" />
 				</button>
@@ -97,3 +108,6 @@ export const Badge: React.FC<IBadgeProps> = ({
 		</span>
 	);
 };
+
+export const Badge = forwardRef(BadgeBase);
+Badge.displayName = "Badge";

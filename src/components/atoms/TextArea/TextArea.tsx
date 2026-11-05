@@ -1,21 +1,27 @@
-import React, { useEffect, useId, useRef } from "react";
+import React, { forwardRef, useEffect, useId, useRef } from "react";
+
+import { useMergeRefs } from "@floating-ui/react";
 
 import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
 
 import { useDrag, useMediaQuery } from "@hooks/index";
 
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
-import { TColor, TSize } from "@interfaces/index";
+import { ITestIdProps, TColor, TElementProps, TSize } from "@interfaces/index";
 
 import { InputErrorMessage } from "../InputErrorMessage/InputErrorMessage";
 
 import styles from "./TextArea.module.scss";
 
-export interface ITextAreaProps extends Omit<
-	React.TextareaHTMLAttributes<HTMLTextAreaElement>,
-	"onChange" | "value" | "size" | "color"
-> {
+export interface ITextAreaProps
+	extends
+		Omit<
+			React.ComponentPropsWithoutRef<"textarea">,
+			"onChange" | "value" | "color"
+		>,
+		ITestIdProps {
 	/** Controlled value. Always `string` — pass `""`, never `null`/`undefined`, to stay controlled. */
 	value?: string;
 	onChange?: (
@@ -37,8 +43,11 @@ export interface ITextAreaProps extends Omit<
 	autoGrow?: boolean;
 	/** Caps `autoGrow` at this many rows — grows normally up to it, then scrolls internally instead of growing further. No effect without `autoGrow`. */
 	maxRows?: number;
+	/** The field box, not the bare `<textarea>` — same convention as Input. */
 	className?: string;
 	wrapperClassName?: string;
+	/** Native props of the outer container (label, field and error message). */
+	wrapperProps?: TElementProps<"div">;
 }
 
 const MIN_HEIGHT_PX = 48;
@@ -63,28 +72,40 @@ const COARSE_POINTER = "(pointer: coarse)";
  * growing with the content does the same job without a gesture. A hybrid
  * device (fine primary pointer, touchscreen too) keeps the handle — it
  * goes through `useDrag`, so a finger drags it as well as a mouse.
+ *
+ * Native props and `ref` go to the `<textarea>`, `className` to the field
+ * box, `wrapperProps` to the outer container. Derived testids:
+ * `-resize-handle`, `-error`.
  */
-export const TextArea: React.FC<ITextAreaProps> = ({
-	value = "",
-	onChange,
-	label,
-	error,
-	hideError = false,
-	size: sizeProp,
-	color = "primary",
-	rows = 3,
-	showCharCounter = false,
-	resizable = true,
-	autoGrow = false,
-	maxRows,
-	disabled = false,
-	required = false,
-	maxLength,
-	className = "",
-	wrapperClassName = "",
-	id,
-	...props
-}) => {
+const TextAreaBase: React.ForwardRefRenderFunction<
+	HTMLTextAreaElement,
+	ITextAreaProps
+> = (
+	{
+		value = "",
+		onChange,
+		label,
+		error,
+		hideError = false,
+		size: sizeProp,
+		color = "primary",
+		rows = 3,
+		showCharCounter = false,
+		resizable = true,
+		autoGrow = false,
+		maxRows,
+		disabled = false,
+		required = false,
+		maxLength,
+		className = "",
+		wrapperClassName = "",
+		wrapperProps,
+		id,
+		"aria-describedby": ariaDescribedBy,
+		...props
+	},
+	ref
+) => {
 	const { size: defaultSize } = useAmphoreDefaults();
 	const coarsePointer = useMediaQuery(COARSE_POINTER);
 	const showHandle = resizable && !disabled && !coarsePointer;
@@ -94,6 +115,7 @@ export const TextArea: React.FC<ITextAreaProps> = ({
 	const inputId = id ?? generatedId;
 	const errorId = `${inputId}-error`;
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
+	const mergedRef = useMergeRefs([textareaRef, ref]);
 	// Set once the user drags the handle. From then on, autoGrow treats it as
 	// a floor — it won't shrink the field back below a height the user chose
 	// themselves, but content can still grow past it. Persists across value
@@ -169,7 +191,14 @@ export const TextArea: React.FC<ITextAreaProps> = ({
 	});
 
 	return (
-		<div className={cn([styles.wrapper, wrapperClassName])}>
+		<div
+			{...wrapperProps}
+			className={cn([
+				styles.wrapper,
+				wrapperClassName,
+				wrapperProps?.className,
+			])}
+		>
 			{label && (
 				<label className={styles.label} htmlFor={inputId}>
 					{label}
@@ -186,7 +215,7 @@ export const TextArea: React.FC<ITextAreaProps> = ({
 			>
 				<textarea
 					{...props}
-					ref={textareaRef}
+					ref={mergedRef}
 					id={inputId}
 					rows={rows}
 					maxLength={maxLength}
@@ -195,7 +224,10 @@ export const TextArea: React.FC<ITextAreaProps> = ({
 					disabled={disabled}
 					required={required}
 					aria-invalid={!!error}
-					aria-describedby={error && !hideError ? errorId : undefined}
+					aria-describedby={
+						cn([ariaDescribedBy, error && !hideError && errorId]) ||
+						undefined
+					}
 					onChange={handleChange}
 				/>
 
@@ -203,7 +235,10 @@ export const TextArea: React.FC<ITextAreaProps> = ({
 					<div
 						className={styles.resizeHandle}
 						{...resize.handleProps}
-						data-testid="textarea-resize-handle"
+						data-testid={deriveTestId(
+							props["data-testid"],
+							"resize-handle"
+						)}
 						aria-hidden
 					/>
 				)}
@@ -211,7 +246,15 @@ export const TextArea: React.FC<ITextAreaProps> = ({
 
 			<div className={styles.footer}>
 				{!hideError && (
-					<InputErrorMessage id={errorId}>{error}</InputErrorMessage>
+					<InputErrorMessage
+						id={errorId}
+						data-testid={deriveTestId(
+							props["data-testid"],
+							"error"
+						)}
+					>
+						{error}
+					</InputErrorMessage>
 				)}
 				{showCharCounter && maxLength && (
 					<span className={styles.counter}>
@@ -222,3 +265,6 @@ export const TextArea: React.FC<ITextAreaProps> = ({
 		</div>
 	);
 };
+
+export const TextArea = forwardRef(TextAreaBase);
+TextArea.displayName = "TextArea";

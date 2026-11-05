@@ -1,17 +1,33 @@
-import React, { useEffect, useId, useRef, useState } from "react";
+import React, { forwardRef, useEffect, useId, useRef, useState } from "react";
 
 import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
+import { composeHandlers } from "@utils/UHandlers";
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
-import { TColor, TLabel, TSize } from "@interfaces/index";
+import {
+	ITestIdProps,
+	TColor,
+	TElementProps,
+	TLabel,
+	TSize,
+} from "@interfaces/index";
 
 import { InputErrorMessage } from "../InputErrorMessage/InputErrorMessage";
 
 import styles from "./TimePicker.module.scss";
 
-export interface ITimePickerProps {
+export interface ITimePickerProps
+	extends
+		Omit<
+			React.ComponentPropsWithoutRef<"div">,
+			"onChange" | "color" | "defaultValue" | "children"
+		>,
+		ITestIdProps {
+	/** Set on the hour input, the element a `<label htmlFor>` targets. */
+	id?: string;
 	/** Controlled value, "HH:mm" (24h, zero-padded). `null` means empty. */
 	value: string | null;
 	onChange: (value: string | null) => void;
@@ -32,6 +48,12 @@ export interface ITimePickerProps {
 	required?: boolean;
 	className?: string;
 	wrapperClassName?: string;
+	/** Native props of the outer container (label, field and error message). */
+	wrapperProps?: TElementProps<"div">;
+	/** Native props of the hour `<input>`. */
+	hoursInputProps?: Omit<TElementProps<"input">, "value">;
+	/** Native props of the minute `<input>`. */
+	minutesInputProps?: Omit<TElementProps<"input">, "value">;
 	/** aria-label for the hour segment. Defaults to "Hours" (or `TimePicker.hoursLabel` from the nearest AmphoreProvider — see useAmphoreLabels). When `label` is set, it's suffixed instead ("<label> — hours"). */
 	hoursLabel?: TLabel;
 	/** aria-label for the minute segment. Defaults to "Minutes" (or `TimePicker.minutesLabel` from the nearest AmphoreProvider). Same suffixing behavior as `hoursLabel`. */
@@ -61,26 +83,42 @@ const splitValue = (v: string | null) => {
  * (unrestylable chrome, same reasoning as NumberInput vs type="number").
  * Two digits auto-advance to the next segment; ArrowUp/Down adjust by 1,
  * wrapping.
+ *
+ * Native props, `className` and `ref` go to the field box holding the two
+ * inputs, `wrapperProps` to the outer container, `hoursInputProps` and
+ * `minutesInputProps` to each input. Derived testids: `-hours`, `-minutes`,
+ * `-error`.
  */
-export const TimePicker: React.FC<ITimePickerProps> = ({
-	value,
-	onChange,
-	min,
-	max,
-	hourMax = 23,
-	minuteStep = 1,
-	label,
-	error,
-	hideError = false,
-	size: sizeProp,
-	color = "primary",
-	disabled = false,
-	required = false,
-	className = "",
-	wrapperClassName = "",
-	hoursLabel: hoursLabelProp,
-	minutesLabel: minutesLabelProp,
-}) => {
+const TimePickerBase: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	ITimePickerProps
+> = (
+	{
+		value,
+		onChange,
+		min,
+		max,
+		hourMax = 23,
+		minuteStep = 1,
+		label,
+		error,
+		hideError = false,
+		size: sizeProp,
+		color = "primary",
+		disabled = false,
+		required = false,
+		className = "",
+		wrapperClassName = "",
+		wrapperProps,
+		hoursInputProps,
+		minutesInputProps,
+		hoursLabel: hoursLabelProp,
+		minutesLabel: minutesLabelProp,
+		id,
+		...props
+	},
+	ref
+) => {
 	const { size: defaultSize } = useAmphoreDefaults();
 	const size = sizeProp ?? defaultSize ?? "md";
 	const generatedId = useId();
@@ -163,7 +201,14 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 		e.target.select();
 
 	return (
-		<div className={cn([styles.wrapper, wrapperClassName])}>
+		<div
+			{...wrapperProps}
+			className={cn([
+				styles.wrapper,
+				wrapperClassName,
+				wrapperProps?.className,
+			])}
+		>
 			{label && (
 				<label className={styles.label}>
 					{label}
@@ -172,6 +217,8 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 			)}
 
 			<div
+				{...props}
+				ref={ref}
 				className={cn([styles.field, className])}
 				data-size={size}
 				data-color={color}
@@ -179,7 +226,9 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 				data-invalid={!!error || undefined}
 			>
 				<input
-					id={generatedId}
+					data-testid={deriveTestId(props["data-testid"], "hours")}
+					{...hoursInputProps}
+					id={id ?? generatedId}
 					type="text"
 					inputMode="numeric"
 					maxLength={hourDigits}
@@ -199,24 +248,34 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 					disabled={disabled}
 					aria-invalid={!!error}
 					aria-describedby={error && !hideError ? errorId : undefined}
-					onChange={handleSegmentChange(
-						setHourText,
-						hourMax,
-						hourDigits,
-						() => minuteRef.current?.focus()
+					onChange={composeHandlers(
+						hoursInputProps?.onChange,
+						handleSegmentChange(
+							setHourText,
+							hourMax,
+							hourDigits,
+							() => minuteRef.current?.focus()
+						)
 					)}
-					onKeyDown={handleSegmentKeyDown(
-						hourText,
-						setHourText,
-						hourMax
+					onKeyDown={composeHandlers(
+						hoursInputProps?.onKeyDown,
+						handleSegmentKeyDown(hourText, setHourText, hourMax)
 					)}
-					onFocus={handleFocus}
-					onBlur={handleBlur}
+					onFocus={composeHandlers(
+						hoursInputProps?.onFocus,
+						handleFocus
+					)}
+					onBlur={composeHandlers(
+						hoursInputProps?.onBlur,
+						handleBlur
+					)}
 				/>
 				<span className={styles.separator} aria-hidden>
 					:
 				</span>
 				<input
+					data-testid={deriveTestId(props["data-testid"], "minutes")}
+					{...minutesInputProps}
 					ref={minuteRef}
 					type="text"
 					inputMode="numeric"
@@ -231,21 +290,41 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 					value={minuteText}
 					disabled={disabled}
 					aria-invalid={!!error}
-					onChange={handleSegmentChange(setMinuteText, 59, 2)}
-					onKeyDown={handleSegmentKeyDown(
-						minuteText,
-						setMinuteText,
-						59,
-						minuteStep
+					onChange={composeHandlers(
+						minutesInputProps?.onChange,
+						handleSegmentChange(setMinuteText, 59, 2)
 					)}
-					onFocus={handleFocus}
-					onBlur={handleBlur}
+					onKeyDown={composeHandlers(
+						minutesInputProps?.onKeyDown,
+						handleSegmentKeyDown(
+							minuteText,
+							setMinuteText,
+							59,
+							minuteStep
+						)
+					)}
+					onFocus={composeHandlers(
+						minutesInputProps?.onFocus,
+						handleFocus
+					)}
+					onBlur={composeHandlers(
+						minutesInputProps?.onBlur,
+						handleBlur
+					)}
 				/>
 			</div>
 
 			{!hideError && (
-				<InputErrorMessage id={errorId}>{error}</InputErrorMessage>
+				<InputErrorMessage
+					id={errorId}
+					data-testid={deriveTestId(props["data-testid"], "error")}
+				>
+					{error}
+				</InputErrorMessage>
 			)}
 		</div>
 	);
 };
+
+export const TimePicker = forwardRef(TimePickerBase);
+TimePicker.displayName = "TimePicker";

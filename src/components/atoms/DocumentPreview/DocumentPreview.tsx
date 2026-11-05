@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { forwardRef, useEffect, useState } from "react";
 
 import { cn } from "@utils/cn";
 
@@ -6,7 +6,10 @@ import { Picto } from "../Picto/Picto";
 
 import styles from "./DocumentPreview.module.scss";
 
-export interface IDocumentPreviewProps {
+export interface IDocumentPreviewProps extends Omit<
+	React.HTMLAttributes<HTMLElement>,
+	"children"
+> {
 	file: File;
 	className?: string;
 }
@@ -16,11 +19,13 @@ export interface IDocumentPreviewProps {
  * `image/*` files, a generic file icon otherwise. No PDF page rendering —
  * out of scope for this batch, unlike v1's own (unread) implementation;
  * a consumer needing that can still pass a `customPreview` to `InputFile`.
+ *
+ * Native props and `ref` go to the root: the `<img>`, or the fallback `<div>`.
  */
-export const DocumentPreview: React.FC<IDocumentPreviewProps> = ({
-	file,
-	className = "",
-}) => {
+const DocumentPreviewBase: React.ForwardRefRenderFunction<
+	HTMLElement,
+	IDocumentPreviewProps
+> = ({ file, className = "", ...props }, ref) => {
 	const [objectUrl, setObjectUrl] = useState<string | null>(null);
 	const isImage = file.type?.startsWith("image/");
 
@@ -35,6 +40,8 @@ export const DocumentPreview: React.FC<IDocumentPreviewProps> = ({
 	if (isImage && objectUrl) {
 		return (
 			<img
+				{...props}
+				ref={ref as React.Ref<HTMLImageElement>}
 				src={objectUrl}
 				alt={file.name}
 				className={cn([styles.image, className])}
@@ -43,8 +50,15 @@ export const DocumentPreview: React.FC<IDocumentPreviewProps> = ({
 	}
 
 	return (
-		<div className={cn([styles.fallback, className])}>
+		<div
+			{...props}
+			ref={ref as React.Ref<HTMLDivElement>}
+			className={cn([styles.fallback, className])}
+		>
 			<Picto icon="fileText" className={styles.picto} />
 		</div>
 	);
 };
+
+export const DocumentPreview = forwardRef(DocumentPreviewBase);
+DocumentPreview.displayName = "DocumentPreview";
