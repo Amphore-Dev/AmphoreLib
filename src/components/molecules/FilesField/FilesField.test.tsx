@@ -46,3 +46,37 @@ describe("FilesField", () => {
 		);
 	});
 });
+
+describe("FilesField accessibility", () => {
+	it("gives its id to one slot only", () => {
+		render(<FilesField id="docs" name="docs" maxFiles={3} />);
+		const inputs = screen.getAllByTestId("input-file");
+
+		expect(inputs[0]).toHaveAttribute("id", "docs");
+		expect(new Set(inputs.map((input) => input.id)).size).toBe(3);
+	});
+
+	it("names the group of slots", () => {
+		render(
+			<>
+				<span id="external">Documents</span>
+				<FilesField aria-labelledby="external" name="docs" maxFiles={2} />
+			</>
+		);
+		expect(
+			screen.getByRole("group", { name: "Documents" })
+		).toBeInTheDocument();
+	});
+
+	it("names a lone slot directly", () => {
+		render(
+			<>
+				<span id="external">Documents</span>
+				<FilesField aria-labelledby="external" name="docs" />
+			</>
+		);
+		expect(screen.getByTestId("input-file")).toHaveAccessibleName(
+			"Documents"
+		);
+	});
+});

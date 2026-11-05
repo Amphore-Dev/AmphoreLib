@@ -76,6 +76,7 @@ export const AddTodoItem: React.FC<IAddTodoItemProps> = ({
 					value={draft}
 					onChange={setDraft}
 					placeholder={placeholder}
+					aria-label={placeholder}
 					size={size}
 					autoGrow
 					rows={1}
@@ -88,6 +89,7 @@ export const AddTodoItem: React.FC<IAddTodoItemProps> = ({
 					value={draft}
 					onChange={setDraft}
 					placeholder={placeholder}
+					aria-label={placeholder}
 					size={size}
 					wrapperClassName={styles.input}
 					onKeyDown={handleKeyDown}

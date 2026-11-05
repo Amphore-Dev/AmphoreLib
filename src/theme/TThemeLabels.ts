@@ -28,6 +28,7 @@ import type { TChipInputLabels } from "../components/molecules/ChipInput/ChipInp
 import type { TConfirmModalLabels } from "../components/molecules/ConfirmModal/ConfirmModal";
 import type { TDatePickerLabels } from "../components/molecules/DatePicker/DatePicker";
 import type { THeadBarLabels } from "../components/molecules/HeadBar/HeadBar";
+import type { TInputSearchLabels } from "../components/molecules/InputSearch/InputSearch";
 import type { TModalLabels } from "../components/molecules/Modal/Modal";
 import type { TPasswordFieldLabels } from "../components/molecules/PasswordField/PasswordField";
 import type { TSelectLabels } from "../components/molecules/Select/Select";
@@ -92,6 +93,7 @@ export interface TThemeLabels {
 	InfoMessage?: TInfoMessageLabels;
 	Input?: TInputLabels;
 	InputFile?: TInputFileLabels;
+	InputSearch?: TInputSearchLabels;
 	Modal?: TModalLabels;
 	NumberInput?: TNumberInputLabels;
 	PageHeader?: TPageHeaderLabels;
@@ -134,6 +136,7 @@ export type TRequiredThemeLabels = {
 	InfoMessage: Required<TInfoMessageLabels>;
 	Input: Required<TInputLabels>;
 	InputFile: Required<TInputFileLabels>;
+	InputSearch: Required<TInputSearchLabels>;
 	Modal: Required<TModalLabels>;
 	NumberInput: Required<TNumberInputLabels>;
 	PageHeader: Required<TPageHeaderLabels>;

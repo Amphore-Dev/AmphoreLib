@@ -45,6 +45,7 @@ export const fr: TThemeLabels = {
 	},
 	ChipInput: {
 		removeLabel: "Retirer",
+		invalidLabel: "(invalide)",
 	},
 	ConfirmModal: {
 		cancelText: "Annuler",
@@ -89,6 +90,9 @@ export const fr: TThemeLabels = {
 	},
 	Input: {
 		clearLabel: "Effacer",
+	},
+	InputSearch: {
+		searchLabel: "Rechercher",
 	},
 	InputFile: {
 		placeholder: "Ajouter un fichier",

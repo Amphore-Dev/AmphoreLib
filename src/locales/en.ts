@@ -50,6 +50,7 @@ export const en: TRequiredThemeLabels = {
 	},
 	ChipInput: {
 		removeLabel: "Remove",
+		invalidLabel: "(invalid)",
 	},
 	ConfirmModal: {
 		cancelText: "Cancel",
@@ -94,6 +95,9 @@ export const en: TRequiredThemeLabels = {
 	},
 	Input: {
 		clearLabel: "Clear",
+	},
+	InputSearch: {
+		searchLabel: "Search",
 	},
 	InputFile: {
 		placeholder: "Add a file",

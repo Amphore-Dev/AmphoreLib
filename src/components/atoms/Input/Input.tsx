@@ -1,4 +1,4 @@
-import React, { useId } from "react";
+import React, { useId, useRef } from "react";
 
 import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
@@ -76,6 +76,7 @@ export const Input: React.FC<IInputProps> = ({
 	const errorId = `${inputId}-error`;
 	const { resolve } = useAmphoreLabels("Input");
 	const clearLabel = resolve("clearLabel", clearLabelProp, "clear");
+	const inputRef = useRef<HTMLInputElement>(null);
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		onChange?.(e.target.value, e);
@@ -87,6 +88,8 @@ export const Input: React.FC<IInputProps> = ({
 			target: { value: "" },
 		} as React.ChangeEvent<HTMLInputElement>;
 		onChange("", fakeEvent);
+		// The button unmounts with the value.
+		inputRef.current?.focus();
 	};
 
 	return (
@@ -112,6 +115,7 @@ export const Input: React.FC<IInputProps> = ({
 				<input
 					placeholder={label}
 					{...props}
+					ref={inputRef}
 					id={inputId}
 					className={styles.input}
 					value={value}

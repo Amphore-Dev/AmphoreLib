@@ -1,3 +1,4 @@
+@use "../../../styles/a11y";
 @use "../../../styles/touch" as touch;
 
 .wrapper {
@@ -36,6 +37,16 @@
 
 .cardInvalid {
 	border-color: var(--amp-color-danger);
+}
+
+.input {
+	@include a11y.visually-hidden;
+
+	// Inset: the card clips anything drawn outside it.
+	&:focus-visible + .label {
+		outline: 2px solid var(--amp-color-primary);
+		outline-offset: -2px;
+	}
 }
 
 .label {

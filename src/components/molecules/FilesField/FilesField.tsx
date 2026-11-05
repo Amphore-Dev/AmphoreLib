@@ -31,6 +31,10 @@ export interface IFilesFieldProps extends Omit<
  * gives a compact row of horizontal-layout cards and "vertical" a column of
  * stacked ones — the two stay visually consistent instead of only the grid
  * arrangement changing.
+ *
+ * A label naming the field names the group of slots, and `id` goes to the
+ * first slot (where `<label htmlFor>` lands): repeated, it would be a
+ * duplicate id, and an error id shared by every slot.
  */
 export const FilesField: React.FC<IFilesFieldProps> = ({
 	value = [],
@@ -40,6 +44,9 @@ export const FilesField: React.FC<IFilesFieldProps> = ({
 	columns,
 	minItemWidth,
 	gap = "0.5rem",
+	id,
+	"aria-label": ariaLabel,
+	"aria-labelledby": ariaLabelledBy,
 	...inputFileProps
 }) => {
 	const computedColumns =
@@ -56,11 +63,17 @@ export const FilesField: React.FC<IFilesFieldProps> = ({
 			columns={computedColumns}
 			gap={gap}
 			minItemWidth={minItemWidth || "150px"}
+			role={maxFiles > 1 ? "group" : undefined}
+			aria-label={maxFiles > 1 ? ariaLabel : undefined}
+			aria-labelledby={maxFiles > 1 ? ariaLabelledBy : undefined}
 		>
 			{Array.from({ length: maxFiles }, (_, index) => (
 				<InputFile
 					key={index}
 					{...inputFileProps}
+					id={index === 0 ? id : undefined}
+					aria-label={maxFiles > 1 ? undefined : ariaLabel}
+					aria-labelledby={maxFiles > 1 ? undefined : ariaLabelledBy}
 					orientation={orientation}
 					name={
 						maxFiles > 1

@@ -1,6 +1,9 @@
 import React from "react";
 
+import { useState } from "react";
+
 import { fireEvent, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import { InputFile } from "./InputFile";
@@ -118,5 +121,60 @@ describe("InputFile", () => {
 		const card = container.querySelector("[data-orientation]");
 		expect(card).toHaveAttribute("data-orientation", "horizontal");
 		expect(card).toHaveAttribute("data-filled");
+	});
+});
+
+describe("InputFile accessibility", () => {
+	const file = new File(["x"], "report.pdf", { type: "application/pdf" });
+
+	it("can be reached by the keyboard", async () => {
+		const user = userEvent.setup();
+		render(<InputFile />);
+
+		await user.tab();
+
+		expect(screen.getByTestId("input-file")).toHaveFocus();
+		expect(screen.getByTestId("input-file")).not.toHaveAttribute("hidden");
+	});
+
+	it("is named even at a size that hides its placeholder", () => {
+		render(<InputFile size="sm" orientation="vertical" />);
+		expect(screen.getByTestId("input-file")).toHaveAccessibleName(
+			"Add a file"
+		);
+	});
+
+	it("is named through an external label", () => {
+		render(
+			<>
+				<span id="external">Invoice</span>
+				<InputFile aria-labelledby="external" />
+			</>
+		);
+		expect(screen.getByTestId("input-file")).toHaveAccessibleName("Invoice");
+	});
+
+	it("states an error and required", () => {
+		render(<InputFile error="Too big" required />);
+		const input = screen.getByTestId("input-file");
+
+		expect(input).toHaveAttribute("aria-invalid", "true");
+		expect(input).toHaveAttribute("aria-required", "true");
+		expect(input).toHaveAccessibleDescription("Too big");
+	});
+
+	it("moves focus back to the input after removing the file", async () => {
+		const user = userEvent.setup();
+		const Controlled = () => {
+			const [value, setValue] = useState<File | null>(file);
+			return <InputFile value={value} onChange={setValue} />;
+		};
+		render(<Controlled />);
+
+		await user.tab();
+		expect(screen.getByTestId("input-file-remove")).toHaveFocus();
+		await user.keyboard("{Enter}");
+
+		expect(screen.getByTestId("input-file")).toHaveFocus();
 	});
 });

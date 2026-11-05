@@ -1,4 +1,4 @@
-import React, { useId, useRef, useState } from "react";
+import React, { useEffect, useId, useRef, useState } from "react";
 
 import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
@@ -61,6 +61,10 @@ export interface IInputFileProps {
 	previewClassName?: string;
 	/** aria-label for the remove-file (×) button. Defaults to "Remove file" (or `InputFile.removeFileLabel` from the nearest AmphoreProvider). No effect when `isRemovable` is false. */
 	removeFileLabel?: TLabel;
+	/** Names the field. Defaults to `placeholder`, which `sm` doesn't show. */
+	"aria-label"?: string;
+	/** Id of an element naming the field — an external label, like FormRenderer's. */
+	"aria-labelledby"?: string;
 }
 
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
@@ -84,6 +88,10 @@ export type TInputFileLabels = Pick<
  * card (`overflow: hidden`); both the image and that band could bleed past
  * the card's rounded corners. This structure can't reproduce that: the
  * preview and the footer are two separate boxes, never overlapping.
+ *
+ * The native input stays in the tab order, visually hidden: it's the only
+ * focusable part of an empty field, `<label>` not being focusable. Its focus
+ * ring is drawn on the label that sits over it.
  */
 export const InputFile: React.FC<IInputFileProps> = ({
 	id,
@@ -107,6 +115,8 @@ export const InputFile: React.FC<IInputFileProps> = ({
 	wrapperClassName = "",
 	previewClassName = "",
 	removeFileLabel: removeFileLabelProp,
+	"aria-label": ariaLabel,
+	"aria-labelledby": ariaLabelledBy,
 }) => {
 	const { size: defaultSize } = useAmphoreDefaults();
 	const size = sizeProp ?? defaultSize ?? "md";
@@ -118,6 +128,15 @@ export const InputFile: React.FC<IInputFileProps> = ({
 	const { resolve } = useAmphoreLabels("InputFile");
 	const placeholder = resolve("placeholder", placeholderProp);
 	const removeFileLabel = resolve("removeFileLabel", removeFileLabelProp);
+
+	// Removing unmounts the button that was pressed, and only then, once the
+	// file is gone, does the input stop being disabled: focus can follow.
+	const refocusAfterRemove = useRef(false);
+	useEffect(() => {
+		if (value || !refocusAfterRemove.current) return;
+		refocusAfterRemove.current = false;
+		inputRef.current?.focus();
+	}, [value]);
 
 	const acceptFile = (file: File) => {
 		if (!matchesAccept(file, accept)) {
@@ -156,6 +175,7 @@ export const InputFile: React.FC<IInputFileProps> = ({
 		e.stopPropagation();
 		if (disabled) return;
 		if (inputRef.current) inputRef.current.value = "";
+		refocusAfterRemove.current = true;
 		onChange?.(null);
 	};
 
@@ -193,8 +213,14 @@ export const InputFile: React.FC<IInputFileProps> = ({
 					type="file"
 					accept={accept}
 					disabled={disabled || !!value}
-					hidden
+					className={styles.input}
 					onChange={handleInputChange}
+					aria-label={
+						ariaLabelledBy ? undefined : (ariaLabel ?? placeholder)
+					}
+					aria-labelledby={ariaLabelledBy}
+					aria-invalid={!!error || undefined}
+					aria-required={required || undefined}
 					aria-describedby={error && !hideError ? errorId : undefined}
 					data-testid="input-file"
 				/>

@@ -46,13 +46,20 @@ export interface IChipInputProps {
 	addOnBlur?: boolean;
 	/** Prefix for each chip's remove button aria-label, rendered as `${removeLabel}: ${chip}`. Defaults to "Remove" (or `common.remove`/`ChipInput.removeLabel` from the nearest AmphoreProvider — see useAmphoreLabels). */
 	removeLabel?: TLabel;
+	/** Read out after an entry `validate` refused, whose color is otherwise all that sets it apart. Defaults to "(invalid)" (or `ChipInput.invalidLabel` from the nearest AmphoreProvider). */
+	invalidLabel?: TLabel;
+	/** Names the field when there's no visible `label`. */
+	"aria-label"?: string;
 	/** Applied to the field box (chips + text), not the outer wrapper — same convention as Input/TextArea. */
 	className?: string;
 	wrapperClassName?: string;
 }
 
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
-export type TChipInputLabels = Pick<IChipInputProps, "removeLabel">;
+export type TChipInputLabels = Pick<
+	IChipInputProps,
+	"removeLabel" | "invalidLabel"
+>;
 
 const DEFAULT_SEPARATORS = /[,;\s]+/;
 
@@ -90,6 +97,8 @@ export const ChipInput: React.FC<IChipInputProps> = ({
 	allowDuplicates = false,
 	addOnBlur = true,
 	removeLabel: removeLabelProp,
+	invalidLabel: invalidLabelProp,
+	"aria-label": ariaLabel,
 	className = "",
 	wrapperClassName = "",
 }) => {
@@ -97,6 +106,7 @@ export const ChipInput: React.FC<IChipInputProps> = ({
 	const size = sizeProp ?? defaultSize ?? "md";
 	const { resolve } = useAmphoreLabels("ChipInput");
 	const removeLabel = resolve("removeLabel", removeLabelProp, "remove");
+	const invalidLabel = resolve("invalidLabel", invalidLabelProp);
 	const generatedId = useId();
 	const inputId = id ?? generatedId;
 	const errorId = `${inputId}-error`;
@@ -242,13 +252,16 @@ export const ChipInput: React.FC<IChipInputProps> = ({
 						color={isValid(chip) ? color : "danger"}
 						variant="tint"
 						size="sm"
-						aria-invalid={!isValid(chip) || undefined}
+						data-invalid={!isValid(chip) || undefined}
 						onRemove={
 							disabled ? undefined : () => handleRemove(index)
 						}
 						removeLabel={`${removeLabel}: ${chip}`}
 					>
 						{chip}
+						{!isValid(chip) && (
+							<span className={styles.srOnly}>{invalidLabel}</span>
+						)}
 					</Badge>
 				))}
 
@@ -262,6 +275,7 @@ export const ChipInput: React.FC<IChipInputProps> = ({
 					placeholder={value.length ? undefined : placeholder}
 					disabled={disabled}
 					required={required && !value.length}
+					aria-label={ariaLabel}
 					aria-invalid={!!error}
 					aria-describedby={describedBy}
 					onChange={handleChange}
