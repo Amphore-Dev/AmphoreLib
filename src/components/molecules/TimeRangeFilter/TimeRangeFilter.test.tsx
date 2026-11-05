@@ -45,3 +45,28 @@ describe("TimeRangeFilter", () => {
 		expect(onChange).not.toHaveBeenCalled();
 	});
 });
+
+describe("TimeRangeFilter accessibility", () => {
+	it("tells its two pickers apart", () => {
+		render(<TimeRangeFilter />);
+		expect(screen.getByRole("group", { name: "From" })).toBeInTheDocument();
+		expect(screen.getByRole("group", { name: "To" })).toBeInTheDocument();
+	});
+
+	it("leaves a visible label to name its picker", () => {
+		render(<TimeRangeFilter from={{ label: "Opens" }} />);
+		expect(screen.getByRole("group", { name: "Opens" })).toBeInTheDocument();
+	});
+
+	it("names the pair through an external label", () => {
+		render(
+			<>
+				<span id="external">Hours open</span>
+				<TimeRangeFilter aria-labelledby="external" />
+			</>
+		);
+		expect(
+			screen.getByRole("group", { name: "Hours open" })
+		).toBeInTheDocument();
+	});
+});

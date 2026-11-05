@@ -138,6 +138,10 @@ export const en: TRequiredThemeLabels = {
 		hoursLabel: "Hours",
 		minutesLabel: "Minutes",
 	},
+	TimeRangeFilter: {
+		fromLabel: "From",
+		toLabel: "To",
+	},
 	TodoItem: {
 		removeLabel: "Remove",
 	},

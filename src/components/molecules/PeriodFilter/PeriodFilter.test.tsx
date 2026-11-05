@@ -1,7 +1,7 @@
 import React from "react";
 
 import { fireEvent, render, screen } from "@testing-library/react";
-import { endOfWeek, startOfWeek } from "date-fns";
+import { endOfMonth, endOfWeek, startOfMonth, startOfWeek } from "date-fns";
 import { describe, expect, it, vi } from "vitest";
 
 import { PeriodFilter } from "./PeriodFilter";
@@ -115,5 +115,40 @@ describe("PeriodFilter", () => {
 		expect(
 			screen.getByRole("button", { name: "This week" })
 		).toHaveAttribute("data-variant", "outline");
+	});
+});
+
+describe("PeriodFilter accessibility", () => {
+	it("says which preset is active other than by its look", () => {
+		const now = new Date();
+		const from = startOfMonth(now);
+		const to = endOfMonth(now);
+		render(
+			<PeriodFilter from={{ value: from }} to={{ value: to }} />
+		);
+
+		expect(
+			screen.getByRole("button", { name: "This month", pressed: true })
+		).toBeInTheDocument();
+		expect(
+			screen.getByRole("button", { name: "This week", pressed: false })
+		).toBeInTheDocument();
+	});
+
+	it("names the range selector", () => {
+		render(<PeriodFilter range={{ value: "between" }} />);
+		expect(
+			screen.getByRole("radiogroup", { name: "Range type" })
+		).toBeInTheDocument();
+	});
+
+	it("names the filter through an external label", () => {
+		render(
+			<>
+				<span id="external">Period</span>
+				<PeriodFilter aria-labelledby="external" />
+			</>
+		);
+		expect(screen.getByRole("group", { name: "Period" })).toBeInTheDocument();
 	});
 });

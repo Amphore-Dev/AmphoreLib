@@ -33,6 +33,7 @@ import type { TPasswordFieldLabels } from "../components/molecules/PasswordField
 import type { TSelectLabels } from "../components/molecules/Select/Select";
 import type { TSidePanelLabels } from "../components/molecules/SidePanel/SidePanel";
 import type { TTabsLabels } from "../components/molecules/Tabs/Tabs";
+import type { TTimeRangeFilterLabels } from "../components/molecules/TimeRangeFilter/TimeRangeFilter";
 import type { TTodoItemLabels } from "../components/molecules/TodoItem/TodoItem";
 import type { TActiveFiltersLabels } from "../components/organisms/ActiveFilters/ActiveFilters";
 import type { TEditableCardLabels } from "../components/organisms/EditableCard/EditableCard";
@@ -100,6 +101,7 @@ export interface TThemeLabels {
 	Spinner?: TSpinnerLabels;
 	Table?: TTableLabels;
 	Tabs?: TTabsLabels;
+	TimeRangeFilter?: TTimeRangeFilterLabels;
 	TimePicker?: TTimePickerLabels;
 	TodoItem?: TTodoItemLabels;
 	TodoList?: TTodoListLabels;
@@ -141,6 +143,7 @@ export type TRequiredThemeLabels = {
 	Spinner: Required<TSpinnerLabels>;
 	Table: Required<TTableLabels>;
 	Tabs: Required<TTabsLabels>;
+	TimeRangeFilter: Required<TTimeRangeFilterLabels>;
 	TimePicker: Required<TTimePickerLabels>;
 	TodoItem: Required<TTodoItemLabels>;
 	TodoList: Required<TTodoListLabels>;

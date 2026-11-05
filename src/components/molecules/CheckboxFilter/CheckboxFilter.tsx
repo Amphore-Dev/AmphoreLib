@@ -16,6 +16,10 @@ export interface ICheckboxesFilterProps {
 	hideError?: boolean;
 	disabled?: boolean;
 	required?: boolean;
+	/** Names the group when there's no visible `label`. */
+	"aria-label"?: string;
+	/** Id of an element naming the group — an external label, like FormRenderer's. */
+	"aria-labelledby"?: string;
 	className?: string;
 	wrapperClassName?: string;
 }
@@ -36,11 +40,14 @@ export const CheckboxFilter: React.FC<ICheckboxesFilterProps> = ({
 	hideError = false,
 	disabled = false,
 	required = false,
+	"aria-label": ariaLabel,
+	"aria-labelledby": ariaLabelledBy,
 	className = "",
 	wrapperClassName = "",
 }) => {
 	const groupId = useId();
 	const errorId = `${groupId}-error`;
+	const labelId = `${groupId}-label`;
 
 	const handleChange = (optionValue: string, checked: boolean) => {
 		const next = checked
@@ -52,7 +59,7 @@ export const CheckboxFilter: React.FC<ICheckboxesFilterProps> = ({
 	return (
 		<div className={cn([styles.wrapper, wrapperClassName])}>
 			{label && (
-				<span className={styles.label}>
+				<span id={labelId} className={styles.label}>
 					{label}
 					{required && <span className={styles.required}>*</span>}
 				</span>
@@ -61,6 +68,8 @@ export const CheckboxFilter: React.FC<ICheckboxesFilterProps> = ({
 			<div
 				className={cn([styles.options, className])}
 				role="group"
+				aria-labelledby={ariaLabelledBy ?? (label ? labelId : undefined)}
+				aria-label={ariaLabel}
 				aria-describedby={error && !hideError ? errorId : undefined}
 			>
 				{options.map((option) => (
@@ -72,6 +81,7 @@ export const CheckboxFilter: React.FC<ICheckboxesFilterProps> = ({
 						onChange={(checked) =>
 							handleChange(option.value, checked)
 						}
+						error={error}
 						hideError
 					/>
 				))}

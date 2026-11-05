@@ -41,3 +41,43 @@ describe("RadioFilter", () => {
 		expect(screen.getByText("Requis")).toBeInTheDocument();
 	});
 });
+
+describe("RadioFilter accessibility", () => {
+	const options = [
+		{ value: "a", label: "Alpha" },
+		{ value: "b", label: "Beta" },
+	];
+
+	it("names the radiogroup after its label", () => {
+		render(<RadioFilter label="Color" options={options} />);
+		expect(
+			screen.getByRole("radiogroup", { name: "Color" })
+		).toBeInTheDocument();
+	});
+
+	it("names the radiogroup without a visible label", () => {
+		render(<RadioFilter aria-label="Color" options={options} />);
+		expect(
+			screen.getByRole("radiogroup", { name: "Color" })
+		).toBeInTheDocument();
+	});
+
+	it("puts the error and required state on the radiogroup, not the radios", () => {
+		render(
+			<RadioFilter
+				label="Color"
+				options={options}
+				error="Pick one"
+				required
+			/>
+		);
+		const group = screen.getByRole("radiogroup");
+
+		expect(group).toHaveAttribute("aria-invalid", "true");
+		expect(group).toHaveAttribute("aria-required", "true");
+		expect(group).toHaveAccessibleDescription("Pick one");
+		for (const radio of screen.getAllByRole("radio")) {
+			expect(radio).not.toHaveAttribute("aria-invalid");
+		}
+	});
+});

@@ -117,6 +117,10 @@ export interface IPeriodFilterProps {
 		onChange?: (value: TPeriodRangeType) => void;
 	};
 	disabled?: boolean;
+	/** Names the whole filter when something else labels it. */
+	"aria-label"?: string;
+	/** Id of an element naming the whole filter — an external label, like FormRenderer's. */
+	"aria-labelledby"?: string;
 	className?: string;
 }
 
@@ -135,6 +139,8 @@ export const PeriodFilter: React.FC<IPeriodFilterProps> = ({
 	presets = ["thisWeek", "thisMonth", "lastMonth"],
 	range,
 	disabled = false,
+	"aria-label": ariaLabel,
+	"aria-labelledby": ariaLabelledBy,
 	className = "",
 }) => {
 	const handleChange = (field: "from" | "to", value: Date | null) => {
@@ -163,7 +169,12 @@ export const PeriodFilter: React.FC<IPeriodFilterProps> = ({
 	};
 
 	return (
-		<div className={cn([styles.wrapper, className])}>
+		<div
+			role="group"
+			aria-label={ariaLabel}
+			aria-labelledby={ariaLabelledBy}
+			className={cn([styles.wrapper, className])}
+		>
 			<div className={styles.pickers}>
 				<DatePicker
 					label="From"
@@ -191,6 +202,7 @@ export const PeriodFilter: React.FC<IPeriodFilterProps> = ({
 								isPresetActive(preset) ? "solid" : "outline"
 							}
 							disabled={disabled}
+							aria-pressed={isPresetActive(preset)}
 							onClick={() => applyPreset(preset)}
 						>
 							{PRESET_LABELS[preset]}
@@ -202,6 +214,7 @@ export const PeriodFilter: React.FC<IPeriodFilterProps> = ({
 			{range && (
 				<RadioFilter
 					className={styles.rangeType}
+					aria-label="Range type"
 					options={RANGE_TYPE_OPTIONS}
 					value={range.value}
 					disabled={disabled}

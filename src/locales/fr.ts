@@ -133,6 +133,10 @@ export const fr: TThemeLabels = {
 		hoursLabel: "Heures",
 		minutesLabel: "Minutes",
 	},
+	TimeRangeFilter: {
+		fromLabel: "De",
+		toLabel: "À",
+	},
 	TodoItem: {
 		removeLabel: "Retirer",
 	},

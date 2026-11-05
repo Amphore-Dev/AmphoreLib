@@ -61,3 +61,32 @@ describe("CheckboxFilter", () => {
 		expect(screen.getByText("Requis")).toBeInTheDocument();
 	});
 });
+
+describe("CheckboxFilter accessibility", () => {
+	const options = [
+		{ value: "a", label: "Alpha" },
+		{ value: "b", label: "Beta" },
+	];
+
+	it("names the group after its label", () => {
+		render(<CheckboxFilter label="Colors" options={options} />);
+		expect(screen.getByRole("group", { name: "Colors" })).toBeInTheDocument();
+	});
+
+	it("names the group without a visible label", () => {
+		render(<CheckboxFilter aria-label="Colors" options={options} />);
+		expect(screen.getByRole("group", { name: "Colors" })).toBeInTheDocument();
+	});
+
+	it("describes the group by its error, and marks each box invalid", () => {
+		render(
+			<CheckboxFilter label="Colors" options={options} error="Pick one" />
+		);
+		expect(screen.getByRole("group")).toHaveAccessibleDescription(
+			"Pick one"
+		);
+		for (const box of screen.getAllByRole("checkbox")) {
+			expect(box).toBeInvalid();
+		}
+	});
+});
