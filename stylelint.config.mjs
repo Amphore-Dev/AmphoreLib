@@ -28,14 +28,6 @@ const TOKEN_VALUES = [
 	"/^url\\(/",
 ];
 
-/** Relative to the element or its text, so already on no absolute scale. */
-const RELATIVE_VALUES = [
-	"/^-?[\\d.]+(%|em|ex|ch|vw|vh|dvh|svh|fr)$/",
-	"/^(min|max|fit)-content$/",
-	"/^(calc|min|max|clamp)\\(.*(%|vw|vh|dvh|em)\\b/",
-	"stretch",
-];
-
 /** Line thicknesses: a token for the width, any style. */
 const LINE_VALUES = [
 	...KEYWORDS,
@@ -44,21 +36,6 @@ const LINE_VALUES = [
 	"dashed",
 	"dotted",
 	"double",
-];
-
-/** 1px is a hairline, not a step of the spacing scale. */
-const LENGTH_VALUES = [
-	...KEYWORDS,
-	...TOKEN_VALUES,
-	...RELATIVE_VALUES,
-	"/^-?1px$/",
-];
-
-const LENGTH_PROPERTIES = [
-	"/^(margin|padding)(-|$)/",
-	"/^(row-|column-)?gap$/",
-	"/^(min-|max-)?(width|height)$/",
-	"/^(top|right|bottom|left|inset)$/",
 ];
 
 const LINE_PROPERTIES = [
@@ -71,6 +48,7 @@ export default {
 	plugins: ["stylelint-declaration-strict-value"],
 	defaultSeverity: "warning",
 	reportNeedlessDisables: true,
+	reportDescriptionlessDisables: true,
 	rules: {
 		"scale-unlimited/declaration-strict-value": [
 			[
@@ -86,7 +64,6 @@ export default {
 				"z-index",
 				"transition-duration",
 				"transition-timing-function",
-				...LENGTH_PROPERTIES,
 				...LINE_PROPERTIES,
 			],
 			{
@@ -96,7 +73,7 @@ export default {
 					"font-size": [
 						"inherit",
 						"/%$/",
-						"/em$/",
+						"/^[\\d.]+em$/",
 						`/^var\\(--amp-text-(${TEXT_STEPS})\\)$/`,
 						`/^max\\(var\\(--amp-text-(${TEXT_STEPS})\\), 1em\\)$/`,
 					],
@@ -106,16 +83,13 @@ export default {
 						`/^var\\(--amp-leading-(${TEXT_STEPS}|none|tight|snug|normal)\\)$/`,
 					],
 					"font-weight": ["inherit", "/\\bweight\\(/"],
+					"/radius$/": [...KEYWORDS, ...TOKEN_VALUES, "/^\\d+%$/"],
 					"z-index": [
 						...KEYWORDS,
 						"/var\\(--amp-z-/",
 						// Stacking inside one component, not a global layer.
 						"/^-?[0-3]$/",
 					],
-					[LENGTH_PROPERTIES[0]]: LENGTH_VALUES,
-					[LENGTH_PROPERTIES[1]]: LENGTH_VALUES,
-					[LENGTH_PROPERTIES[2]]: LENGTH_VALUES,
-					[LENGTH_PROPERTIES[3]]: LENGTH_VALUES,
 					[LINE_PROPERTIES[0]]: LINE_VALUES,
 					[LINE_PROPERTIES[1]]: LINE_VALUES,
 				},
@@ -124,16 +98,13 @@ export default {
 					'"${value}" for "${property}": use a theme token (var(--amp-*)), space(), text() or weight().',
 			},
 		],
-		// strict-value accepts a shorthand as soon as one part is a var(), so
-		// `padding: 0.25rem var(--amp-space-2)` would pass it. This looks at
-		// each part. 1px stays legal for the explicit border compensations:
-		// `calc(#{space(2)} - 1px)`.
+		// Lengths, in any other property, wherever they sit in the value: a rem
+		// or a px inside a calc() or a shorthand is as raw as one on its own.
+		// 0 is not a length here, and 1px is a hairline, not a step of the
+		// spacing scale: it stays legal for `calc(#{space(2)} - 1px)`.
 		"declaration-property-value-disallowed-list": [
 			{
-				"/^(?!--)/": [
-					"/(?<![\\w.#$-])-?(?!1px\\b)(?!0(px|rem)\\b)\\d*\\.?\\d+(px|rem)\\b/",
-				],
-				"/^--_/": [
+				"/^(?!font-size$|line-height$|outline|border|box-shadow$)/": [
 					"/(?<![\\w.#$-])-?(?!1px\\b)(?!0(px|rem)\\b)\\d*\\.?\\d+(px|rem)\\b/",
 				],
 				"/^(transition|animation)(-duration|-delay)?$/": [

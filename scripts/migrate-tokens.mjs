@@ -100,7 +100,7 @@ const ICONS = {
 };
 
 const LENGTH_PROP =
-	/^(margin|padding)(-|$)|^(row-|column-)?gap$|^(min-|max-)?(width|height)$|^(top|right|bottom|left|inset)$/;
+	/^(margin|padding)(-|$)|^(row-|column-)?gap$|^(min-|max-)?(width|height)$|^(top|right|bottom|left|inset|transform)$/;
 const LINE_PROP = /^border(-(top|right|bottom|left))?$/;
 const ICON_SELECTOR = /picto|icon|chevron|svg/i;
 const HAIRLINE_PROP = /^(width|height)$/;
@@ -256,6 +256,10 @@ function migrateDecl(decl, used) {
 			ICONS[value]
 		) {
 			decl.value = `var(--amp-icon-${ICONS[value]})`;
+			return;
+		}
+		if (value === "0px" && !custom) {
+			decl.value = "0";
 			return;
 		}
 		const next = migrateLengths(value, { interpolate: custom });
