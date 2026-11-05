@@ -131,12 +131,20 @@ export function colorsToCssVars(colors: TThemeColors): CSSProperties {
 /**
  * Renders a CSSProperties object (only --amp-* custom props, in practice) as
  * `--x: y; --z: w;` for use inside a hand-written <style> rule body — needed
- * for the dark-mode block AmphoreProvider injects (see cssVarsToDeclarations
- * callers), since inline `style` can't hold a `@media` query.
+ * for the dark-mode block AmphoreProvider injects, since inline `style` can't
+ * hold a `@media` query.
+ *
+ * `important` is what lets a stylesheet rule override a var set inline on the
+ * same element (see AmphoreProvider).
  */
-export function cssVarsToDeclarations(vars: CSSProperties): string {
+export function cssVarsToDeclarations(
+	vars: CSSProperties,
+	{ important = false }: { important?: boolean } = {}
+): string {
+	const priority = important ? " !important" : "";
+
 	return Object.entries(vars)
-		.map(([key, value]) => `${key}: ${value};`)
+		.map(([key, value]) => `${key}: ${value}${priority};`)
 		.join(" ");
 }
 
