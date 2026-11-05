@@ -6,9 +6,20 @@ import { Badge } from "../components/atoms/Badge/Badge";
 import { AmphoreProvider } from "./AmphoreProvider";
 
 describe("AmphoreProvider theme", () => {
-	it("sets no data-amp-theme by default (system mode)", () => {
+	it("pins the light palette by default", () => {
 		render(
 			<AmphoreProvider>
+				<span data-testid="probe">x</span>
+			</AmphoreProvider>
+		);
+		expect(
+			screen.getByTestId("probe").closest(".amp-root")
+		).toHaveAttribute("data-amp-theme", "light");
+	});
+
+	it("sets no data-amp-theme in system mode", () => {
+		render(
+			<AmphoreProvider theme="system">
 				<span data-testid="probe">x</span>
 			</AmphoreProvider>
 		);

@@ -87,11 +87,11 @@ One `[data-color="x"]` block per color sets local variables (`--_color`/`--_colo
 
 ## Dark theme
 
-`<AmphoreProvider theme="light" | "dark" | "system">` (default `"system"`). A separate `darkColors` palette (not a JS inversion of `colors`) is resolved **in CSS** — a `<style>` scoped to the provider instance + `@media (prefers-color-scheme)` — never a JS media-query detection (risk of SSR/hydration mismatch).
+`<AmphoreProvider theme="light" | "dark" | "system">` (default `"light"`). A separate `darkColors` palette (not a JS inversion of `colors`) is resolved **in CSS** — a `<style>` scoped to the provider instance + `@media (prefers-color-scheme)` — never a JS media-query detection (risk of SSR/hydration mismatch).
 
 Those dark declarations are `!important` on purpose: the light palette is inlined on the same element, and an inline declaration beats any plain stylesheet rule regardless of specificity. The rule only matches that provider's own scope id, so it can't reach a nested provider's node.
 
-An app with no dark design of its own should pin `theme="light"`: with the default `"system"`, its components turn dark for anyone whose OS is dark, whatever the page around them looks like.
+Dark is opt-in: with `"system"`, components turn dark for anyone whose OS is dark, whatever the page around them looks like, so pick it once the app has a dark design of its own.
 
 ## Scales
 

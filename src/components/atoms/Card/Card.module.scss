@@ -1,6 +1,9 @@
 .card {
 	box-sizing: border-box;
 	background: var(--amp-color-card);
+	// A surface sets its text color too: raw content would keep the page's,
+	// black on a dark card.
+	color: var(--amp-color-ink);
 	border: var(--amp-border-width-sm) solid var(--amp-color-border);
 	border-radius: var(--amp-radius-lg);
 	padding: var(--amp-card-padding);

@@ -48,7 +48,7 @@ export function ThemeConfigControls({
 	const ampPrimary = globals.ampPrimary ?? "";
 	const ampDensity = globals.ampDensity ?? "comfortable";
 	const ampDefaultSize = globals.ampDefaultSize ?? "default";
-	const ampTheme = globals.ampTheme ?? "system";
+	const ampTheme = globals.ampTheme ?? "light";
 	const ampLocale = globals.ampLocale ?? "default";
 
 	return (

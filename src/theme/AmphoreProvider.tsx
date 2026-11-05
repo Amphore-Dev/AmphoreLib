@@ -26,9 +26,9 @@ export interface IAmphoreProviderProps extends PropsWithChildren {
 	 */
 	locale?: TAmphoreLocale;
 	/**
-	 * "light"/"dark" pin that palette (sets `data-amp-theme`). "system"
-	 * (default) follows the OS via `prefers-color-scheme` — resolved in CSS,
-	 * not JS, so there's no hydration mismatch and no re-render on OS change.
+	 * "light" (default) and "dark" pin that palette (sets `data-amp-theme`).
+	 * "system" follows the OS via `prefers-color-scheme` — resolved in CSS, not
+	 * JS, so there's no hydration mismatch and no re-render on OS change.
 	 */
 	theme?: TThemeMode;
 	/** Element type for the wrapping node. Defaults to "div". */
@@ -46,7 +46,7 @@ export interface IAmphoreProviderProps extends PropsWithChildren {
 export function AmphoreProvider({
 	config,
 	locale,
-	theme = "system",
+	theme = "light",
 	as = "div",
 	children,
 }: IAmphoreProviderProps) {

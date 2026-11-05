@@ -167,7 +167,7 @@ export const decorators = [
 		return (
 			<AmphoreProvider
 				config={config}
-				theme={(ampTheme as TThemeMode) || "system"}
+				theme={(ampTheme as TThemeMode) || "light"}
 				locale={
 					ampLocale && ampLocale !== "default"
 						? (ampLocale as TAmphoreLocale)

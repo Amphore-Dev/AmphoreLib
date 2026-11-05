@@ -124,10 +124,9 @@ option interactively and copy the resulting config.
 <AmphoreProvider theme="dark" config={{ ... }}>
 ```
 
-- `"system"` (default) — follows the OS (`prefers-color-scheme`), resolved
-  in CSS, not JS, so there's no hydration mismatch and no re-render on an
-  OS-level change.
-- `"light"` / `"dark"` — pins that palette regardless of the OS.
+- `"light"` (default) / `"dark"` — pins that palette regardless of the OS.
+- `"system"` — follows the OS (`prefers-color-scheme`), resolved in CSS, not
+  JS, so there's no hydration mismatch and no re-render on an OS-level change.
 
 An app with no dark design of its own should pin `theme="light"`:
 with the default, its components turn dark for anyone whose OS is dark,
