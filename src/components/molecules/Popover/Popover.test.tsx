@@ -236,3 +236,112 @@ describe("Popover portal", () => {
 		expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 	});
 });
+
+describe("Popover keyboard", () => {
+	it("moves focus into the content, and back to the trigger on Escape", async () => {
+		const user = userEvent.setup();
+		render(
+			<Popover content={<button type="button">Inside</button>}>
+				<button type="button">Open</button>
+			</Popover>
+		);
+
+		await user.click(screen.getByRole("button", { name: "Open" }));
+		await waitFor(() =>
+			expect(screen.getByRole("button", { name: "Inside" })).toHaveFocus()
+		);
+
+		await user.keyboard("{Escape}");
+
+		expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+		await waitFor(() =>
+			expect(screen.getByRole("button", { name: "Open" })).toHaveFocus()
+		);
+	});
+
+	it("reaches a portaled popover from the keyboard", async () => {
+		const user = userEvent.setup();
+		render(
+			<>
+				<Popover portal content={<button type="button">Inside</button>}>
+					<button type="button">Open</button>
+				</Popover>
+				<button type="button">After</button>
+			</>
+		);
+
+		screen.getByRole("button", { name: "Open" }).focus();
+		await user.keyboard("{Enter}");
+
+		await waitFor(() =>
+			expect(screen.getByRole("button", { name: "Inside" })).toHaveFocus()
+		);
+	});
+
+	it("closes when tabbing out", async () => {
+		const user = userEvent.setup();
+		render(
+			<>
+				<Popover content={<button type="button">Inside</button>}>
+					<button type="button">Open</button>
+				</Popover>
+				<button type="button">After</button>
+			</>
+		);
+
+		await user.click(screen.getByRole("button", { name: "Open" }));
+		await waitFor(() =>
+			expect(screen.getByRole("button", { name: "Inside" })).toHaveFocus()
+		);
+		await user.tab();
+
+		await waitFor(() =>
+			expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+		);
+	});
+
+	it("leaves focus on the trigger with matchTriggerWidth", async () => {
+		const user = userEvent.setup();
+		render(
+			<Popover matchTriggerWidth open content="Suggestions">
+				<input aria-label="Search" />
+			</Popover>
+		);
+
+		await user.click(screen.getByRole("textbox", { name: "Search" }));
+
+		expect(screen.getByRole("textbox")).toHaveFocus();
+	});
+});
+
+describe("Popover name", () => {
+	it("is named by its trigger by default", async () => {
+		const user = userEvent.setup();
+		render(
+			<Popover content="Content">
+				<button type="button">Details</button>
+			</Popover>
+		);
+
+		await user.click(screen.getByRole("button", { name: "Details" }));
+
+		expect(
+			await screen.findByRole("dialog", { name: "Details" })
+		).toBeInTheDocument();
+	});
+
+	it("takes an explicit name", async () => {
+		const user = userEvent.setup();
+		render(
+			<Popover content="Content" aria-label="Calendar">
+				<button type="button">Details</button>
+			</Popover>
+		);
+
+		await user.click(screen.getByRole("button", { name: "Details" }));
+
+		expect(
+			await screen.findByRole("dialog", { name: "Calendar" })
+		).toBeInTheDocument();
+	});
+});

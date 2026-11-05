@@ -34,6 +34,10 @@ export interface IDatePickerProps {
 	color?: TColor;
 	disabled?: boolean;
 	required?: boolean;
+	/** Names the field when there's no visible `label`. */
+	"aria-label"?: string;
+	/** Id of an element naming the field — an external label, like FormRenderer's. */
+	"aria-labelledby"?: string;
 	/** Forwarded to the calendar's Popover — renders it into `document.body` via AmphorePortal. Defaults to false. */
 	portal?: boolean;
 	className?: string;
@@ -47,7 +51,9 @@ export type TDatePickerLabels = Pick<IDatePickerProps, "placeholder">;
  * V2 DatePicker — controlled, `value` is a plain `Date` (not a string).
  * Trigger is a text-like field (same _field.scss box as Input/Select);
  * the grid is react-day-picker, restyled via its own --rdp-* vars, opened
- * in a `Popover`.
+ * in a `Popover`. The trigger is a button, whose name a `<label>` replaces
+ * outright: it's named by the label *and* its value through
+ * `aria-labelledby`, or the date would never be read out.
  */
 export const DatePicker: React.FC<IDatePickerProps> = ({
 	value,
@@ -63,6 +69,8 @@ export const DatePicker: React.FC<IDatePickerProps> = ({
 	color = "primary",
 	disabled = false,
 	required = false,
+	"aria-label": ariaLabel,
+	"aria-labelledby": ariaLabelledBy,
 	portal = false,
 	className = "",
 	wrapperClassName = "",
@@ -71,6 +79,9 @@ export const DatePicker: React.FC<IDatePickerProps> = ({
 	const size = sizeProp ?? defaultSize ?? "md";
 	const generatedId = useId();
 	const errorId = `${generatedId}-error`;
+	const labelId = `${generatedId}-label`;
+	const valueId = `${generatedId}-value`;
+	const labelledBy = ariaLabelledBy ?? (label ? labelId : undefined);
 	const [open, setOpen] = useState(false);
 	const { resolve } = useAmphoreLabels("DatePicker");
 	const placeholder = resolve("placeholder", placeholderProp);
@@ -91,7 +102,11 @@ export const DatePicker: React.FC<IDatePickerProps> = ({
 	return (
 		<div className={cn([styles.wrapper, wrapperClassName])}>
 			{label && (
-				<label className={styles.label} htmlFor={generatedId}>
+				<label
+					id={labelId}
+					className={styles.label}
+					htmlFor={generatedId}
+				>
 					{label}
 					{required && <span className={styles.required}>*</span>}
 				</label>
@@ -103,6 +118,8 @@ export const DatePicker: React.FC<IDatePickerProps> = ({
 				placement="bottom-start"
 				disabled={disabled}
 				portal={portal}
+				aria-label={ariaLabel ?? (labelledBy ? undefined : placeholder)}
+				aria-labelledby={labelledBy}
 				content={
 					<DayPicker
 						className={styles.calendar}
@@ -135,9 +152,18 @@ export const DatePicker: React.FC<IDatePickerProps> = ({
 					disabled={disabled}
 					aria-haspopup="dialog"
 					aria-describedby={error && !hideError ? errorId : undefined}
+					aria-label={
+						ariaLabel && !labelledBy
+							? `${ariaLabel}: ${formatted || placeholder}`
+							: undefined
+					}
+					aria-labelledby={
+						labelledBy ? `${labelledBy} ${valueId}` : undefined
+					}
 				>
 					<Picto icon="calendar" className={styles.picto} />
 					<span
+						id={valueId}
 						className={cn([
 							styles.value,
 							!value && styles.placeholder,

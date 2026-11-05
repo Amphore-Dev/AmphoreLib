@@ -31,6 +31,10 @@ export interface IColorPickerFieldProps extends Omit<
 	placement?: Placement;
 	/** Hides the hex value text next to the swatch. Defaults to false. */
 	hideValue?: boolean;
+	/** Names the field when there's no visible `label`. */
+	"aria-label"?: string;
+	/** Id of an element naming the field — an external label, like FormRenderer's. */
+	"aria-labelledby"?: string;
 	className?: string;
 	wrapperClassName?: string;
 	popoverClassName?: string;
@@ -48,6 +52,10 @@ export interface IColorPickerFieldProps extends Omit<
  * via `...pickerProps` — no field-specific prop needed) — the wrapping
  * Popover is made flush here so there's exactly one frame, not two nested
  * ones.
+ *
+ * Same naming as DatePicker: label plus value through `aria-labelledby`. With
+ * `hideValue` the value stays in the markup, visually hidden, or the swatch's
+ * color would be the only thing saying what's picked.
  */
 export const ColorPickerField: React.FC<IColorPickerFieldProps> = ({
 	label,
@@ -59,6 +67,8 @@ export const ColorPickerField: React.FC<IColorPickerFieldProps> = ({
 	required = false,
 	placement = "bottom-start",
 	hideValue = false,
+	"aria-label": ariaLabel,
+	"aria-labelledby": ariaLabelledBy,
 	className = "",
 	wrapperClassName = "",
 	popoverClassName = "",
@@ -68,12 +78,19 @@ export const ColorPickerField: React.FC<IColorPickerFieldProps> = ({
 	const size = sizeProp ?? defaultSize ?? "md";
 	const generatedId = useId();
 	const errorId = `${generatedId}-error`;
+	const labelId = `${generatedId}-label`;
+	const valueId = `${generatedId}-value`;
+	const labelledBy = ariaLabelledBy ?? (label ? labelId : undefined);
 	const [open, setOpen] = useState(false);
 
 	return (
 		<div className={cn([styles.wrapper, wrapperClassName])}>
 			{label && (
-				<label className={styles.label} htmlFor={generatedId}>
+				<label
+					id={labelId}
+					className={styles.label}
+					htmlFor={generatedId}
+				>
 					{label}
 					{required && <span className={styles.required}>*</span>}
 				</label>
@@ -84,6 +101,8 @@ export const ColorPickerField: React.FC<IColorPickerFieldProps> = ({
 				onOpenChange={setOpen}
 				placement={placement}
 				disabled={disabled}
+				aria-label={ariaLabel}
+				aria-labelledby={labelledBy}
 				className={cn([styles.popover, popoverClassName])}
 				content={<ColorPicker noElevation noPadding {...pickerProps} />}
 			>
@@ -98,16 +117,25 @@ export const ColorPickerField: React.FC<IColorPickerFieldProps> = ({
 					disabled={disabled}
 					aria-haspopup="dialog"
 					aria-describedby={error && !hideError ? errorId : undefined}
+					aria-label={
+						ariaLabel && !labelledBy
+							? `${ariaLabel}: ${pickerProps.value}`
+							: undefined
+					}
+					aria-labelledby={
+						labelledBy ? `${labelledBy} ${valueId}` : undefined
+					}
 				>
 					<span
 						className={styles.swatch}
 						style={{ backgroundColor: pickerProps.value }}
 					/>
-					{!hideValue && (
-						<span className={styles.value}>
-							{pickerProps.value}
-						</span>
-					)}
+					<span
+						id={valueId}
+						className={hideValue ? styles.srOnly : styles.value}
+					>
+						{pickerProps.value}
+					</span>
 				</button>
 			</Popover>
 

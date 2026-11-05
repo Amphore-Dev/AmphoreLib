@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
@@ -132,5 +132,87 @@ describe("DatePicker", () => {
 			);
 			expect(onChange).toHaveBeenCalledWith(new Date(2024, 2, 15));
 		});
+	});
+});
+
+describe("DatePicker accessibility", () => {
+	const value = new Date(2024, 2, 15);
+
+	it("names the trigger by its label and its value", () => {
+		render(<DatePicker label="Start" value={value} onChange={() => {}} />);
+		expect(screen.getByRole("button")).toHaveAccessibleName(
+			"Start 15/03/2024"
+		);
+	});
+
+	it("names the trigger through an external label", () => {
+		render(
+			<>
+				<span id="external">Start</span>
+				<DatePicker
+					aria-labelledby="external"
+					value={value}
+					onChange={() => {}}
+				/>
+			</>
+		);
+		expect(screen.getByRole("button")).toHaveAccessibleName(
+			"Start 15/03/2024"
+		);
+	});
+
+	it("names the trigger through aria-label", () => {
+		render(
+			<DatePicker aria-label="Start" value={value} onChange={() => {}} />
+		);
+		expect(screen.getByRole("button")).toHaveAccessibleName(
+			"Start: 15/03/2024"
+		);
+	});
+
+	it("names the calendar after the field", async () => {
+		const user = userEvent.setup();
+		render(<DatePicker label="Start" value={value} onChange={() => {}} />);
+
+		await user.click(screen.getByRole("button"));
+
+		expect(
+			await screen.findByRole("dialog", { name: "Start" })
+		).toBeInTheDocument();
+	});
+
+	it("focuses the selected day, and the trigger again on Escape", async () => {
+		const user = userEvent.setup();
+		render(<DatePicker label="Start" value={value} onChange={() => {}} />);
+
+		await user.click(screen.getByRole("button"));
+		await waitFor(() =>
+			expect(document.activeElement).toHaveTextContent("15")
+		);
+
+		await user.keyboard("{Escape}");
+
+		await waitFor(() =>
+			expect(
+				screen.getByRole("button", { name: /Start/ })
+			).toHaveFocus()
+		);
+	});
+
+	it("returns focus to the trigger after picking a day", async () => {
+		const user = userEvent.setup();
+		render(<DatePicker label="Start" value={value} onChange={() => {}} />);
+
+		await user.click(screen.getByRole("button"));
+		await waitFor(() =>
+			expect(document.activeElement).toHaveTextContent("15")
+		);
+		await user.keyboard("{ArrowRight}{Enter}");
+
+		await waitFor(() =>
+			expect(
+				screen.getByRole("button", { name: /Start/ })
+			).toHaveFocus()
+		);
 	});
 });

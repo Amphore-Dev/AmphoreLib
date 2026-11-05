@@ -10,4 +10,6 @@
 	font-family: var(--amp-font);
 	color: var(--amp-color-ink);
 	z-index: 1000;
+	// Focused programmatically when it holds nothing tabbable.
+	outline: none;
 }

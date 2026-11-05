@@ -71,11 +71,11 @@ describe("ColorPickerField", () => {
 		expect(swatch.style.backgroundColor).toBe("rgb(54, 99, 221)");
 	});
 
-	it("hides the value text when hideValue is given", () => {
+	it("hides the value text visually when hideValue is given", () => {
 		render(
 			<ColorPickerField value="#3663DD" onChange={() => {}} hideValue />
 		);
-		expect(screen.queryByText("#3663DD")).not.toBeInTheDocument();
+		expect(screen.getByText("#3663DD").className).toMatch(/srOnly/);
 	});
 
 	it("forwards noPadding/noElevation straight through to the underlying ColorPicker", async () => {
@@ -100,5 +100,38 @@ describe("ColorPickerField", () => {
 		// The underlying react-gcolor-picker isn't reliably drivable in jsdom
 		// (no real layout, no canvas) — this only confirms the prop is wired.
 		expect(onChange).not.toHaveBeenCalled();
+	});
+});
+
+describe("ColorPickerField accessibility", () => {
+	it("names the trigger by its label and its value", () => {
+		render(
+			<ColorPickerField label="Tint" value="#336699" onChange={() => {}} />
+		);
+		expect(screen.getByRole("button")).toHaveAccessibleName("Tint #336699");
+	});
+
+	it("still reads the value with hideValue", () => {
+		render(
+			<ColorPickerField
+				label="Tint"
+				value="#336699"
+				onChange={() => {}}
+				hideValue
+			/>
+		);
+		expect(screen.getByRole("button")).toHaveAccessibleName("Tint #336699");
+	});
+
+	it("is named without a visible label through aria-label", () => {
+		render(
+			<ColorPickerField
+				aria-label="Tint"
+				value="#336699"
+				onChange={() => {}}
+				hideValue
+			/>
+		);
+		expect(screen.getByRole("button")).toHaveAccessibleName("Tint: #336699");
 	});
 });
