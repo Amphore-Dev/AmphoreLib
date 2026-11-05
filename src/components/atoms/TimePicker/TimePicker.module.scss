@@ -26,7 +26,8 @@
 
 .segment {
 	@include field.field-text;
-	width: 2.25ch;
+	// `ch` is a digit's width: the "HH" and "mm" placeholders need more.
+	width: 3.5ch;
 	text-align: center;
 	font-variant-numeric: tabular-nums;
 
