@@ -1,11 +1,17 @@
 import React from "react";
 
-import ReactGPicker from "react-gcolor-picker";
+import ReactGPickerImport from "react-gcolor-picker";
 import { type IPropsMain } from "react-gcolor-picker/dist/components/Colorpicker/types";
 
 import { cn } from "@utils/cn";
 
 import styles from "./ColorPicker.module.scss";
+
+// Bundlers pick the package's ES build. Node's ESM loader picks its CommonJS
+// one, where a default import yields the whole `{ default: Component }`.
+const ReactGPicker =
+	(ReactGPickerImport as unknown as { default?: typeof ReactGPickerImport })
+		.default ?? ReactGPickerImport;
 
 const DEFAULT_COLORS = [
 	"#EB144C",

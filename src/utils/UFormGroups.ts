@@ -1,6 +1,9 @@
 import { createElement, type ReactNode } from "react";
 
-import { isNil, isPlainObject } from "lodash";
+// Per-method, with the extension: lodash has no ES build and no `exports` map,
+// so Node's ESM loader finds neither `{ isNil } from "lodash"` nor "lodash/isNil".
+import isNil from "lodash/isNil.js";
+import isPlainObject from "lodash/isPlainObject.js";
 
 import {
 	TEditFields,
