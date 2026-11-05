@@ -1,7 +1,13 @@
+import type { CSSProperties } from "react";
+
 import { describe, expect, it } from "vitest";
 
 import { DENSITY_PRESETS, DEFAULT_CONFIG } from "./CThemeConfig";
-import { configToCssVars, mergeConfig } from "./UThemeConfig";
+import {
+	configToCssVars,
+	cssVarsToDeclarations,
+	mergeConfig,
+} from "./UThemeConfig";
 
 describe("mergeConfig", () => {
 	it("returns the defaults untouched when no input is given", () => {
@@ -57,6 +63,20 @@ describe("mergeConfig", () => {
 		expect(result.darkColors.primary).toBe("#4477ee");
 		expect(result.darkColors.primaryTint).toContain("#4477ee");
 		expect(result.darkColors.primaryTint).toContain("black");
+	});
+});
+
+describe("cssVarsToDeclarations", () => {
+	const vars = { "--a": "1", "--b": "2" } as CSSProperties;
+
+	it("renders plain declarations by default", () => {
+		expect(cssVarsToDeclarations(vars)).toBe("--a: 1; --b: 2;");
+	});
+
+	it("marks every declaration !important on request", () => {
+		expect(cssVarsToDeclarations(vars, { important: true })).toBe(
+			"--a: 1 !important; --b: 2 !important;"
+		);
 	});
 });
 

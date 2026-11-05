@@ -3,6 +3,8 @@ import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { pdfjs } from "react-pdf";
 import { create } from "storybook/theming";
 
+// src/index.ts, which ships this in lib/style.css, isn't loaded here.
+import "../src/styles/tokens.css";
 import { AmphoreProvider } from "../src/theme/AmphoreProvider";
 import type { TAmphoreLocale } from "../src/theme/AmphoreProvider";
 import type {
@@ -133,10 +135,14 @@ const STORYBOOK_TYPOGRAPHY: TThemeConfigInput["typography"] = {
 /**
  * Reads the live config from the "Amphore Theme" panel (see manager.tsx /
  * ThemeConfigPanel.tsx) and applies it to every story via AmphoreProvider —
- * same mechanism a consumer app uses at its own root.
+ * same mechanism a consumer app uses at its own root. A story setting
+ * `parameters.amphoreProvider: false` opts out and renders bare, on the
+ * `:root` fallback alone.
  */
 export const decorators = [
 	(Story, context) => {
+		if (context.parameters.amphoreProvider === false) return <Story />;
+
 		const {
 			ampStyle,
 			ampPrimary,

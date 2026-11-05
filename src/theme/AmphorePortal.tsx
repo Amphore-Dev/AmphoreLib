@@ -12,8 +12,9 @@ export interface IAmphorePortalProps extends PropsWithChildren {
 /**
  * The lib's one portal primitive — `FloatingPortal` with the theme scope
  * re-applied inside it (see AmphoreScope). Use this, never a bare
- * `FloatingPortal`/`createPortal`: those drop the theme's CSS vars and
- * render the portaled content unstyled.
+ * `FloatingPortal`/`createPortal`: those leave the provider's CSS vars
+ * behind, and the portaled content falls back to the default theme at
+ * `:root`, ignoring the provider's config and dark palette.
  */
 export function AmphorePortal({ root, children }: IAmphorePortalProps) {
 	return (

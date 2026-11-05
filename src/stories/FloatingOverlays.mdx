@@ -10,9 +10,9 @@ All built on `@floating-ui/react`, with four recurring rules — each one broke 
 
 ## Never a bare `FloatingPortal` — `AmphorePortal`
 
-The theme is **CSS variables inlined on `AmphoreProvider`'s wrapper** (`.amp-root`, plus the `data-amp-theme`/`data-amp-density`/`data-amp-scope` attributes), with no `:root` fallback. Anything rendered through a portal leaves that wrapper in the DOM, so every `var(--amp-*)` resolves to nothing — the portaled content shows up unstyled. That was misread for a while as a Storybook stylesheet issue; it isn't, it's plain CSS inheritance and happens in any app.
+The theme is **CSS variables inlined on `AmphoreProvider`'s wrapper** (`.amp-root`, plus the `data-amp-theme`/`data-amp-density`/`data-amp-scope` attributes). Anything rendered through a portal leaves that wrapper in the DOM, so it stops inheriting them and falls back to the default light theme at `:root` — the wrong palette in a dark or customized provider. It's easy to miss for that reason: a bare portal looks fine under the default theme and only breaks under a configured one. It's plain CSS inheritance and happens in any app.
 
-`AmphorePortal` is the one portal primitive in the lib: `FloatingPortal` + `AmphoreScope`, a `div` that re-applies the nearest provider's attributes and inline vars inside the portal. The provider's dark-mode `<style>` block matches on `[data-amp-scope]` alone, not DOM position, so it applies there too — nothing to duplicate. Without a provider above, `AmphoreScope` is a passthrough.
+`AmphorePortal` is the one portal primitive in the lib: `FloatingPortal` + `AmphoreScope`, a `div` that re-applies the nearest provider's attributes and inline vars inside the portal. The provider's dark-mode `<style>` block matches on `[data-amp-scope]` alone, not DOM position, so it applies there too — nothing to duplicate. Without a provider above, `AmphoreScope` is a passthrough: the portaled content reads the `:root` tokens like the rest of the page.
 
 ```tsx
 import { AmphorePortal, AmphoreScope } from "@amphore-dev/amphore-lib";
