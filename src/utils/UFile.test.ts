@@ -15,8 +15,11 @@ describe("tagFile", () => {
 	});
 
 	it("makes two picks of the literally same file compare as equal", () => {
-		const a = tagFile(new File(["x"], "a.pdf"));
-		const b = tagFile(new File(["x"], "a.pdf"));
+		// A fixed date: `lastModified` defaults to the clock, which can tick
+		// between the two calls.
+		const options = { lastModified: 0 };
+		const a = tagFile(new File(["x"], "a.pdf", options));
+		const b = tagFile(new File(["x"], "a.pdf", options));
 		expect(isEqual([a], [b])).toBe(true);
 	});
 
