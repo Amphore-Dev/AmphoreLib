@@ -17,6 +17,27 @@ yarn add @amphore-dev/amphore-lib
 ```
 
 Peer dependencies: `react` and `react-dom` (`>=18.0.0 <20.0.0`).
+`react-pdf` and `pdfjs-dist` are optional: only `FileViewer` needs them, to
+render a PDF. It loads `react-pdf` lazily, so the lib imports fine without
+it, but a bundler that resolves every import up front (esbuild, for one)
+stops on that lazy import: install the package, or mark it as external.
+
+## Imports
+
+Import everything from the package root, and the stylesheet once:
+
+```tsx
+import { Button } from "@amphore-dev/amphore-lib";
+import "@amphore-dev/amphore-lib/style.css";
+```
+
+The package ships ESM and CommonJS, one file per module, and declares its
+side effects, so your bundler only keeps the components you import. The
+stylesheet is a single file covering every component.
+
+`@amphore-dev/amphore-lib/lib/style.css` still resolves. Any other path
+under `lib/` does not: the package's `exports` map only exposes the root,
+the stylesheet and `package.json`.
 
 ## Quick start
 
@@ -26,7 +47,7 @@ entirely to use the defaults.
 
 ```tsx
 import { AmphoreProvider, Button, Input } from "@amphore-dev/amphore-lib";
-import "@amphore-dev/amphore-lib/lib/style.css";
+import "@amphore-dev/amphore-lib/style.css";
 
 function App() {
 	const [name, setName] = useState("");

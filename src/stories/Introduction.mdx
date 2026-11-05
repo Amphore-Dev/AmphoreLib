@@ -20,7 +20,7 @@ npm install @amphore-dev/amphore-lib
 
 ```tsx
 import { AmphoreProvider, Button, Input } from "@amphore-dev/amphore-lib";
-import "@amphore-dev/amphore-lib/lib/style.css";
+import "@amphore-dev/amphore-lib/style.css";
 
 function App() {
 	const [name, setName] = useState("");
@@ -33,6 +33,11 @@ function App() {
 	);
 }
 ```
+
+Import everything from the package root: your bundler only keeps the
+components you use. The stylesheet is a single file covering all of them.
+Paths under `lib/` are not public, except the older
+`@amphore-dev/amphore-lib/lib/style.css`, which still resolves.
 
 ## Find your way around
 

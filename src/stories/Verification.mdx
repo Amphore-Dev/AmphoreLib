@@ -63,6 +63,8 @@ storybook build --quiet  # or dev --ci, grep error/ready
 yarn build               # periodic, not necessarily on every commit
 ```
 
+`yarn build` also checks what it emitted: `scripts/check-built-css.mjs` (rules and order of `style.css`) and `scripts/check-built-package.mjs` (`exports` targets, both entries loading in plain Node with no optional peer, side effects, path aliases left in a `.d.ts`). Neither Storybook nor the tests can catch these: they load the sources.
+
 One commit per logical change, a detailed message (root cause, not just the symptom), ending with `Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>`.
 
 ---
