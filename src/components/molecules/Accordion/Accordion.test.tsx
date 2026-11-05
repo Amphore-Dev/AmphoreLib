@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import React from "react";
 
 import { render, screen } from "@testing-library/react";
@@ -304,5 +306,35 @@ describe("Accordion rich header", () => {
 		expect(
 			screen.getByRole("button", { name: "Add project" })
 		).toBeEnabled();
+	});
+});
+
+describe("Accordion closed panels", () => {
+	// jsdom doesn't apply stylesheets: it's the stylesheet that's asserted.
+	it("takes a closed panel out of the tab order and the a11y tree", () => {
+		const css = readFileSync(
+			join(__dirname, "Accordion.module.scss"),
+			"utf8"
+		);
+		const panel = css.slice(css.indexOf("\n.panel {"));
+
+		expect(panel).toMatch(/^\n\.panel \{[^}]*visibility: hidden;/);
+		expect(panel).toMatch(
+			/\[data-open="true"\] \{[^}]*visibility: visible;/
+		);
+	});
+
+	it("wires each trigger to its panel", () => {
+		render(
+			<Accordion
+				items={[{ value: "a", title: "One", content: "First" }]}
+				value={["a"]}
+			/>
+		);
+		const trigger = screen.getByRole("button", { name: "One" });
+		const panel = screen.getByRole("region", { name: "One" });
+
+		expect(trigger).toHaveAttribute("aria-controls", panel.id);
+		expect(trigger).toHaveAttribute("aria-expanded", "true");
 	});
 });

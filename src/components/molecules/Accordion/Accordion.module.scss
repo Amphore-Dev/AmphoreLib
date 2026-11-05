@@ -140,14 +140,24 @@
 // own box to 0 height, but without clipping its own overflow, the content
 // just keeps painting past that 0-height box instead of disappearing,
 // visibly bleeding into/overlapping the next item.
+//
+// `visibility: hidden` is what actually closes it: a 0-height box is still in
+// the tab order and the accessibility tree, so the keyboard walked into
+// content nobody could see, and a screen reader read every closed section.
+// It flips at the end of the collapse, not the start, so nothing vanishes
+// mid-animation.
 .panel {
 	display: grid;
 	grid-template-rows: 0fr;
 	overflow: hidden;
-	transition: grid-template-rows 0.2s ease;
+	visibility: hidden;
+	transition:
+		grid-template-rows 0.2s ease,
+		visibility 0.2s;
 
 	&[data-open="true"] {
 		grid-template-rows: 1fr;
+		visibility: visible;
 	}
 }
 
