@@ -298,7 +298,7 @@ const FileViewerBase: React.ForwardRefRenderFunction<
 						className={cn([styles.zoomValue, styles.zoomReset])}
 						onClick={() => setScale(1)}
 						disabled={pdfError || scale === 1}
-						aria-label={resetZoomLabel}
+						aria-label={`${resetZoomLabel}: ${zoomPercent}%`}
 						data-testid={deriveTestId(testId, "zoom-reset")}
 					>
 						{zoomPercent}%
@@ -333,7 +333,7 @@ const FileViewerBase: React.ForwardRefRenderFunction<
 								className={styles.toolIcon}
 							/>
 						</button>
-						<span className={styles.zoomValue}>
+						<span className={styles.zoomValue} role="status">
 							{page} / {numPages}
 						</span>
 						<button
@@ -367,9 +367,15 @@ const FileViewerBase: React.ForwardRefRenderFunction<
 				)}
 			</div>
 
+			{/* A scrolling area the keyboard can't otherwise scroll: nothing in
+			    it takes focus (WCAG 2.1.1). */}
 			<div
 				ref={viewportRef}
 				className={styles.viewport}
+				role="region"
+				aria-label={resolvedName ?? previewAltLabel}
+				// eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+				tabIndex={0}
 				data-testid={deriveTestId(testId, "viewport")}
 			>
 				{resolvedType === "image" && resolvedUrl && (

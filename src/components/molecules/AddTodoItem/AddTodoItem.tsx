@@ -77,6 +77,7 @@ const AddTodoItemBase: React.ForwardRefRenderFunction<
 					value={draft}
 					onChange={setDraft}
 					placeholder={placeholder}
+					aria-label={placeholder}
 					size={size}
 					autoGrow
 					rows={1}
@@ -90,6 +91,7 @@ const AddTodoItemBase: React.ForwardRefRenderFunction<
 					value={draft}
 					onChange={setDraft}
 					placeholder={placeholder}
+					aria-label={placeholder}
 					size={size}
 					wrapperClassName={styles.input}
 					onKeyDown={handleKeyDown}

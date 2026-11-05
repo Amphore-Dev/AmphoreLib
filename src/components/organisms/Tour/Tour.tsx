@@ -27,7 +27,7 @@ import {
 import { AmphorePortal } from "@theme/AmphorePortal";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
-import { useMediaQuery } from "@hooks/index";
+import { useEscapeLayer, useMediaQuery, useRestoreFocus } from "@hooks/index";
 
 import { composeHandlers } from "@utils/UHandlers";
 import { deriveTestId } from "@utils/UTestId";
@@ -356,7 +356,11 @@ const TourBase: React.ForwardRefRenderFunction<HTMLDivElement, ITourProps> = (
 		return autoUpdate(target, el, update);
 	}, [target]);
 
-	const dismiss = useDismiss(context, { outsidePress: false });
+	const dismiss = useDismiss(context, {
+		outsidePress: false,
+		escapeKey: false,
+	});
+	useEscapeLayer(open && !!currentStep, () => onClose("skip"));
 	const role = useRole(context, { role: "dialog" });
 	const { getFloatingProps } = useInteractions([dismiss, role]);
 	const bubbleRef = useMergeRefs([refs.setFloating, ref]);
@@ -365,6 +369,11 @@ const TourBase: React.ForwardRefRenderFunction<HTMLDivElement, ITourProps> = (
 	const titleId = useFloatingId();
 	const contentId = useFloatingId();
 	const primaryRef = useRef<HTMLButtonElement>(null);
+
+	// Not FloatingFocusManager's returnFocus: that goes to the floating
+	// reference, here the step's target, not where the person was. It also
+	// fires whenever the reference changes, so on every step.
+	useRestoreFocus(open);
 
 	if (!open || !currentStep) return null;
 
@@ -416,12 +425,16 @@ const TourBase: React.ForwardRefRenderFunction<HTMLDivElement, ITourProps> = (
 				<FloatingFocusManager
 					context={context}
 					initialFocus={primaryRef}
+					returnFocus={false}
 				>
 					<Card
 						aria-labelledby={titleId}
-						aria-describedby={contentId}
 						{...getFloatingProps({
 							...props,
+							"aria-describedby": cn([
+								props["aria-describedby"],
+								contentId,
+							]),
 							onKeyDown: composeHandlers(
 								onKeyDownProp,
 								onKeyDown
@@ -446,6 +459,7 @@ const TourBase: React.ForwardRefRenderFunction<HTMLDivElement, ITourProps> = (
 								? floatingStyles
 								: undefined),
 						}}
+						aria-modal
 					>
 						{display === "popover" && !centered && (
 							<FloatingArrow
@@ -456,29 +470,42 @@ const TourBase: React.ForwardRefRenderFunction<HTMLDivElement, ITourProps> = (
 								height={7}
 							/>
 						)}
-						{showProgress && (
-							<span className={styles.counter}>
-								{stepOfLabel
-									.replace(
-										"{current}",
-										String(counted.indexOf(current) + 1)
-									)
-									.replace("{total}", String(counted.length))}
-							</span>
-						)}
-						<h2
-							id={titleId}
-							className={styles.title}
-							data-testid={deriveTestId(testId, "title")}
-						>
-							{forDevice(currentStep.title, device)}
-						</h2>
+						{/* The dialog is named and described once, as it opens:
+						    going to the next step keeps focus on its button and
+						    the same dialog, so nothing would be read out without
+						    this live region. `contents`: no box of its own. */}
 						<div
-							id={contentId}
-							className={styles.content}
-							data-testid={deriveTestId(testId, "content")}
+							aria-live="polite"
+							aria-atomic
+							style={{ display: "contents" }}
 						>
-							{forDevice(currentStep.content, device)}
+							{showProgress && (
+								<span className={styles.counter}>
+									{stepOfLabel
+										.replace(
+											"{current}",
+											String(counted.indexOf(current) + 1)
+										)
+										.replace(
+											"{total}",
+											String(counted.length)
+										)}
+								</span>
+							)}
+							<h2
+								id={titleId}
+								className={styles.title}
+								data-testid={deriveTestId(testId, "title")}
+							>
+								{forDevice(currentStep.title, device)}
+							</h2>
+							<div
+								id={contentId}
+								className={styles.content}
+								data-testid={deriveTestId(testId, "content")}
+							>
+								{forDevice(currentStep.content, device)}
+							</div>
 						</div>
 						<div
 							className={styles.footer}

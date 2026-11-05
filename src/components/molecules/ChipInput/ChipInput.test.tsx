@@ -173,7 +173,10 @@ describe("ChipInput", () => {
 		expect(onInvalidValue).toHaveBeenCalledWith("nope");
 		const chip = screen.getByText("nope").closest("[data-color]");
 		expect(chip).toHaveAttribute("data-color", "danger");
-		expect(chip).toHaveAttribute("aria-invalid", "true");
+		// A span has no role aria-invalid applies to: the state is in its text.
+		expect(chip).not.toHaveAttribute("aria-invalid");
+		expect(chip).toHaveAttribute("data-invalid", "true");
+		expect(chip).toHaveTextContent("(invalid)");
 	});
 
 	it("keeps an invalid entry in the field with rejectInvalid", async () => {

@@ -1,4 +1,6 @@
-import React, { forwardRef, useId } from "react";
+import React, { forwardRef, useId, useRef } from "react";
+
+import { useMergeRefs } from "@floating-ui/react";
 
 import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
@@ -90,6 +92,8 @@ const InputBase: React.ForwardRefRenderFunction<
 	const errorId = `${inputId}-error`;
 	const { resolve } = useAmphoreLabels("Input");
 	const clearLabel = resolve("clearLabel", clearLabelProp, "clear");
+	const inputRef = useRef<HTMLInputElement>(null);
+	const mergedRef = useMergeRefs([inputRef, ref]);
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		onChange?.(e.target.value, e);
@@ -101,6 +105,8 @@ const InputBase: React.ForwardRefRenderFunction<
 			target: { value: "" },
 		} as React.ChangeEvent<HTMLInputElement>;
 		onChange("", fakeEvent);
+		// The button unmounts with the value.
+		inputRef.current?.focus();
 	};
 
 	return (
@@ -133,7 +139,7 @@ const InputBase: React.ForwardRefRenderFunction<
 				<input
 					placeholder={label}
 					{...props}
-					ref={ref}
+					ref={mergedRef}
 					id={inputId}
 					className={styles.input}
 					value={value}

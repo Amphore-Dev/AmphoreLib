@@ -160,7 +160,7 @@ describe("FileViewer", () => {
 		fireEvent.click(screen.getByRole("button", { name: "Zoom in" }));
 		fireEvent.click(screen.getByRole("button", { name: "Zoom in" }));
 		expect(screen.getByText("150%")).toBeInTheDocument();
-		fireEvent.click(screen.getByRole("button", { name: "Reset zoom" }));
+		fireEvent.click(screen.getByRole("button", { name: /^Reset zoom/ }));
 		expect(screen.getByText("100%")).toBeInTheDocument();
 	});
 
@@ -168,7 +168,7 @@ describe("FileViewer", () => {
 		const file = new File(["a"], "photo.png", { type: "image/png" });
 		render(<FileViewer src={file} />);
 		expect(
-			screen.getByRole("button", { name: "Reset zoom" })
+			screen.getByRole("button", { name: /^Reset zoom/ })
 		).toBeDisabled();
 	});
 
@@ -180,7 +180,7 @@ describe("FileViewer", () => {
 		expect(screen.getByRole("button", { name: "Zoom out" })).toBeDisabled();
 		expect(screen.getByRole("button", { name: "Zoom in" })).toBeDisabled();
 		expect(
-			screen.getByRole("button", { name: "Reset zoom" })
+			screen.getByRole("button", { name: /^Reset zoom/ })
 		).toBeDisabled();
 	});
 
@@ -202,11 +202,27 @@ describe("FileViewer", () => {
 			screen.getByRole("button", { name: "Zoom in" })
 		).toBeInTheDocument();
 		expect(
-			screen.getByRole("button", { name: "Reset zoom" })
+			screen.getByRole("button", { name: /^Reset zoom/ })
 		).toBeInTheDocument();
 		expect(screen.getByText("Download")).toBeInTheDocument();
 		expect(
 			screen.getByText("Unsupported format: archive.zip")
+		).toBeInTheDocument();
+	});
+});
+
+describe("FileViewer accessibility", () => {
+	it("lets the keyboard scroll the preview", () => {
+		render(<FileViewer src="/photo.png" />);
+		const viewport = screen.getByRole("region", { name: "photo.png" });
+
+		expect(viewport).toHaveAttribute("tabindex", "0");
+	});
+
+	it("keeps what the zoom button shows in its name", () => {
+		render(<FileViewer src="/photo.png" />);
+		expect(
+			screen.getByRole("button", { name: "Reset zoom: 100%" })
 		).toBeInTheDocument();
 	});
 });

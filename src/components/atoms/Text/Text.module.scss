@@ -1,7 +1,8 @@
 @use "../../../styles/mixins" as *;
 
 $colors:
-	ink, sub, primary, danger, success, warning, info, neutral, black, white;
+	"ink", "sub", "primary", "danger", "success", "warning", "info", "neutral",
+	"black", "white";
 
 .text {
 	font-family: var(--amp-font);

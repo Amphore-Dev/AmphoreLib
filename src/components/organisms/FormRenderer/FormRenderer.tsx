@@ -49,6 +49,35 @@ const REQUIRED_FIELD_ON_LABEL: Partial<Record<TFieldType, true>> = {
 	timeRange: true,
 };
 
+/**
+ * Field types rendering a single native control with this `id`, the only ones
+ * a `<label htmlFor>` can name. The others are a combobox `div`, a button
+ * whose name must keep its value, or a whole group of controls: they're
+ * named by the same label through `aria-labelledby`.
+ */
+const NATIVE_LABEL_TARGET: Partial<Record<TFieldType, true>> = {
+	input: true,
+	textarea: true,
+	number: true,
+	chips: true,
+	toggle: true,
+};
+
+/** Focuses the control a field's reset button sits next to. */
+const focusFieldOf = (resetButton: HTMLButtonElement) => {
+	const controls = resetButton
+		.closest("[data-form-field]")
+		?.querySelectorAll<HTMLElement>(
+			'input, textarea, [role="combobox"], button'
+		);
+	Array.from(controls ?? [])
+		.find(
+			(control) =>
+				control !== resetButton && !control.hasAttribute("disabled")
+		)
+		?.focus();
+};
+
 export interface IFormRendererProps<K = object>
 	extends
 		Partial<
@@ -342,9 +371,40 @@ const FormRendererBase = <K extends object>(
 										"label",
 									]);
 
+									const labelId = `${name}-label`;
+									const isNativeTarget =
+										!type || NATIVE_LABEL_TARGET[type];
+									// With no label on screen it still has to
+									// be named somewhere. A label that isn't
+									// text can't go in an attribute: that one
+									// stays with the consumer.
+									const naming = showLabel
+										? isNativeTarget
+											? {}
+											: { "aria-labelledby": labelId }
+										: typeof fieldLabel === "string"
+											? { "aria-label": fieldLabel }
+											: {};
+
+									// Touched alone would never fire: submit is
+									// disabled while invalid, and nothing else
+									// marks a field touched here.
+									const showError =
+										formikCtx.touched?.[name as keyof K] ||
+										!isEqual(
+											formikFieldValue,
+											formikCtx.initialValues?.[
+												name as keyof K
+											]
+										);
+									const fieldError =
+										showError &&
+										formikCtx.errors?.[name as keyof K];
+
 									return (
 										<div
 											key={`${name}-${fieldIndex}`}
+											data-form-field
 											className={cn([
 												styles.groupItem,
 												showFieldResets &&
@@ -360,7 +420,12 @@ const FormRendererBase = <K extends object>(
 											>
 												{showLabel && (
 													<label
-														htmlFor={name}
+														id={labelId}
+														htmlFor={
+															isNativeTarget
+																? name
+																: undefined
+														}
 														className={
 															styles.groupItemLabel
 														}
@@ -399,22 +464,34 @@ const FormRendererBase = <K extends object>(
 																"reset",
 																name
 															)}
-															onClick={() =>
-																field.onReset
-																	? field.onReset(
-																			formikCtx as unknown as FormikContextType<object>
-																		)
-																	: void (
-																			setFieldValue ??
-																			formikCtx.setFieldValue
-																		)(
-																			name,
-																			typeof fieldDefaultValue !==
-																				"undefined"
-																				? fieldDefaultValue
-																				: null
-																		)
-															}
+															onClick={(e) => {
+																// It disables itself by working. Keyboard only: on a phone, focusing an input raises the keyboard.
+																if (
+																	e.detail ===
+																	0
+																)
+																	focusFieldOf(
+																		e.currentTarget
+																	);
+																if (
+																	field.onReset
+																) {
+																	field.onReset(
+																		formikCtx as unknown as FormikContextType<object>
+																	);
+																	return;
+																}
+																void (
+																	setFieldValue ??
+																	formikCtx.setFieldValue
+																)(
+																	name,
+																	typeof fieldDefaultValue !==
+																		"undefined"
+																		? fieldDefaultValue
+																		: null
+																);
+															}}
 															disabled={
 																!isDirty ||
 																fieldsDisabled
@@ -437,6 +514,11 @@ const FormRendererBase = <K extends object>(
 													"field",
 													name
 												)}
+												{...naming}
+												{...(typeof fieldError ===
+												"string"
+													? { error: fieldError }
+													: {})}
 												{...fieldProps}
 												formik={
 													formikCtx as unknown as FormikContextType<object>
@@ -601,7 +683,10 @@ const FormRendererWithFormikBase = <K extends object>(
 												"primary"
 											)}
 											isLoading={formikCtx.isSubmitting}
-											disabled={submitDisabled}
+											disabled={
+												submitDisabled &&
+												!formikCtx.isSubmitting
+											}
 										>
 											{submitLabel}
 										</Button>

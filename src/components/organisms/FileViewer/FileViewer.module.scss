@@ -120,6 +120,10 @@
 }
 
 .viewport {
+	&:focus-visible {
+		@include focus-ring($inset: true);
+	}
+
 	flex: 1;
 	min-height: 0;
 	overflow: auto;

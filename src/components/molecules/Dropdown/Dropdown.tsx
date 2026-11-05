@@ -17,6 +17,8 @@ import {
 
 import { AmphorePortal } from "@theme/AmphorePortal";
 
+import { useEscapeLayer } from "@hooks/index";
+
 import type { ITestIdProps, TMenuItem } from "@interfaces/index";
 
 import { MenuList } from "./MenuList";
@@ -88,7 +90,8 @@ const DropdownBase: React.ForwardRefRenderFunction<
 	});
 
 	const click = useClick(context, { enabled: !disabled });
-	const dismiss = useDismiss(context);
+	const dismiss = useDismiss(context, { escapeKey: false });
+	useEscapeLayer(open && !disabled, () => setOpen(false));
 	const role = useRole(context, { role: "menu" });
 	const listNav = useListNavigation(context, {
 		listRef,

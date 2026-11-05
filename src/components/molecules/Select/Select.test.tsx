@@ -1,6 +1,6 @@
 import React from "react";
 
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
@@ -94,7 +94,7 @@ describe("Select", () => {
 		expect(
 			screen.getByRole("listbox", { name: "Période" })
 		).toBeInTheDocument();
-		expect(screen.getByRole("textbox", { name: "Période" })).toHaveFocus();
+		expect(screen.getByRole("combobox", { name: "Période" })).toHaveFocus();
 	});
 
 	it("points at no label when it has none", () => {
@@ -193,7 +193,7 @@ describe("Select", () => {
 		await userEvent.click(screen.getByRole("combobox"));
 		// Once open+searchable, typing happens in the inner search <input>,
 		// not the outer role="combobox" div (which owns click/keyboard nav).
-		await userEvent.type(screen.getByRole("textbox"), "se");
+		await userEvent.type(screen.getByRole("combobox"), "se");
 
 		const listbox = screen.getByRole("listbox");
 		expect(within(listbox).getByText("Semaine")).toBeInTheDocument();
@@ -204,7 +204,7 @@ describe("Select", () => {
 	it("typing a space in the search input inserts a space, doesn't close the listbox", async () => {
 		render(<Select options={OPTIONS} searchable onChange={() => {}} />);
 		await userEvent.click(screen.getByRole("combobox"));
-		const input = screen.getByRole("textbox");
+		const input = screen.getByRole("combobox");
 		await userEvent.type(input, "a b");
 
 		expect(input).toHaveValue("a b");
@@ -238,8 +238,10 @@ describe("Select", () => {
 	it("shows a message when no option matches the search", async () => {
 		render(<Select options={OPTIONS} searchable onChange={() => {}} />);
 		await userEvent.click(screen.getByRole("combobox"));
-		await userEvent.type(screen.getByRole("textbox"), "zzz");
-		expect(screen.getByText("No results")).toBeInTheDocument();
+		await userEvent.type(screen.getByRole("combobox"), "zzz");
+		expect(
+			within(screen.getByRole("listbox")).getByText("No results")
+		).toBeInTheDocument();
 	});
 
 	it("does not open when disabled", async () => {
@@ -306,7 +308,7 @@ describe("Select", () => {
 			/>
 		);
 		await userEvent.click(screen.getByRole("combobox"));
-		await userEvent.type(screen.getByRole("textbox"), "ab");
+		await userEvent.type(screen.getByRole("combobox"), "ab");
 		expect(onSearchChange).toHaveBeenCalledWith("a");
 		expect(onSearchChange).toHaveBeenCalledWith("ab");
 	});
@@ -321,16 +323,20 @@ describe("Select", () => {
 			/>
 		);
 		await userEvent.click(screen.getByRole("combobox"));
-		await userEvent.type(screen.getByRole("textbox"), "zzz-no-match");
+		await userEvent.type(screen.getByRole("combobox"), "zzz-no-match");
 		expect(screen.getAllByRole("option").length).toBe(OPTIONS.length);
 	});
 
 	it("shows a loading state instead of options/no-results when isLoading", async () => {
 		render(<Select options={OPTIONS} onChange={() => {}} isLoading />);
 		await userEvent.click(screen.getByRole("combobox"));
-		expect(screen.queryByRole("option")).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole("option", { name: "Jour" })
+		).not.toBeInTheDocument();
 		expect(screen.queryByText("No results")).not.toBeInTheDocument();
-		expect(screen.getByText("Loading...")).toBeInTheDocument();
+		expect(
+			within(screen.getByRole("listbox")).getByText("Loading...")
+		).toBeInTheDocument();
 	});
 
 	it("uses a custom loadingMessage", async () => {
@@ -343,7 +349,11 @@ describe("Select", () => {
 			/>
 		);
 		await userEvent.click(screen.getByRole("combobox"));
-		expect(screen.getByText("Recherche en cours...")).toBeInTheDocument();
+		expect(
+			within(screen.getByRole("listbox")).getByText(
+				"Recherche en cours..."
+			)
+		).toBeInTheDocument();
 	});
 
 	it("shows a spinner next to the chevron when isLoading, even before opening", () => {
@@ -589,7 +599,7 @@ describe("Select", () => {
 				/>
 			);
 			await userEvent.click(screen.getByRole("combobox"));
-			await userEvent.type(screen.getByRole("textbox"), "Projet");
+			await userEvent.type(screen.getByRole("combobox"), "Projet");
 			expect(screen.queryByText("Calendriers")).not.toBeInTheDocument();
 			expect(screen.getByText("Projets")).toBeInTheDocument();
 			expect(screen.getByText("Projet X")).toBeInTheDocument();
@@ -615,13 +625,13 @@ describe("Select", () => {
 				/>
 			);
 			await userEvent.click(screen.getByRole("combobox"));
-			await userEvent.type(screen.getByRole("textbox"), "se");
+			await userEvent.type(screen.getByRole("combobox"), "se");
 			await userEvent.click(screen.getByText("Semaine"));
 
 			// Reopen — with the query cleared, every option should show
 			// again instead of staying filtered to the stale "se" query.
 			await userEvent.click(screen.getByRole("combobox"));
-			expect(screen.getByRole("textbox")).toHaveValue("");
+			expect(screen.getByRole("combobox")).toHaveValue("");
 			const listbox = screen.getByRole("listbox");
 			expect(within(listbox).getByText("Jour")).toBeInTheDocument();
 			expect(within(listbox).getByText("Mois")).toBeInTheDocument();
@@ -637,11 +647,11 @@ describe("Select", () => {
 				/>
 			);
 			await userEvent.click(screen.getByRole("combobox"));
-			await userEvent.type(screen.getByRole("textbox"), "se");
+			await userEvent.type(screen.getByRole("combobox"), "se");
 			await userEvent.click(screen.getByText("Semaine"));
 
 			await userEvent.click(screen.getByRole("combobox"));
-			expect(screen.getByRole("textbox")).toHaveValue("se");
+			expect(screen.getByRole("combobox")).toHaveValue("se");
 		});
 
 		it("doesn't change what onChange receives or how many times it fires", async () => {
@@ -656,7 +666,7 @@ describe("Select", () => {
 				/>
 			);
 			await userEvent.click(screen.getByRole("combobox"));
-			await userEvent.type(screen.getByRole("textbox"), "se");
+			await userEvent.type(screen.getByRole("combobox"), "se");
 			await userEvent.click(screen.getByText("Semaine"));
 			expect(onChange).toHaveBeenCalledTimes(1);
 			expect(onChange).toHaveBeenCalledWith("week");
@@ -735,5 +745,204 @@ describe("Select", () => {
 			await userEvent.click(within(listbox).getByText("Semaine"));
 			expect(onChange).toHaveBeenCalledWith("week");
 		});
+	});
+});
+
+describe("Select accessibility", () => {
+	it("states an error on the combobox and links its message", () => {
+		render(<Select label="Period" options={OPTIONS} error="Required" />);
+		const combobox = screen.getByRole("combobox", { name: "Period" });
+
+		expect(combobox).toBeInvalid();
+		expect(combobox).toHaveAccessibleDescription("Required");
+	});
+
+	it("states required and disabled", () => {
+		const { rerender } = render(
+			<Select label="Period" options={OPTIONS} required />
+		);
+		expect(screen.getByRole("combobox")).toBeRequired();
+
+		rerender(<Select label="Period" options={OPTIONS} disabled />);
+		expect(screen.getByRole("combobox")).toHaveAttribute(
+			"aria-disabled",
+			"true"
+		);
+	});
+
+	it("is named without a visible label", () => {
+		const { rerender } = render(
+			<Select aria-label="Period" options={OPTIONS} />
+		);
+		expect(
+			screen.getByRole("combobox", { name: "Period" })
+		).toBeInTheDocument();
+
+		rerender(
+			<>
+				<span id="external">Range</span>
+				<Select aria-labelledby="external" options={OPTIONS} />
+			</>
+		);
+		expect(
+			screen.getByRole("combobox", { name: "Range" })
+		).toBeInTheDocument();
+	});
+
+	it("marks a multi-select listbox", async () => {
+		const user = userEvent.setup();
+		render(<Select label="Period" options={OPTIONS} multiple value={[]} />);
+
+		await user.click(screen.getByRole("combobox"));
+
+		expect(await screen.findByRole("listbox")).toHaveAttribute(
+			"aria-multiselectable",
+			"true"
+		);
+	});
+
+	it("opens and picks with Space", async () => {
+		const user = userEvent.setup();
+		const onChange = vi.fn();
+		render(<Select label="Period" options={OPTIONS} onChange={onChange} />);
+
+		await user.tab();
+		await user.keyboard(" ");
+		expect(await screen.findByRole("listbox")).toBeInTheDocument();
+
+		await user.keyboard(" ");
+
+		expect(onChange).toHaveBeenCalledTimes(1);
+	});
+
+	it("keeps a single combobox while searching, the focused input", async () => {
+		const user = userEvent.setup();
+		render(<Select label="Period" options={OPTIONS} searchable />);
+
+		await user.click(screen.getByRole("combobox"));
+
+		const combobox = await screen.findByRole("combobox");
+		expect(combobox.tagName).toBe("INPUT");
+		expect(combobox).toHaveFocus();
+		expect(combobox).toHaveAttribute("aria-expanded", "true");
+		expect(combobox).toHaveAttribute("aria-autocomplete", "list");
+		expect(combobox).toHaveAttribute(
+			"aria-controls",
+			screen.getByRole("listbox").id
+		);
+	});
+
+	it("points the search input at the active option", async () => {
+		const user = userEvent.setup();
+		render(<Select label="Period" options={OPTIONS} searchable />);
+
+		await user.click(screen.getByRole("combobox"));
+		await user.keyboard("{ArrowDown}");
+
+		const active = screen.getByRole("combobox");
+		await waitFor(() =>
+			expect(active).toHaveAttribute(
+				"aria-activedescendant",
+				screen.getByRole("option", { name: "Jour" }).id
+			)
+		);
+	});
+
+	it.each([
+		["Escape", "{Escape}"],
+		["Tab", "{Tab}"],
+	])(
+		"keeps focus on the field when %s closes the search",
+		async (_n, key) => {
+			const user = userEvent.setup();
+			render(
+				<>
+					<Select label="Period" options={OPTIONS} searchable />
+					<button type="button">After</button>
+				</>
+			);
+
+			await user.click(screen.getByRole("combobox"));
+			await screen.findByRole("listbox");
+			await user.keyboard(key);
+
+			expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+			expect(document.body).not.toHaveFocus();
+		}
+	);
+
+	it("keeps focus on the field after picking from the search", async () => {
+		const user = userEvent.setup();
+		render(
+			<Select
+				label="Period"
+				options={OPTIONS}
+				searchable
+				onChange={() => {}}
+			/>
+		);
+
+		await user.click(screen.getByRole("combobox"));
+		await user.keyboard("{ArrowDown}{Enter}");
+
+		expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+		expect(screen.getByRole("combobox")).toHaveFocus();
+	});
+
+	it("activates the clear button with Enter, and keeps focus", async () => {
+		const user = userEvent.setup();
+		const onChange = vi.fn();
+		render(
+			<Select
+				label="Period"
+				options={OPTIONS}
+				value="day"
+				isClearable
+				onChange={onChange}
+			/>
+		);
+
+		await user.tab();
+		await user.tab();
+		expect(screen.getByRole("button", { name: "Clear" })).toHaveFocus();
+		await user.keyboard("{Enter}");
+
+		expect(onChange).toHaveBeenCalledWith(null);
+		expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+		expect(screen.getByRole("combobox")).toHaveFocus();
+	});
+
+	it("activates a chip's remove button with Enter", async () => {
+		const user = userEvent.setup();
+		const onChange = vi.fn();
+		render(
+			<Select
+				label="Period"
+				options={OPTIONS}
+				value={["day", "week"]}
+				multiple
+				onChange={onChange}
+			/>
+		);
+
+		await user.tab();
+		await user.tab();
+		await user.keyboard("{Enter}");
+
+		expect(onChange).toHaveBeenCalledWith(["week"]);
+		expect(screen.getByRole("combobox")).toHaveFocus();
+	});
+
+	it("announces loading and an empty result", async () => {
+		const user = userEvent.setup();
+		const { rerender } = render(
+			<Select label="Period" options={[]} isLoading />
+		);
+
+		await user.click(screen.getByRole("combobox"));
+		expect(await screen.findByRole("status")).toHaveTextContent("Loading");
+
+		rerender(<Select label="Period" options={[]} />);
+		expect(screen.getByRole("status")).toHaveTextContent("No results");
 	});
 });

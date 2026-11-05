@@ -29,6 +29,14 @@ export interface ITableHeadProps<T>
 	allSelected?: boolean;
 	someSelected?: boolean;
 	onSelectAll?: () => void;
+	/** aria-label for the select-all checkbox. */
+	selectAllLabel?: string;
+	/** aria-label for the row-actions column. */
+	rowActionsLabel?: string;
+	/** aria-label for the button acting on the whole selection. */
+	bulkActionsLabel?: string;
+	/** aria-label for the button opening the column-visibility menu, the keyboard's way to it: `onColumnsContextMenu` is otherwise a right-click. */
+	columnsLabel?: string;
 }
 
 const TableHeadBase = <T,>(
@@ -44,6 +52,10 @@ const TableHeadBase = <T,>(
 		allSelected = false,
 		someSelected = false,
 		onSelectAll,
+		selectAllLabel,
+		rowActionsLabel,
+		bulkActionsLabel,
+		columnsLabel,
 		style,
 		onContextMenu,
 		...props
@@ -59,6 +71,7 @@ const TableHeadBase = <T,>(
 		{...props}
 		ref={ref}
 		role="row"
+		aria-rowindex={1}
 		style={{ ...style, display: "contents" }}
 		onContextMenu={composeHandlers(
 			onContextMenu,
@@ -71,8 +84,13 @@ const TableHeadBase = <T,>(
 		)}
 	>
 		{selectable && (
-			<Th key="select" className={styles.selectCell}>
+			<Th
+				key="select"
+				className={styles.selectCell}
+				aria-label={selectAllLabel}
+			>
 				<Checkbox
+					aria-label={selectAllLabel}
 					checked={allSelected}
 					indeterminate={someSelected}
 					onChange={() => onSelectAll?.()}
@@ -95,11 +113,15 @@ const TableHeadBase = <T,>(
 							key="contextMenu"
 							className={styles.contextMenuCell}
 						>
+							<span className={styles.srOnly}>
+								{rowActionsLabel}
+							</span>
 							{onGlobalContextMenu &&
 							(someSelected || allSelected) ? (
 								<button
 									type="button"
 									className={styles.contextMenuButton}
+									aria-label={bulkActionsLabel}
 									data-testid={deriveTestId(
 										props["data-testid"],
 										"actions"
@@ -140,8 +162,25 @@ const TableHeadBase = <T,>(
 			);
 		})}
 
-		{/* Absorbs Table's trailing "1fr" filler grid track. */}
-		<Th />
+		{/* Absorbs Table's trailing "1fr" filler grid track, not a column as
+		    far as assistive tech is concerned. Visually hidden until focused,
+		    the button leaves the design alone. */}
+		{onColumnsContextMenu ? (
+			<Th aria-label={columnsLabel}>
+				<button
+					type="button"
+					className={styles.columnsButton}
+					aria-label={columnsLabel}
+					aria-haspopup="menu"
+					onClick={onColumnsContextMenu}
+					data-testid={deriveTestId(props["data-testid"], "columns")}
+				>
+					<Picto icon="more" />
+				</button>
+			</Th>
+		) : (
+			<Th aria-hidden />
+		)}
 	</div>
 );
 
@@ -153,6 +192,6 @@ const TableHeadBase = <T,>(
  * `onColumnsContextMenu` callback instead.
  *
  * Native props and `ref` go to the `role="row"` element. Derived testids:
- * `-select-all`, `-column-<key>`, `-actions`.
+ * `-select-all`, `-column-<key>`, `-actions`, `-columns`.
  */
 export const TableHead = genericForwardRef(TableHeadBase, "TableHead");

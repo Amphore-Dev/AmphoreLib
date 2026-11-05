@@ -1,9 +1,11 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, useEffect, useId, useRef } from "react";
+
+import { useMergeRefs } from "@floating-ui/react";
 
 import { AmphorePortal } from "@theme/AmphorePortal";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
-import { useMediaQuery } from "@hooks/index";
+import { useEscapeLayer, useMediaQuery, useRestoreFocus } from "@hooks/index";
 
 import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
@@ -152,6 +154,16 @@ const SidePanelBase: React.ForwardRefRenderFunction<
 	const { resolve } = useAmphoreLabels("SidePanel");
 	const closeLabel = resolve("closeLabel", closeLabelProp, "close");
 	const testId = props["data-testid"];
+	const titleId = useId();
+	const panelRef = useRef<HTMLDivElement>(null);
+	const mergedRef = useMergeRefs([panelRef, ref]);
+	const floats = open && overlay && !isMobile;
+
+	useRestoreFocus(open);
+	useEscapeLayer(floats, () => onOpenChange(false));
+	useEffect(() => {
+		if (floats) panelRef.current?.focus({ preventScroll: true });
+	}, [floats]);
 
 	if (isMobile && mobileMode === "modal") {
 		// Modal's `title` is a plain string (it doubles as the dialog's
@@ -190,6 +202,7 @@ const SidePanelBase: React.ForwardRefRenderFunction<
 				ref={ref}
 				open={open}
 				onOpenChange={onOpenChange}
+				focusOnOpen
 				portal={portal}
 				className={className}
 			>
@@ -212,10 +225,15 @@ const SidePanelBase: React.ForwardRefRenderFunction<
 	const panel = (
 		<Card
 			elevation={overlay ? 4 : 2}
-			aria-label={typeof title === "string" ? title : undefined}
+			tabIndex={overlay ? -1 : undefined}
+			aria-labelledby={
+				title && !props["aria-label"] && !cardProps?.["aria-label"]
+					? titleId
+					: undefined
+			}
 			{...props}
 			{...cardProps}
-			ref={ref}
+			ref={mergedRef}
 			noPadding
 			className={cn([styles.panel, className])}
 			data-overlay={overlay || undefined}
@@ -225,6 +243,7 @@ const SidePanelBase: React.ForwardRefRenderFunction<
 				<div className={styles.header}>
 					{title && (
 						<h2
+							id={titleId}
 							className={styles.title}
 							data-testid={deriveTestId(testId, "title")}
 						>
@@ -269,6 +288,12 @@ const SidePanelBase: React.ForwardRefRenderFunction<
  * behaves the same on both by default (fully gone) — `keepDockedOnMobile`
  * opts the mobile BottomPanel into its own native closed-but-peeking
  * behavior instead, for the cases that actually want it.
+ *
+ * Focus: the sticky column is part of the page and never takes focus, an
+ * `overlay` panel or a mobile sheet does when it opens (rendered last in the
+ * document, it would otherwise be a long way off by Tab), and Escape closes
+ * those two. Closing with focus inside hands it back to whoever had it, in
+ * every mode. No focus trap: the page stays usable next to the panel.
  *
  * Native props and `ref` go to whichever panel is showing: the docked Card,
  * the BottomPanel sheet or the Modal dialog. Derived testids: `-title`,

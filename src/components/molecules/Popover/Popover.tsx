@@ -1,6 +1,7 @@
-import React, { cloneElement, forwardRef, useState } from "react";
+import React, { cloneElement, forwardRef, useId, useState } from "react";
 
 import {
+	FloatingFocusManager,
 	flip,
 	offset,
 	shift,
@@ -15,6 +16,8 @@ import {
 } from "@floating-ui/react";
 
 import { AmphorePortal } from "@theme/AmphorePortal";
+
+import { useEscapeLayer } from "@hooks/index";
 
 import { composeHandlers } from "@utils/UHandlers";
 import { cn } from "@utils/cn";
@@ -49,6 +52,10 @@ export interface IPopoverProps extends Omit<
 	 * trigger is a field and the popover its suggestion list.
 	 */
 	matchTriggerWidth?: boolean;
+	/** Names the dialog. Defaults to the trigger: `aria-labelledby` pointing at it, the right name when the trigger says what it opens. */
+	"aria-label"?: string;
+	/** Id of an element naming the dialog, instead of the trigger. */
+	"aria-labelledby"?: string;
 	/** Renders the popover into `document.body` via AmphorePortal (theme scope re-applied) — escapes any ancestor stacking context/`transform`/`overflow` that would trap or clip it. Defaults to false (inline, `position: fixed`). */
 	portal?: boolean;
 	className?: string;
@@ -72,10 +79,14 @@ const PopoverBase: React.ForwardRefRenderFunction<
 		className = "",
 		style,
 		onClick,
+		"aria-label": ariaLabel,
+		"aria-labelledby": ariaLabelledBy,
 		...props
 	},
 	ref
 ) => {
+	const generatedId = useId();
+	const triggerId = (children.props as { id?: string }).id ?? generatedId;
 	const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
 	const open = disabled ? false : (openProp ?? uncontrolledOpen);
 
@@ -110,7 +121,11 @@ const PopoverBase: React.ForwardRefRenderFunction<
 	});
 
 	const click = useClick(context, { enabled: !disabled });
-	const dismiss = useDismiss(context, { outsidePress: closeOnOutsideClick });
+	const dismiss = useDismiss(context, {
+		outsidePress: closeOnOutsideClick,
+		escapeKey: false,
+	});
+	useEscapeLayer(open, () => setOpen(false));
 	const role = useRole(context, { role: "dialog" });
 
 	const { getReferenceProps, getFloatingProps } = useInteractions([
@@ -125,24 +140,34 @@ const PopoverBase: React.ForwardRefRenderFunction<
 
 	const trigger = cloneElement(
 		children,
-		getReferenceProps({ ...children.props, ref: mergedRef })
+		getReferenceProps({ ...children.props, id: triggerId, ref: mergedRef })
 	);
 
 	const floating = open && (
-		<div
-			{...getFloatingProps({
-				...props,
-				onClick: composeHandlers(
-					onClick,
-					closeOnClick ? () => setOpen(false) : undefined
-				),
-			})}
-			ref={floatingRef}
-			style={{ ...style, ...floatingStyles }}
-			className={cn([styles.popover, className])}
+		<FloatingFocusManager
+			context={context}
+			modal={false}
+			initialFocus={matchTriggerWidth ? -1 : 0}
+			closeOnFocusOut={closeOnOutsideClick}
 		>
-			{content}
-		</div>
+			<div
+				{...getFloatingProps({
+					...props,
+					"aria-label": ariaLabel,
+					"aria-labelledby":
+						ariaLabelledBy ?? (ariaLabel ? undefined : triggerId),
+					onClick: composeHandlers(
+						onClick,
+						closeOnClick ? () => setOpen(false) : undefined
+					),
+				})}
+				ref={floatingRef}
+				style={{ ...style, ...floatingStyles }}
+				className={cn([styles.popover, className])}
+			>
+				{content}
+			</div>
+		</FloatingFocusManager>
 	);
 
 	return (
@@ -157,6 +182,12 @@ const PopoverBase: React.ForwardRefRenderFunction<
  * V2 Popover — click-triggered, can hold interactive content. role="dialog",
  * non-modal (no focus trap/page dim, unlike Modal). Separate component from
  * Tooltip (hover/focus, display-only) — different trigger/role, not a flag.
+ *
+ * FloatingFocusManager moves focus in on open, back to the trigger on close,
+ * and closes on tabbing out. Without it a portaled popover sits at the end of
+ * the document, out of reach of the keyboard, and closing one left focus on
+ * nothing. `matchTriggerWidth` keeps focus on the trigger: it's a field being
+ * typed into, the popover its suggestions.
  * Controlled (`open`/`onOpenChange`) or uncontrolled (omit `open`).
  * Inline (`strategy:"fixed"`) by default, `portal` opts into AmphorePortal
  * (see memory/amphorelib-v2-conventions.md).

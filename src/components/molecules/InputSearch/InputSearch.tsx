@@ -1,5 +1,9 @@
 import React, { forwardRef, useEffect, useRef, useState } from "react";
 
+import { useAmphoreLabels } from "@theme/useAmphoreLabels";
+
+import type { TLabel } from "@interfaces/index";
+
 import { IInputProps, Input } from "../../atoms/Input/Input";
 
 export interface IInputSearchProps extends Omit<
@@ -13,7 +17,12 @@ export interface IInputSearchProps extends Omit<
 	debounced?: boolean;
 	/** Below this length, typing updates the field but doesn't call `onChange` yet. */
 	minLength?: number;
+	/** aria-label when neither `label` nor `placeholder` names the field: a search box often shows only its icon. Defaults to "Search" (or `InputSearch.searchLabel` from the nearest AmphoreProvider — see useAmphoreLabels). */
+	searchLabel?: TLabel;
 }
+
+/** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
+export type TInputSearchLabels = Pick<IInputSearchProps, "searchLabel">;
 
 const InputSearchBase: React.ForwardRefRenderFunction<
 	HTMLInputElement,
@@ -26,10 +35,13 @@ const InputSearchBase: React.ForwardRefRenderFunction<
 		debounced = true,
 		minLength = 0,
 		isClearable = true,
+		searchLabel: searchLabelProp,
 		...props
 	},
 	ref
 ) => {
+	const { resolve } = useAmphoreLabels("InputSearch");
+	const searchLabel = resolve("searchLabel", searchLabelProp);
 	const [internalValue, setInternalValue] = useState(value);
 	const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
 	const onChangeRef = useRef(onChange);
@@ -55,6 +67,9 @@ const InputSearchBase: React.ForwardRefRenderFunction<
 
 	return (
 		<Input
+			aria-label={
+				props.label || props.placeholder ? undefined : searchLabel
+			}
 			{...props}
 			ref={ref}
 			isClearable={isClearable}

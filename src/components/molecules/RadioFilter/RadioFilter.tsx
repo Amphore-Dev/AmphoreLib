@@ -26,6 +26,10 @@ export interface IRadioFilterProps
 	hideError?: boolean;
 	disabled?: boolean;
 	required?: boolean;
+	/** Names the group when there's no visible `label`. */
+	"aria-label"?: string;
+	/** Id of an element naming the group — an external label, like FormRenderer's. */
+	"aria-labelledby"?: string;
 	className?: string;
 	wrapperClassName?: string;
 	/** Native props of the outer container (label, group and error message). */
@@ -49,6 +53,8 @@ const RadioFilterBase: React.ForwardRefRenderFunction<
 		className = "",
 		wrapperClassName = "",
 		wrapperProps,
+		"aria-label": ariaLabel,
+		"aria-labelledby": ariaLabelledBy,
 		"aria-describedby": ariaDescribedBy,
 		...props
 	},
@@ -56,6 +62,7 @@ const RadioFilterBase: React.ForwardRefRenderFunction<
 ) => {
 	const groupId = useId();
 	const errorId = `${groupId}-error`;
+	const labelId = `${groupId}-label`;
 	const groupName = name || groupId;
 
 	return (
@@ -68,7 +75,7 @@ const RadioFilterBase: React.ForwardRefRenderFunction<
 			])}
 		>
 			{label && (
-				<span className={styles.label}>
+				<span id={labelId} className={styles.label}>
 					{label}
 					{required && <span className={styles.required}>*</span>}
 				</span>
@@ -79,6 +86,13 @@ const RadioFilterBase: React.ForwardRefRenderFunction<
 				ref={ref}
 				className={cn([styles.options, className])}
 				role="radiogroup"
+				aria-labelledby={
+					ariaLabelledBy ??
+					(label && !ariaLabel ? labelId : undefined)
+				}
+				aria-label={ariaLabel}
+				aria-invalid={!!error || props["aria-invalid"]}
+				aria-required={required || props["aria-required"]}
 				aria-describedby={
 					cn([ariaDescribedBy, error && !hideError && errorId]) ||
 					undefined

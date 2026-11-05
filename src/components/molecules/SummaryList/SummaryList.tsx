@@ -80,6 +80,7 @@ const SummaryListBase: React.ForwardRefRenderFunction<
 						"item",
 						index
 					)}
+					inList
 					className={styles.row}
 				/>
 			))}
@@ -89,10 +90,9 @@ const SummaryListBase: React.ForwardRefRenderFunction<
 
 /**
  * V2 SummaryList — data-driven (`items`) term/value pairs, rendered via
- * the shared `SummaryListItem`. `layout="grid"` wraps items in `FlexGrid`
- * instead of a `<dl>` — trades the `<dl>` semantics for a multi-column
- * layout (each item still uses `<dt>`/`<dd>` internally); "vertical"/
- * "horizontal" keep the real `<dl>`.
+ * the shared `SummaryListItem`. `layout="grid"` wraps items in `FlexGrid`,
+ * which puts a wrapper between a list and its rows: each item is then its
+ * own one-row `<dl>`. "vertical"/"horizontal" share a single `<dl>`.
  *
  * Native props and `ref` go to the root: the `<dl>`, or the grid. Derived
  * testids: `-item-<position>`, each item then deriving its own.

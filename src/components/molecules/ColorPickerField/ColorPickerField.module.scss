@@ -1,3 +1,4 @@
+@use "../../../styles/a11y";
 @use "../../../styles/field" as field;
 @use "../../../styles/mixins" as *;
 
@@ -46,6 +47,10 @@
 	@include field.field-text;
 	font-variant-numeric: tabular-nums;
 	text-transform: uppercase;
+}
+
+.srOnly {
+	@include a11y.visually-hidden;
 }
 
 // Flush — ColorPicker supplies its own frame, no need for two nested ones.

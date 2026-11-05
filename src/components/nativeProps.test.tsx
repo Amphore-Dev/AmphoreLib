@@ -175,7 +175,7 @@ const CASES: Record<string, INativePropsCase> = {
 	},
 	Skeleton: { render: (n) => <Skeleton {...n} />, target: "div" },
 	Spinner: { render: (n) => <Spinner {...n} />, target: '[role="status"]' },
-	Td: { render: (n) => <Td {...n} />, target: '[role="gridcell"]' },
+	Td: { render: (n) => <Td {...n} />, target: '[role="cell"]' },
 	Th: { render: (n) => <Th {...n} />, target: '[role="columnheader"]' },
 	TabPanel: {
 		render: (n) => <TabPanel active {...n} />,
@@ -207,7 +207,7 @@ const CASES: Record<string, INativePropsCase> = {
 	},
 	SummaryListItem: {
 		render: (n) => <SummaryListItem label="Label" value="Value" {...n} />,
-		target: "div",
+		target: "dl",
 	},
 	TableHead: {
 		render: (n) => <TableHead columns={columns} {...n} />,
@@ -227,7 +227,7 @@ const CASES: Record<string, INativePropsCase> = {
 		render: (n) => (
 			<Table columns={columns} items={[]} getItemKey={() => 1} {...n} />
 		),
-		target: '[role="grid"]',
+		target: '[role="table"]',
 	},
 	TodoList: {
 		render: (n) => <TodoList items={[]} onChange={noop} {...n} />,
@@ -314,12 +314,14 @@ const CASES: Record<string, INativePropsCase> = {
 	DatePicker: {
 		render: (n) => <DatePicker value={null} onChange={noop} {...n} />,
 		target: "button",
+		ariaLabel: "Probe label: dd/mm/yyyy",
 	},
 	ColorPickerField: {
 		render: (n) => (
 			<ColorPickerField value="#000000" onChange={noop} {...n} />
 		),
 		target: "button",
+		ariaLabel: "Probe label: #000000",
 	},
 
 	// Composites: the element holding their semantics, or their root.

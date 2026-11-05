@@ -14,6 +14,8 @@ import {
 import { AmphorePortal } from "@theme/AmphorePortal";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
+import { useEscapeLayer } from "@hooks/index";
+
 import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
@@ -48,6 +50,8 @@ export interface IModalProps
 	hideCloseButton?: boolean;
 	/** aria-label for the header close (×) button. Defaults to "Close" (or `common.close`/`Modal.closeLabel` from the nearest AmphoreProvider — see useAmphoreLabels). No effect when `hideCloseButton`. */
 	closeLabel?: TLabel;
+	/** The dialog's accessible name when it has no `title` — say a custom `header`. Ignored with a `title`, which names it. Defaults to "Dialog" (or `Modal.dialogLabel` from the nearest AmphoreProvider). */
+	dialogLabel?: TLabel;
 	/**
 	 * Render into `document.body` (via AmphorePortal) instead of inline.
 	 * Escapes any ancestor stacking context / `transform` / `overflow` that
@@ -60,7 +64,7 @@ export interface IModalProps
 }
 
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
-export type TModalLabels = Pick<IModalProps, "closeLabel">;
+export type TModalLabels = Pick<IModalProps, "closeLabel" | "dialogLabel">;
 
 const ModalBase: React.ForwardRefRenderFunction<HTMLDivElement, IModalProps> = (
 	{
@@ -75,6 +79,7 @@ const ModalBase: React.ForwardRefRenderFunction<HTMLDivElement, IModalProps> = (
 		closeOnEscape = true,
 		hideCloseButton = false,
 		closeLabel: closeLabelProp,
+		dialogLabel: dialogLabelProp,
 		portal = false,
 		className = "",
 		...props
@@ -84,6 +89,7 @@ const ModalBase: React.ForwardRefRenderFunction<HTMLDivElement, IModalProps> = (
 	const titleId = useFloatingId();
 	const { resolve } = useAmphoreLabels("Modal");
 	const closeLabel = resolve("closeLabel", closeLabelProp, "close");
+	const dialogLabel = resolve("dialogLabel", dialogLabelProp);
 
 	const { refs, context } = useFloating({
 		open,
@@ -98,7 +104,10 @@ const ModalBase: React.ForwardRefRenderFunction<HTMLDivElement, IModalProps> = (
 	const dismiss = useDismiss(context, {
 		outsidePress: closeOnOverlayClick,
 		outsidePressEvent: "click",
-		escapeKey: closeOnEscape,
+		escapeKey: false,
+	});
+	useEscapeLayer(open, () => {
+		if (closeOnEscape) onClose();
 	});
 	const role = useRole(context, { role: "dialog" });
 
@@ -116,7 +125,11 @@ const ModalBase: React.ForwardRefRenderFunction<HTMLDivElement, IModalProps> = (
 		>
 			<FloatingFocusManager context={context}>
 				<Card
-					aria-labelledby={title ? titleId : undefined}
+					aria-modal
+					aria-labelledby={
+						title && !props["aria-label"] ? titleId : undefined
+					}
+					aria-label={title ? undefined : dialogLabel}
 					{...getFloatingProps(props)}
 					ref={panelRef}
 					elevation={4}

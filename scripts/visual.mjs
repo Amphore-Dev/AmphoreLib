@@ -77,8 +77,15 @@ const OPENERS = [
 		options: { button: "right" },
 	},
 	{
+		// The columns button stays visually hidden until focused, so a mouse
+		// cannot reach it: open it the way a keyboard user does.
+		title: /\/Table$/,
+		target: '#storybook-root [aria-haspopup="menu"]',
+		action: "press",
+	},
+	{
 		title: /./,
-		target: '#storybook-root :is([aria-haspopup], [aria-expanded="false"]):not(:disabled)',
+		target: '#storybook-root :is([aria-haspopup], [aria-expanded="false"]):not(:disabled, [aria-disabled="true"])',
 		action: "click",
 	},
 ];
@@ -305,7 +312,11 @@ async function openOverlay(page, title) {
 	);
 	const trigger = page.locator(target).first();
 	if ((await trigger.count()) === 0) return false;
-	await trigger[action]({ timeout: OPEN_TIMEOUT_MS, ...options });
+	if (action === "press") {
+		await trigger.press("Enter", { timeout: OPEN_TIMEOUT_MS });
+	} else {
+		await trigger[action]({ timeout: OPEN_TIMEOUT_MS, ...options });
+	}
 	return true;
 }
 

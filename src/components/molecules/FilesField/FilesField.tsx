@@ -60,6 +60,7 @@ const FilesFieldBase: React.ForwardRefRenderFunction<
 		columns,
 		minItemWidth,
 		gap = "0.5rem",
+		"aria-labelledby": ariaLabelledBy,
 		...props
 	},
 	ref
@@ -81,11 +82,16 @@ const FilesFieldBase: React.ForwardRefRenderFunction<
 			columns={computedColumns}
 			gap={gap}
 			minItemWidth={minItemWidth || "150px"}
+			role={maxFiles > 1 ? "group" : undefined}
+			aria-labelledby={maxFiles > 1 ? ariaLabelledBy : undefined}
 		>
 			{Array.from({ length: maxFiles }, (_, index) => (
 				<InputFile
 					key={index}
 					{...inputFileProps}
+					id={index === 0 ? inputFileProps.id : undefined}
+					aria-label={maxFiles > 1 ? undefined : props["aria-label"]}
+					aria-labelledby={maxFiles > 1 ? undefined : ariaLabelledBy}
 					orientation={orientation}
 					name={
 						maxFiles > 1
@@ -116,6 +122,10 @@ const FilesFieldBase: React.ForwardRefRenderFunction<
  * gives a compact row of horizontal-layout cards and "vertical" a column of
  * stacked ones — the two stay visually consistent instead of only the grid
  * arrangement changing.
+ *
+ * A label naming the field names the group of slots, and `id` goes to the
+ * first slot (where `<label htmlFor>` lands): repeated, it would be a
+ * duplicate id, and an error id shared by every slot.
  *
  * Native props, `className` and `ref` go to the grid; everything that
  * configures an upload (`accept`, `disabled`, `wrapperProps`...) to every

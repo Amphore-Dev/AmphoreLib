@@ -1,3 +1,5 @@
+@use "../../../styles/a11y";
+
 .selectCell {
 	justify-content: center;
 }
@@ -21,5 +23,27 @@
 		&:hover {
 			color: var(--amp-color-ink);
 		}
+	}
+}
+
+.srOnly {
+	@include a11y.visually-hidden;
+}
+
+.columnsButton {
+	@include a11y.visually-hidden;
+	display: flex;
+	align-items: center;
+	background: none;
+	color: var(--amp-color-sub);
+	cursor: pointer;
+
+	&:focus-visible {
+		position: static;
+		width: auto;
+		height: auto;
+		margin: 0;
+		overflow: visible;
+		clip: auto;
 	}
 }

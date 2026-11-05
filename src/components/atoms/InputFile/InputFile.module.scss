@@ -1,3 +1,4 @@
+@use "../../../styles/a11y";
 @use "../../../styles/touch" as touch;
 @use "../../../styles/mixins" as *;
 
@@ -37,6 +38,15 @@
 
 .cardInvalid {
 	border-color: var(--amp-color-danger);
+}
+
+.input {
+	@include a11y.visually-hidden;
+
+	// Inset: the card clips anything drawn outside it.
+	&:focus-visible + .label {
+		@include focus-ring($inset: true);
+	}
 }
 
 .label {

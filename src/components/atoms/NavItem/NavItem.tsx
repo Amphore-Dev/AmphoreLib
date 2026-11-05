@@ -46,6 +46,13 @@ const NavItemBase: React.ForwardRefRenderFunction<
 			data-active={isActive || undefined}
 			data-reduced={isReduced || undefined}
 			aria-current={isActive ? "page" : undefined}
+			// Reduced, the text is gone and the Tooltip only describes.
+			aria-label={
+				props["aria-label"] ??
+				(isReduced && typeof children === "string"
+					? children
+					: undefined)
+			}
 		>
 			{!!picto && <Picto {...getPicto(picto)} className={styles.picto} />}
 			{!isReduced && children}

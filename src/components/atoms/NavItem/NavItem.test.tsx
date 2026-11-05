@@ -66,3 +66,14 @@ describe("NavItem", () => {
 		expect(onClick).toHaveBeenCalled();
 	});
 });
+
+describe("NavItem reduced", () => {
+	it("keeps its name with only an icon left on screen", () => {
+		render(
+			<NavItem href="/tasks" picto="home" isReduced>
+				Tasks
+			</NavItem>
+		);
+		expect(screen.getByRole("link", { name: "Tasks" })).toBeInTheDocument();
+	});
+});

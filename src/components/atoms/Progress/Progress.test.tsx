@@ -84,3 +84,12 @@ describe("Progress", () => {
 		);
 	});
 });
+
+describe("Progress name", () => {
+	it("always has one", () => {
+		render(<Progress value={40} />);
+		expect(
+			screen.getByRole("progressbar", { name: "Progress" })
+		).toBeInTheDocument();
+	});
+});

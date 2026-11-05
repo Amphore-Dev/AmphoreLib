@@ -83,3 +83,23 @@ describe("Th", () => {
 		);
 	});
 });
+
+describe("Th accessibility", () => {
+	it("says a sortable column isn't sorted, which is different from not sortable", () => {
+		const { rerender } = render(<Th sortable>Age</Th>);
+		expect(screen.getByRole("columnheader")).toHaveAttribute(
+			"aria-sort",
+			"none"
+		);
+
+		rerender(<Th>Age</Th>);
+		expect(screen.getByRole("columnheader")).not.toHaveAttribute(
+			"aria-sort"
+		);
+	});
+
+	it("keeps the sort marker out of the column's name", () => {
+		render(<Th sortable>Age</Th>);
+		expect(screen.getByRole("columnheader")).toHaveAccessibleName("Age");
+	});
+});

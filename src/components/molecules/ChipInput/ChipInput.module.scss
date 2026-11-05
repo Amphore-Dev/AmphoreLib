@@ -1,3 +1,4 @@
+@use "../../../styles/a11y";
 @use "../../../styles/field" as field;
 @use "../../../styles/mixins" as *;
 
@@ -65,4 +66,8 @@
 		color: var(--amp-color-ink);
 		font-weight: weight(semibold);
 	}
+}
+
+.srOnly {
+	@include a11y.visually-hidden;
 }

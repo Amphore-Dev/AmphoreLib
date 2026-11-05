@@ -22,11 +22,13 @@ export interface ISummaryListItemProps
 		ITestIdProps {
 	/** Label above value, or side by side. Defaults to "vertical". */
 	direction?: "vertical" | "horizontal";
+	/** Set by `SummaryList`: the row sits in a `<dl>` already. Left off, the row is its own `<dl>`, `<dt>` and `<dd>` being invalid anywhere else. */
+	inList?: boolean;
 	className?: string;
 }
 
 const SummaryListItemBase: React.ForwardRefRenderFunction<
-	HTMLDivElement,
+	HTMLElement,
 	ISummaryListItemProps
 > = (
 	{
@@ -39,11 +41,14 @@ const SummaryListItemBase: React.ForwardRefRenderFunction<
 		maxLines,
 		action,
 		direction = "vertical",
+		inList = false,
 		className = "",
 		...props
 	},
 	ref
 ) => {
+	const Row = (inList ? "div" : "dl") as React.ElementType;
+
 	// TruncatedTooltipText already owns its own overflow/ellipsis — the
 	// outer text/link/button must not *also* clip+ellipsize, otherwise the
 	// two fight (double truncation, and TruncatedTooltipText's own
@@ -57,7 +62,7 @@ const SummaryListItemBase: React.ForwardRefRenderFunction<
 	);
 
 	return (
-		<div
+		<Row
 			{...props}
 			ref={ref}
 			className={cn([styles.row, className])}
@@ -106,23 +111,30 @@ const SummaryListItemBase: React.ForwardRefRenderFunction<
 					</span>
 				)}
 			</dd>
+			{/* A `<dd>` too, a `<dl>` holds nothing else. `contents`: the button
+			    stays the row's own flex item. */}
 			{action && (
-				<button
-					type="button"
-					className={styles.action}
-					onClick={action.onClick}
-					data-testid={deriveTestId(props["data-testid"], "action")}
-				>
-					{!!action.picto && (
-						<Picto
-							{...getPicto(action.picto)}
-							className={styles.picto}
-						/>
-					)}
-					{action.label}
-				</button>
+				<dd className={styles.actionCell}>
+					<button
+						type="button"
+						className={styles.action}
+						onClick={action.onClick}
+						data-testid={deriveTestId(
+							props["data-testid"],
+							"action"
+						)}
+					>
+						{!!action.picto && (
+							<Picto
+								{...getPicto(action.picto)}
+								className={styles.picto}
+							/>
+						)}
+						{action.label}
+					</button>
+				</dd>
 			)}
-		</div>
+		</Row>
 	);
 };
 
@@ -136,8 +148,9 @@ const SummaryListItemBase: React.ForwardRefRenderFunction<
  * just takes those same fields as its own top-level props, plus
  * `direction`/`className`, which only make sense at render time.
  *
- * Native props and `ref` go to the root `<div>`; `onClick` stays the value's
- * own (see `TSummaryListItem`). Derived testids: `-value`, `-action`.
+ * Native props and `ref` go to the root: the row's own `<dl>`, or a `<div>`
+ * inside `SummaryList`'s (`inList`); `onClick` stays the value's own (see
+ * `TSummaryListItem`). Derived testids: `-value`, `-action`.
  */
 export const SummaryListItem = forwardRef(SummaryListItemBase);
 SummaryListItem.displayName = "SummaryListItem";

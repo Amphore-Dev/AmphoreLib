@@ -28,6 +28,7 @@ export const en: TRequiredThemeLabels = {
 		loading: "Loading",
 	},
 	ActiveFilters: {
+		removeLabel: "Remove",
 		resetLabel: "Reset",
 		showMoreLabel: "Show more",
 		showLessLabel: "Show less",
@@ -50,6 +51,7 @@ export const en: TRequiredThemeLabels = {
 	},
 	ChipInput: {
 		removeLabel: "Remove",
+		invalidLabel: "(invalid)",
 	},
 	ConfirmModal: {
 		cancelText: "Cancel",
@@ -96,12 +98,16 @@ export const en: TRequiredThemeLabels = {
 	Input: {
 		clearLabel: "Clear",
 	},
+	InputSearch: {
+		searchLabel: "Search",
+	},
 	InputFile: {
 		placeholder: "Add a file",
 		removeFileLabel: "Remove file",
 	},
 	Modal: {
 		closeLabel: "Close",
+		dialogLabel: "Dialog",
 	},
 	NumberInput: {
 		increaseLabel: "Increase",
@@ -121,6 +127,9 @@ export const en: TRequiredThemeLabels = {
 		noResultsMessage: "No results",
 		clearLabel: "Clear",
 	},
+	Progress: {
+		label: "Progress",
+	},
 	SidePanel: {
 		closeLabel: "Close",
 	},
@@ -129,6 +138,12 @@ export const en: TRequiredThemeLabels = {
 	},
 	Table: {
 		noDataMessage: "No data",
+		selectAllLabel: "Select all",
+		selectRowLabel: "Select row",
+		openRowLabel: "Open row",
+		rowActionsLabel: "Row actions",
+		bulkActionsLabel: "Selection actions",
+		columnsLabel: "Columns",
 	},
 	Tabs: {
 		scrollLeftLabel: "Scroll left",
@@ -138,11 +153,17 @@ export const en: TRequiredThemeLabels = {
 		hoursLabel: "Hours",
 		minutesLabel: "Minutes",
 	},
+	TimeRangeFilter: {
+		fromLabel: "From",
+		toLabel: "To",
+	},
 	TodoItem: {
 		removeLabel: "Remove",
+		editLabel: "Edit",
 	},
 	TodoList: {
 		moveLabel: "Move (up/down arrows)",
+		movedLabel: "Moved to position {position} of {total}",
 	},
 	Tour: {
 		nextLabel: "Next",

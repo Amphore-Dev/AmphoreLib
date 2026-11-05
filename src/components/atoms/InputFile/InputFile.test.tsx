@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { fireEvent, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import { InputFile } from "./InputFile";
@@ -148,5 +149,78 @@ describe("InputFile", () => {
 		const card = container.querySelector("[data-orientation]");
 		expect(card).toHaveAttribute("data-orientation", "horizontal");
 		expect(card).toHaveAttribute("data-filled");
+	});
+});
+
+describe("InputFile accessibility", () => {
+	const file = new File(["x"], "report.pdf", { type: "application/pdf" });
+
+	it("can be reached by the keyboard", async () => {
+		const user = userEvent.setup();
+		render(<InputFile data-testid="input-file" />);
+
+		await user.tab();
+
+		const input = screen.getByTestId("input-file-input");
+		expect(input).toHaveFocus();
+		expect(input).not.toHaveAttribute("hidden");
+	});
+
+	it("is named even at a size that hides its placeholder", () => {
+		render(
+			<InputFile
+				data-testid="input-file"
+				size="sm"
+				orientation="vertical"
+			/>
+		);
+		expect(screen.getByTestId("input-file-input")).toHaveAccessibleName(
+			"Add a file"
+		);
+	});
+
+	it("is named through an external label", () => {
+		render(
+			<>
+				<span id="external">Invoice</span>
+				<InputFile
+					data-testid="input-file"
+					aria-labelledby="external"
+				/>
+			</>
+		);
+		expect(screen.getByTestId("input-file-input")).toHaveAccessibleName(
+			"Invoice"
+		);
+	});
+
+	it("states an error and required", () => {
+		render(<InputFile data-testid="input-file" error="Too big" required />);
+		const input = screen.getByTestId("input-file-input");
+
+		expect(input).toHaveAttribute("aria-invalid", "true");
+		expect(input).toHaveAttribute("aria-required", "true");
+		expect(input).toHaveAccessibleDescription("Too big");
+	});
+
+	it("moves focus back to the input after removing the file", async () => {
+		const user = userEvent.setup();
+		const Controlled = () => {
+			const [value, setValue] = useState<File | null>(file);
+			return (
+				<InputFile
+					data-testid="input-file"
+					value={value}
+					onChange={setValue}
+				/>
+			);
+		};
+		render(<Controlled />);
+
+		await user.tab();
+		expect(screen.getByTestId("input-file-remove")).toHaveFocus();
+		await user.keyboard("{Enter}");
+
+		expect(screen.getByTestId("input-file-input")).toHaveFocus();
 	});
 });

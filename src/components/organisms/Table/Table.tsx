@@ -45,6 +45,22 @@ export interface ITableProps<T>
 	rowHeight?: number;
 	/** Content shown in place of rows when `items` is empty. Defaults to "No data" (or `Table.noDataMessage` from the nearest AmphoreProvider — see useAmphoreLabels). No commonKey — deliberately not shared with any other "no results"-style message elsewhere, even a similar-looking one. */
 	noDataMessage?: TLabel;
+	/** Names the table. */
+	"aria-label"?: string;
+	/** Id of the element naming the table, usually its heading. */
+	"aria-labelledby"?: string;
+	/** aria-label for the select-all checkbox. Defaults to "Select all" (or `Table.selectAllLabel` from the nearest AmphoreProvider). */
+	selectAllLabel?: TLabel;
+	/** aria-label prefix for a row's checkbox. Defaults to "Select row" (or `Table.selectRowLabel`). */
+	selectRowLabel?: TLabel;
+	/** aria-label prefix for a row's button when `onRowClick` is set. Defaults to "Open row" (or `Table.openRowLabel`). */
+	openRowLabel?: TLabel;
+	/** aria-label prefix for a row's "⋮" button, and name of the menu it opens. Defaults to "Row actions" (or `Table.rowActionsLabel`). */
+	rowActionsLabel?: TLabel;
+	/** aria-label for the header's button acting on the selection. Defaults to "Selection actions" (or `Table.bulkActionsLabel`). */
+	bulkActionsLabel?: TLabel;
+	/** aria-label for the column-visibility button and menu. Defaults to "Columns" (or `Table.columnsLabel`). */
+	columnsLabel?: TLabel;
 	className?: string;
 	rowClassName?: string | ((item: T) => string);
 	selectable?: boolean;
@@ -88,7 +104,16 @@ export interface ITableProps<T>
 }
 
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
-export type TTableLabels = Pick<ITableProps<object>, "noDataMessage">;
+export type TTableLabels = Pick<
+	ITableProps<object>,
+	| "noDataMessage"
+	| "selectAllLabel"
+	| "selectRowLabel"
+	| "openRowLabel"
+	| "rowActionsLabel"
+	| "bulkActionsLabel"
+	| "columnsLabel"
+>;
 
 function defaultCompare<T>(a: T, b: T, key: keyof T & string): number {
 	const va = a[key];
@@ -157,6 +182,12 @@ const TableBase = <T,>(
 		loadMoreThreshold = 4,
 		selectOnClick = false,
 		selectionMode = "toggle",
+		selectAllLabel: selectAllLabelProp,
+		selectRowLabel: selectRowLabelProp,
+		openRowLabel: openRowLabelProp,
+		rowActionsLabel: rowActionsLabelProp,
+		bulkActionsLabel: bulkActionsLabelProp,
+		columnsLabel: columnsLabelProp,
 		style,
 		...props
 	}: ITableProps<T>,
@@ -164,6 +195,12 @@ const TableBase = <T,>(
 ) => {
 	const { resolve } = useAmphoreLabels("Table");
 	const noDataMessage = resolve("noDataMessage", noDataMessageProp);
+	const selectAllLabel = resolve("selectAllLabel", selectAllLabelProp);
+	const selectRowLabel = resolve("selectRowLabel", selectRowLabelProp);
+	const openRowLabel = resolve("openRowLabel", openRowLabelProp);
+	const rowActionsLabel = resolve("rowActionsLabel", rowActionsLabelProp);
+	const bulkActionsLabel = resolve("bulkActionsLabel", bulkActionsLabelProp);
+	const columnsLabel = resolve("columnsLabel", columnsLabelProp);
 
 	const columns = useMemo(() => {
 		if (
@@ -402,12 +439,15 @@ const TableBase = <T,>(
 		sortedItems.length > 0 && selectedKeys.size === sortedItems.length;
 	const someSelected = selectedKeys.size > 0 && !allSelected;
 	const hasMultipleSelected = selectedKeys.size > 1;
+	const selectsOnClick = !onRowClick && selectable && selectOnClick;
 
-	return (
+	const table = (
 		<div
 			{...props}
 			ref={mergedRef}
-			role="grid"
+			role="table"
+			aria-rowcount={sortedItems.length + 1}
+			aria-busy={isLoading || props["aria-busy"]}
 			style={{ ...style, gridTemplateColumns }}
 			className={cn([styles.table, className])}
 		>
@@ -432,42 +472,41 @@ const TableBase = <T,>(
 				allSelected={allSelected}
 				someSelected={someSelected}
 				onSelectAll={toggleSelectAll}
+				selectAllLabel={selectAllLabel}
+				rowActionsLabel={rowActionsLabel}
+				bulkActionsLabel={bulkActionsLabel}
+				columnsLabel={columnsLabel}
 			/>
 
-			{columnVisibilityMenu && (
-				<ContextMenu
-					menu={columnsMenu}
-					items={columnsMenuItems}
-					data-testid={deriveTestId(testId, "columns-menu")}
-				/>
-			)}
-			{!!rowActions?.length && (
-				<ContextMenu
-					menu={rowActionsMenu}
-					items={rowActionItems}
-					data-testid={deriveTestId(testId, "actions-menu")}
-				/>
-			)}
-
 			{isLoading ? (
-				<div
-					className={styles.centerRow}
-					data-testid={deriveTestId(testId, "loading")}
-				>
-					<Spinner />
+				<div role="row" style={{ display: "contents" }}>
+					<div
+						role="cell"
+						className={styles.centerRow}
+						data-testid={deriveTestId(testId, "loading")}
+					>
+						<Spinner />
+					</div>
 				</div>
 			) : sortedItems.length === 0 ? (
-				<div
-					className={styles.centerRow}
-					data-testid={deriveTestId(testId, "empty")}
-				>
-					{noDataMessage}
+				<div role="row" style={{ display: "contents" }}>
+					<div
+						role="cell"
+						className={styles.centerRow}
+						data-testid={deriveTestId(testId, "empty")}
+					>
+						{noDataMessage}
+					</div>
 				</div>
 			) : (
 				<>
 					{paddingTop > 0 && (
 						<div
-							style={{ height: paddingTop, gridColumn: "1 / -1" }}
+							aria-hidden
+							style={{
+								height: paddingTop,
+								gridColumn: "1 / -1",
+							}}
 						/>
 					)}
 					{virtualItems.map((vRow) => {
@@ -478,12 +517,27 @@ const TableBase = <T,>(
 								key={key}
 								data-testid={deriveTestId(testId, "row", key)}
 								rowKey={key}
+								rowIndex={vRow.index + 2}
+								selectRowLabel={selectRowLabel}
+								rowActionsLabel={rowActionsLabel}
+								rowButtonLabel={
+									onRowClick
+										? openRowLabel
+										: selectsOnClick && !showCheckbox
+											? selectRowLabel
+											: undefined
+								}
+								rowButtonPressed={
+									selectsOnClick
+										? selectedKeys.has(key)
+										: undefined
+								}
 								item={item}
 								columns={visibleColumns}
 								onClick={
 									onRowClick
 										? (i) => onRowClick(i)
-										: selectable && selectOnClick
+										: selectsOnClick
 											? (_, e) =>
 													handleSelect(
 														vRow.index,
@@ -530,6 +584,7 @@ const TableBase = <T,>(
 					})}
 					{paddingBottom > 0 && (
 						<div
+							aria-hidden
 							style={{
 								height: paddingBottom,
 								gridColumn: "1 / -1",
@@ -539,6 +594,31 @@ const TableBase = <T,>(
 				</>
 			)}
 		</div>
+	);
+
+	return (
+		<>
+			{table}
+
+			{/* Outside the table: only rows belong in it. Both are fixed, so
+		    this doesn't change the layout. */}
+			{columnVisibilityMenu && (
+				<ContextMenu
+					menu={columnsMenu}
+					items={columnsMenuItems}
+					aria-label={columnsLabel}
+					data-testid={deriveTestId(testId, "columns-menu")}
+				/>
+			)}
+			{!!rowActions?.length && (
+				<ContextMenu
+					menu={rowActionsMenu}
+					items={rowActionItems}
+					aria-label={rowActionsLabel}
+					data-testid={deriveTestId(testId, "actions-menu")}
+				/>
+			)}
+		</>
 	);
 };
 
@@ -551,7 +631,13 @@ const TableBase = <T,>(
  * three levels deep reaching a menu by string id. The column-visibility
  * one is opt-in (`columnVisibilityMenu`).
  *
- * Native props and `ref` go to the root, the `role="grid"` element. Derived
+ * `role="table"`, not `grid`: a grid promises arrow-key movement between
+ * cells, one tab stop and roving focus, and screen readers switch to a mode
+ * where only that works. This one has plain tab stops on its controls, which
+ * is what a table is. `aria-rowcount`/`aria-rowindex` keep the numbers right
+ * with only the visible rows in the DOM.
+ *
+ * Native props and `ref` go to the root, the `role="table"` element. Derived
  * testids: `-header` (and TableHead's below it), `-row-<key>` (and TableRow's
  * below it), `-actions-menu`, `-columns-menu`, `-loading`, `-empty`.
  */

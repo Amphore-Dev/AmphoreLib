@@ -40,7 +40,9 @@ const ThBase: React.ForwardRefRenderFunction<HTMLDivElement, IThProps> = (
 				? sortDirection === "asc"
 					? "ascending"
 					: "descending"
-				: undefined
+				: sortable
+					? "none"
+					: undefined
 		}
 		onClick={
 			sortable ? composeHandlers(onClick, () => onSort?.()) : onClick
@@ -61,7 +63,7 @@ const ThBase: React.ForwardRefRenderFunction<HTMLDivElement, IThProps> = (
 	>
 		{children}
 		{sortable && (
-			<span className={styles.sortIcon}>
+			<span className={styles.sortIcon} aria-hidden>
 				{sortDirection ? (
 					<Picto
 						icon={sortDirection === "desc" ? "sortDesc" : "sortAsc"}

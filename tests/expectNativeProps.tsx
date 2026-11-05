@@ -19,6 +19,8 @@ export interface INativePropsCase {
 	classNameOn?: (target: HTMLElement) => Element | null;
 	/** What `ref` points at when it isn't that element, from the target. `null`: the component takes no ref. */
 	refOn?: ((target: HTMLElement) => Element | null) | null;
+	/** What the element's `aria-label` reads when the component completes the one given, with its value say. */
+	ariaLabel?: string;
 	/** Runs after render, for what only appears once opened. */
 	open?: () => void | Promise<void>;
 }
@@ -32,6 +34,7 @@ export async function expectNativeProps({
 	target,
 	classNameOn = (el) => el,
 	refOn = (el) => el,
+	ariaLabel = "Probe label",
 	open,
 }: INativePropsCase) {
 	const ref = React.createRef<never>();
@@ -48,7 +51,7 @@ export async function expectNativeProps({
 	});
 
 	const element = await screen.findByTestId("probe");
-	expect(element).toHaveAttribute("aria-label", "Probe label");
+	expect(element).toHaveAttribute("aria-label", ariaLabel);
 	expect(element.matches(target)).toBe(true);
 	expect(classNameOn(element)).toHaveClass("probe-class");
 	if (refOn) expect(ref.current).toBe(refOn(element));

@@ -1,4 +1,4 @@
-import React, { forwardRef, useId, useRef, useState } from "react";
+import React, { forwardRef, useEffect, useId, useRef, useState } from "react";
 
 import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
@@ -74,6 +74,10 @@ export interface IInputFileProps
 	previewClassName?: string;
 	/** aria-label for the remove-file (×) button. Defaults to "Remove file" (or `InputFile.removeFileLabel` from the nearest AmphoreProvider). No effect when `isRemovable` is false. */
 	removeFileLabel?: TLabel;
+	/** Names the field. Defaults to `placeholder`, which `sm` doesn't show. */
+	"aria-label"?: string;
+	/** Id of an element naming the field — an external label, like FormRenderer's. */
+	"aria-labelledby"?: string;
 }
 
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
@@ -114,6 +118,7 @@ const InputFileBase: React.ForwardRefRenderFunction<
 		onDragOver,
 		onDragLeave,
 		onDrop,
+		"aria-labelledby": ariaLabelledByProp,
 		...props
 	},
 	ref
@@ -128,6 +133,19 @@ const InputFileBase: React.ForwardRefRenderFunction<
 	const { resolve } = useAmphoreLabels("InputFile");
 	const placeholder = resolve("placeholder", placeholderProp);
 	const removeFileLabel = resolve("removeFileLabel", removeFileLabelProp);
+	const ariaLabel =
+		inputProps?.["aria-label"] ?? props["aria-label"] ?? placeholder;
+	const ariaLabelledBy =
+		inputProps?.["aria-labelledby"] ?? ariaLabelledByProp;
+
+	// Removing unmounts the button that was pressed, and only then, once the
+	// file is gone, does the input stop being disabled: focus can follow.
+	const refocusAfterRemove = useRef(false);
+	useEffect(() => {
+		if (value || !refocusAfterRemove.current) return;
+		refocusAfterRemove.current = false;
+		inputRef.current?.focus();
+	}, [value]);
 
 	const acceptFile = (file: File) => {
 		if (!matchesAccept(file, accept)) {
@@ -166,6 +184,7 @@ const InputFileBase: React.ForwardRefRenderFunction<
 		e.stopPropagation();
 		if (disabled) return;
 		if (inputRef.current) inputRef.current.value = "";
+		refocusAfterRemove.current = true;
 		onChange?.(null);
 	};
 
@@ -221,11 +240,15 @@ const InputFileBase: React.ForwardRefRenderFunction<
 					type="file"
 					accept={accept}
 					disabled={disabled || !!value}
-					hidden
+					className={cn([styles.input, inputProps?.className])}
 					onChange={composeHandlers(
 						inputProps?.onChange,
 						handleInputChange
 					)}
+					aria-label={ariaLabelledBy ? undefined : ariaLabel}
+					aria-labelledby={ariaLabelledBy}
+					aria-invalid={!!error || inputProps?.["aria-invalid"]}
+					aria-required={required || inputProps?.["aria-required"]}
 					aria-describedby={
 						cn([
 							inputProps?.["aria-describedby"],
@@ -324,10 +347,14 @@ const InputFileBase: React.ForwardRefRenderFunction<
  * the card's rounded corners. This structure can't reproduce that: the
  * preview and the footer are two separate boxes, never overlapping.
  *
+ * The native input stays in the tab order, visually hidden: it's the only
+ * focusable part of an empty field, `<label>` not being focusable. Its focus
+ * ring is drawn on the label that sits over it.
+ *
  * Native props, `className` and `ref` go to the card (drag handlers run
  * alongside the drop handling), `wrapperProps` to the outer container,
- * `inputProps` to the hidden input. Derived testids: `-input`, `-remove`,
- * `-error`.
+ * `inputProps` to the hidden input, which `aria-label` and `aria-labelledby`
+ * also name. Derived testids: `-input`, `-remove`, `-error`.
  */
 export const InputFile = forwardRef(InputFileBase);
 InputFile.displayName = "InputFile";

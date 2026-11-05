@@ -72,6 +72,7 @@ __metadata:
     vite: "npm:^6.2.6"
     vite-plugin-dts: "npm:^5.1.0"
     vitest: "npm:^3.0.7"
+    vitest-axe: "npm:^0.1.0"
   peerDependencies:
     pdfjs-dist: 4.8.69
     react: ">=18.0.0 <20.0.0"
@@ -3732,6 +3733,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"axe-core@npm:^4.4.2":
+  version: 4.14.0
+  resolution: "axe-core@npm:4.14.0"
+  checksum: 10c0/8aaa0bf748e0dcf202e8f837951a37b28b4b62d639bed58c07a6890bf035ed6a11ede9f4006db9ca8041db821dc80476c27cff08fd70afa9195ee58fb995a958
+  languageName: node
+  linkType: hard
+
 "axobject-query@npm:^4.1.0":
   version: 4.1.0
   resolution: "axobject-query@npm:4.1.0"
@@ -3984,6 +3992,13 @@ __metadata:
     ansi-styles: "npm:^4.1.0"
     supports-color: "npm:^7.1.0"
   checksum: 10c0/4a3fef5cc34975c898ffe77141450f679721df9dde00f6c304353fa9c8b571929123b26a0e4617bde5018977eb655b31970c297b91b63ee83bb82aeb04666880
+  languageName: node
+  linkType: hard
+
+"chalk@npm:^5.0.1":
+  version: 5.6.2
+  resolution: "chalk@npm:5.6.2"
+  checksum: 10c0/99a4b0f0e7991796b1e7e3f52dceb9137cae2a9dfc8fc0784a550dc4c558e15ab32ed70b14b21b52beb2679b4892b41a0aa44249bcb996f01e125d58477c6976
   languageName: node
   linkType: hard
 
@@ -4501,7 +4516,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dom-accessibility-api@npm:^0.5.9":
+"dom-accessibility-api@npm:^0.5.14, dom-accessibility-api@npm:^0.5.9":
   version: 0.5.16
   resolution: "dom-accessibility-api@npm:0.5.16"
   checksum: 10c0/b2c2eda4fae568977cdac27a9f0c001edf4f95a6a6191dfa611e3721db2478d1badc01db5bb4fa8a848aeee13e442a6c2a4386d65ec65a1436f24715a2f8d053
@@ -10376,6 +10391,22 @@ __metadata:
   bin:
     vite: bin/vite.js
   checksum: 10c0/9a62bb4259b4b11b9084c8dc5c25a21c9340d87d83de163d3643f15629d8ac3c2a3a4cda565f1a61e98afc9d78e9cb78eb25d1ae3c302e95d42d13ab61537267
+  languageName: node
+  linkType: hard
+
+"vitest-axe@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "vitest-axe@npm:0.1.0"
+  dependencies:
+    aria-query: "npm:^5.0.0"
+    axe-core: "npm:^4.4.2"
+    chalk: "npm:^5.0.1"
+    dom-accessibility-api: "npm:^0.5.14"
+    lodash-es: "npm:^4.17.21"
+    redent: "npm:^3.0.0"
+  peerDependencies:
+    vitest: ">=0.16.0"
+  checksum: 10c0/ad523ad3115f66b1605c3c0ea6a9932867c4273f8ad73b717afc5fe496159b5e11d50a8babf05ce4990c612558ee24579cf14258304ce6b32a77d15be9e98aa6
   languageName: node
   linkType: hard
 

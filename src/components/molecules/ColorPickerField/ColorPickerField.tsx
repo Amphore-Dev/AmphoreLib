@@ -44,6 +44,10 @@ export interface IColorPickerFieldProps
 	placement?: Placement;
 	/** Hides the hex value text next to the swatch. Defaults to false. */
 	hideValue?: boolean;
+	/** Names the field when there's no visible `label`. */
+	"aria-label"?: string;
+	/** Id of an element naming the field — an external label, like FormRenderer's. */
+	"aria-labelledby"?: string;
 	className?: string;
 	wrapperClassName?: string;
 	/** Native props of the outer container (label, trigger and error message). */
@@ -72,6 +76,8 @@ const ColorPickerFieldBase: React.ForwardRefRenderFunction<
 		noPadding = true,
 		noElevation = true,
 		id,
+		"aria-label": ariaLabel,
+		"aria-labelledby": ariaLabelledBy,
 		"aria-describedby": ariaDescribedBy,
 		...props
 	},
@@ -82,6 +88,10 @@ const ColorPickerFieldBase: React.ForwardRefRenderFunction<
 	const generatedId = useId();
 	const triggerId = id ?? generatedId;
 	const errorId = `${triggerId}-error`;
+	const labelId = `${generatedId}-label`;
+	const valueId = `${generatedId}-value`;
+	const labelledBy =
+		ariaLabelledBy ?? (label && !ariaLabel ? labelId : undefined);
 	const pickerProps = pick(props, COLOR_PICKER_OPTION_KEYS);
 	const triggerProps = omit(props, COLOR_PICKER_OPTION_KEYS);
 	const testId = props["data-testid"];
@@ -97,7 +107,11 @@ const ColorPickerFieldBase: React.ForwardRefRenderFunction<
 			])}
 		>
 			{label && (
-				<label className={styles.label} htmlFor={triggerId}>
+				<label
+					id={labelId}
+					className={styles.label}
+					htmlFor={triggerId}
+				>
 					{label}
 					{required && <span className={styles.required}>*</span>}
 				</label>
@@ -108,6 +122,8 @@ const ColorPickerFieldBase: React.ForwardRefRenderFunction<
 				onOpenChange={setOpen}
 				placement={placement}
 				disabled={disabled}
+				aria-label={ariaLabel}
+				aria-labelledby={labelledBy}
 				className={cn([styles.popover, popoverClassName])}
 				data-testid={deriveTestId(testId, "popover")}
 				content={
@@ -134,16 +150,25 @@ const ColorPickerFieldBase: React.ForwardRefRenderFunction<
 						cn([ariaDescribedBy, error && !hideError && errorId]) ||
 						undefined
 					}
+					aria-label={
+						ariaLabel && !labelledBy
+							? `${ariaLabel}: ${pickerProps.value}`
+							: undefined
+					}
+					aria-labelledby={
+						labelledBy ? `${labelledBy} ${valueId}` : undefined
+					}
 				>
 					<span
 						className={styles.swatch}
 						style={{ backgroundColor: pickerProps.value }}
 					/>
-					{!hideValue && (
-						<span className={styles.value}>
-							{pickerProps.value}
-						</span>
-					)}
+					<span
+						id={valueId}
+						className={hideValue ? styles.srOnly : styles.value}
+					>
+						{pickerProps.value}
+					</span>
 				</button>
 			</Popover>
 
@@ -171,6 +196,10 @@ const ColorPickerFieldBase: React.ForwardRefRenderFunction<
  * via `...pickerProps` — no field-specific prop needed) — the wrapping
  * Popover is made flush here so there's exactly one frame, not two nested
  * ones.
+ *
+ * Same naming as DatePicker: label plus value through `aria-labelledby`. With
+ * `hideValue` the value stays in the markup, visually hidden, or the swatch's
+ * color would be the only thing saying what's picked.
  *
  * Native props, `className` and `ref` go to the trigger `<button>`, the
  * picker's own options to the picker, `wrapperProps` to the outer container.

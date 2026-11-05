@@ -23,6 +23,7 @@ export const fr: TThemeLabels = {
 		loading: "Chargement",
 	},
 	ActiveFilters: {
+		removeLabel: "Retirer",
 		resetLabel: "Réinitialiser",
 		showMoreLabel: "Voir plus",
 		showLessLabel: "Voir moins",
@@ -45,6 +46,7 @@ export const fr: TThemeLabels = {
 	},
 	ChipInput: {
 		removeLabel: "Retirer",
+		invalidLabel: "(invalide)",
 	},
 	ConfirmModal: {
 		cancelText: "Annuler",
@@ -91,12 +93,16 @@ export const fr: TThemeLabels = {
 	Input: {
 		clearLabel: "Effacer",
 	},
+	InputSearch: {
+		searchLabel: "Rechercher",
+	},
 	InputFile: {
 		placeholder: "Ajouter un fichier",
 		removeFileLabel: "Retirer le fichier",
 	},
 	Modal: {
 		closeLabel: "Fermer",
+		dialogLabel: "Boîte de dialogue",
 	},
 	NumberInput: {
 		increaseLabel: "Augmenter",
@@ -116,6 +122,9 @@ export const fr: TThemeLabels = {
 		noResultsMessage: "Aucun résultat",
 		clearLabel: "Effacer",
 	},
+	Progress: {
+		label: "Progression",
+	},
 	SidePanel: {
 		closeLabel: "Fermer",
 	},
@@ -124,6 +133,12 @@ export const fr: TThemeLabels = {
 	},
 	Table: {
 		noDataMessage: "Aucune donnée",
+		selectAllLabel: "Tout sélectionner",
+		selectRowLabel: "Sélectionner la ligne",
+		openRowLabel: "Ouvrir la ligne",
+		rowActionsLabel: "Actions de la ligne",
+		bulkActionsLabel: "Actions sur la sélection",
+		columnsLabel: "Colonnes",
 	},
 	Tabs: {
 		scrollLeftLabel: "Défiler à gauche",
@@ -133,11 +148,17 @@ export const fr: TThemeLabels = {
 		hoursLabel: "Heures",
 		minutesLabel: "Minutes",
 	},
+	TimeRangeFilter: {
+		fromLabel: "De",
+		toLabel: "À",
+	},
 	TodoItem: {
 		removeLabel: "Retirer",
+		editLabel: "Modifier",
 	},
 	TodoList: {
 		moveLabel: "Déplacer (flèches haut/bas)",
+		movedLabel: "Déplacé en position {position} sur {total}",
 	},
 	Tour: {
 		nextLabel: "Suivant",

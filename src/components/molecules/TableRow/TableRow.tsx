@@ -33,7 +33,34 @@ export interface ITableRowProps<T>
 	selectable?: boolean;
 	isSelected?: boolean;
 	rowKey?: React.Key;
+	/** Position among all rows, the header being 1: virtualized rows aren't all in the DOM to be counted. */
+	rowIndex?: number;
+	/** aria-label prefix for the row's checkbox, followed by the row's first value. */
+	selectRowLabel?: string;
+	/** aria-label prefix for the "⋮" button, followed by the row's first value. */
+	rowActionsLabel?: string;
+	/**
+	 * aria-label prefix for a button doing what clicking the row does, followed
+	 * by the row's first value: a row can't take focus itself (`display:
+	 * contents`), so without it `onClick` is mouse-only. Omit when the row has
+	 * no click, or a checkbox already does the same thing.
+	 */
+	rowButtonLabel?: string;
+	/** State of that button when it toggles selection. */
+	rowButtonPressed?: boolean;
 }
+
+/** What tells a row from the others: its first column, as plain text. */
+const firstValue = <T,>(item: T, columns: TTableColumn<T>[]) => {
+	const column = columns.find((col) => col.key !== "contextMenu");
+	const value = column ? item[column.key as keyof T] : undefined;
+	return typeof value === "string" || typeof value === "number"
+		? String(value)
+		: "";
+};
+
+const labelled = (label?: string, name?: string) =>
+	label && name ? `${label}: ${name}` : label;
 
 const TableRowBase = <T,>(
 	{
@@ -46,6 +73,11 @@ const TableRowBase = <T,>(
 		selectable = false,
 		isSelected = false,
 		rowKey,
+		rowIndex,
+		selectRowLabel,
+		rowActionsLabel,
+		rowButtonLabel,
+		rowButtonPressed,
 		style,
 		...props
 	}: ITableRowProps<T>,
@@ -53,14 +85,14 @@ const TableRowBase = <T,>(
 ) => (
 	// Same reasoning as TableHead: role="row" is the grid layout semantic
 	// (its Tds are the real grid cells via display:contents); onClick here
-	// is an optional mouse convenience (selectOnClick / onRowClick), not the
-	// row becoming a single keyboard-focusable control — the row's own
-	// interactive elements (checkbox, buttons) already are.
+	// is the mouse's way to the row's action, the keyboard's is the button in
+	// its first cell (`rowButtonLabel`).
 	// eslint-disable-next-line jsx-a11y/interactive-supports-focus, jsx-a11y/click-events-have-key-events
 	<div
 		{...props}
 		ref={ref}
 		role="row"
+		aria-rowindex={rowIndex}
 		data-row-key={rowKey}
 		data-selected={isSelected || undefined}
 		style={{ ...style, display: "contents" }}
@@ -78,6 +110,10 @@ const TableRowBase = <T,>(
 		{selectable && (
 			<Td className={styles.selectCell}>
 				<Checkbox
+					aria-label={labelled(
+						selectRowLabel,
+						firstValue(item, columns)
+					)}
 					checked={isSelected}
 					data-testid={deriveTestId(props["data-testid"], "select")}
 					// The actual selection logic lives in onClick below (it
@@ -97,13 +133,18 @@ const TableRowBase = <T,>(
 			</Td>
 		)}
 
-		{columns.map((col) => {
+		{columns.map((col, index) => {
 			if (col.key === "contextMenu" && onContextMenu) {
 				return (
 					<Td key="contextMenu" className={styles.contextMenuCell}>
 						<button
 							type="button"
 							className={styles.contextMenuButton}
+							aria-label={labelled(
+								rowActionsLabel,
+								firstValue(item, columns)
+							)}
+							aria-haspopup="menu"
 							data-testid={deriveTestId(
 								props["data-testid"],
 								"actions"
@@ -126,7 +167,31 @@ const TableRowBase = <T,>(
 					key={col.key}
 					data-testid={deriveTestId(props["data-testid"], col.key)}
 					onClick={col.onClick ? () => col.onClick!(item) : undefined}
+					className={
+						index === 0 && rowButtonLabel
+							? styles.rowButtonCell
+							: undefined
+					}
 				>
+					{index === 0 && rowButtonLabel && onClick && (
+						<button
+							type="button"
+							className={styles.rowButton}
+							aria-label={labelled(
+								rowButtonLabel,
+								firstValue(item, columns)
+							)}
+							aria-pressed={rowButtonPressed}
+							data-testid={deriveTestId(
+								props["data-testid"],
+								"row-button"
+							)}
+							onClick={(e) => {
+								e.stopPropagation();
+								onClick(item, e);
+							}}
+						/>
+					)}
 					{typeof col.before === "function"
 						? col.before(item)
 						: undefined}
@@ -145,7 +210,7 @@ const TableRowBase = <T,>(
 		})}
 
 		{/* Absorbs Table's trailing "1fr" filler grid track. */}
-		<Td />
+		<Td aria-hidden />
 	</div>
 );
 
@@ -158,6 +223,6 @@ const TableRowBase = <T,>(
  *
  * Native props and `ref` go to the `role="row"` element; `onClick` and
  * `onContextMenu` are the row-level ones declared above. Derived testids:
- * `-select`, `-actions`, `-<column key>` per cell.
+ * `-select`, `-actions`, `-row-button`, `-<column key>` per cell.
  */
 export const TableRow = genericForwardRef(TableRowBase, "TableRow");

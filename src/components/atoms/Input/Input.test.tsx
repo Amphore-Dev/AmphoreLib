@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
@@ -162,5 +164,28 @@ describe("Input", () => {
 		const input = screen.getByLabelText("Nom");
 		expect(input.className).not.toContain("custom-field");
 		expect(input.parentElement).toHaveClass("custom-field");
+	});
+});
+
+describe("Input clear button", () => {
+	it("hands focus to the field: the button goes away with the value", async () => {
+		const user = userEvent.setup();
+		const Controlled = () => {
+			const [value, setValue] = useState("Ada");
+			return (
+				<Input
+					label="Name"
+					value={value}
+					onChange={setValue}
+					isClearable
+				/>
+			);
+		};
+		render(<Controlled />);
+
+		await user.click(screen.getByRole("button", { name: "Clear" }));
+
+		expect(screen.getByLabelText("Name")).toHaveFocus();
+		expect(screen.getByLabelText("Name")).toHaveValue("");
 	});
 });

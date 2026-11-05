@@ -1,6 +1,9 @@
 import React, {
 	ComponentPropsWithoutRef,
 	forwardRef,
+	useEffect,
+	useId,
+	useLayoutEffect,
 	useRef,
 	useState,
 } from "react";
@@ -8,7 +11,7 @@ import React, {
 import { AmphorePortal } from "@theme/AmphorePortal";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
-import { useDrag } from "@hooks/index";
+import { useDrag, useEscapeLayer } from "@hooks/index";
 
 import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
@@ -40,6 +43,8 @@ export interface IBottomPanelProps
 	collapseLabel?: TLabel;
 	/** aria-label for the drag handle while collapsed (tapping/dragging it expands the panel). Defaults to "Expand panel" (or `BottomPanel.expandLabel` from the nearest AmphoreProvider). */
 	expandLabel?: TLabel;
+	/** Moves focus to the handle whenever the panel opens, for a panel opened from elsewhere on the page rather than through its own handle. Defaults to false. */
+	focusOnOpen?: boolean;
 	/** Renders the sheet into `document.body` via AmphorePortal (theme scope re-applied) — escapes any ancestor `transform`/`filter`/`contain` that would turn its `position: fixed` into a local one, or a stacking context that would trap its z-index. Defaults to false (inline). */
 	portal?: boolean;
 	className?: string;
@@ -68,6 +73,7 @@ const BottomPanelBase: React.ForwardRefRenderFunction<
 		collapsedLabel: collapsedLabelProp,
 		collapseLabel: collapseLabelProp,
 		expandLabel: expandLabelProp,
+		focusOnOpen = false,
 		portal = false,
 		className = "",
 		style,
@@ -83,6 +89,21 @@ const BottomPanelBase: React.ForwardRefRenderFunction<
 	const expandLabel = resolve("expandLabel", expandLabelProp);
 	const [height, setHeight] = useState(defaultHeight);
 	const startHeightRef = useRef(0);
+	const contentId = useId();
+	const handleRef = useRef<HTMLButtonElement>(null);
+	const contentRef = useRef<HTMLDivElement>(null);
+
+	useEscapeLayer(open, () => onOpenChange(false));
+
+	useEffect(() => {
+		if (open && focusOnOpen) handleRef.current?.focus();
+	}, [open, focusOnOpen]);
+
+	useLayoutEffect(() => {
+		if (!open && contentRef.current?.contains(document.activeElement)) {
+			handleRef.current?.focus();
+		}
+	}, [open]);
 
 	const drag = useDrag({
 		axis: "y",
@@ -132,11 +153,13 @@ const BottomPanelBase: React.ForwardRefRenderFunction<
 			role="dialog"
 		>
 			<button
+				ref={handleRef}
 				type="button"
 				className={styles.handle}
 				{...drag.handleProps}
 				onKeyDown={handleKeyDown}
 				aria-expanded={open}
+				aria-controls={contentId}
 				aria-label={open ? collapseLabel : expandLabel}
 				data-testid={deriveTestId(props["data-testid"], "handle")}
 			>
@@ -144,6 +167,8 @@ const BottomPanelBase: React.ForwardRefRenderFunction<
 			</button>
 
 			<div
+				ref={contentRef}
+				id={contentId}
 				className={styles.content}
 				hidden={!open}
 				data-testid={deriveTestId(props["data-testid"], "content")}
@@ -164,6 +189,11 @@ const BottomPanelBase: React.ForwardRefRenderFunction<
  * AmphorePortal for the ancestors that break that. Reusable on its own (a
  * mobile action sheet, say) — SidePanel uses it as its own mobile
  * fallback, but this doesn't know anything about that.
+ *
+ * A non-modal dialog: Escape closes it, and closing with focus inside moves
+ * focus to the handle, the one part that stays. Docked, its content is
+ * `hidden`, which would otherwise take the focused element out from under
+ * the keyboard.
  *
  * Native props and `ref` go to the sheet (`role="dialog"`), `aria-label`
  * winning over the labels below. Derived testids: `-handle`, `-content`.

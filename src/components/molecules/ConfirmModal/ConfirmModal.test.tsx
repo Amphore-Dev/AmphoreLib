@@ -101,9 +101,11 @@ describe("ConfirmModal", () => {
 		const confirmButton = screen.getByRole("button", { name: "Confirm" });
 		fireEvent.click(confirmButton);
 
-		expect(confirmButton).toBeDisabled();
+		expect(confirmButton).toHaveAttribute("aria-disabled", "true");
 		resolvePromise!();
-		await waitFor(() => expect(confirmButton).not.toBeDisabled());
+		await waitFor(() =>
+			expect(confirmButton).not.toHaveAttribute("aria-disabled")
+		);
 		expect(onClose).not.toHaveBeenCalled();
 	});
 
@@ -112,7 +114,9 @@ describe("ConfirmModal", () => {
 		render(<ConfirmModal open onClose={() => {}} onConfirm={onConfirm} />);
 		const confirmButton = screen.getByRole("button", { name: "Confirm" });
 		fireEvent.click(confirmButton);
-		await waitFor(() => expect(confirmButton).not.toBeDisabled());
+		await waitFor(() =>
+			expect(confirmButton).not.toHaveAttribute("aria-disabled")
+		);
 	});
 
 	it("hides the header close button while confirm is loading", () => {

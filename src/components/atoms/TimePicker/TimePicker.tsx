@@ -58,6 +58,10 @@ export interface ITimePickerProps
 	hoursLabel?: TLabel;
 	/** aria-label for the minute segment. Defaults to "Minutes" (or `TimePicker.minutesLabel` from the nearest AmphoreProvider). Same suffixing behavior as `hoursLabel`. */
 	minutesLabel?: TLabel;
+	/** Names the two segments as a group when there's no visible `label`. */
+	"aria-label"?: string;
+	/** Id of an element naming the group — an external label, like FormRenderer's. */
+	"aria-labelledby"?: string;
 }
 
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
@@ -102,6 +106,8 @@ const TimePickerBase: React.ForwardRefRenderFunction<
 		hoursLabel: hoursLabelProp,
 		minutesLabel: minutesLabelProp,
 		id,
+		"aria-label": ariaLabel,
+		"aria-labelledby": ariaLabelledBy,
 		...props
 	},
 	ref
@@ -110,6 +116,8 @@ const TimePickerBase: React.ForwardRefRenderFunction<
 	const size = sizeProp ?? defaultSize ?? "md";
 	const generatedId = useId();
 	const errorId = `${generatedId}-error`;
+	const labelId = `${generatedId}-label`;
+	const describedBy = error && !hideError ? errorId : undefined;
 	const minuteRef = useRef<HTMLInputElement>(null);
 	const { resolve } = useAmphoreLabels("TimePicker");
 	const hoursLabel = resolve("hoursLabel", hoursLabelProp);
@@ -197,7 +205,11 @@ const TimePickerBase: React.ForwardRefRenderFunction<
 			])}
 		>
 			{label && (
-				<label className={styles.label}>
+				<label
+					id={labelId}
+					className={styles.label}
+					htmlFor={id ?? generatedId}
+				>
 					{label}
 					{required && <span className={styles.required}>*</span>}
 				</label>
@@ -206,6 +218,12 @@ const TimePickerBase: React.ForwardRefRenderFunction<
 			<div
 				{...props}
 				ref={ref}
+				role="group"
+				aria-labelledby={
+					ariaLabelledBy ??
+					(label && !ariaLabel ? labelId : undefined)
+				}
+				aria-label={ariaLabel}
 				className={cn([styles.field, className])}
 				data-size={size}
 				data-color={color}
@@ -234,7 +252,15 @@ const TimePickerBase: React.ForwardRefRenderFunction<
 					value={hourText}
 					disabled={disabled}
 					aria-invalid={!!error}
-					aria-describedby={error && !hideError ? errorId : undefined}
+					aria-required={
+						required || hoursInputProps?.["aria-required"]
+					}
+					aria-describedby={
+						cn([
+							hoursInputProps?.["aria-describedby"],
+							describedBy,
+						]) || undefined
+					}
 					onChange={composeHandlers(
 						hoursInputProps?.onChange,
 						handleSegmentChange(
@@ -277,6 +303,15 @@ const TimePickerBase: React.ForwardRefRenderFunction<
 					value={minuteText}
 					disabled={disabled}
 					aria-invalid={!!error}
+					aria-required={
+						required || minutesInputProps?.["aria-required"]
+					}
+					aria-describedby={
+						cn([
+							minutesInputProps?.["aria-describedby"],
+							describedBy,
+						]) || undefined
+					}
 					onChange={composeHandlers(
 						minutesInputProps?.onChange,
 						handleSegmentChange(setMinuteText, 59, 2)

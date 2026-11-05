@@ -4,17 +4,14 @@ import { describe, expect, it } from "vitest";
 import { Td } from "./Td";
 
 describe("Td", () => {
-	it("renders its children with role=gridcell", () => {
+	it("renders its children with role=cell", () => {
 		render(<Td>Hello</Td>);
-		expect(screen.getByRole("gridcell")).toHaveTextContent("Hello");
+		expect(screen.getByRole("cell")).toHaveTextContent("Hello");
 	});
 
 	it("sets data-sticky when given", () => {
 		render(<Td sticky="left">Hello</Td>);
-		expect(screen.getByRole("gridcell")).toHaveAttribute(
-			"data-sticky",
-			"left"
-		);
+		expect(screen.getByRole("cell")).toHaveAttribute("data-sticky", "left");
 	});
 
 	it("forwards native div props and a custom className", () => {

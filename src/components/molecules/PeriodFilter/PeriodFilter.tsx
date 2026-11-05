@@ -123,6 +123,10 @@ export interface IPeriodFilterProps
 		onChange?: (value: TPeriodRangeType) => void;
 	};
 	disabled?: boolean;
+	/** Names the whole filter when something else labels it. */
+	"aria-label"?: string;
+	/** Id of an element naming the whole filter — an external label, like FormRenderer's. */
+	"aria-labelledby"?: string;
 	className?: string;
 }
 
@@ -169,7 +173,12 @@ const PeriodFilterBase: React.ForwardRefRenderFunction<
 	};
 
 	return (
-		<div {...props} ref={ref} className={cn([styles.wrapper, className])}>
+		<div
+			{...props}
+			ref={ref}
+			role="group"
+			className={cn([styles.wrapper, className])}
+		>
 			<div className={styles.pickers}>
 				<DatePicker
 					label="From"
@@ -199,6 +208,7 @@ const PeriodFilterBase: React.ForwardRefRenderFunction<
 								isPresetActive(preset) ? "solid" : "outline"
 							}
 							disabled={disabled}
+							aria-pressed={isPresetActive(preset)}
 							onClick={() => applyPreset(preset)}
 							data-testid={deriveTestId(
 								props["data-testid"],
@@ -216,6 +226,7 @@ const PeriodFilterBase: React.ForwardRefRenderFunction<
 				<RadioFilter
 					className={styles.rangeType}
 					data-testid={deriveTestId(props["data-testid"], "range")}
+					aria-label="Range type"
 					options={RANGE_TYPE_OPTIONS}
 					value={range.value}
 					disabled={disabled}

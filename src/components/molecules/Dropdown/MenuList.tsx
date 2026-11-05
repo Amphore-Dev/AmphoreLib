@@ -69,6 +69,14 @@ export const MenuList: React.FC<IMenuListProps> = ({
 						ref={(node) => itemRef(node, index)}
 						type="button"
 						role="menuitem"
+						// One tab stop: Tab leaves the menu (which closes it),
+						// the arrows move inside it.
+						tabIndex={
+							activeIndex === index ||
+							(activeIndex === null && index === 0)
+								? 0
+								: -1
+						}
 						disabled={item.disabled}
 						data-color={item.color}
 						data-testid={deriveTestId(

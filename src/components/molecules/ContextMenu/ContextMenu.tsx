@@ -14,6 +14,8 @@ import {
 
 import { AmphorePortal } from "@theme/AmphorePortal";
 
+import { useEscapeLayer } from "@hooks/index";
+
 import { genericForwardRef } from "@utils/UForwardRef";
 
 import type { ITestIdProps, TMenuItem } from "@interfaces/index";
@@ -31,6 +33,8 @@ export interface IContextMenuProps<T>
 	/** Static list, or resolved from whatever `data` the triggering `show(event, data)` call passed. */
 	items: TMenuItem[] | ((data: T) => TMenuItem[]);
 	disabled?: boolean;
+	/** Names the menu: there's no trigger element to take its name from, unlike Dropdown. */
+	"aria-label"?: string;
 	/** Renders the menu into `document.body` via AmphorePortal (theme scope re-applied) — escapes any ancestor stacking context/`transform`/`overflow` that would trap or clip it. Defaults to false (inline, `position: fixed`). */
 	portal?: boolean;
 	className?: string;
@@ -85,7 +89,8 @@ function ContextMenuBase<T = undefined>(
 		],
 	});
 
-	const dismiss = useDismiss(context);
+	const dismiss = useDismiss(context, { escapeKey: false });
+	useEscapeLayer(open, menu.hide);
 	const role = useRole(context, { role: "menu" });
 	const listNav = useListNavigation(context, {
 		listRef,

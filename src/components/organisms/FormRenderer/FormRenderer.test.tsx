@@ -1,6 +1,7 @@
 import React from "react";
 
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { Formik, FormikProps } from "formik";
 import { describe, expect, it, vi } from "vitest";
 
@@ -185,13 +186,15 @@ describe("FormRenderer", () => {
 		expect(screen.getByLabelText("Titre")).toBeInTheDocument();
 	});
 
-	it("shows no label at all (either side) when showFieldLabels is false", () => {
+	it("shows no label, yet still names the field, when showFieldLabels is false", () => {
 		const fields: TField[] = [
 			{ name: "title", type: "input", label: "Titre" },
 		];
 		renderForm({ fields, showFieldLabels: false });
 		expect(screen.queryByText("Titre")).not.toBeInTheDocument();
-		expect(screen.queryByLabelText("Titre")).not.toBeInTheDocument();
+		expect(
+			screen.getByRole("textbox", { name: "Titre" })
+		).toBeInTheDocument();
 		// The field itself is still there, just unlabeled.
 		expect(screen.getByRole("textbox")).toBeInTheDocument();
 	});
@@ -418,5 +421,166 @@ describe("FormRenderer readOnly", () => {
 			/>
 		);
 		expect(screen.getByText("Custom footer")).toBeInTheDocument();
+	});
+});
+
+describe("FormRenderer field names", () => {
+	const options = [{ value: "a", label: "Alpha" }];
+
+	it("names a select, which a label's htmlFor can't reach", () => {
+		renderForm({
+			fields: [{ name: "pick", type: "select", label: "Pick", options }],
+		});
+		expect(
+			screen.getByRole("combobox", { name: "Pick" })
+		).toBeInTheDocument();
+	});
+
+	it("keeps a date's value in its name", () => {
+		renderForm({ fields: [{ name: "day", type: "date", label: "Day" }] });
+		expect(
+			screen.getByRole("button", { name: /^Day / })
+		).toBeInTheDocument();
+	});
+
+	it("names groups of controls", () => {
+		renderForm({
+			fields: [
+				{ name: "boxes", type: "checkbox", label: "Boxes", options },
+				{ name: "radios", type: "radio", label: "Radios", options },
+				{ name: "time", type: "time", label: "Time" },
+				{ name: "range", type: "timeRange", label: "Range" },
+				{ name: "period", type: "period", label: "Period" },
+			],
+		});
+		expect(
+			screen.getByRole("group", { name: "Boxes" })
+		).toBeInTheDocument();
+		expect(
+			screen.getByRole("radiogroup", { name: "Radios" })
+		).toBeInTheDocument();
+		expect(screen.getByRole("group", { name: "Time" })).toBeInTheDocument();
+		expect(
+			screen.getByRole("group", { name: "Range" })
+		).toBeInTheDocument();
+		expect(
+			screen.getByRole("group", { name: "Period" })
+		).toBeInTheDocument();
+	});
+
+	it("still points native controls at the label", () => {
+		renderForm({
+			fields: [{ name: "text", type: "input", label: "Text" }],
+		});
+		expect(screen.getByLabelText("Text")).toHaveAttribute("id", "text");
+	});
+
+	it("names fields by attribute when labels are hidden", () => {
+		renderForm({
+			showFieldLabels: false,
+			fields: [{ name: "pick", type: "select", label: "Pick", options }],
+		});
+		expect(
+			screen.getByRole("combobox", { name: "Pick" })
+		).toBeInTheDocument();
+	});
+});
+
+describe("FormRenderer validation errors", () => {
+	const validate = (values: Record<string, unknown>) =>
+		values.text === "bad" ? { text: "Not that" } : {};
+
+	const renderValidated = (initial: string) =>
+		render(
+			<Formik
+				initialValues={{ text: initial }}
+				validate={validate}
+				validateOnMount
+				onSubmit={() => {}}
+			>
+				{(formikCtx) => (
+					<FormRenderer
+						formikCtx={formikCtx as never}
+						fields={[
+							{ name: "text", type: "input", label: "Text" },
+						]}
+					/>
+				)}
+			</Formik>
+		);
+
+	it("shows an invalid value once it's been changed", async () => {
+		renderValidated("");
+
+		fireEvent.change(screen.getByLabelText("Text"), {
+			target: { value: "bad" },
+		});
+
+		expect(await screen.findByRole("alert")).toHaveTextContent("Not that");
+		expect(screen.getByLabelText("Text")).toBeInvalid();
+		expect(screen.getByLabelText("Text")).toHaveAccessibleDescription(
+			"Not that"
+		);
+	});
+
+	it("doesn't flag an untouched field on mount", async () => {
+		renderValidated("bad");
+
+		await screen.findByLabelText("Text");
+
+		expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+	});
+});
+
+describe("FormRendererWithFormik submit button", () => {
+	it("stays focusable while submitting", async () => {
+		let finish = () => {};
+		render(
+			<FormRendererWithFormik
+				inModal
+				open
+				title="Edit"
+				initialValues={{ text: "a" }}
+				disableSubmit={false}
+				fields={[{ name: "text", type: "input", label: "Text" }]}
+				onSubmit={() =>
+					new Promise<void>((resolve) => {
+						finish = resolve;
+					})
+				}
+			/>
+		);
+		fireEvent.change(screen.getByLabelText("Text"), {
+			target: { value: "b" },
+		});
+		const submit = await screen.findByRole("button", { name: "Submit" });
+		await waitFor(() => expect(submit).toBeEnabled());
+
+		fireEvent.click(submit);
+
+		await waitFor(() =>
+			expect(submit).toHaveAttribute("aria-disabled", "true")
+		);
+		expect(submit).toBeEnabled();
+		finish();
+	});
+});
+
+describe("FormRenderer field reset", () => {
+	it("hands focus to the field when reset from the keyboard", async () => {
+		const user = userEvent.setup();
+		render(
+			<FormRendererWithFormik
+				initialValues={{ text: "a" }}
+				showResetFieldButton
+				fields={[{ name: "text", type: "input", label: "Text" }]}
+			/>
+		);
+		const reset = screen.getByRole("button", { name: "Reset" });
+
+		reset.focus();
+		await user.keyboard("{Enter}");
+
+		expect(screen.getByLabelText("Text")).toHaveFocus();
 	});
 });
