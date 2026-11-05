@@ -101,11 +101,49 @@ export function mergeConfig(rawInput?: TThemeConfigInput): TThemeConfig {
 		radius: { ...DEFAULT_CONFIG.radius, ...presetRadius, ...input.radius },
 		spacing: { ...DEFAULT_CONFIG.spacing, ...input.spacing },
 		typography: { ...DEFAULT_CONFIG.typography, ...input.typography },
+		text: { ...DEFAULT_CONFIG.text, ...input.text },
+		leading: { ...DEFAULT_CONFIG.leading, ...input.leading },
+		weights: { ...DEFAULT_CONFIG.weights, ...input.weights },
+		shadows: { ...DEFAULT_CONFIG.shadows, ...input.shadows },
+		shadowColors: { ...DEFAULT_CONFIG.shadowColors, ...input.shadowColors },
+		focus: { ...DEFAULT_CONFIG.focus, ...input.focus },
+		layers: { ...DEFAULT_CONFIG.layers, ...input.layers },
+		durations: { ...DEFAULT_CONFIG.durations, ...input.durations },
+		ease: input.ease ?? DEFAULT_CONFIG.ease,
+		borders: { ...DEFAULT_CONFIG.borders, ...input.borders },
+		icons: { ...DEFAULT_CONFIG.icons, ...input.icons },
 		defaults: { ...DEFAULT_CONFIG.defaults, ...input.defaults },
 		labels: mergeLabels(DEFAULT_CONFIG.labels, input.labels),
 		density: input.density ?? DEFAULT_CONFIG.density,
 		style: input.style,
 	};
+}
+
+/** Flat `{ key: value }` config sections, and the --amp-<prefix>-<key> they set. */
+const TOKEN_PREFIXES = {
+	text: "text",
+	leading: "leading",
+	weights: "weight",
+	shadows: "shadow",
+	shadowColors: "shadow-color",
+	focus: "focus",
+	layers: "z",
+	durations: "duration",
+	borders: "border-width",
+	icons: "icon",
+} as const;
+
+function scalesToCssVars(config: TThemeConfig): Record<string, string> {
+	const vars: Record<string, string> = {};
+
+	for (const [section, prefix] of Object.entries(TOKEN_PREFIXES)) {
+		const scale = config[section as keyof typeof TOKEN_PREFIXES];
+		for (const [key, value] of Object.entries(scale)) {
+			vars[`--amp-${prefix}-${key}`] = value;
+		}
+	}
+
+	return vars;
 }
 
 const toKebabCase = (key: string) =>
@@ -156,6 +194,7 @@ export function configToCssVars(config: TThemeConfig): CSSProperties {
 		"--amp-radius-lg": config.radius.lg,
 		"--amp-radius-full": config.radius.full,
 
+		"--amp-spacing": config.spacing.base,
 		"--amp-space-1": config.spacing[1],
 		"--amp-space-2": config.spacing[2],
 		"--amp-space-3": config.spacing[3],
@@ -165,5 +204,8 @@ export function configToCssVars(config: TThemeConfig): CSSProperties {
 
 		"--amp-font": config.typography.fontFamily,
 		"--amp-font-mono": config.typography.fontFamilyMono,
+
+		"--amp-ease": config.ease,
+		...scalesToCssVars(config),
 	} as CSSProperties;
 }

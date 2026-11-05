@@ -61,6 +61,41 @@ describe("mergeConfig", () => {
 });
 
 describe("configToCssVars", () => {
+	it("emits the spacing base and leaves the numbered spacing keys working", () => {
+		const vars = configToCssVars(
+			mergeConfig({ spacing: { base: "0.5rem", 2: "1rem" } })
+		) as Record<string, string>;
+		expect(vars["--amp-spacing"]).toBe("0.5rem");
+		expect(vars["--amp-space-2"]).toBe("1rem");
+		expect(vars["--amp-space-1"]).toBe(DEFAULT_CONFIG.spacing[1]);
+	});
+
+	it("emits every scale from the config, overridable one key at a time", () => {
+		const vars = configToCssVars(
+			mergeConfig({
+				text: { sm: "1rem" },
+				weights: { bold: "800" },
+				focus: { width: "3px" },
+				ease: "linear",
+			})
+		) as Record<string, string>;
+		expect(vars["--amp-text-sm"]).toBe("1rem");
+		expect(vars["--amp-text-2xl"]).toBe(DEFAULT_CONFIG.text["2xl"]);
+		expect(vars["--amp-leading-none"]).toBe("1");
+		expect(vars["--amp-weight-bold"]).toBe("800");
+		expect(vars["--amp-shadow-xl"]).toBe(DEFAULT_CONFIG.shadows.xl);
+		expect(vars["--amp-shadow-color-3"]).toBe(
+			DEFAULT_CONFIG.shadowColors[3]
+		);
+		expect(vars["--amp-focus-width"]).toBe("3px");
+		expect(vars["--amp-focus-color"]).toBe("var(--amp-color-primary)");
+		expect(vars["--amp-z-overlay"]).toBe("1000");
+		expect(vars["--amp-duration-fast"]).toBe("0.15s");
+		expect(vars["--amp-ease"]).toBe("linear");
+		expect(vars["--amp-border-width-sm"]).toBe("1px");
+		expect(vars["--amp-icon-md"]).toBe("1rem");
+	});
+
 	it("emits gap/card-padding/section-padding from the comfortable density preset by default", () => {
 		const vars = configToCssVars(DEFAULT_CONFIG) as Record<string, string>;
 		expect(vars["--amp-gap"]).toBe(DENSITY_PRESETS.comfortable.gap);

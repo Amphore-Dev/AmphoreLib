@@ -49,6 +49,12 @@ export type TThemeRadius = {
 };
 
 export type TThemeSpacing = {
+	/**
+	 * Unit of the `space($n)` SCSS scale: `space(2)` is `base * 2`. The numbered
+	 * keys below are a separate, older scale (`--amp-space-*`, not linear), and
+	 * they do not follow `base`.
+	 */
+	base: string;
 	1: string;
 	2: string;
 	3: string;
@@ -60,6 +66,97 @@ export type TThemeSpacing = {
 export type TThemeTypography = {
 	fontFamily: string;
 	fontFamilyMono: string;
+};
+
+/** Steps of the text scale, read through `--amp-text-*` and `--amp-leading-*`. */
+export type TThemeTextStep =
+	| "2xs"
+	| "xs"
+	| "sm"
+	| "md"
+	| "lg"
+	| "xl"
+	| "2xl"
+	| "3xl"
+	| "4xl"
+	| "5xl"
+	| "6xl";
+
+/** Font sizes (`--amp-text-*`). */
+export type TThemeText = Record<TThemeTextStep, string>;
+
+/**
+ * Line heights (`--amp-leading-*`). Each text step has its own, and the four
+ * unitless ratios are for text that scales with its own font size.
+ */
+export type TThemeLeading = Record<
+	TThemeTextStep | "none" | "tight" | "snug" | "normal",
+	string
+>;
+
+/** Font weights (`--amp-weight-*`). */
+export type TThemeWeights = {
+	regular: string;
+	medium: string;
+	semibold: string;
+	bold: string;
+};
+
+/** Box shadows of floating surfaces (`--amp-shadow-*`). */
+export type TThemeShadows = {
+	sm: string;
+	md: string;
+	lg: string;
+	xl: string;
+};
+
+/** Shadow color of each Card elevation level (`--amp-shadow-color-*`). */
+export type TThemeShadowColors = {
+	1: string;
+	2: string;
+	3: string;
+	4: string;
+	5: string;
+};
+
+/** Keyboard focus ring (`--amp-focus-*`), drawn by the `focus-ring` mixin. */
+export type TThemeFocus = {
+	color: string;
+	width: string;
+	offset: string;
+};
+
+/** Stacking layers (`--amp-z-*`). */
+export type TThemeLayers = {
+	sticky: string;
+	raised: string;
+	overlay: string;
+};
+
+/** Transition durations (`--amp-duration-*`). */
+export type TThemeDurations = {
+	instant: string;
+	fast: string;
+	base: string;
+	slow: string;
+};
+
+/** Border and line thicknesses (`--amp-border-width-*`). */
+export type TThemeBorders = {
+	sm: string;
+	md: string;
+	lg: string;
+	xl: string;
+};
+
+/** Fixed icon sizes (`--amp-icon-*`). */
+export type TThemeIcons = {
+	xs: string;
+	sm: string;
+	md: string;
+	lg: string;
+	xl: string;
+	"2xl": string;
 };
 
 /** Named presets that pre-set radius (and nothing else). Explicit `radius.*` still wins. */
@@ -94,6 +191,18 @@ export type TThemeConfig = {
 	radius: TThemeRadius;
 	spacing: TThemeSpacing;
 	typography: TThemeTypography;
+	text: TThemeText;
+	leading: TThemeLeading;
+	weights: TThemeWeights;
+	shadows: TThemeShadows;
+	shadowColors: TThemeShadowColors;
+	focus: TThemeFocus;
+	layers: TThemeLayers;
+	durations: TThemeDurations;
+	/** Timing function of every transition (`--amp-ease`). */
+	ease: string;
+	borders: TThemeBorders;
+	icons: TThemeIcons;
 	defaults: TThemeDefaults;
 	/**
 	 * Every component's translatable strings, namespaced by component name
