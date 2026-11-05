@@ -25,20 +25,6 @@ export interface ITruncatedTooltipTextProps extends ComponentPropsWithoutRef<"sp
 	tooltipClassName?: string;
 }
 
-/**
- * V2 TruncatedTooltipText — truncates text (ellipsis, 1 or more lines) and
- * only enables a Tooltip with the full content once it's actually
- * overflowing (measured via ResizeObserver, re-checked on content/maxLines
- * change). Always renders the same `<Tooltip disabled={!isTruncated}>`
- * tree rather than conditionally mounting it — swapping element types once
- * truncation is detected would remount the trigger into a new DOM node,
- * losing hover state if the user's pointer was already over it (a real
- * timing race, not hypothetical: hovering right as a Storybook story
- * settles hits it easily). `useLayoutEffect` measures before paint too, so
- * there's no frame where the untruncated/disabled version is visible.
- *
- * Native props and `ref` go to the text `<span>`.
- */
 const TruncatedTooltipTextBase: React.ForwardRefRenderFunction<
 	HTMLSpanElement,
 	ITruncatedTooltipTextProps
@@ -107,5 +93,19 @@ const TruncatedTooltipTextBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 TruncatedTooltipText — truncates text (ellipsis, 1 or more lines) and
+ * only enables a Tooltip with the full content once it's actually
+ * overflowing (measured via ResizeObserver, re-checked on content/maxLines
+ * change). Always renders the same `<Tooltip disabled={!isTruncated}>`
+ * tree rather than conditionally mounting it — swapping element types once
+ * truncation is detected would remount the trigger into a new DOM node,
+ * losing hover state if the user's pointer was already over it (a real
+ * timing race, not hypothetical: hovering right as a Storybook story
+ * settles hits it easily). `useLayoutEffect` measures before paint too, so
+ * there's no frame where the untruncated/disabled version is visible.
+ *
+ * Native props and `ref` go to the text `<span>`.
+ */
 export const TruncatedTooltipText = forwardRef(TruncatedTooltipTextBase);
 TruncatedTooltipText.displayName = "TruncatedTooltipText";

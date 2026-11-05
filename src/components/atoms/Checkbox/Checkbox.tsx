@@ -31,15 +31,6 @@ export interface ICheckboxProps
 	wrapperProps?: TElementProps<"div">;
 }
 
-/**
- * V2 Checkbox — fully controlled (checked/onChange only), no ambient
- * form-library awareness. Single fixed size and color (primary) by design:
- * unlike Button/Input, a checkbox isn't a place consumers reach for visual
- * variants — keep the surface small.
- *
- * Native props, `className` and `ref` go to the `<input>`, `wrapperProps` to
- * the outer container. Derived testid: `-error`.
- */
 const CheckboxBase: React.ForwardRefRenderFunction<
 	HTMLInputElement,
 	ICheckboxProps
@@ -151,5 +142,14 @@ const CheckboxBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 Checkbox — fully controlled (checked/onChange only), no ambient
+ * form-library awareness. Single fixed size and color (primary) by design:
+ * unlike Button/Input, a checkbox isn't a place consumers reach for visual
+ * variants — keep the surface small.
+ *
+ * Native props, `className` and `ref` go to the `<input>`, `wrapperProps` to
+ * the outer container. Derived testid: `-error`.
+ */
 export const Checkbox = forwardRef(CheckboxBase);
 Checkbox.displayName = "Checkbox";

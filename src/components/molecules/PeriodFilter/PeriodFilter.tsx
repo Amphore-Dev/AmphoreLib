@@ -126,16 +126,6 @@ export interface IPeriodFilterProps
 	className?: string;
 }
 
-/**
- * V2 PeriodFilter — a `from`/`to` `DatePicker` pair with quick presets and
- * an optional between/starting/ending selector. Fully prop-driven: v1's
- * version wrote directly into `useFormikContext().setValues` for both the
- * preset buttons and the range-type radios — dropped, `onChange` (or the
- * per-side `from.onChange`/`to.onChange`) is the only way values change.
- *
- * Native props and `ref` go to the root `<div>`. Derived testids: `-from`,
- * `-to`, `-preset-<preset>`, `-range`.
- */
 const PeriodFilterBase: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	IPeriodFilterProps
@@ -238,5 +228,15 @@ const PeriodFilterBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 PeriodFilter — a `from`/`to` `DatePicker` pair with quick presets and
+ * an optional between/starting/ending selector. Fully prop-driven: v1's
+ * version wrote directly into `useFormikContext().setValues` for both the
+ * preset buttons and the range-type radios — dropped, `onChange` (or the
+ * per-side `from.onChange`/`to.onChange`) is the only way values change.
+ *
+ * Native props and `ref` go to the root `<div>`. Derived testids: `-from`,
+ * `-to`, `-preset-<preset>`, `-range`.
+ */
 export const PeriodFilter = forwardRef(PeriodFilterBase);
 PeriodFilter.displayName = "PeriodFilter";

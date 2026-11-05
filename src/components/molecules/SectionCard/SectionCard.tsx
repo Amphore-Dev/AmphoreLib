@@ -19,11 +19,6 @@ export interface ISectionCardProps extends Omit<
 	className?: string;
 }
 
-/**
- * V2 SectionCard — a Card preset: title + optional trailing actions, a
- * Divider, then content. Native props and `ref` go to the Card. Derived
- * testids: `-title`, `-actions`.
- */
 const SectionCardBase: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	ISectionCardProps
@@ -57,5 +52,10 @@ const SectionCardBase: React.ForwardRefRenderFunction<
 	</Card>
 );
 
+/**
+ * V2 SectionCard — a Card preset: title + optional trailing actions, a
+ * Divider, then content. Native props and `ref` go to the Card. Derived
+ * testids: `-title`, `-actions`.
+ */
 export const SectionCard = forwardRef(SectionCardBase);
 SectionCard.displayName = "SectionCard";

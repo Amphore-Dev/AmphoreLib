@@ -37,19 +37,6 @@ export type TConfirmModalLabels = Pick<
 	"cancelText" | "confirmText"
 >;
 
-/**
- * V2 ConfirmModal — a Modal preset (fixed Cancel/Confirm footer, `onConfirm`
- * can be async, the confirm button shows a loading state while it settles).
- * v1's version accepted a fully custom `buttons` array (render props, string
- * sentinels for "confirm"/"cancel") — dropped: for anything beyond a plain
- * confirm/cancel pair, using `Modal` directly is simpler than fighting this
- * component's escape hatch. Doesn't auto-close on confirm (same as v1) —
- * the caller decides when to close, e.g. after its own side effect
- * succeeds.
- *
- * Native props and `ref` go to Modal's dialog panel. Derived testids: Modal's
- * own, plus `-primary` (confirm) and `-secondary` (cancel).
- */
 const ConfirmModalBase: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	IConfirmModalProps
@@ -142,5 +129,18 @@ const ConfirmModalBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 ConfirmModal — a Modal preset (fixed Cancel/Confirm footer, `onConfirm`
+ * can be async, the confirm button shows a loading state while it settles).
+ * v1's version accepted a fully custom `buttons` array (render props, string
+ * sentinels for "confirm"/"cancel") — dropped: for anything beyond a plain
+ * confirm/cancel pair, using `Modal` directly is simpler than fighting this
+ * component's escape hatch. Doesn't auto-close on confirm (same as v1) —
+ * the caller decides when to close, e.g. after its own side effect
+ * succeeds.
+ *
+ * Native props and `ref` go to Modal's dialog panel. Derived testids: Modal's
+ * own, plus `-primary` (confirm) and `-secondary` (cancel).
+ */
 export const ConfirmModal = forwardRef(ConfirmModalBase);
 ConfirmModal.displayName = "ConfirmModal";

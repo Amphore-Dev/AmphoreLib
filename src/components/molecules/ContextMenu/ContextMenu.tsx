@@ -36,18 +36,6 @@ export interface IContextMenuProps<T>
 	className?: string;
 }
 
-/**
- * V2 ContextMenu — one shared instance, many right-click triggers
- * (react-contexify's model): `useContextMenu()`'s `show(event, data)` from
- * as many `onContextMenu` handlers as needed, `items` resolved against
- * whatever `data` the triggering call passed. Reuses Dropdown's `MenuList`,
- * positions via a virtual reference at the cursor (`refs.setPositionReference`)
- * — no trigger ref/forwardRef needed, unlike Dropdown. Inline
- * (`strategy:"fixed"`) by default, `portal` opts into AmphorePortal.
- *
- * Native props and `ref` go to the menu. Derived testids: `-item-<id>`, or
- * `-item-<position>` for an item without one.
- */
 function ContextMenuBase<T = undefined>(
 	{
 		menu,
@@ -167,4 +155,16 @@ function ContextMenuBase<T = undefined>(
 	return portal ? <AmphorePortal>{list}</AmphorePortal> : list;
 }
 
+/**
+ * V2 ContextMenu — one shared instance, many right-click triggers
+ * (react-contexify's model): `useContextMenu()`'s `show(event, data)` from
+ * as many `onContextMenu` handlers as needed, `items` resolved against
+ * whatever `data` the triggering call passed. Reuses Dropdown's `MenuList`,
+ * positions via a virtual reference at the cursor (`refs.setPositionReference`)
+ * — no trigger ref/forwardRef needed, unlike Dropdown. Inline
+ * (`strategy:"fixed"`) by default, `portal` opts into AmphorePortal.
+ *
+ * Native props and `ref` go to the menu. Derived testids: `-item-<id>`, or
+ * `-item-<position>` for an item without one.
+ */
 export const ContextMenu = genericForwardRef(ContextMenuBase, "ContextMenu");

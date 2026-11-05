@@ -129,19 +129,6 @@ function columnTrackSize<T>({ width, minWidth }: TTableColumn<T>): string {
 	return minWidth ? `max(${minWidth}, ${width})` : width;
 }
 
-/**
- * V2 Table — CSS Grid (not a real `<table>`, see Td/Th) + virtualized rows
- * (`@tanstack/react-virtual`), ported from v1's. Context menus (row actions,
- * column visibility) rewired from react-contexify's global id registry to
- * this lib's own `useContextMenu<T>()` controller model: `Table` owns both
- * controllers directly and passes callbacks down, rather than components
- * three levels deep reaching a menu by string id. The column-visibility
- * one is opt-in (`columnVisibilityMenu`).
- *
- * Native props and `ref` go to the root, the `role="grid"` element. Derived
- * testids: `-header` (and TableHead's below it), `-row-<key>` (and TableRow's
- * below it), `-actions-menu`, `-columns-menu`, `-loading`, `-empty`.
- */
 const TableBase = <T,>(
 	{
 		columns: columnsProp,
@@ -555,4 +542,17 @@ const TableBase = <T,>(
 	);
 };
 
+/**
+ * V2 Table — CSS Grid (not a real `<table>`, see Td/Th) + virtualized rows
+ * (`@tanstack/react-virtual`), ported from v1's. Context menus (row actions,
+ * column visibility) rewired from react-contexify's global id registry to
+ * this lib's own `useContextMenu<T>()` controller model: `Table` owns both
+ * controllers directly and passes callbacks down, rather than components
+ * three levels deep reaching a menu by string id. The column-visibility
+ * one is opt-in (`columnVisibilityMenu`).
+ *
+ * Native props and `ref` go to the root, the `role="grid"` element. Derived
+ * testids: `-header` (and TableHead's below it), `-row-<key>` (and TableRow's
+ * below it), `-actions-menu`, `-columns-menu`, `-loading`, `-empty`.
+ */
 export const Table = genericForwardRef(TableBase, "Table");

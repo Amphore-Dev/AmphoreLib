@@ -47,12 +47,6 @@ export interface IInfoMessageProps
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why a `Pick` here instead of auto-deriving from `TLabel`. */
 export type TInfoMessageLabels = Pick<IInfoMessageProps, "closeLabel">;
 
-/**
- * V2 InfoMessage — inline banner/alert. Same `--_color*` per-`[data-color]`
- * pattern as Badge/Button.
- *
- * Native props and `ref` go to the root `<div>`. Derived testid: `-close`.
- */
 const InfoMessageBase: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	IInfoMessageProps
@@ -107,5 +101,11 @@ const InfoMessageBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 InfoMessage — inline banner/alert. Same `--_color*` per-`[data-color]`
+ * pattern as Badge/Button.
+ *
+ * Native props and `ref` go to the root `<div>`. Derived testid: `-close`.
+ */
 export const InfoMessage = forwardRef(InfoMessageBase);
 InfoMessage.displayName = "InfoMessage";

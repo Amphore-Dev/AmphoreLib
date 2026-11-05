@@ -17,17 +17,6 @@ export interface ICountDownProps extends Omit<
 	className?: string;
 }
 
-/**
- * V2 CountDown — v1's version used `setInterval` re-created every tick
- * (its effect depended on the ticking value itself) and pulled in i18next
- * for its default text; this one chains a single `setTimeout` per second
- * via a `secondsLeft` effect dependency (no repeated interval churn), and
- * `onEnd` is read from a ref so its identity changing doesn't restart the
- * countdown. No i18next — this lib's UI strings are French-only, plain
- * template text instead.
- *
- * Native props and `ref` go to the root `<span>`.
- */
 const CountDownBase: React.ForwardRefRenderFunction<
 	HTMLSpanElement,
 	ICountDownProps
@@ -65,5 +54,16 @@ const CountDownBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 CountDown — v1's version used `setInterval` re-created every tick
+ * (its effect depended on the ticking value itself) and pulled in i18next
+ * for its default text; this one chains a single `setTimeout` per second
+ * via a `secondsLeft` effect dependency (no repeated interval churn), and
+ * `onEnd` is read from a ref so its identity changing doesn't restart the
+ * countdown. No i18next — this lib's UI strings are French-only, plain
+ * template text instead.
+ *
+ * Native props and `ref` go to the root `<span>`.
+ */
 export const CountDown = forwardRef(CountDownBase);
 CountDown.displayName = "CountDown";

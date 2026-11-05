@@ -20,13 +20,6 @@ export interface ITitleProps extends Omit<
 	className?: string;
 }
 
-/**
- * V2 Title — heading text. `as` picks the semantic tag, `size` (defaults to
- * `as`) picks the visual scale — decoupled so heading order stays correct
- * (h1 → h2 → h3, no skipping for style reasons) independent of look.
- *
- * Native props and `ref` go to the heading element.
- */
 const TitleBase: React.ForwardRefRenderFunction<
 	HTMLHeadingElement,
 	ITitleProps
@@ -46,5 +39,12 @@ const TitleBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 Title — heading text. `as` picks the semantic tag, `size` (defaults to
+ * `as`) picks the visual scale — decoupled so heading order stays correct
+ * (h1 → h2 → h3, no skipping for style reasons) independent of look.
+ *
+ * Native props and `ref` go to the heading element.
+ */
 export const Title = forwardRef(TitleBase);
 Title.displayName = "Title";

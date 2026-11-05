@@ -97,16 +97,6 @@ export interface IFormRendererProps<K = object>
 	title?: string;
 }
 
-/**
- * V2 FormRenderer — a grid of fields built from their definitions, inline or
- * in a Modal.
- *
- * Native props, `className` and `ref` go to the form's grid. `data-testid`
- * names the form: inline it sits on the grid, with `inModal` on the dialog,
- * the grid taking `-form`. Derived testids: `-field-<name>`, `-reset-<name>`,
- * Modal's own, `-primary` (submit), `-secondary` (cancel), `-reset` (reset
- * form).
- */
 const FormRendererBase = <K extends object>(
 	{
 		title,
@@ -459,6 +449,16 @@ const FormRendererBase = <K extends object>(
 	);
 };
 
+/**
+ * V2 FormRenderer — a grid of fields built from their definitions, inline or
+ * in a Modal.
+ *
+ * Native props, `className` and `ref` go to the form's grid. `data-testid`
+ * names the form: inline it sits on the grid, with `inModal` on the dialog,
+ * the grid taking `-form`. Derived testids: `-field-<name>`, `-reset-<name>`,
+ * Modal's own, `-primary` (submit), `-secondary` (cancel), `-reset` (reset
+ * form).
+ */
 export const FormRenderer = genericForwardRef(FormRendererBase, "FormRenderer");
 
 export interface IFormRendererWithFormikProps<K = object> extends Omit<
@@ -485,7 +485,6 @@ export type TFormRendererLabels = Pick<
 > &
 	Pick<IFormRendererWithFormikProps, "resetFormLabel">;
 
-/** FormRenderer inside its own Formik: same native props, same `ref`, same derived testids. */
 const FormRendererWithFormikBase = <K extends object>(
 	{
 		onSubmit = () => {},
@@ -598,6 +597,7 @@ const FormRendererWithFormikBase = <K extends object>(
 	);
 };
 
+/** FormRenderer inside its own Formik: same native props, same `ref`, same derived testids. */
 export const FormRendererWithFormik = genericForwardRef(
 	FormRendererWithFormikBase,
 	"FormRendererWithFormik"

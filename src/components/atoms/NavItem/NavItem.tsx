@@ -22,16 +22,6 @@ export interface INavItemProps extends ComponentPropsWithoutRef<"a"> {
 	className?: string;
 }
 
-/**
- * V2 NavItem — a persistent nav-sidebar link (as opposed to Dropdown/
- * ContextMenu's `TMenuItem`, a transient action in a floating popup — no
- * relation despite the similar name). Renders a plain `<a href>`, same
- * "no ambient router coupling" rule as Link/Breadcrumb: for real SPA
- * routing, spread your router's own navigation over it (an `onClick` that
- * calls `e.preventDefault()` + `navigate(href)` is the common, accessible
- * way to do that without needing a polymorphic `as` — every native anchor
- * prop passes through). Native props and `ref` go to the `<a>`.
- */
 const NavItemBase: React.ForwardRefRenderFunction<
 	HTMLAnchorElement,
 	INavItemProps
@@ -73,5 +63,15 @@ const NavItemBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 NavItem — a persistent nav-sidebar link (as opposed to Dropdown/
+ * ContextMenu's `TMenuItem`, a transient action in a floating popup — no
+ * relation despite the similar name). Renders a plain `<a href>`, same
+ * "no ambient router coupling" rule as Link/Breadcrumb: for real SPA
+ * routing, spread your router's own navigation over it (an `onClick` that
+ * calls `e.preventDefault()` + `navigate(href)` is the common, accessible
+ * way to do that without needing a polymorphic `as` — every native anchor
+ * prop passes through). Native props and `ref` go to the `<a>`.
+ */
 export const NavItem = forwardRef(NavItemBase);
 NavItem.displayName = "NavItem";

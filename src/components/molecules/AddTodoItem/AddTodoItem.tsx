@@ -34,17 +34,6 @@ export type TAddTodoItemLabels = Pick<
 	"placeholder" | "buttonLabel"
 >;
 
-/**
- * V2 AddTodoItem — an input + button pair for appending to a `TodoList`
- * (or anything else keyed the same way). The typed draft is the one piece
- * of local, uncontrolled state in this whole family: it has no meaning to
- * a consumer until submitted, unlike `TodoList.items`, which is why it
- * isn't lifted the way every other field's value is. Enter submits without
- * losing focus (the input stays mounted, value just clears).
- *
- * Native props and `ref` go to the root `<div>`. Derived testids: `-input`,
- * `-submit`.
- */
 const AddTodoItemBase: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	IAddTodoItemProps
@@ -120,5 +109,16 @@ const AddTodoItemBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 AddTodoItem — an input + button pair for appending to a `TodoList`
+ * (or anything else keyed the same way). The typed draft is the one piece
+ * of local, uncontrolled state in this whole family: it has no meaning to
+ * a consumer until submitted, unlike `TodoList.items`, which is why it
+ * isn't lifted the way every other field's value is. Enter submits without
+ * losing focus (the input stays mounted, value just clears).
+ *
+ * Native props and `ref` go to the root `<div>`. Derived testids: `-input`,
+ * `-submit`.
+ */
 export const AddTodoItem = forwardRef(AddTodoItemBase);
 AddTodoItem.displayName = "AddTodoItem";

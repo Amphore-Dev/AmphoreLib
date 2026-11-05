@@ -168,21 +168,6 @@ const forDevice = <T,>(value: TPerDevice<T>, device: TTourDevice) =>
 
 type TRect = { top: number; left: number; width: number; height: number };
 
-/**
- * V2 Tour — a guided walkthrough over the real interface: the page is
- * dimmed except the current step's target, and the step's text sits in a
- * bubble anchored to it (desktop) or in a full-width sheet (mobile). Same
- * engine and same steps on both: targets, contents and whole steps can
- * differ per device, the tour switches mid-way if the viewport crosses
- * `mobileBreakpoint`, and targets rendered late (async data) are waited
- * for. Passive: the page underneath is not clickable while it runs.
- * Controlled by `open`/`onClose` — when to start it and whether it was
- * already seen stays the consumer's business.
- *
- * Native props and `ref` go to the step's bubble, the dialog element.
- * Derived testids: `-title`, `-content`, `-primary` (next or done),
- * `-secondary` (previous), `-skip`.
- */
 const TourBase: React.ForwardRefRenderFunction<HTMLDivElement, ITourProps> = (
 	{
 		steps,
@@ -563,5 +548,20 @@ const TourBase: React.ForwardRefRenderFunction<HTMLDivElement, ITourProps> = (
 	return portal ? <AmphorePortal>{layer}</AmphorePortal> : layer;
 };
 
+/**
+ * V2 Tour — a guided walkthrough over the real interface: the page is
+ * dimmed except the current step's target, and the step's text sits in a
+ * bubble anchored to it (desktop) or in a full-width sheet (mobile). Same
+ * engine and same steps on both: targets, contents and whole steps can
+ * differ per device, the tour switches mid-way if the viewport crosses
+ * `mobileBreakpoint`, and targets rendered late (async data) are waited
+ * for. Passive: the page underneath is not clickable while it runs.
+ * Controlled by `open`/`onClose` — when to start it and whether it was
+ * already seen stays the consumer's business.
+ *
+ * Native props and `ref` go to the step's bubble, the dialog element.
+ * Derived testids: `-title`, `-content`, `-primary` (next or done),
+ * `-secondary` (previous), `-skip`.
+ */
 export const Tour = forwardRef(TourBase);
 Tour.displayName = "Tour";

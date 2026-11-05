@@ -16,14 +16,6 @@ export interface ISkeletonProps extends Omit<
 	className?: string;
 }
 
-/**
- * V2 Skeleton — animated loading placeholder. No color/size props: always
- * the same neutral shimmer, dimensions via `width`/`height` instead of a
- * fixed scale. `aria-hidden="true"` on every instance — announce the
- * loading state via a wrapping `role="status"`, not each shape.
- *
- * Native props and `ref` go to the root `<div>`.
- */
 const SkeletonBase: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	ISkeletonProps
@@ -41,5 +33,13 @@ const SkeletonBase: React.ForwardRefRenderFunction<
 	/>
 );
 
+/**
+ * V2 Skeleton — animated loading placeholder. No color/size props: always
+ * the same neutral shimmer, dimensions via `width`/`height` instead of a
+ * fixed scale. `aria-hidden="true"` on every instance — announce the
+ * loading state via a wrapping `role="status"`, not each shape.
+ *
+ * Native props and `ref` go to the root `<div>`.
+ */
 export const Skeleton = forwardRef(SkeletonBase);
 Skeleton.displayName = "Skeleton";

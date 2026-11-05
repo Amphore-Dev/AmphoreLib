@@ -29,13 +29,6 @@ export interface IHeadBarProps
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
 export type THeadBarLabels = Pick<IHeadBarProps, "menuLabel">;
 
-/**
- * V2 HeadBar — top app bar: optional menu button, left/right content slots.
- * v1's menu trigger was a plain `<div onClick>` with three hardcoded `<hr>`
- * lines — a real `<button>` + Picto here instead (keyboard/AT accessible).
- *
- * Native props and `ref` go to the root `<div>`. Derived testid: `-menu`.
- */
 const HeadBarBase: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	IHeadBarProps
@@ -78,5 +71,12 @@ const HeadBarBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 HeadBar — top app bar: optional menu button, left/right content slots.
+ * v1's menu trigger was a plain `<div onClick>` with three hardcoded `<hr>`
+ * lines — a real `<button>` + Picto here instead (keyboard/AT accessible).
+ *
+ * Native props and `ref` go to the root `<div>`. Derived testid: `-menu`.
+ */
 export const HeadBar = forwardRef(HeadBarBase);
 HeadBar.displayName = "HeadBar";

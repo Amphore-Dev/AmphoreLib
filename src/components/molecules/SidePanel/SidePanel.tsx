@@ -123,22 +123,6 @@ export interface ISidePanelProps
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
 export type TSidePanelLabels = Pick<ISidePanelProps, "closeLabel">;
 
-/**
- * V2 SidePanel — a docked detail panel: a sticky right-hand column on
- * desktop, and below `mobileBreakpoint` either a draggable BottomPanel
- * sliding up from the bottom (default) or a centered Modal
- * (`mobileMode="modal"`). The one legitimate use of `useMediaQuery` in
- * this lib (see its own doc comment) — desktop and mobile aren't the same
- * tree styled differently, they're two different components. Closing
- * behaves the same on both by default (fully gone) — `keepDockedOnMobile`
- * opts the mobile BottomPanel into its own native closed-but-peeking
- * behavior instead, for the cases that actually want it.
- *
- * Native props and `ref` go to whichever panel is showing: the docked Card,
- * the BottomPanel sheet or the Modal dialog. Derived testids: `-title`,
- * `-close`, `-content` on the docked panel, BottomPanel's or Modal's own
- * below the breakpoint.
- */
 const SidePanelBase: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	ISidePanelProps
@@ -275,5 +259,21 @@ const SidePanelBase: React.ForwardRefRenderFunction<
 	return portal && overlay ? <AmphorePortal>{panel}</AmphorePortal> : panel;
 };
 
+/**
+ * V2 SidePanel — a docked detail panel: a sticky right-hand column on
+ * desktop, and below `mobileBreakpoint` either a draggable BottomPanel
+ * sliding up from the bottom (default) or a centered Modal
+ * (`mobileMode="modal"`). The one legitimate use of `useMediaQuery` in
+ * this lib (see its own doc comment) — desktop and mobile aren't the same
+ * tree styled differently, they're two different components. Closing
+ * behaves the same on both by default (fully gone) — `keepDockedOnMobile`
+ * opts the mobile BottomPanel into its own native closed-but-peeking
+ * behavior instead, for the cases that actually want it.
+ *
+ * Native props and `ref` go to whichever panel is showing: the docked Card,
+ * the BottomPanel sheet or the Modal dialog. Derived testids: `-title`,
+ * `-close`, `-content` on the docked panel, BottomPanel's or Modal's own
+ * below the breakpoint.
+ */
 export const SidePanel = forwardRef(SidePanelBase);
 SidePanel.displayName = "SidePanel";

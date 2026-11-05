@@ -47,21 +47,6 @@ export interface ITodoListProps
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
 export type TTodoListLabels = Pick<ITodoListProps, "moveLabel">;
 
-/**
- * V2 TodoList — a controlled, reorderable list of `TodoItem` rows. Reorder
- * is custom pointer-based (no DnD dependency, `useDrag` like every other
- * drag in this lib): a `pointerdown` on a handle starts tracking, `move`
- * measures sibling midpoints to find the drop index and splices `items`
- * immediately (once per index crossed, same as the original prototype this
- * was ported from) — not just on drop. Near the edge of the scroll
- * container (or the screen), `useAutoScroll` scrolls so a long list can be
- * reordered past what's visible — on a phone, the finger on the handle
- * can't scroll it any other way. Arrow-up/down on the handle reorders by
- * one without needing a drag at all.
- *
- * Native props and `ref` go to the `<ul>`. Derived testids: `-item-<id>`,
- * each row then deriving its own.
- */
 const TodoListBase: React.ForwardRefRenderFunction<
 	HTMLUListElement,
 	ITodoListProps
@@ -207,5 +192,20 @@ const TodoListBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 TodoList — a controlled, reorderable list of `TodoItem` rows. Reorder
+ * is custom pointer-based (no DnD dependency, `useDrag` like every other
+ * drag in this lib): a `pointerdown` on a handle starts tracking, `move`
+ * measures sibling midpoints to find the drop index and splices `items`
+ * immediately (once per index crossed, same as the original prototype this
+ * was ported from) — not just on drop. Near the edge of the scroll
+ * container (or the screen), `useAutoScroll` scrolls so a long list can be
+ * reordered past what's visible — on a phone, the finger on the handle
+ * can't scroll it any other way. Arrow-up/down on the handle reorders by
+ * one without needing a drag at all.
+ *
+ * Native props and `ref` go to the `<ul>`. Derived testids: `-item-<id>`,
+ * each row then deriving its own.
+ */
 export const TodoList = forwardRef(TodoListBase);
 TodoList.displayName = "TodoList";

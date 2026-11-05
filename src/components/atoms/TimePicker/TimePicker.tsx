@@ -76,19 +76,6 @@ const splitValue = (v: string | null) => {
 	return { h, m };
 };
 
-/**
- * V2 TimePicker — controlled, `value` is a plain "HH:mm" string (24h), not
- * a `Date` — no timezone ambiguity for a time-of-day-only value. Two
- * segmented text inputs (hour/minute), not native `<input type="time">`
- * (unrestylable chrome, same reasoning as NumberInput vs type="number").
- * Two digits auto-advance to the next segment; ArrowUp/Down adjust by 1,
- * wrapping.
- *
- * Native props, `className` and `ref` go to the field box holding the two
- * inputs, `wrapperProps` to the outer container, `hoursInputProps` and
- * `minutesInputProps` to each input. Derived testids: `-hours`, `-minutes`,
- * `-error`.
- */
 const TimePickerBase: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	ITimePickerProps
@@ -326,5 +313,18 @@ const TimePickerBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 TimePicker — controlled, `value` is a plain "HH:mm" string (24h), not
+ * a `Date` — no timezone ambiguity for a time-of-day-only value. Two
+ * segmented text inputs (hour/minute), not native `<input type="time">`
+ * (unrestylable chrome, same reasoning as NumberInput vs type="number").
+ * Two digits auto-advance to the next segment; ArrowUp/Down adjust by 1,
+ * wrapping.
+ *
+ * Native props, `className` and `ref` go to the field box holding the two
+ * inputs, `wrapperProps` to the outer container, `hoursInputProps` and
+ * `minutesInputProps` to each input. Derived testids: `-hours`, `-minutes`,
+ * `-error`.
+ */
 export const TimePicker = forwardRef(TimePickerBase);
 TimePicker.displayName = "TimePicker";

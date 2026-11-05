@@ -47,16 +47,6 @@ export interface IColorPickerProps
 	className?: string;
 }
 
-/**
- * V2 ColorPicker — thin themed wrapper around `react-gcolor-picker`
- * (solid + gradient panels, its own tabs/inputs), whose own controlled
- * `value`/`onChange` contract already matches this lib's — restyled via
- * `:global()` overrides on its class names (see .module.scss) instead of
- * a from-scratch color picker, same reasoning as DatePicker/react-day-picker.
- *
- * Native props and `ref` go to the root `<div>`; the picker's own options
- * (`showAlpha`, `gradient`...) to the picker.
- */
 const ColorPickerBase: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	IColorPickerProps
@@ -90,5 +80,15 @@ const ColorPickerBase: React.ForwardRefRenderFunction<
 	</div>
 );
 
+/**
+ * V2 ColorPicker — thin themed wrapper around `react-gcolor-picker`
+ * (solid + gradient panels, its own tabs/inputs), whose own controlled
+ * `value`/`onChange` contract already matches this lib's — restyled via
+ * `:global()` overrides on its class names (see .module.scss) instead of
+ * a from-scratch color picker, same reasoning as DatePicker/react-day-picker.
+ *
+ * Native props and `ref` go to the root `<div>`; the picker's own options
+ * (`showAlpha`, `gradient`...) to the picker.
+ */
 export const ColorPicker = forwardRef(ColorPickerBase);
 ColorPicker.displayName = "ColorPicker";

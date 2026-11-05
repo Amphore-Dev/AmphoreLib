@@ -41,16 +41,6 @@ export interface ITodoItemProps
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
 export type TTodoItemLabels = Pick<ITodoItemProps, "removeLabel">;
 
-/**
- * V2 TodoItem — one row: optional drag handle, an optional leading slot,
- * click-to-edit text (a `TextArea` with `autoGrow`, swapped in on click),
- * and an optional remove button. Reorder mechanics live in TodoList (it
- * needs to measure siblings) — this component only renders the handle
- * `dragHandleProps` is spread onto and reports its own text edits/removal.
- *
- * Native props and `ref` go to the `<li>`. Derived testids: `-handle`,
- * `-text`, `-input`, `-remove`.
- */
 const TodoItemBase: React.ForwardRefRenderFunction<
 	HTMLLIElement,
 	ITodoItemProps
@@ -200,5 +190,15 @@ const TodoItemBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 TodoItem — one row: optional drag handle, an optional leading slot,
+ * click-to-edit text (a `TextArea` with `autoGrow`, swapped in on click),
+ * and an optional remove button. Reorder mechanics live in TodoList (it
+ * needs to measure siblings) — this component only renders the handle
+ * `dragHandleProps` is spread onto and reports its own text edits/removal.
+ *
+ * Native props and `ref` go to the `<li>`. Derived testids: `-handle`,
+ * `-text`, `-input`, `-remove`.
+ */
 export const TodoItem = forwardRef(TodoItemBase);
 TodoItem.displayName = "TodoItem";

@@ -26,15 +26,6 @@ export interface ITimeRangeFilterProps
 	className?: string;
 }
 
-/**
- * V2 TimeRangeFilter — a `from`/`to` pair of `TimePicker`. Fully prop-driven
- * (`from.value`/`to.value`/`onChange`) — v1's version reached directly into
- * `FormikContext` to read values when its own props didn't supply them;
- * dropped, that binding now happens one layer up in `FieldRenderer`.
- *
- * Native props and `ref` go to the root `<div>`. Derived testids: `-from`,
- * `-to`.
- */
 const TimeRangeFilterBase: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	ITimeRangeFilterProps
@@ -87,5 +78,14 @@ const TimeRangeFilterBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 TimeRangeFilter — a `from`/`to` pair of `TimePicker`. Fully prop-driven
+ * (`from.value`/`to.value`/`onChange`) — v1's version reached directly into
+ * `FormikContext` to read values when its own props didn't supply them;
+ * dropped, that binding now happens one layer up in `FieldRenderer`.
+ *
+ * Native props and `ref` go to the root `<div>`. Derived testids: `-from`,
+ * `-to`.
+ */
 export const TimeRangeFilter = forwardRef(TimeRangeFilterBase);
 TimeRangeFilter.displayName = "TimeRangeFilter";

@@ -31,17 +31,6 @@ export type TPasswordFieldLabels = Pick<
 	"hidePasswordLabel" | "showPasswordLabel"
 >;
 
-/**
- * V2 PasswordField — an Input preset (visibility toggle). The
- * mouseenter/mouseleave pair that drives auto-hide is on the outer
- * wrapper div, not the `<input>` itself — otherwise moving the pointer
- * onto the toggle button (a sibling inside the same field box) would
- * fire a spurious mouseleave on the input and start the countdown while
- * the pointer is still visually over the field.
- *
- * Native props and `ref` go where Input sends them. Derived testids: Input's
- * own, plus `-toggle`.
- */
 const PasswordFieldBase: React.ForwardRefRenderFunction<
 	HTMLInputElement,
 	IPasswordFieldProps
@@ -126,5 +115,16 @@ const PasswordFieldBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 PasswordField — an Input preset (visibility toggle). The
+ * mouseenter/mouseleave pair that drives auto-hide is on the outer
+ * wrapper div, not the `<input>` itself — otherwise moving the pointer
+ * onto the toggle button (a sibling inside the same field box) would
+ * fire a spurious mouseleave on the input and start the countdown while
+ * the pointer is still visually over the field.
+ *
+ * Native props and `ref` go where Input sends them. Derived testids: Input's
+ * own, plus `-toggle`.
+ */
 export const PasswordField = forwardRef(PasswordFieldBase);
 PasswordField.displayName = "PasswordField";

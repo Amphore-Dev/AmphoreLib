@@ -71,17 +71,6 @@ type TFiltersMap = {
 	) => null | TRenderResultObject | JSX.Element;
 };
 
-/**
- * V2 ActiveFilters — a chip list of every non-empty filter, with a
- * "see more"/"see less" row once they overflow their container.
- * Removing a chip clears just that filter (or, for a `period` filter, both
- * `from`/`to`) via `filtersContext.setFilter`/`setFilters` — the same
- * `Badge`'s `onRemove` used everywhere else a removable tag is needed
- * (decision 5), no separate `Chip` component.
- *
- * Native props and `ref` go to the root `<div>`. Derived testids: `-reset`,
- * `-show-more`, `-show-less`, `-chip-<name>-<position>`.
- */
 const ActiveFiltersBase = <
 	T extends Record<string, TFiltersSlice<object>>,
 	K extends keyof T,
@@ -229,6 +218,17 @@ const ActiveFiltersBase = <
 	);
 };
 
+/**
+ * V2 ActiveFilters — a chip list of every non-empty filter, with a
+ * "see more"/"see less" row once they overflow their container.
+ * Removing a chip clears just that filter (or, for a `period` filter, both
+ * `from`/`to`) via `filtersContext.setFilter`/`setFilters` — the same
+ * `Badge`'s `onRemove` used everywhere else a removable tag is needed
+ * (decision 5), no separate `Chip` component.
+ *
+ * Native props and `ref` go to the root `<div>`. Derived testids: `-reset`,
+ * `-show-more`, `-show-less`, `-chip-<name>-<position>`.
+ */
 export const ActiveFilters = genericForwardRef(
 	ActiveFiltersBase,
 	"ActiveFilters"

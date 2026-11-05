@@ -50,23 +50,6 @@ export interface IColorPickerFieldProps
 	popoverClassName?: string;
 }
 
-/**
- * V2 ColorPickerField — a compact swatch+hex trigger (same field-box as
- * Input/DatePicker) that opens the full ColorPicker in a Popover. v1's
- * version had this backwards: the always-visible trigger WAS the full
- * ColorPicker, with a small swatch preview hidden inside a click-triggered
- * Tooltip — the opposite of what a "field" should show at rest.
- *
- * The visible frame (padding/shadow) around the open picker is
- * ColorPicker's own (`noPadding`/`noElevation`, forwarded straight through
- * via `...pickerProps` — no field-specific prop needed) — the wrapping
- * Popover is made flush here so there's exactly one frame, not two nested
- * ones.
- *
- * Native props, `className` and `ref` go to the trigger `<button>`, the
- * picker's own options to the picker, `wrapperProps` to the outer container.
- * Derived testids: `-popover`, `-error`.
- */
 const ColorPickerFieldBase: React.ForwardRefRenderFunction<
 	HTMLButtonElement,
 	IColorPickerFieldProps
@@ -175,5 +158,22 @@ const ColorPickerFieldBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 ColorPickerField — a compact swatch+hex trigger (same field-box as
+ * Input/DatePicker) that opens the full ColorPicker in a Popover. v1's
+ * version had this backwards: the always-visible trigger WAS the full
+ * ColorPicker, with a small swatch preview hidden inside a click-triggered
+ * Tooltip — the opposite of what a "field" should show at rest.
+ *
+ * The visible frame (padding/shadow) around the open picker is
+ * ColorPicker's own (`noPadding`/`noElevation`, forwarded straight through
+ * via `...pickerProps` — no field-specific prop needed) — the wrapping
+ * Popover is made flush here so there's exactly one frame, not two nested
+ * ones.
+ *
+ * Native props, `className` and `ref` go to the trigger `<button>`, the
+ * picker's own options to the picker, `wrapperProps` to the outer container.
+ * Derived testids: `-popover`, `-error`.
+ */
 export const ColorPickerField = forwardRef(ColorPickerFieldBase);
 ColorPickerField.displayName = "ColorPickerField";

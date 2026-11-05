@@ -24,16 +24,6 @@ export interface ISummaryListProps
 	className?: string;
 }
 
-/**
- * V2 SummaryList — data-driven (`items`) term/value pairs, rendered via
- * the shared `SummaryListItem`. `layout="grid"` wraps items in `FlexGrid`
- * instead of a `<dl>` — trades the `<dl>` semantics for a multi-column
- * layout (each item still uses `<dt>`/`<dd>` internally); "vertical"/
- * "horizontal" keep the real `<dl>`.
- *
- * Native props and `ref` go to the root: the `<dl>`, or the grid. Derived
- * testids: `-item-<position>`, each item then deriving its own.
- */
 const SummaryListBase: React.ForwardRefRenderFunction<
 	HTMLElement,
 	ISummaryListProps
@@ -97,5 +87,15 @@ const SummaryListBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 SummaryList — data-driven (`items`) term/value pairs, rendered via
+ * the shared `SummaryListItem`. `layout="grid"` wraps items in `FlexGrid`
+ * instead of a `<dl>` — trades the `<dl>` semantics for a multi-column
+ * layout (each item still uses `<dt>`/`<dd>` internally); "vertical"/
+ * "horizontal" keep the real `<dl>`.
+ *
+ * Native props and `ref` go to the root: the `<dl>`, or the grid. Derived
+ * testids: `-item-<position>`, each item then deriving its own.
+ */
 export const SummaryList = forwardRef(SummaryListBase);
 SummaryList.displayName = "SummaryList";

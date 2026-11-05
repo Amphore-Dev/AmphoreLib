@@ -20,20 +20,6 @@ export interface IFlexGridProps extends ComponentPropsWithoutRef<"div"> {
 	className?: string;
 }
 
-/**
- * V2 FlexGrid — responsive flexbox-based layout (port of the reference's
- * own `FlexGrid`, ex-`Grid` in V2 — see the sibling `Grid` atom for its
- * classic CSS-grid counterpart, ex-`Grid` in the reference). Every child is
- * auto-wrapped in a `FlexGridItem` (span 1) unless it already is one, or
- * carries its own `data-span` (works on any element, no wrapper needed).
- * Because it wraps every child in its own real element, a child that is
- * itself a multi-field wrapper (e.g. a `<div>` grouping several fields)
- * collapses into *one* opaque flex item — reach for `Grid` instead when
- * children need to flow individually regardless of intermediate wrapper
- * elements (see EditableCard's per-group display).
- *
- * Native props and `ref` go to the root `<div>`.
- */
 const FlexGridBase: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	IFlexGridProps
@@ -91,5 +77,19 @@ const FlexGridBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 FlexGrid — responsive flexbox-based layout (port of the reference's
+ * own `FlexGrid`, ex-`Grid` in V2 — see the sibling `Grid` atom for its
+ * classic CSS-grid counterpart, ex-`Grid` in the reference). Every child is
+ * auto-wrapped in a `FlexGridItem` (span 1) unless it already is one, or
+ * carries its own `data-span` (works on any element, no wrapper needed).
+ * Because it wraps every child in its own real element, a child that is
+ * itself a multi-field wrapper (e.g. a `<div>` grouping several fields)
+ * collapses into *one* opaque flex item — reach for `Grid` instead when
+ * children need to flow individually regardless of intermediate wrapper
+ * elements (see EditableCard's per-group display).
+ *
+ * Native props and `ref` go to the root `<div>`.
+ */
 export const FlexGrid = forwardRef(FlexGridBase);
 FlexGrid.displayName = "FlexGrid";

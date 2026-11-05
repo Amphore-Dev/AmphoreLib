@@ -32,16 +32,6 @@ export interface IRadioFilterProps
 	wrapperProps?: TElementProps<"div">;
 }
 
-/**
- * V2 RadioFilter — a group of `Radio` sharing one single-value selection.
- * Fully controlled (`value`/`onChange`), no ambient form-library awareness
- * (see CheckboxFilter's sibling note). `name` groups the native inputs —
- * defaults to a stable generated id so the group works even unnamed.
- *
- * Native props, `className` and `ref` go to the `role="radiogroup"` element,
- * `wrapperProps` to the outer container. Derived testids:
- * `-option-<value>`, `-error`.
- */
 const RadioFilterBase: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	IRadioFilterProps
@@ -124,5 +114,15 @@ const RadioFilterBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 RadioFilter — a group of `Radio` sharing one single-value selection.
+ * Fully controlled (`value`/`onChange`), no ambient form-library awareness
+ * (see CheckboxFilter's sibling note). `name` groups the native inputs —
+ * defaults to a stable generated id so the group works even unnamed.
+ *
+ * Native props, `className` and `ref` go to the `role="radiogroup"` element,
+ * `wrapperProps` to the outer container. Derived testids:
+ * `-option-<value>`, `-error`.
+ */
 export const RadioFilter = forwardRef(RadioFilterBase);
 RadioFilter.displayName = "RadioFilter";

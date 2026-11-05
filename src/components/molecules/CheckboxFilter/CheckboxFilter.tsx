@@ -31,17 +31,6 @@ export interface ICheckboxesFilterProps
 	wrapperProps?: TElementProps<"div">;
 }
 
-/**
- * V2 CheckboxFilter — a group of `Checkbox` sharing one multi-value
- * `string[]`. Fully controlled (`value`/`onChange`), no ambient form-library
- * awareness — unlike v1's equivalent, which reached into Formik itself via
- * `useFormikField` for its error display. Binding to a form (Formik or
- * otherwise) happens one layer up, in `FieldRenderer`.
- *
- * Native props, `className` and `ref` go to the `role="group"` element,
- * `wrapperProps` to the outer container. Derived testids:
- * `-option-<value>`, `-error`.
- */
 const CheckboxFilterBase: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	ICheckboxesFilterProps
@@ -130,5 +119,16 @@ const CheckboxFilterBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 CheckboxFilter — a group of `Checkbox` sharing one multi-value
+ * `string[]`. Fully controlled (`value`/`onChange`), no ambient form-library
+ * awareness — unlike v1's equivalent, which reached into Formik itself via
+ * `useFormikField` for its error display. Binding to a form (Formik or
+ * otherwise) happens one layer up, in `FieldRenderer`.
+ *
+ * Native props, `className` and `ref` go to the `role="group"` element,
+ * `wrapperProps` to the outer container. Derived testids:
+ * `-option-<value>`, `-error`.
+ */
 export const CheckboxFilter = forwardRef(CheckboxFilterBase);
 CheckboxFilter.displayName = "CheckboxFilter";

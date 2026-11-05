@@ -41,24 +41,6 @@ export interface IToolBarProps
 	className?: string;
 }
 
-/**
- * V2 ToolBar — a row of icon/label buttons, data-driven (`items`). v1's
- * version had a custom floating-ui middleware to center a popover under
- * its anchor, a portal, and a `component`/`popover(ref)` render-prop
- * escape hatch — dropped all of it: Popover's own flip/shift already
- * handles collision, `portal` is just forwarded to Popover/Tooltip (inline
- * by default), and a plain `popoverContent` node covers the same need
- * without the render-prop indirection.
- *
- * A popover item's trigger uses a native `title` for the hover hint
- * (not Tooltip) — Tooltip's `ref` is its floating panel, not its trigger, so
- * nesting it as Popover's direct child would silently break Popover's own
- * reference (see memory: any Popover/Tooltip/Dropdown trigger must forward
- * its ref).
- *
- * Native props and `ref` go to the root `<div>`. Derived testids:
- * `-item-<id>`.
- */
 const ToolBarBase: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	IToolBarProps
@@ -159,5 +141,23 @@ const ToolBarBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 ToolBar — a row of icon/label buttons, data-driven (`items`). v1's
+ * version had a custom floating-ui middleware to center a popover under
+ * its anchor, a portal, and a `component`/`popover(ref)` render-prop
+ * escape hatch — dropped all of it: Popover's own flip/shift already
+ * handles collision, `portal` is just forwarded to Popover/Tooltip (inline
+ * by default), and a plain `popoverContent` node covers the same need
+ * without the render-prop indirection.
+ *
+ * A popover item's trigger uses a native `title` for the hover hint
+ * (not Tooltip) — Tooltip's `ref` is its floating panel, not its trigger, so
+ * nesting it as Popover's direct child would silently break Popover's own
+ * reference (see memory: any Popover/Tooltip/Dropdown trigger must forward
+ * its ref).
+ *
+ * Native props and `ref` go to the root `<div>`. Derived testids:
+ * `-item-<id>`.
+ */
 export const ToolBar = forwardRef(ToolBarBase);
 ToolBar.displayName = "ToolBar";

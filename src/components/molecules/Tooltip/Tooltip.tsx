@@ -35,21 +35,6 @@ export interface ITooltipProps extends Omit<
 	className?: string;
 }
 
-/**
- * V2 Tooltip — hover/focus-triggered (tap on touch), non-interactive text hint
- * (role="tooltip"). Display-only, unlike Popover (click, interactive
- * content) — a separate component, not a variant. Inline
- * (`strategy:"fixed"`) by default, `portal` opts into AmphorePortal (see
- * memory/amphorelib-v2-conventions.md).
- *
- * Touch has no hover: iOS only fires the emulated mouse events hover relies
- * on for elements it deems clickable, so a tooltip on a plain element
- * never opened there. A tap now toggles it (useClick with `ignoreMouse`,
- * so a mouse click doesn't fight the hover), and a tap elsewhere closes it.
- *
- * No root element of its own: native props and `ref` go to the floating
- * bubble, the trigger keeps whatever its own element was given.
- */
 const TooltipBase: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	ITooltipProps
@@ -122,5 +107,20 @@ const TooltipBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 Tooltip — hover/focus-triggered (tap on touch), non-interactive text hint
+ * (role="tooltip"). Display-only, unlike Popover (click, interactive
+ * content) — a separate component, not a variant. Inline
+ * (`strategy:"fixed"`) by default, `portal` opts into AmphorePortal (see
+ * memory/amphorelib-v2-conventions.md).
+ *
+ * Touch has no hover: iOS only fires the emulated mouse events hover relies
+ * on for elements it deems clickable, so a tooltip on a plain element
+ * never opened there. A tap now toggles it (useClick with `ignoreMouse`,
+ * so a mouse click doesn't fight the hover), and a tap elsewhere closes it.
+ *
+ * No root element of its own: native props and `ref` go to the floating
+ * bubble, the trigger keeps whatever its own element was given.
+ */
 export const Tooltip = forwardRef(TooltipBase);
 Tooltip.displayName = "Tooltip";

@@ -133,30 +133,6 @@ const inferType = (src: File | string): TFileViewerType | undefined => {
 	return undefined;
 };
 
-/**
- * V2 FileViewer — a standalone image/PDF preview with its own zoom + page
- * toolbar. Deliberately not wrapped in a Modal/SidePanel itself and never
- * portals (see memory/amphorelib-v2-conventions.md) — a consumer opening
- * this inside one of those (or full-page, or inline) is their call, made
- * once outside, not baked in here.
- *
- * PDF rendering is `react-pdf` (a peer dependency — no dep-free way to
- * decode/paint a PDF), loaded lazily (see above). Text/annotation layers
- * are off: this is a viewer with its own toolbar, not a document a user
- * selects text out of, and skipping them avoids importing react-pdf's
- * extra layer CSS entirely.
- *
- * To render a PDF, install `pdfjs-dist` + `react-pdf` yourself and, before
- * this component's first render, set `pdfjs.GlobalWorkerOptions.workerSrc`
- * to your own bundler-resolved worker URL (e.g. Vite: `import workerSrc
- * from "pdfjs-dist/build/pdf.worker.min.mjs?url"`). This component sets no
- * default of its own — there's no worker path this lib's own build can
- * resolve reliably across every consumer's bundler — and only warns (once)
- * if you haven't; a PDF render fails without it.
- *
- * Native props and `ref` go to the root `<div>`. Derived testids: `-zoom-out`,
- * `-zoom-reset`, `-zoom-in`, `-previous`, `-next`, `-download`, `-viewport`.
- */
 const FileViewerBase: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	IFileViewerProps
@@ -472,5 +448,29 @@ const FileViewerBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 FileViewer — a standalone image/PDF preview with its own zoom + page
+ * toolbar. Deliberately not wrapped in a Modal/SidePanel itself and never
+ * portals (see memory/amphorelib-v2-conventions.md) — a consumer opening
+ * this inside one of those (or full-page, or inline) is their call, made
+ * once outside, not baked in here.
+ *
+ * PDF rendering is `react-pdf` (a peer dependency — no dep-free way to
+ * decode/paint a PDF), loaded lazily (see above). Text/annotation layers
+ * are off: this is a viewer with its own toolbar, not a document a user
+ * selects text out of, and skipping them avoids importing react-pdf's
+ * extra layer CSS entirely.
+ *
+ * To render a PDF, install `pdfjs-dist` + `react-pdf` yourself and, before
+ * this component's first render, set `pdfjs.GlobalWorkerOptions.workerSrc`
+ * to your own bundler-resolved worker URL (e.g. Vite: `import workerSrc
+ * from "pdfjs-dist/build/pdf.worker.min.mjs?url"`). This component sets no
+ * default of its own — there's no worker path this lib's own build can
+ * resolve reliably across every consumer's bundler — and only warns (once)
+ * if you haven't; a PDF render fails without it.
+ *
+ * Native props and `ref` go to the root `<div>`. Derived testids: `-zoom-out`,
+ * `-zoom-reset`, `-zoom-in`, `-previous`, `-next`, `-download`, `-viewport`.
+ */
 export const FileViewer = forwardRef(FileViewerBase);
 FileViewer.displayName = "FileViewer";

@@ -10,10 +10,6 @@ export interface IInputErrorMessageProps extends ComponentPropsWithoutRef<"p"> {
 	id?: string;
 }
 
-/**
- * Shared error text for any form field — Input, Select, Checkbox... all
- * render errors through this. Native props and `ref` go to the `<p>`.
- */
 const InputErrorMessageBase: React.ForwardRefRenderFunction<
 	HTMLParagraphElement,
 	IInputErrorMessageProps
@@ -32,5 +28,9 @@ const InputErrorMessageBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * Shared error text for any form field — Input, Select, Checkbox... all
+ * render errors through this. Native props and `ref` go to the `<p>`.
+ */
 export const InputErrorMessage = forwardRef(InputErrorMessageBase);
 InputErrorMessage.displayName = "InputErrorMessage";

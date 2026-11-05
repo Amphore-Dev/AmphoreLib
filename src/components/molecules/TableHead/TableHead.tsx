@@ -31,16 +31,6 @@ export interface ITableHeadProps<T>
 	onSelectAll?: () => void;
 }
 
-/**
- * V2 TableHead — v1 called `useContextMenu({ id: columnsMenuId })` directly
- * (react-contexify's global id registry lets any component reference a menu
- * by string). V2's `useContextMenu<T>()` controller has no such registry —
- * it's an object, not an id — so `Table` owns it and passes down a plain
- * `onColumnsContextMenu` callback instead.
- *
- * Native props and `ref` go to the `role="row"` element. Derived testids:
- * `-select-all`, `-column-<key>`, `-actions`.
- */
 const TableHeadBase = <T,>(
 	{
 		columns,
@@ -155,4 +145,14 @@ const TableHeadBase = <T,>(
 	</div>
 );
 
+/**
+ * V2 TableHead — v1 called `useContextMenu({ id: columnsMenuId })` directly
+ * (react-contexify's global id registry lets any component reference a menu
+ * by string). V2's `useContextMenu<T>()` controller has no such registry —
+ * it's an object, not an id — so `Table` owns it and passes down a plain
+ * `onColumnsContextMenu` callback instead.
+ *
+ * Native props and `ref` go to the `role="row"` element. Derived testids:
+ * `-select-all`, `-column-<key>`, `-actions`.
+ */
 export const TableHead = genericForwardRef(TableHeadBase, "TableHead");

@@ -62,19 +62,6 @@ export const chevronRotation = (
 	open: boolean
 ): number => ("start" === position ? (open ? 90 : 0) : open ? 270 : 90);
 
-/**
- * V2 Accordion — controlled, generic over `T`. Same conventions as Select
- * (`items` array, `value`/`multiple` shape, `===` matching). Expand/collapse
- * is pure CSS (`grid-template-rows: 0fr -> 1fr`), no measured height.
- *
- * Each header row has two zones that never overlap: the toggle button
- * (chevron, picto, title — full width) and the optional `actions` beside
- * it. No click handler on the row itself, so nothing has to guess which
- * element was meant to be interactive.
- *
- * Native props and `ref` go to the root `<div>`. Derived testids:
- * `-header-<value>`, `-panel-<value>` (position when `value` is an object).
- */
 function AccordionBase<T = string>(
 	{
 		items,
@@ -217,4 +204,17 @@ function AccordionBase<T = string>(
 	);
 }
 
+/**
+ * V2 Accordion — controlled, generic over `T`. Same conventions as Select
+ * (`items` array, `value`/`multiple` shape, `===` matching). Expand/collapse
+ * is pure CSS (`grid-template-rows: 0fr -> 1fr`), no measured height.
+ *
+ * Each header row has two zones that never overlap: the toggle button
+ * (chevron, picto, title — full width) and the optional `actions` beside
+ * it. No click handler on the row itself, so nothing has to guess which
+ * element was meant to be interactive.
+ *
+ * Native props and `ref` go to the root `<div>`. Derived testids:
+ * `-header-<value>`, `-panel-<value>` (position when `value` is an object).
+ */
 export const Accordion = genericForwardRef(AccordionBase, "Accordion");

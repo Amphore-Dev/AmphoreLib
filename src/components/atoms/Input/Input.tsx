@@ -56,16 +56,6 @@ export interface IInputProps
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
 export type TInputLabels = Pick<IInputProps, "clearLabel">;
 
-/**
- * V2 Input — fully controlled (value/onChange only), no ambient form-library
- * awareness. See memory/react-library-fields-audit.md: v1's withFormikWrapper
- * silently rewired every input's behavior based on Formik context, which is
- * exactly what V2 does not reproduce. Wire it to Formik/RHF/whatever from
- * the outside (`<Field as={Input} />`, a controller, or your own state).
- *
- * Native props and `ref` go to the `<input>`, `className` to the field box,
- * `wrapperProps` to the outer container. Derived testids: `-clear`, `-error`.
- */
 const InputBase: React.ForwardRefRenderFunction<
 	HTMLInputElement,
 	IInputProps
@@ -187,5 +177,15 @@ const InputBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 Input — fully controlled (value/onChange only), no ambient form-library
+ * awareness. See memory/react-library-fields-audit.md: v1's withFormikWrapper
+ * silently rewired every input's behavior based on Formik context, which is
+ * exactly what V2 does not reproduce. Wire it to Formik/RHF/whatever from
+ * the outside (`<Field as={Input} />`, a controller, or your own state).
+ *
+ * Native props and `ref` go to the `<input>`, `className` to the field box,
+ * `wrapperProps` to the outer container. Derived testids: `-clear`, `-error`.
+ */
 export const Input = forwardRef(InputBase);
 Input.displayName = "Input";

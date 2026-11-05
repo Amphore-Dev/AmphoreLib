@@ -27,15 +27,6 @@ export interface IRadioProps
 	wrapperProps?: TElementProps<"div">;
 }
 
-/**
- * V2 Radio — fully controlled (checked/onChange only), no ambient
- * form-library awareness. Single fixed size and color (primary), same
- * reasoning as Checkbox: not a place consumers need visual variants.
- * Group several with the same `name` for native radio-group behavior.
- *
- * Native props, `className` and `ref` go to the `<input>`, `wrapperProps` to
- * the outer container. Derived testid: `-error`.
- */
 const RadioBase: React.ForwardRefRenderFunction<
 	HTMLInputElement,
 	IRadioProps
@@ -115,5 +106,14 @@ const RadioBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 Radio — fully controlled (checked/onChange only), no ambient
+ * form-library awareness. Single fixed size and color (primary), same
+ * reasoning as Checkbox: not a place consumers need visual variants.
+ * Group several with the same `name` for native radio-group behavior.
+ *
+ * Native props, `className` and `ref` go to the `<input>`, `wrapperProps` to
+ * the outer container. Derived testid: `-error`.
+ */
 export const Radio = forwardRef(RadioBase);
 Radio.displayName = "Radio";

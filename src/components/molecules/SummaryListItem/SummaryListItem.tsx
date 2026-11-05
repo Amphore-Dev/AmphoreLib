@@ -25,19 +25,6 @@ export interface ISummaryListItemProps
 	className?: string;
 }
 
-/**
- * V2 SummaryListItem — one term/value row, extracted out of
- * SummaryList so `layout="grid"` can lay several of these out as Grid
- * cells instead of `<dl>` rows, reusing the exact same row markup either way.
- * Props flatten `TSummaryListItem` directly (no nested `item` prop) — that
- * type stays the reusable *data* shape for `SummaryList.items`/callers
- * building rows programmatically (e.g. EditableCard), while this component
- * just takes those same fields as its own top-level props, plus
- * `direction`/`className`, which only make sense at render time.
- *
- * Native props and `ref` go to the root `<div>`; `onClick` stays the value's
- * own (see `TSummaryListItem`). Derived testids: `-value`, `-action`.
- */
 const SummaryListItemBase: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	ISummaryListItemProps
@@ -139,5 +126,18 @@ const SummaryListItemBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 SummaryListItem — one term/value row, extracted out of
+ * SummaryList so `layout="grid"` can lay several of these out as Grid
+ * cells instead of `<dl>` rows, reusing the exact same row markup either way.
+ * Props flatten `TSummaryListItem` directly (no nested `item` prop) — that
+ * type stays the reusable *data* shape for `SummaryList.items`/callers
+ * building rows programmatically (e.g. EditableCard), while this component
+ * just takes those same fields as its own top-level props, plus
+ * `direction`/`className`, which only make sense at render time.
+ *
+ * Native props and `ref` go to the root `<div>`; `onClick` stays the value's
+ * own (see `TSummaryListItem`). Derived testids: `-value`, `-action`.
+ */
 export const SummaryListItem = forwardRef(SummaryListItemBase);
 SummaryListItem.displayName = "SummaryListItem";

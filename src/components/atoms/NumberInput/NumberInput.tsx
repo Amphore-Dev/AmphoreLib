@@ -83,21 +83,6 @@ const roundTo = (n: number, digits: number) => {
 
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-/**
- * V2 NumberInput — controlled, but `value` is `number | null` (not
- * `string`): a local `text` state renders in-progress typing ("-", "3,")
- * that doesn't parse to a number yet; `value` stays the source of truth.
- * Plain `<input type="text" inputMode="decimal">`, not `type="number"`
- * (unrestylable spinner, accepts "1e5", scroll-wheel changes the value).
- * Displays raw while focused, `Intl.NumberFormat`-formatted at rest
- * (group separators, `decimals` if set) — `onChange` always gets a plain
- * number regardless.
- *
- * Native props and `ref` go to the `<input>` (`onFocus`/`onBlur`/`onKeyDown`
- * run alongside the internal ones), `className` to the field box,
- * `wrapperProps` to the outer container. Derived testids: `-increase`,
- * `-decrease`, `-error`.
- */
 const NumberInputBase: React.ForwardRefRenderFunction<
 	HTMLInputElement,
 	INumberInputProps
@@ -353,5 +338,20 @@ const NumberInputBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 NumberInput — controlled, but `value` is `number | null` (not
+ * `string`): a local `text` state renders in-progress typing ("-", "3,")
+ * that doesn't parse to a number yet; `value` stays the source of truth.
+ * Plain `<input type="text" inputMode="decimal">`, not `type="number"`
+ * (unrestylable spinner, accepts "1e5", scroll-wheel changes the value).
+ * Displays raw while focused, `Intl.NumberFormat`-formatted at rest
+ * (group separators, `decimals` if set) — `onChange` always gets a plain
+ * number regardless.
+ *
+ * Native props and `ref` go to the `<input>` (`onFocus`/`onBlur`/`onKeyDown`
+ * run alongside the internal ones), `className` to the field box,
+ * `wrapperProps` to the outer container. Derived testids: `-increase`,
+ * `-decrease`, `-error`.
+ */
 export const NumberInput = forwardRef(NumberInputBase);
 NumberInput.displayName = "NumberInput";

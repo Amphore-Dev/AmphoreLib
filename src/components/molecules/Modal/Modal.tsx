@@ -62,18 +62,6 @@ export interface IModalProps
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
 export type TModalLabels = Pick<IModalProps, "closeLabel">;
 
-/**
- * V2 Modal — dialog overlay on floating-ui's Dialog primitives
- * (FloatingOverlay + FloatingFocusManager for the focus trap). Inline by
- * default — FloatingOverlay is already `position:fixed`, so it covers the
- * viewport without a portal. Opt into one with `portal` (AmphorePortal,
- * which re-applies the theme scope — a bare FloatingPortal would render
- * unstyled). Panel is `<Card elevation={4} noPadding>`, not a hand-rolled
- * div.
- *
- * Native props and `ref` go to the panel, the `role="dialog"` element.
- * Derived testids: `-overlay`, `-title`, `-close`, `-content`, `-footer`.
- */
 const ModalBase: React.ForwardRefRenderFunction<HTMLDivElement, IModalProps> = (
 	{
 		open,
@@ -191,5 +179,17 @@ const ModalBase: React.ForwardRefRenderFunction<HTMLDivElement, IModalProps> = (
 	return portal ? <AmphorePortal>{overlay}</AmphorePortal> : overlay;
 };
 
+/**
+ * V2 Modal — dialog overlay on floating-ui's Dialog primitives
+ * (FloatingOverlay + FloatingFocusManager for the focus trap). Inline by
+ * default — FloatingOverlay is already `position:fixed`, so it covers the
+ * viewport without a portal. Opt into one with `portal` (AmphorePortal,
+ * which re-applies the theme scope — a bare FloatingPortal would render
+ * unstyled). Panel is `<Card elevation={4} noPadding>`, not a hand-rolled
+ * div.
+ *
+ * Native props and `ref` go to the panel, the `role="dialog"` element.
+ * Derived testids: `-overlay`, `-title`, `-close`, `-content`, `-footer`.
+ */
 export const Modal = forwardRef(ModalBase);
 Modal.displayName = "Modal";

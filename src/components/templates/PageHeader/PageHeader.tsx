@@ -105,10 +105,6 @@ export type TPageHeaderLabels = Pick<
 	"loadingLabel" | "onBackLabel"
 >;
 
-/**
- * Native props and `ref` go to the root `<div>`. Derived testids: `-back`,
- * `-title`, `-tabs`, `-filters`, `-search`, `-active-filters`.
- */
 const PageHeaderBase: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	IPageHeaderProps
@@ -354,5 +350,9 @@ const PageHeaderBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * Native props and `ref` go to the root `<div>`. Derived testids: `-back`,
+ * `-title`, `-tabs`, `-filters`, `-search`, `-active-filters`.
+ */
 export const PageHeader = forwardRef(PageHeaderBase);
 PageHeader.displayName = "PageHeader";

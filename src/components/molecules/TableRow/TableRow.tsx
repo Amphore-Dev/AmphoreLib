@@ -35,17 +35,6 @@ export interface ITableRowProps<T>
 	rowKey?: React.Key;
 }
 
-/**
- * V2 TableRow — `display: contents` so its `Td`s land directly in
- * `Table`'s grid (a real wrapper element would add its own grid item,
- * breaking column alignment). Selection state comes down as `isSelected`/
- * `onToggleSelect` — `Table` owns the actual `Set<key>` and shift/ctrl
- * range logic, this only renders one row's worth of it.
- *
- * Native props and `ref` go to the `role="row"` element; `onClick` and
- * `onContextMenu` are the row-level ones declared above. Derived testids:
- * `-select`, `-actions`, `-<column key>` per cell.
- */
 const TableRowBase = <T,>(
 	{
 		item,
@@ -160,4 +149,15 @@ const TableRowBase = <T,>(
 	</div>
 );
 
+/**
+ * V2 TableRow — `display: contents` so its `Td`s land directly in
+ * `Table`'s grid (a real wrapper element would add its own grid item,
+ * breaking column alignment). Selection state comes down as `isSelected`/
+ * `onToggleSelect` — `Table` owns the actual `Set<key>` and shift/ctrl
+ * range logic, this only renders one row's worth of it.
+ *
+ * Native props and `ref` go to the `role="row"` element; `onClick` and
+ * `onContextMenu` are the row-level ones declared above. Derived testids:
+ * `-select`, `-actions`, `-<column key>` per cell.
+ */
 export const TableRow = genericForwardRef(TableRowBase, "TableRow");

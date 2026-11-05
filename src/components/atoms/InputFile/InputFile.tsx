@@ -82,27 +82,6 @@ export type TInputFileLabels = Pick<
 	"placeholder" | "removeFileLabel"
 >;
 
-/**
- * V2 InputFile — controlled `File | null` atom, drag & drop, size/type
- * validation, remove button, three sizes (`size`, same `TSize`/
- * `config.defaults.size` convention as every other sized atom) crossed
- * with two layouts (`orientation`). No form-library awareness (v1's
- * equivalent wrapped `withFormikWrapper`) — bind to Formik/whatever from
- * the outside, same rule as every other field (see
- * memory/react-library-fields-audit.md).
- *
- * The name/remove row always lives in its own footer, below or beside the
- * preview — never overlaid on top of it. An earlier version put the name in
- * a gradient band absolutely-positioned over the image without clipping the
- * card (`overflow: hidden`); both the image and that band could bleed past
- * the card's rounded corners. This structure can't reproduce that: the
- * preview and the footer are two separate boxes, never overlapping.
- *
- * Native props, `className` and `ref` go to the card (drag handlers run
- * alongside the drop handling), `wrapperProps` to the outer container,
- * `inputProps` to the hidden input. Derived testids: `-input`, `-remove`,
- * `-error`.
- */
 const InputFileBase: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	IInputFileProps
@@ -329,5 +308,26 @@ const InputFileBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 InputFile — controlled `File | null` atom, drag & drop, size/type
+ * validation, remove button, three sizes (`size`, same `TSize`/
+ * `config.defaults.size` convention as every other sized atom) crossed
+ * with two layouts (`orientation`). No form-library awareness (v1's
+ * equivalent wrapped `withFormikWrapper`) — bind to Formik/whatever from
+ * the outside, same rule as every other field (see
+ * memory/react-library-fields-audit.md).
+ *
+ * The name/remove row always lives in its own footer, below or beside the
+ * preview — never overlaid on top of it. An earlier version put the name in
+ * a gradient band absolutely-positioned over the image without clipping the
+ * card (`overflow: hidden`); both the image and that band could bleed past
+ * the card's rounded corners. This structure can't reproduce that: the
+ * preview and the footer are two separate boxes, never overlapping.
+ *
+ * Native props, `className` and `ref` go to the card (drag handlers run
+ * alongside the drop handling), `wrapperProps` to the outer container,
+ * `inputProps` to the hidden input. Derived testids: `-input`, `-remove`,
+ * `-error`.
+ */
 export const InputFile = forwardRef(InputFileBase);
 InputFile.displayName = "InputFile";

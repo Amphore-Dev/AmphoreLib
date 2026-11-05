@@ -74,22 +74,6 @@ export type TChipInputLabels = Pick<IChipInputProps, "removeLabel">;
 
 const DEFAULT_SEPARATORS = /[,;\s]+/;
 
-/**
- * V2 ChipInput — a list of short strings (emails, tags, ticket keys...)
- * typed into one field, each shown as a removable `Badge`. Fully
- * controlled (`value`/`onChange`, a `string[]`): only the text being typed
- * lives here. Ported from v1's ChipInput, minus its withFormikWrapper
- * (wire it from the outside, or through FieldRenderer's `chips` type) and
- * its resize handle (the field grows with its chips instead).
- *
- * A chip is committed by a separator (typed or in pasted text), Enter, or
- * leaving the field; Backspace on an empty field removes the last one.
- *
- * Native props and `ref` go to the text `<input>` (`onKeyDown`, `onPaste` and
- * `onBlur` run alongside the chip handling), `className` to the field box,
- * `wrapperProps` to the outer container. Derived testids:
- * `-chip-<position>`, `-counter`, `-error`.
- */
 const ChipInputBase: React.ForwardRefRenderFunction<
 	HTMLInputElement,
 	IChipInputProps
@@ -359,5 +343,21 @@ const ChipInputBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 ChipInput — a list of short strings (emails, tags, ticket keys...)
+ * typed into one field, each shown as a removable `Badge`. Fully
+ * controlled (`value`/`onChange`, a `string[]`): only the text being typed
+ * lives here. Ported from v1's ChipInput, minus its withFormikWrapper
+ * (wire it from the outside, or through FieldRenderer's `chips` type) and
+ * its resize handle (the field grows with its chips instead).
+ *
+ * A chip is committed by a separator (typed or in pasted text), Enter, or
+ * leaving the field; Backspace on an empty field removes the last one.
+ *
+ * Native props and `ref` go to the text `<input>` (`onKeyDown`, `onPaste` and
+ * `onBlur` run alongside the chip handling), `className` to the field box,
+ * `wrapperProps` to the outer container. Derived testids:
+ * `-chip-<position>`, `-counter`, `-error`.
+ */
 export const ChipInput = forwardRef(ChipInputBase);
 ChipInput.displayName = "ChipInput";

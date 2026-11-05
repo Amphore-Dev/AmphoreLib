@@ -60,16 +60,6 @@ export type TFiltersModalLabels = Pick<
 	"title" | "buttonLabel" | "applyLabel" | "resetLabel"
 >;
 
-/**
- * V2 FiltersModal — a "Filters" button (with an active-count Badge) that
- * opens a `FormRendererWithFormik` modal built from the same field
- * descriptors as everything else in this system. All strings are props
- * with English fallback defaults (decision 3), no i18next dependency.
- *
- * Native props and `ref` go to the "Filters" button, as `buttonProps` do
- * (`onClick` runs alongside opening the modal). Derived testids: `-modal`,
- * and FormRendererWithFormik's below it (`-modal-primary`...).
- */
 const FiltersModalBase = <
 	T extends Record<string, TFiltersSlice<object>>,
 	K extends keyof T,
@@ -195,4 +185,14 @@ const FiltersModalBase = <
 	);
 };
 
+/**
+ * V2 FiltersModal — a "Filters" button (with an active-count Badge) that
+ * opens a `FormRendererWithFormik` modal built from the same field
+ * descriptors as everything else in this system. All strings are props
+ * with English fallback defaults (decision 3), no i18next dependency.
+ *
+ * Native props and `ref` go to the "Filters" button, as `buttonProps` do
+ * (`onClick` runs alongside opening the modal). Derived testids: `-modal`,
+ * and FormRendererWithFormik's below it (`-modal-primary`...).
+ */
 export const FiltersModal = genericForwardRef(FiltersModalBase, "FiltersModal");

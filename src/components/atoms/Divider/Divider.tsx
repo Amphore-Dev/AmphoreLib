@@ -16,14 +16,6 @@ export interface IDividerProps extends Omit<
 	className?: string;
 }
 
-/**
- * V2 Divider — plain visual separator. Deliberately no size/color props:
- * unlike Button/Badge/Tabs, a divider doesn't have distinct visual "states"
- * to mark — it's one line, themed via --amp-color-border like every other
- * hairline in the lib (Card's own border, Input's field-box, etc).
- *
- * Native props and `ref` go to the root `<div>`.
- */
 const DividerBase: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	IDividerProps
@@ -59,5 +51,13 @@ const DividerBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 Divider — plain visual separator. Deliberately no size/color props:
+ * unlike Button/Badge/Tabs, a divider doesn't have distinct visual "states"
+ * to mark — it's one line, themed via --amp-color-border like every other
+ * hairline in the lib (Card's own border, Input's field-box, etc).
+ *
+ * Native props and `ref` go to the root `<div>`.
+ */
 export const Divider = forwardRef(DividerBase);
 Divider.displayName = "Divider";

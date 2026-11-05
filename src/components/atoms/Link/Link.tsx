@@ -22,20 +22,6 @@ export interface ILinkProps extends Omit<
 	className?: string;
 }
 
-/**
- * V2 Link — styled anchor. No `size` prop, unlike most other atoms: a link
- * normally inherits its font-size from the surrounding text (that's how a
- * native <a> behaves too), there's no "standalone" size scale that makes
- * sense the way there is for Button/Input.
- *
- * Renders a plain <a> — for SPA routing, wrap your router's own Link
- * component with these props/styles instead of this one trying to be
- * polymorphic; keeping it a plain anchor means it works with zero
- * router-specific code, same "no ambient coupling" rule as the form fields
- * (see memory/react-library-fields-audit.md).
- *
- * Native props and `ref` go to the `<a>`.
- */
 const LinkBase: React.ForwardRefRenderFunction<
 	HTMLAnchorElement,
 	ILinkProps
@@ -73,5 +59,19 @@ const LinkBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 Link — styled anchor. No `size` prop, unlike most other atoms: a link
+ * normally inherits its font-size from the surrounding text (that's how a
+ * native <a> behaves too), there's no "standalone" size scale that makes
+ * sense the way there is for Button/Input.
+ *
+ * Renders a plain <a> — for SPA routing, wrap your router's own Link
+ * component with these props/styles instead of this one trying to be
+ * polymorphic; keeping it a plain anchor means it works with zero
+ * router-specific code, same "no ambient coupling" rule as the form fields
+ * (see memory/react-library-fields-audit.md).
+ *
+ * Native props and `ref` go to the `<a>`.
+ */
 export const Link = forwardRef(LinkBase);
 Link.displayName = "Link";

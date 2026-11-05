@@ -31,5 +31,6 @@ const FlexGridItemBase: React.ForwardRefRenderFunction<
 	</div>
 );
 
+/** One cell of a `FlexGrid`. Native props and `ref` go to the root `<div>`. */
 export const FlexGridItem = forwardRef(FlexGridItemBase);
 FlexGridItem.displayName = "FlexGridItem";

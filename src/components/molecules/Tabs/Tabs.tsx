@@ -1,6 +1,5 @@
 import React, {
 	ComponentPropsWithoutRef,
-	forwardRef,
 	useEffect,
 	useId,
 	useRef,
@@ -57,17 +56,6 @@ export type TTabsLabels = Pick<
 	"scrollLeftLabel" | "scrollRightLabel"
 >;
 
-/**
- * V2 Tabs — controlled tab strip, manual activation (WAI-ARIA "tabs"
- * pattern): arrows/Home/End move focus only, Enter/Space/click selects.
- * Data-driven `items`, not compound `<Tab>`/`<TabPanel>` children — renders
- * only the tablist; panel content is the consumer's own via the separate
- * `TabPanel` below, both reading the same controlled `value`.
- *
- * Native props, `className` and `ref` go to the `role="tablist"` element,
- * `wrapperProps` to the outer container. Derived testids: `-tab-<value>`
- * (position when `value` is an object), `-scroll-left`, `-scroll-right`.
- */
 function TabsBase<T = string>(
 	{
 		items,
@@ -322,6 +310,17 @@ function TabsBase<T = string>(
 	);
 }
 
+/**
+ * V2 Tabs — controlled tab strip, manual activation (WAI-ARIA "tabs"
+ * pattern): arrows/Home/End move focus only, Enter/Space/click selects.
+ * Data-driven `items`, not compound `<Tab>`/`<TabPanel>` children — renders
+ * only the tablist; panel content is the consumer's own via the separate
+ * `TabPanel` below, both reading the same controlled `value`.
+ *
+ * Native props, `className` and `ref` go to the `role="tablist"` element,
+ * `wrapperProps` to the outer container. Derived testids: `-tab-<value>`
+ * (position when `value` is an object), `-scroll-left`, `-scroll-right`.
+ */
 export const Tabs = genericForwardRef(TabsBase, "Tabs");
 
 export interface ITabPanelProps extends ComponentPropsWithoutRef<"div"> {
@@ -329,19 +328,10 @@ export interface ITabPanelProps extends ComponentPropsWithoutRef<"div"> {
 	className?: string;
 }
 
-/**
- * Pairs with `Tabs` via the same controlled `value` the consumer already
- * owns — pass `active={value === "..."}`. Deliberately not wired through
- * context/ids: keeping both components ignorant of each other's internals
- * means either can be used alone (a `Tabs` strip driving something other
- * than a panel, e.g. filtering a list) without dragging the other in.
- *
- * Native props and `ref` go to the `role="tabpanel"` element.
- */
-const TabPanelBase: React.ForwardRefRenderFunction<
-	HTMLDivElement,
-	ITabPanelProps
-> = ({ active, children, className = "", ...props }, ref) => {
+const TabPanelBase = (
+	{ active, children, className = "", ...props }: ITabPanelProps,
+	ref: React.ForwardedRef<HTMLDivElement>
+) => {
 	if (!active) return null;
 
 	return (
@@ -356,5 +346,13 @@ const TabPanelBase: React.ForwardRefRenderFunction<
 	);
 };
 
-export const TabPanel = forwardRef(TabPanelBase);
-TabPanel.displayName = "TabPanel";
+/**
+ * Pairs with `Tabs` via the same controlled `value` the consumer already
+ * owns — pass `active={value === "..."}`. Deliberately not wired through
+ * context/ids: keeping both components ignorant of each other's internals
+ * means either can be used alone (a `Tabs` strip driving something other
+ * than a panel, e.g. filtering a list) without dragging the other in.
+ *
+ * Native props and `ref` go to the `role="tabpanel"` element.
+ */
+export const TabPanel = genericForwardRef(TabPanelBase, "TabPanel");

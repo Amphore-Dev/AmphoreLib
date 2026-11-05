@@ -10,15 +10,6 @@ export interface ITdProps extends ComponentPropsWithoutRef<"div"> {
 	className?: string;
 }
 
-/**
- * V2 Td — a grid cell, not a real `<td>`: `Table` lays rows out via CSS
- * Grid (`display: contents` on each row, one grid column per Td) rather
- * than an HTML `<table>`, so it can virtualize rows and size columns with
- * `minmax()`/`max-content` — a real `<table>` can't do either. `role`
- * supplies the equivalent semantics instead.
- *
- * Native props and `ref` go to the root `<div>`.
- */
 const TdBase: React.ForwardRefRenderFunction<HTMLDivElement, ITdProps> = (
 	{ children, className = "", sticky, ...props },
 	ref
@@ -34,5 +25,14 @@ const TdBase: React.ForwardRefRenderFunction<HTMLDivElement, ITdProps> = (
 	</div>
 );
 
+/**
+ * V2 Td — a grid cell, not a real `<td>`: `Table` lays rows out via CSS
+ * Grid (`display: contents` on each row, one grid column per Td) rather
+ * than an HTML `<table>`, so it can virtualize rows and size columns with
+ * `minmax()`/`max-content` — a real `<table>` can't do either. `role`
+ * supplies the equivalent semantics instead.
+ *
+ * Native props and `ref` go to the root `<div>`.
+ */
 export const Td = forwardRef(TdBase);
 Td.displayName = "Td";

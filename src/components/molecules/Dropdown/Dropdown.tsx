@@ -35,18 +35,6 @@ export interface IDropdownProps
 	className?: string;
 }
 
-/**
- * V2 Dropdown — click-triggered action menu (role="menu"/"menuitem", real
- * roving DOM focus). Triggers one-off actions, doesn't persist a value
- * (unlike Select). Menu rendering itself lives in shared `MenuList` (also
- * used by ContextMenu). Inline (`strategy:"fixed"`) by default, `portal`
- * opts into AmphorePortal (see memory/amphorelib-v2-conventions.md).
- * Trigger must be forwardRef.
- *
- * No root element of its own: native props and `ref` go to the menu, the
- * trigger keeps whatever its own element was given. Derived testids:
- * `-item-<id>`, or `-item-<position>` for an item without one.
- */
 const DropdownBase: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	IDropdownProps
@@ -153,5 +141,17 @@ const DropdownBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 Dropdown — click-triggered action menu (role="menu"/"menuitem", real
+ * roving DOM focus). Triggers one-off actions, doesn't persist a value
+ * (unlike Select). Menu rendering itself lives in shared `MenuList` (also
+ * used by ContextMenu). Inline (`strategy:"fixed"`) by default, `portal`
+ * opts into AmphorePortal (see memory/amphorelib-v2-conventions.md).
+ * Trigger must be forwardRef.
+ *
+ * No root element of its own: native props and `ref` go to the menu, the
+ * trigger keeps whatever its own element was given. Derived testids:
+ * `-item-<id>`, or `-item-<position>` for an item without one.
+ */
 export const Dropdown = forwardRef(DropdownBase);
 Dropdown.displayName = "Dropdown";

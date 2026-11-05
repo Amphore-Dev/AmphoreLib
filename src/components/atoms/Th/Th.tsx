@@ -17,11 +17,6 @@ export interface IThProps extends ComponentPropsWithoutRef<"div"> {
 	className?: string;
 }
 
-/**
- * V2 Th — a grid column header, same "not a real `<th>`" reasoning as Td.
- * Native props and `ref` go to the root `<div>`; `onClick`/`onKeyDown` run
- * alongside the sort handling.
- */
 const ThBase: React.ForwardRefRenderFunction<HTMLDivElement, IThProps> = (
 	{
 		children,
@@ -79,5 +74,10 @@ const ThBase: React.ForwardRefRenderFunction<HTMLDivElement, IThProps> = (
 	</div>
 );
 
+/**
+ * V2 Th — a grid column header, same "not a real `<th>`" reasoning as Td.
+ * Native props and `ref` go to the root `<div>`; `onClick`/`onKeyDown` run
+ * alongside the sort handling.
+ */
 export const Th = forwardRef(ThBase);
 Th.displayName = "Th";

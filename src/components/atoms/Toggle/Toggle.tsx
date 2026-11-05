@@ -27,16 +27,6 @@ export interface IToggleProps
 	wrapperProps?: TElementProps<"div">;
 }
 
-/**
- * V2 Toggle — fully controlled (checked/onChange only), no ambient
- * form-library awareness. Single fixed size and color (primary), same
- * reasoning as Checkbox/Radio: not a place consumers need visual variants.
- * Native <input type="checkbox" role="switch">, visually hidden under a
- * styled track+thumb — standard switch-replacement pattern.
- *
- * Native props, `className` and `ref` go to the `<input>`, `wrapperProps` to
- * the outer container. Derived testid: `-error`.
- */
 const ToggleBase: React.ForwardRefRenderFunction<
 	HTMLInputElement,
 	IToggleProps
@@ -117,5 +107,15 @@ const ToggleBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 Toggle — fully controlled (checked/onChange only), no ambient
+ * form-library awareness. Single fixed size and color (primary), same
+ * reasoning as Checkbox/Radio: not a place consumers need visual variants.
+ * Native <input type="checkbox" role="switch">, visually hidden under a
+ * styled track+thumb — standard switch-replacement pattern.
+ *
+ * Native props, `className` and `ref` go to the `<input>`, `wrapperProps` to
+ * the outer container. Derived testid: `-error`.
+ */
 export const Toggle = forwardRef(ToggleBase);
 Toggle.displayName = "Toggle";

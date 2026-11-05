@@ -54,17 +54,6 @@ export interface IPopoverProps extends Omit<
 	className?: string;
 }
 
-/**
- * V2 Popover — click-triggered, can hold interactive content. role="dialog",
- * non-modal (no focus trap/page dim, unlike Modal). Separate component from
- * Tooltip (hover/focus, display-only) — different trigger/role, not a flag.
- * Controlled (`open`/`onOpenChange`) or uncontrolled (omit `open`).
- * Inline (`strategy:"fixed"`) by default, `portal` opts into AmphorePortal
- * (see memory/amphorelib-v2-conventions.md).
- *
- * No root element of its own: native props and `ref` go to the floating
- * panel, the trigger keeps whatever its own element was given.
- */
 const PopoverBase: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	IPopoverProps
@@ -164,5 +153,16 @@ const PopoverBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 Popover — click-triggered, can hold interactive content. role="dialog",
+ * non-modal (no focus trap/page dim, unlike Modal). Separate component from
+ * Tooltip (hover/focus, display-only) — different trigger/role, not a flag.
+ * Controlled (`open`/`onOpenChange`) or uncontrolled (omit `open`).
+ * Inline (`strategy:"fixed"`) by default, `portal` opts into AmphorePortal
+ * (see memory/amphorelib-v2-conventions.md).
+ *
+ * No root element of its own: native props and `ref` go to the floating
+ * panel, the trigger keeps whatever its own element was given.
+ */
 export const Popover = forwardRef(PopoverBase);
 Popover.displayName = "Popover";

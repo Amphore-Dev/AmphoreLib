@@ -54,29 +54,6 @@ const MIN_HEIGHT_PX = 48;
 
 const COARSE_POINTER = "(pointer: coarse)";
 
-/**
- * V2 TextArea — fully controlled (value/onChange only), no ambient
- * form-library awareness, same rule as every other field (see
- * memory/react-library-fields-audit.md). Shares Input's field box/text
- * styles via src/styles/_field.scss.
- *
- * Resize handle is custom-drawn (pointer events), not the native
- * `resize: vertical` corner: styling that UA-drawn affordance
- * (`::-webkit-resizer`) turned out to not tolerate either `transform` or
- * `width`/`height` without going invisible in Chrome/Safari, and Firefox
- * exposes no equivalent hook at all. A hand-rolled handle sizes and themes
- * consistently everywhere instead.
- *
- * Touch-first devices get no handle at all: a corner grip is a poor
- * finger target, mobile browsers never show a native one either, and
- * growing with the content does the same job without a gesture. A hybrid
- * device (fine primary pointer, touchscreen too) keeps the handle — it
- * goes through `useDrag`, so a finger drags it as well as a mouse.
- *
- * Native props and `ref` go to the `<textarea>`, `className` to the field
- * box, `wrapperProps` to the outer container. Derived testids:
- * `-resize-handle`, `-error`.
- */
 const TextAreaBase: React.ForwardRefRenderFunction<
 	HTMLTextAreaElement,
 	ITextAreaProps
@@ -266,5 +243,28 @@ const TextAreaBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 TextArea — fully controlled (value/onChange only), no ambient
+ * form-library awareness, same rule as every other field (see
+ * memory/react-library-fields-audit.md). Shares Input's field box/text
+ * styles via src/styles/_field.scss.
+ *
+ * Resize handle is custom-drawn (pointer events), not the native
+ * `resize: vertical` corner: styling that UA-drawn affordance
+ * (`::-webkit-resizer`) turned out to not tolerate either `transform` or
+ * `width`/`height` without going invisible in Chrome/Safari, and Firefox
+ * exposes no equivalent hook at all. A hand-rolled handle sizes and themes
+ * consistently everywhere instead.
+ *
+ * Touch-first devices get no handle at all: a corner grip is a poor
+ * finger target, mobile browsers never show a native one either, and
+ * growing with the content does the same job without a gesture. A hybrid
+ * device (fine primary pointer, touchscreen too) keeps the handle — it
+ * goes through `useDrag`, so a finger drags it as well as a mouse.
+ *
+ * Native props and `ref` go to the `<textarea>`, `className` to the field
+ * box, `wrapperProps` to the outer container. Derived testids:
+ * `-resize-handle`, `-error`.
+ */
 export const TextArea = forwardRef(TextAreaBase);
 TextArea.displayName = "TextArea";

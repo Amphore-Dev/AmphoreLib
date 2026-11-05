@@ -36,15 +36,6 @@ export interface INavListProps
 	className?: string;
 }
 
-/**
- * V2 NavList — a persistent nav-sidebar list, data-driven (`items`) over
- * the shared `NavItem`. Not to be confused with Dropdown/ContextMenu's
- * `TMenuItem`/`MenuList` — a transient floating action menu, unrelated
- * despite the naming echo (see NavItem's own doc comment).
- *
- * Native props and `ref` go to the `<nav>`. Derived testids: `-item-<id>`, or
- * `-item-<position>` for an item without one.
- */
 const NavListBase: React.ForwardRefRenderFunction<
 	HTMLElement,
 	INavListProps
@@ -77,5 +68,14 @@ const NavListBase: React.ForwardRefRenderFunction<
 	</nav>
 );
 
+/**
+ * V2 NavList — a persistent nav-sidebar list, data-driven (`items`) over
+ * the shared `NavItem`. Not to be confused with Dropdown/ContextMenu's
+ * `TMenuItem`/`MenuList` — a transient floating action menu, unrelated
+ * despite the naming echo (see NavItem's own doc comment).
+ *
+ * Native props and `ref` go to the `<nav>`. Derived testids: `-item-<id>`, or
+ * `-item-<position>` for an item without one.
+ */
 export const NavList = forwardRef(NavListBase);
 NavList.displayName = "NavList";

@@ -112,11 +112,6 @@ export type TEditableCardLabels = Pick<
 	"editLabel" | "addLabel"
 >;
 
-/**
- * Native props and `ref` go to the SectionCard root, what configures the form
- * to the form. Derived testids: SectionCard's own, `-edit`, `-form` (and the
- * form's below it, `-form-primary`...), `-field-<name>`, `-add-<name>`.
- */
 const EditableCardBase: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	IEditableCardProps
@@ -250,6 +245,11 @@ const EditableCardBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * Native props and `ref` go to the SectionCard root, what configures the form
+ * to the form. Derived testids: SectionCard's own, `-edit`, `-form` (and the
+ * form's below it, `-form-primary`...), `-field-<name>`, `-add-<name>`.
+ */
 export const EditableCard = forwardRef(EditableCardBase);
 EditableCard.displayName = "EditableCard";
 

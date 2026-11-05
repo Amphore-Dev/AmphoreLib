@@ -149,27 +149,6 @@ export type TSelectLabels = Pick<
 >;
 
 /**
- * V2 Select — fully controlled, generic over the option value type `T`.
- * Value <-> option matching defaults to `===`, fine for a primitive T or a
- * guaranteed-stable object reference; pass `getOptionValue` (e.g. `(c) =>
- * c.id`) the moment `T` is an object that might not be the exact same
- * reference across renders (a fresh fetch, a different source than the
- * current value came from, ...).
- *
- * No ambient form-library awareness, same rule as every other field (see
- * memory/react-library-fields-audit.md). Async option loading (remote
- * search) is AsyncSelect, a thin wrapper around this one — `onSearchChange`/
- * `filterOptions`/`isLoading` exist on this component specifically so that
- * wrapper doesn't need to reach into internals.
- *
- * Native props, `className` and `ref` go to the trigger, the `role="combobox"`
- * element (`onKeyDown` and `onClick` run alongside its own handling);
- * `wrapperProps` to the outer container, `menuProps` to the listbox,
- * `inputProps` to the search field. Derived testids: `-menu`, `-search`,
- * `-clear`, `-chip-<position>`, `-error`, `-option-<value>` (the
- * `getOptionValue` key, or the position when `value` is an object).
- */
-/**
  * Wraps the listbox in AmphorePortal only when asked — kept as a tiny
  * component (not `portal ? <AmphorePortal>{el}</AmphorePortal> : el` inline)
  * because the listbox JSX below is ~80 lines and would otherwise have to be
@@ -709,4 +688,25 @@ function SelectBase<T = string>(
 	);
 }
 
+/**
+ * V2 Select — fully controlled, generic over the option value type `T`.
+ * Value <-> option matching defaults to `===`, fine for a primitive T or a
+ * guaranteed-stable object reference; pass `getOptionValue` (e.g. `(c) =>
+ * c.id`) the moment `T` is an object that might not be the exact same
+ * reference across renders (a fresh fetch, a different source than the
+ * current value came from, ...).
+ *
+ * No ambient form-library awareness, same rule as every other field (see
+ * memory/react-library-fields-audit.md). Async option loading (remote
+ * search) is AsyncSelect, a thin wrapper around this one — `onSearchChange`/
+ * `filterOptions`/`isLoading` exist on this component specifically so that
+ * wrapper doesn't need to reach into internals.
+ *
+ * Native props, `className` and `ref` go to the trigger, the `role="combobox"`
+ * element (`onKeyDown` and `onClick` run alongside its own handling);
+ * `wrapperProps` to the outer container, `menuProps` to the listbox,
+ * `inputProps` to the search field. Derived testids: `-menu`, `-search`,
+ * `-clear`, `-chip-<position>`, `-error`, `-option-<value>` (the
+ * `getOptionValue` key, or the position when `value` is an object).
+ */
 export const Select = genericForwardRef(SelectBase, "Select");

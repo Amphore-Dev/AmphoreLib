@@ -13,23 +13,6 @@ export interface IGridProps extends ComponentPropsWithoutRef<"div"> {
 	className?: string;
 }
 
-/**
- * V2 Grid — classic CSS-grid layout (`display: grid`, `auto-fill`), no JS
- * wrapping of children at all — every direct child is a real grid item,
- * placed automatically. Unlike its sibling `FlexGrid` atom (whose
- * `Children.map` sees a `Fragment` grouping several children as *one*
- * React child, wrapping the whole thing in one FlexGridItem), this `Grid`
- * renders `children` as-is: a `Fragment` grouping fields stays fully
- * transparent, each one landing as its own grid item. Reach for it when a
- * caller needs to group children (e.g. one `Fragment` per data group)
- * without that grouping affecting layout at all — EditableCard's per-group
- * display instead gives each group its own `Grid` *instance* (own layout
- * context, own `order` scoping), stacked by a plain flex-column wrapper;
- * see its own comment for why a single shared instance doesn't work for
- * that particular case regardless of Grid vs FlexGrid.
- *
- * Native props and `ref` go to the root `<div>`.
- */
 const GridBase: React.ForwardRefRenderFunction<HTMLDivElement, IGridProps> = (
 	{
 		columns,
@@ -73,5 +56,22 @@ const GridBase: React.ForwardRefRenderFunction<HTMLDivElement, IGridProps> = (
 	);
 };
 
+/**
+ * V2 Grid — classic CSS-grid layout (`display: grid`, `auto-fill`), no JS
+ * wrapping of children at all — every direct child is a real grid item,
+ * placed automatically. Unlike its sibling `FlexGrid` atom (whose
+ * `Children.map` sees a `Fragment` grouping several children as *one*
+ * React child, wrapping the whole thing in one FlexGridItem), this `Grid`
+ * renders `children` as-is: a `Fragment` grouping fields stays fully
+ * transparent, each one landing as its own grid item. Reach for it when a
+ * caller needs to group children (e.g. one `Fragment` per data group)
+ * without that grouping affecting layout at all — EditableCard's per-group
+ * display instead gives each group its own `Grid` *instance* (own layout
+ * context, own `order` scoping), stacked by a plain flex-column wrapper;
+ * see its own comment for why a single shared instance doesn't work for
+ * that particular case regardless of Grid vs FlexGrid.
+ *
+ * Native props and `ref` go to the root `<div>`.
+ */
 export const Grid = forwardRef(GridBase);
 Grid.displayName = "Grid";

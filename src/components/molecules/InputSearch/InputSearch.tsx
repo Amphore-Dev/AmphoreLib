@@ -15,14 +15,6 @@ export interface IInputSearchProps extends Omit<
 	minLength?: number;
 }
 
-/**
- * V2 InputSearch — a debounced `Input` preset (search picto, `isClearable`
- * on by default). Keeps its own `internalValue` so the field responds
- * instantly to typing while `onChange` (the actual search trigger) fires
- * debounced — same split as v1, minus its Formik-era `TextField` plumbing.
- *
- * Native props and `ref` go where Input sends them.
- */
 const InputSearchBase: React.ForwardRefRenderFunction<
 	HTMLInputElement,
 	IInputSearchProps
@@ -73,5 +65,13 @@ const InputSearchBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 InputSearch — a debounced `Input` preset (search picto, `isClearable`
+ * on by default). Keeps its own `internalValue` so the field responds
+ * instantly to typing while `onChange` (the actual search trigger) fires
+ * debounced — same split as v1, minus its Formik-era `TextField` plumbing.
+ *
+ * Native props and `ref` go where Input sends them.
+ */
 export const InputSearch = forwardRef(InputSearchBase);
 InputSearch.displayName = "InputSearch";

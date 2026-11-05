@@ -25,11 +25,6 @@ export interface IPictoProps extends Omit<
 	disabled?: boolean;
 }
 
-/**
- * Native props and `ref` go to the root wrapper (a `<button>` with `onClick`,
- * a `<div>` otherwise), with `wrapperClassName`; `className` and `style` to
- * the icon itself. `data-picto` names the icon drawn.
- */
 const PictoBase: React.ForwardRefRenderFunction<HTMLElement, IPictoProps> = (
 	{
 		icon,
@@ -117,5 +112,10 @@ const PictoBase: React.ForwardRefRenderFunction<HTMLElement, IPictoProps> = (
 	);
 };
 
+/**
+ * Native props and `ref` go to the root wrapper (a `<button>` with `onClick`,
+ * a `<div>` otherwise), with `wrapperClassName`; `className` and `style` to
+ * the icon itself. `data-picto` names the icon drawn.
+ */
 export const Picto = forwardRef(PictoBase);
 Picto.displayName = "Picto";

@@ -58,16 +58,6 @@ export interface IDatePickerProps
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
 export type TDatePickerLabels = Pick<IDatePickerProps, "placeholder">;
 
-/**
- * V2 DatePicker — controlled, `value` is a plain `Date` (not a string).
- * Trigger is a text-like field (same _field.scss box as Input/Select);
- * the grid is react-day-picker, restyled via its own --rdp-* vars, opened
- * in a `Popover`.
- *
- * Native props, `className` and `ref` go to the trigger `<button>`,
- * `wrapperProps` to the outer container. Derived testids: `-popover`,
- * `-error`.
- */
 const DatePickerBase: React.ForwardRefRenderFunction<
 	HTMLButtonElement,
 	IDatePickerProps
@@ -203,5 +193,15 @@ const DatePickerBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 DatePicker — controlled, `value` is a plain `Date` (not a string).
+ * Trigger is a text-like field (same _field.scss box as Input/Select);
+ * the grid is react-day-picker, restyled via its own --rdp-* vars, opened
+ * in a `Popover`.
+ *
+ * Native props, `className` and `ref` go to the trigger `<button>`,
+ * `wrapperProps` to the outer container. Derived testids: `-popover`,
+ * `-error`.
+ */
 export const DatePicker = forwardRef(DatePickerBase);
 DatePicker.displayName = "DatePicker";

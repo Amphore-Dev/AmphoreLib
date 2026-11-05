@@ -34,17 +34,6 @@ export interface IBreadcrumbProps
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
 export type TBreadcrumbLabels = Pick<IBreadcrumbProps, "navigationLabel">;
 
-/**
- * V2 Breadcrumb — a trail of page links, the last one being the current
- * page (rendered as plain text with `aria-current="page"`, never a link,
- * regardless of whether it has an `href`). No separate `BreadcrumbItem`
- * atom, unlike the reference this was ported from: a breadcrumb link is
- * just `Link` (already themed/styled) — the only thing this adds on top is
- * the trail layout, the separator, and the current-page/link split.
- *
- * Native props and `ref` go to the `<nav>`, `aria-label` winning over
- * `navigationLabel`. Derived testids: `-item-<position>`.
- */
 const BreadcrumbBase: React.ForwardRefRenderFunction<
 	HTMLElement,
 	IBreadcrumbProps
@@ -113,5 +102,16 @@ const BreadcrumbBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 Breadcrumb — a trail of page links, the last one being the current
+ * page (rendered as plain text with `aria-current="page"`, never a link,
+ * regardless of whether it has an `href`). No separate `BreadcrumbItem`
+ * atom, unlike the reference this was ported from: a breadcrumb link is
+ * just `Link` (already themed/styled) — the only thing this adds on top is
+ * the trail layout, the separator, and the current-page/link split.
+ *
+ * Native props and `ref` go to the `<nav>`, `aria-label` winning over
+ * `navigationLabel`. Derived testids: `-item-<position>`.
+ */
 export const Breadcrumb = forwardRef(BreadcrumbBase);
 Breadcrumb.displayName = "Breadcrumb";

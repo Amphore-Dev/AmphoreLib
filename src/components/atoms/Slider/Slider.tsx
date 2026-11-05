@@ -43,18 +43,6 @@ export interface ISliderProps
 	wrapperProps?: TElementProps<"div">;
 }
 
-/**
- * V2 Slider — track/fill/thumb are plain absolutely-positioned divs, fully
- * under our own CSS (no vendor pseudo-element styling — cross-browser
- * support for that turned out too inconsistent, e.g. border-radius
- * silently not applying without extra appearance resets). A real
- * `<input type="range">` sits on top, fully transparent — it's what
- * actually receives drag/keyboard/focus and is the only thing screen
- * readers see; the divs are purely visual, `aria-hidden`.
- *
- * Native props and `ref` go to the `<input>`, `className` to the field box,
- * `wrapperProps` to the outer container. Derived testid: `-error`.
- */
 const SliderBase: React.ForwardRefRenderFunction<
 	HTMLInputElement,
 	ISliderProps
@@ -170,5 +158,17 @@ const SliderBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 Slider — track/fill/thumb are plain absolutely-positioned divs, fully
+ * under our own CSS (no vendor pseudo-element styling — cross-browser
+ * support for that turned out too inconsistent, e.g. border-radius
+ * silently not applying without extra appearance resets). A real
+ * `<input type="range">` sits on top, fully transparent — it's what
+ * actually receives drag/keyboard/focus and is the only thing screen
+ * readers see; the divs are purely visual, `aria-hidden`.
+ *
+ * Native props and `ref` go to the `<input>`, `className` to the field box,
+ * `wrapperProps` to the outer container. Derived testid: `-error`.
+ */
 export const Slider = forwardRef(SliderBase);
 Slider.displayName = "Slider";

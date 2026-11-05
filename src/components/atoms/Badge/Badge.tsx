@@ -49,13 +49,6 @@ export interface IBadgeProps
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why a `Pick` here instead of auto-deriving from `TLabel`. */
 export type TBadgeLabels = Pick<IBadgeProps, "removeLabel">;
 
-/**
- * V2 Badge — status/label pill, optionally removable (chip/tag usage). Same
- * convention as Button (data-* attributes, `--_color*` local vars per
- * [data-color], config.defaults.size fallback).
- *
- * Native props and `ref` go to the root `<span>`. Derived testid: `-remove`.
- */
 const BadgeBase: React.ForwardRefRenderFunction<
 	HTMLSpanElement,
 	IBadgeProps
@@ -109,5 +102,12 @@ const BadgeBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 Badge — status/label pill, optionally removable (chip/tag usage). Same
+ * convention as Button (data-* attributes, `--_color*` local vars per
+ * [data-color], config.defaults.size fallback).
+ *
+ * Native props and `ref` go to the root `<span>`. Derived testid: `-remove`.
+ */
 export const Badge = forwardRef(BadgeBase);
 Badge.displayName = "Badge";

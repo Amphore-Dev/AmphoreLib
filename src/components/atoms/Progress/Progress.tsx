@@ -28,15 +28,6 @@ export interface IProgressProps extends Omit<
 	wrapperProps?: TElementProps<"div">;
 }
 
-/**
- * V2 Progress — linear progress bar. Not a user input (no onChange): it's a
- * status display, so unlike the form fields `value` is just a plain prop,
- * not part of the "fully controlled" value/onChange contract those follow.
- *
- * Native props and `ref` go to the `role="progressbar"` element, the one
- * `aria-*` attributes apply to; `className` and `wrapperProps` to the outer
- * container.
- */
 const ProgressBase: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	IProgressProps
@@ -89,5 +80,14 @@ const ProgressBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 Progress — linear progress bar. Not a user input (no onChange): it's a
+ * status display, so unlike the form fields `value` is just a plain prop,
+ * not part of the "fully controlled" value/onChange contract those follow.
+ *
+ * Native props and `ref` go to the `role="progressbar"` element, the one
+ * `aria-*` attributes apply to; `className` and `wrapperProps` to the outer
+ * container.
+ */
 export const Progress = forwardRef(ProgressBase);
 Progress.displayName = "Progress";

@@ -53,18 +53,6 @@ export type TBottomPanelLabels = Pick<
 
 const DRAG_THRESHOLD = 4;
 
-/**
- * V2 BottomPanel — a draggable bottom sheet: a handle you tap to toggle
- * open/closed, or drag to resize (and drag past `closeThreshold` to close).
- * Inline by default — `position: fixed` escapes normal layout without a
- * portal (same reasoning as Modal's FloatingOverlay); `portal` opts into
- * AmphorePortal for the ancestors that break that. Reusable on its own (a
- * mobile action sheet, say) — SidePanel uses it as its own mobile
- * fallback, but this doesn't know anything about that.
- *
- * Native props and `ref` go to the sheet (`role="dialog"`), `aria-label`
- * winning over the labels below. Derived testids: `-handle`, `-content`.
- */
 const BottomPanelBase: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	IBottomPanelProps
@@ -168,5 +156,17 @@ const BottomPanelBase: React.ForwardRefRenderFunction<
 	return portal ? <AmphorePortal>{panel}</AmphorePortal> : panel;
 };
 
+/**
+ * V2 BottomPanel — a draggable bottom sheet: a handle you tap to toggle
+ * open/closed, or drag to resize (and drag past `closeThreshold` to close).
+ * Inline by default — `position: fixed` escapes normal layout without a
+ * portal (same reasoning as Modal's FloatingOverlay); `portal` opts into
+ * AmphorePortal for the ancestors that break that. Reusable on its own (a
+ * mobile action sheet, say) — SidePanel uses it as its own mobile
+ * fallback, but this doesn't know anything about that.
+ *
+ * Native props and `ref` go to the sheet (`role="dialog"`), `aria-label`
+ * winning over the labels below. Derived testids: `-handle`, `-content`.
+ */
 export const BottomPanel = forwardRef(BottomPanelBase);
 BottomPanel.displayName = "BottomPanel";

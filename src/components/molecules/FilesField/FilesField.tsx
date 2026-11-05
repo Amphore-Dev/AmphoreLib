@@ -47,23 +47,6 @@ export interface IFilesFieldProps extends Omit<
 	gap?: string;
 }
 
-/**
- * V2 FilesField — a grid of `maxFiles` `InputFile` slots sharing one
- * controlled `(File | null)[]`. Fully controlled like every other field —
- * v1's version instead named each slot `${name}[${index}]` and relied on
- * Formik to hold the array; dropped, `FieldRenderer` does that binding now.
- *
- * `orientation` does double duty: it picks the outer FlexGrid's column count
- * (as before) *and* is forwarded to every `InputFile` slot, so "horizontal"
- * gives a compact row of horizontal-layout cards and "vertical" a column of
- * stacked ones — the two stay visually consistent instead of only the grid
- * arrangement changing.
- *
- * Native props, `className` and `ref` go to the grid; everything that
- * configures an upload (`accept`, `disabled`, `wrapperProps`...) to every
- * slot. Derived testids: `-slot-<position>`, and each slot's own below it
- * (`-slot-0-input`, `-slot-0-remove`...).
- */
 const FilesFieldBase: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	IFilesFieldProps
@@ -121,5 +104,22 @@ const FilesFieldBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 FilesField — a grid of `maxFiles` `InputFile` slots sharing one
+ * controlled `(File | null)[]`. Fully controlled like every other field —
+ * v1's version instead named each slot `${name}[${index}]` and relied on
+ * Formik to hold the array; dropped, `FieldRenderer` does that binding now.
+ *
+ * `orientation` does double duty: it picks the outer FlexGrid's column count
+ * (as before) *and* is forwarded to every `InputFile` slot, so "horizontal"
+ * gives a compact row of horizontal-layout cards and "vertical" a column of
+ * stacked ones — the two stay visually consistent instead of only the grid
+ * arrangement changing.
+ *
+ * Native props, `className` and `ref` go to the grid; everything that
+ * configures an upload (`accept`, `disabled`, `wrapperProps`...) to every
+ * slot. Derived testids: `-slot-<position>`, and each slot's own below it
+ * (`-slot-0-input`, `-slot-0-remove`...).
+ */
 export const FilesField = forwardRef(FilesFieldBase);
 FilesField.displayName = "FilesField";

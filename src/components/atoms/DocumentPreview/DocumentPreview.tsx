@@ -14,14 +14,6 @@ export interface IDocumentPreviewProps extends Omit<
 	className?: string;
 }
 
-/**
- * V2 DocumentPreview — a minimal file preview: an image thumbnail for
- * `image/*` files, a generic file icon otherwise. No PDF page rendering —
- * out of scope for this batch, unlike v1's own (unread) implementation;
- * a consumer needing that can still pass a `customPreview` to `InputFile`.
- *
- * Native props and `ref` go to the root: the `<img>`, or the fallback `<div>`.
- */
 const DocumentPreviewBase: React.ForwardRefRenderFunction<
 	HTMLElement,
 	IDocumentPreviewProps
@@ -60,5 +52,13 @@ const DocumentPreviewBase: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * V2 DocumentPreview — a minimal file preview: an image thumbnail for
+ * `image/*` files, a generic file icon otherwise. No PDF page rendering —
+ * out of scope for this batch, unlike v1's own (unread) implementation;
+ * a consumer needing that can still pass a `customPreview` to `InputFile`.
+ *
+ * Native props and `ref` go to the root: the `<img>`, or the fallback `<div>`.
+ */
 export const DocumentPreview = forwardRef(DocumentPreviewBase);
 DocumentPreview.displayName = "DocumentPreview";
