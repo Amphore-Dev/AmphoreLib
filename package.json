@@ -1,9 +1,22 @@
 {
 	"name": "@amphore-dev/amphore-lib",
 	"version": "1.11.0",
-	"main": "lib/index.js",
-	"module": "lib/index.esm.js",
-	"types": "lib/index.d.ts",
+	"main": "lib/cjs/index.cjs",
+	"module": "lib/esm/index.mjs",
+	"types": "lib/types/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./lib/types/index.d.ts",
+			"import": "./lib/esm/index.mjs",
+			"require": "./lib/cjs/index.cjs"
+		},
+		"./style.css": "./lib/style.css",
+		"./lib/style.css": "./lib/style.css",
+		"./package.json": "./package.json"
+	},
+	"sideEffects": [
+		"**/*.css"
+	],
 	"author": "Amphore Dev",
 	"license": "MIT",
 	"files": [
