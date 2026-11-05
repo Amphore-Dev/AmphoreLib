@@ -2,7 +2,7 @@
 
 import { Meta } from "@storybook/addon-docs/blocks";
 
-<Meta title="Directives/ControlledComponents" />
+<Meta title="Guides/Controlled Components" />
 
 # Controlled components
 
@@ -13,7 +13,7 @@ Every component is **100% controlled**: `value`/`checked` + `onChange`, never an
 <Input value={value} onChange={(next) => setValue(next)} />
 ```
 
-No atom (`Input`, `Select`, `Toggle`...) imports Formik. The only Formik integration in the whole lib lives at the `FieldRenderer`/`FormRenderer`/`FiltersModal`/`EditableCard` level — an outer-layer adapter, never inside the atom itself. See [Concepts/Fields](?path=/docs/concepts-fields--docs) for details.
+No atom (`Input`, `Select`, `Toggle`...) imports Formik. The only Formik integration in the whole lib lives at the `FieldRenderer`/`FormRenderer`/`FiltersModal`/`EditableCard` level — an outer-layer adapter, never inside the atom itself. See [Guides/Fields](?path=/docs/guides-fields--docs) for details.
 
 This is a deliberate break from the old lib (v1), where every field carried a `withFormikWrapper` that silently rewrote its behavior based on ambient Formik context — never reproduced here.
 
@@ -35,4 +35,4 @@ Shape of `value` for single/multiple: `T | T[] | null`, compared with `===` only
 
 ---
 
-See also: `Select.tsx`, `Tabs.tsx`, `Accordion.tsx`, [Concepts/Fields](?path=/docs/concepts-fields--docs), memory `react-library-fields-audit`.
+See also: `Select.tsx`, `Tabs.tsx`, `Accordion.tsx`, [Guides/Fields](?path=/docs/guides-fields--docs), memory `react-library-fields-audit`.

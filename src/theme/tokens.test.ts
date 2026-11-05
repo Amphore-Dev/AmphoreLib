@@ -41,14 +41,14 @@ const stripComments = (source: string) =>
 	source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|\s)\/\/.*$/gm, "$1");
 
 /**
- * Every `--amp-*` name read through `var()`. A name built by SCSS interpolation
- * (`var(--amp-text-#{$step})`) is not a whole name and is skipped: the mixins
- * reject an off-scale step at compile time.
+ * Every `--amp-*` name read through `var()`. A name built by interpolation is
+ * not a whole name and is skipped, in SCSS (`var(--amp-text-#{$step})`, the
+ * mixins reject an off-scale step) as in a template string.
  */
 const readTokens = (source: string) =>
 	[
 		...stripComments(source).matchAll(
-			/var\(\s*(--amp-[\w-]+)(?![\w-]|#\{)/g
+			/var\(\s*(--amp-[\w-]+)(?![\w-]|#\{|\$\{)/g
 		),
 	].map((match) => match[1]);
 
@@ -101,6 +101,7 @@ describe("--amp-* reads", () => {
 				outline: var(--_local, var(--amp-color-primary));
 				background: var(--_local);
 				font-size: var(--amp-text-#{$step});
+				line-height: var(--amp-leading-\${step});
 			}
 		`;
 		expect(readTokens(source)).toEqual([

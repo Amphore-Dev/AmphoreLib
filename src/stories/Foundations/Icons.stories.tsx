@@ -10,17 +10,17 @@ import { ColorPickerField } from "@components/molecules";
 
 import { Pictos, TPictoName } from "@constants/index";
 
-import styles from "./PictosStory.module.scss";
+import styles from "./Icons.module.scss";
 
 // Consumer-facing catalog of every icon shipped in `Pictos` (CPictos.ts) —
 // a visual reference for the exact string to pass as `<Picto icon="...">`.
-// Lives under `Concepts/*` (consumer doc, like Fields/FiltersContext), not
+// Lives under `Foundations/*` (the design system itself), not
 // `Components/Atoms/Picto` — that story documents the `Picto` component's
 // own props, this one documents the icon set itself. Plain `.stories.tsx`
 // (not `.mdx`) because filtering ~93 icons by name needs real state, not
 // just static markup.
 export default {
-	title: "Concepts/Pictos",
+	title: "Foundations/Icons",
 	component: Picto,
 	parameters: {
 		docs: {

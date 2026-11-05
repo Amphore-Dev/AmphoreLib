@@ -2,7 +2,7 @@
 
 import { Meta } from "@storybook/addon-docs/blocks";
 
-<Meta title="Concepts/FiltersContext" />
+<Meta title="Guides/FiltersContext" />
 
 # 🧩 Filters Context
 
@@ -159,7 +159,7 @@ interface IUseFiltersContext<T, K, S = T[K]> {
 - `getPagination()` / `setPagination(p)`: read/write `{page, limit, total}`
 - `getParams(filters?)` / `getQueryKeys(filters?)`: serialization to the URL / query keys
 - `count` / `setCount(n)`: active-filters counter (prefer `countCallback` in options over manually calling `setCount`)
-- `fieldRenderers`: see [Concepts/Fields](?path=/docs/concepts-fields--docs), `FiltersContext` level
+- `fieldRenderers`: see [Guides/Fields](?path=/docs/guides-fields--docs), `FiltersContext` level
 
 ---
 
