@@ -31,41 +31,49 @@
 	// ---- color: sets local vars, consumed by the variant rules below.
 	&[data-color="primary"] {
 		--_color: var(--amp-color-primary);
+		--_color-text: var(--amp-color-primary-text);
 		--_color-fg: var(--amp-color-primary-fg);
 		--_color-tint: var(--amp-color-primary-tint);
 	}
 	&[data-color="danger"] {
 		--_color: var(--amp-color-danger);
+		--_color-text: var(--amp-color-danger-text);
 		--_color-fg: var(--amp-color-danger-fg);
 		--_color-tint: var(--amp-color-danger-tint);
 	}
 	&[data-color="success"] {
 		--_color: var(--amp-color-success);
+		--_color-text: var(--amp-color-success-text);
 		--_color-fg: var(--amp-color-success-fg);
 		--_color-tint: var(--amp-color-success-tint);
 	}
 	&[data-color="warning"] {
 		--_color: var(--amp-color-warning);
+		--_color-text: var(--amp-color-warning-text);
 		--_color-fg: var(--amp-color-warning-fg);
 		--_color-tint: var(--amp-color-warning-tint);
 	}
 	&[data-color="info"] {
 		--_color: var(--amp-color-info);
+		--_color-text: var(--amp-color-info-text);
 		--_color-fg: var(--amp-color-info-fg);
 		--_color-tint: var(--amp-color-info-tint);
 	}
 	&[data-color="neutral"] {
 		--_color: var(--amp-color-neutral);
+		--_color-text: var(--amp-color-neutral-text);
 		--_color-fg: var(--amp-color-neutral-fg);
 		--_color-tint: var(--amp-color-neutral-tint);
 	}
 	&[data-color="black"] {
 		--_color: var(--amp-color-black);
+		--_color-text: var(--amp-color-black-text);
 		--_color-fg: var(--amp-color-black-fg);
 		--_color-tint: var(--amp-color-black-tint);
 	}
 	&[data-color="white"] {
 		--_color: var(--amp-color-white);
+		--_color-text: var(--amp-color-white-text);
 		--_color-fg: var(--amp-color-white-fg);
 		--_color-tint: var(--amp-color-white-tint);
 	}
@@ -73,13 +81,13 @@
 	// ---- variant
 	&[data-variant="tint"] {
 		background: var(--_color-tint);
-		color: var(--_color);
+		color: var(--_color-text);
 	}
 
 	&[data-variant="outline"] {
 		background: transparent;
 		border-color: var(--_color);
-		color: var(--_color);
+		color: var(--_color-text);
 	}
 
 	&[data-variant="solid"] {

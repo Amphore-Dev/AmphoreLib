@@ -81,6 +81,10 @@ Variant/color/size/state go through `data-*` attributes, read in CSS — not `cn
 
 One `[data-color="x"]` block per color sets local variables (`--_color`/`--_color-fg`/`--_color-tint`); the `[data-variant]` blocks consume them. Adding a color means one rule here, not one per variant — see `Button.module.scss`, `Badge.module.scss`.
 
+## Text colors
+
+A semantic color has four tokens: `--amp-color-warning` fills, `-fg` is the text on that fill, `-tint` is a light background, and `-text` is text in that color on a light ground. A fill too light for text keeps a darker tone there, which is why `warning` can be bright. Overriding a color resets its `-text` to the same value, so set `warningText` too if your color is too light to read.
+
 ## Density
 
 `density: "comfortable" | "compact"` drives layout spacing (gaps, `Card`/`SectionCard` padding) — purely via CSS variables (`DENSITY_PRESETS` in `CThemeConfig.ts`), no JS context/hook needed.

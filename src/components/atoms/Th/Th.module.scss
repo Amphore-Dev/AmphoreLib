@@ -30,7 +30,7 @@
 	}
 
 	&[aria-sort]:not([aria-sort="none"]) {
-		color: var(--amp-color-primary);
+		color: var(--amp-color-primary-text);
 	}
 
 	&[data-sticky] {

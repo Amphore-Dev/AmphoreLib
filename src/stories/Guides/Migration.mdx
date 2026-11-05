@@ -45,6 +45,8 @@ An app that renders dark on purpose should check its screens: dark mode did not 
 
 Nothing to change in code, but tight layouts deserve a look.
 
+- **New default palette.** `primary` moves from `#0f9be8` to `#0674db`, and every other color and surface changes too. White on the old primary was 3.05:1, the new one reaches 4.64:1. Pin `colors` to keep the old look.
+- `warning` is now a bright amber with dark text on it. Set both `warning` and `warningForeground` if you override one.
 - **Text is larger.** The type scale moved to Tailwind's sizes: 13px and 13.5px become 14px, 15px becomes 16px, 17px becomes 18px. `Title` h1 and h2 shrink from 40 and 32px to 36 and 30px.
 - **Field heights stay 34, 42 and 58px**, and are now a minimum: a field no longer collapses when its content is short.
 - `TextArea` is 4px shorter: one row is 42px, each further row adds 24px.
@@ -87,5 +89,6 @@ Roles changed too, which affects `getByRole` queries:
 - Tree-shakable build: `import { Button }` no longer pulls in the whole library.
 - The library renders without `AmphoreProvider`, from the default tokens at `:root`.
 - `Text`, `FormRenderer` `readOnly`, `DatePicker` week mode and marked days, filters `params: false`.
+- A `-text` color for each semantic color, such as `--amp-color-warning-text`, for text on a light ground. It follows the base color when you override it.
 - Design tokens for type, weights, shadows, focus, layers, durations, borders and icons, overridable through `config`.
 - `data-testid` and every native prop forwarded on all components, `deriveTestId` exported.

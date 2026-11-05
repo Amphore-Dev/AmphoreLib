@@ -19,6 +19,7 @@ const SEMANTIC_TOKENS = SEMANTIC.flatMap((name) => [
 	`--amp-color-${name}`,
 	`--amp-color-${name}-fg`,
 	`--amp-color-${name}-tint`,
+	`--amp-color-${name}-text`,
 ]);
 
 const SURFACES = TOKENS.filter((name) => !SEMANTIC_TOKENS.includes(name));
@@ -112,9 +113,10 @@ const ColorsPage = () => {
 					<>
 						Read by components:{" "}
 						<Code>--amp-color-&lt;name&gt;</Code>, with the color of
-						text on top of it (<Code>-fg</Code>) and a light tint (
-						<Code>-tint</Code>). These are the values of the current
-						theme, so the toolbar changes them live.
+						text on top of it (<Code>-fg</Code>), a light tint (
+						<Code>-tint</Code>) and the color for text on a light
+						ground (<Code>-text</Code>). These are the values of the
+						current theme, so the toolbar changes them live.
 					</>
 				}
 			>
@@ -127,6 +129,7 @@ const ColorsPage = () => {
 							[name, `--amp-color-${name}`],
 							["fg", `--amp-color-${name}-fg`],
 							["tint", `--amp-color-${name}-tint`],
+							["text", `--amp-color-${name}-text`],
 						]}
 						values={values}
 					/>

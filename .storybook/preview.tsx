@@ -22,7 +22,7 @@ const lightTheme = create({
 	appBg: "#FAF3EC",
 	appContentBg: "#FFFFFF",
 	appBorderRadius: 8,
-	colorPrimary: "#0f9be8",
+	colorPrimary: "#0674db",
 	colorSecondary: "#39b5f7",
 	textColor: "#27272B",
 	barBg: "#FFFFFF",

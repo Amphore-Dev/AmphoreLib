@@ -1,8 +1,8 @@
 @use "../../../styles/mixins" as *;
 
 $colors:
-	"ink", "sub", "primary", "danger", "success", "warning", "info", "neutral",
-	"black", "white";
+	"primary", "danger", "warning", "success", "info", "neutral", "black",
+	"white";
 
 .text {
 	font-family: var(--amp-font);
@@ -34,9 +34,17 @@ $colors:
 		font-weight: weight(bold);
 	}
 
+	&[data-color="ink"] {
+		color: var(--amp-color-ink);
+	}
+
+	&[data-color="sub"] {
+		color: var(--amp-color-sub);
+	}
+
 	@each $color in $colors {
 		&[data-color="#{$color}"] {
-			color: var(--amp-color-#{$color});
+			color: var(--amp-color-#{$color}-text);
 		}
 	}
 }

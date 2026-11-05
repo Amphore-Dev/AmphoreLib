@@ -31,7 +31,7 @@
 	}
 
 	&[data-color="primary"] {
-		color: var(--amp-color-primary);
+		color: var(--amp-color-primary-text);
 	}
 
 	&[data-color="danger"] {
@@ -43,11 +43,11 @@
 	}
 
 	&[data-color="warning"] {
-		color: var(--amp-color-warning);
+		color: var(--amp-color-warning-text);
 	}
 
 	&[data-color="info"] {
-		color: var(--amp-color-info);
+		color: var(--amp-color-info-text);
 	}
 
 	&[data-color="neutral"] {
