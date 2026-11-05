@@ -34,7 +34,9 @@ export const Th: React.FC<IThProps> = ({
 				? sortDirection === "asc"
 					? "ascending"
 					: "descending"
-				: undefined
+				: sortable
+					? "none"
+					: undefined
 		}
 		onClick={sortable ? onSort : undefined}
 		onKeyDown={
@@ -53,7 +55,7 @@ export const Th: React.FC<IThProps> = ({
 	>
 		{children}
 		{sortable && (
-			<span className={styles.sortIcon}>
+			<span className={styles.sortIcon} aria-hidden>
 				{sortDirection ? (
 					<Picto
 						icon={sortDirection === "desc" ? "sortDesc" : "sortAsc"}

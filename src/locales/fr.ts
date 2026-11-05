@@ -128,6 +128,12 @@ export const fr: TThemeLabels = {
 	},
 	Table: {
 		noDataMessage: "Aucune donnée",
+		selectAllLabel: "Tout sélectionner",
+		selectRowLabel: "Sélectionner la ligne",
+		openRowLabel: "Ouvrir la ligne",
+		rowActionsLabel: "Actions de la ligne",
+		bulkActionsLabel: "Actions sur la sélection",
+		columnsLabel: "Colonnes",
 	},
 	Tabs: {
 		scrollLeftLabel: "Défiler à gauche",

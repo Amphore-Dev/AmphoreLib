@@ -17,7 +17,8 @@ const item: TUser = { id: 1, name: "Alice", email: "alice@example.com" };
 describe("TableRow", () => {
 	it("renders one Td per column plus a trailing filler cell", () => {
 		render(<TableRow item={item} columns={columns} />);
-		expect(screen.getAllByRole("gridcell")).toHaveLength(3);
+		expect(screen.getAllByRole("cell")).toHaveLength(2);
+		expect(screen.getAllByRole("cell", { hidden: true })).toHaveLength(3);
 		expect(screen.getByText("Alice")).toBeInTheDocument();
 		expect(screen.getByText("alice@example.com")).toBeInTheDocument();
 	});

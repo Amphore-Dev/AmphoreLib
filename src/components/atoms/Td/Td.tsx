@@ -11,7 +11,7 @@ export interface ITdProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 /**
- * V2 Td — a grid cell, not a real `<td>`: `Table` lays rows out via CSS
+ * V2 Td — a table cell, not a real `<td>`: `Table` lays rows out via CSS
  * Grid (`display: contents` on each row, one grid column per Td) rather
  * than an HTML `<table>`, so it can virtualize rows and size columns with
  * `minmax()`/`max-content` — a real `<table>` can't do either. `role`
@@ -25,7 +25,7 @@ export const Td: React.FC<ITdProps> = ({
 }) => (
 	<div
 		{...props}
-		role="gridcell"
+		role="cell"
 		data-sticky={sticky}
 		className={cn([styles.td, className])}
 	>

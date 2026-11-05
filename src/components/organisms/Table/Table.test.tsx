@@ -1,4 +1,11 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import {
+	fireEvent,
+	render,
+	screen,
+	waitFor,
+	within,
+} from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import { TTableColumn } from "@interfaces/index";
@@ -83,7 +90,7 @@ describe("Table", () => {
 		);
 		expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
 		// No reserved checkbox grid column either.
-		const grid = container.querySelector('[role="grid"]') as HTMLElement;
+		const grid = container.querySelector('[role="table"]') as HTMLElement;
 		expect(grid.style.gridTemplateColumns.startsWith("2.5rem")).toBe(false);
 	});
 
@@ -312,7 +319,7 @@ describe("Table", () => {
 		const { container } = render(
 			<Table columns={columns} items={items} getItemKey={(i) => i.id} />
 		);
-		const grid = container.querySelector('[role="grid"]') as HTMLElement;
+		const grid = container.querySelector('[role="table"]') as HTMLElement;
 		expect(grid.style.gridTemplateColumns).toContain(
 			"minmax(150px, max-content)"
 		);
@@ -327,7 +334,7 @@ describe("Table", () => {
 		const { container } = render(
 			<Table columns={sized} items={items} getItemKey={(i) => i.id} />
 		);
-		const grid = container.querySelector('[role="grid"]') as HTMLElement;
+		const grid = container.querySelector('[role="table"]') as HTMLElement;
 		expect(grid.style.gridTemplateColumns).toBe(
 			"120px minmax(200px, 1fr) minmax(min-content, auto) 1fr"
 		);
@@ -341,7 +348,7 @@ describe("Table", () => {
 		const { container } = render(
 			<Table columns={sized} items={items} getItemKey={(i) => i.id} />
 		);
-		const grid = container.querySelector('[role="grid"]') as HTMLElement;
+		const grid = container.querySelector('[role="table"]') as HTMLElement;
 		expect(grid.style.gridTemplateColumns).toBe(
 			"minmax(150px, 2fr) minmax(min-content, max-content) 1fr"
 		);
@@ -354,7 +361,7 @@ describe("Table", () => {
 		const { container } = render(
 			<Table columns={sized} items={items} getItemKey={(i) => i.id} />
 		);
-		const grid = container.querySelector('[role="grid"]') as HTMLElement;
+		const grid = container.querySelector('[role="table"]') as HTMLElement;
 		expect(grid.style.gridTemplateColumns).toContain("max(100px, 20%)");
 	});
 
@@ -388,10 +395,10 @@ describe("Table", () => {
 			{ key: "email" },
 		];
 		render(<Table columns={cols} items={items} getItemKey={(i) => i.id} />);
-		const nameCell = screen.getByText("Alice").closest('[role="gridcell"]');
+		const nameCell = screen.getByText("Alice").closest('[role="cell"]');
 		const emailCell = screen
 			.getByText("alice@example.com")
-			.closest('[role="gridcell"]');
+			.closest('[role="cell"]');
 		expect(nameCell?.firstElementChild?.tagName).toBe("B");
 		expect(emailCell?.firstElementChild?.tagName).toBe("SPAN");
 	});
@@ -423,7 +430,123 @@ describe("Table", () => {
 				selectable
 			/>
 		);
-		const grid = container.querySelector('[role="grid"]') as HTMLElement;
+		const grid = container.querySelector('[role="table"]') as HTMLElement;
 		expect(grid.style.gridTemplateColumns.startsWith("2.5rem")).toBe(true);
+	});
+});
+
+describe("Table accessibility", () => {
+	const base = { columns, items, getItemKey: (i: TUser) => i.id };
+
+	it("is a table, named, not a grid it can't navigate like one", () => {
+		render(<Table {...base} aria-label="Users" />);
+		expect(screen.getByRole("table", { name: "Users" })).toBeInTheDocument();
+		expect(screen.queryByRole("grid")).not.toBeInTheDocument();
+	});
+
+	it("counts every row, not just the mounted ones", () => {
+		render(<Table {...base} />);
+		const rows = screen.getAllByRole("row");
+
+		expect(screen.getByRole("table")).toHaveAttribute("aria-rowcount", "4");
+		expect(rows[0]).toHaveAttribute("aria-rowindex", "1");
+		expect(rows[1]).toHaveAttribute("aria-rowindex", "2");
+	});
+
+	it("states it's loading", () => {
+		render(<Table {...base} items={[]} isLoading />);
+		expect(screen.getByRole("table", { busy: true })).toBeInTheDocument();
+	});
+
+	it("puts messages in a row, the only thing a table may contain", () => {
+		render(<Table {...base} items={[]} />);
+		expect(screen.getByRole("cell", { name: "No data" })).toBeInTheDocument();
+	});
+
+	it("reaches a clickable row from the keyboard", async () => {
+		const user = userEvent.setup();
+		const onRowClick = vi.fn();
+		render(<Table {...base} onRowClick={onRowClick} />);
+
+		await user.tab();
+		await user.tab();
+		expect(
+			screen.getByRole("button", { name: "Open row: Alice" })
+		).toHaveFocus();
+
+		await user.keyboard("{Enter}");
+
+		expect(onRowClick).toHaveBeenCalledTimes(1);
+		expect(onRowClick).toHaveBeenCalledWith(items[0]);
+	});
+
+	it("still clicks a row once with the mouse", async () => {
+		const user = userEvent.setup();
+		const onRowClick = vi.fn();
+		render(<Table {...base} onRowClick={onRowClick} />);
+
+		await user.click(screen.getByText("Bob"));
+
+		expect(onRowClick).toHaveBeenCalledTimes(1);
+	});
+
+	it("selects a row from the keyboard without a checkbox, and says so", async () => {
+		const user = userEvent.setup();
+		render(<Table {...base} selectable showCheckbox={false} selectOnClick />);
+		const row = screen.getByRole("button", { name: "Select row: Alice" });
+		expect(row).toHaveAttribute("aria-pressed", "false");
+
+		row.focus();
+		await user.keyboard(" ");
+
+		expect(row).toHaveAttribute("aria-pressed", "true");
+	});
+
+	it("adds no second control next to a row's checkbox", () => {
+		render(<Table {...base} selectable selectOnClick />);
+		expect(
+			screen.queryByRole("button", { name: /Select row/ })
+		).not.toBeInTheDocument();
+	});
+
+	it("names the checkboxes", () => {
+		render(<Table {...base} selectable />);
+		expect(
+			screen.getByRole("checkbox", { name: "Select all" })
+		).toBeInTheDocument();
+		expect(
+			screen.getByRole("checkbox", { name: "Select row: Alice" })
+		).toBeInTheDocument();
+	});
+
+	it("names the row-actions button, opens its menu beside it, restores focus", async () => {
+		const user = userEvent.setup();
+		render(
+			<Table {...base} rowActions={[{ label: "Edit", onClick: () => {} }]} />
+		);
+		const more = screen.getByRole("button", { name: "Row actions: Alice" });
+
+		more.focus();
+		await user.keyboard("{Enter}");
+
+		const menu = await screen.findByRole("menu", { name: "Row actions" });
+		expect(screen.getByRole("table")).not.toContainElement(menu);
+		await waitFor(() =>
+			expect(screen.getByRole("menuitem", { name: "Edit" })).toHaveFocus()
+		);
+
+		await user.keyboard("{Escape}");
+		await waitFor(() => expect(more).toHaveFocus());
+	});
+
+	it("opens the column menu from the keyboard", async () => {
+		const user = userEvent.setup();
+		render(<Table {...base} columnVisibilityMenu />);
+
+		await user.click(screen.getByRole("button", { name: "Columns" }));
+
+		expect(
+			await screen.findByRole("menu", { name: "Columns" })
+		).toBeInTheDocument();
 	});
 });

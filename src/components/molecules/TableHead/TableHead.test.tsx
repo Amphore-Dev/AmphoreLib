@@ -15,7 +15,10 @@ const columns: TTableColumn<TUser>[] = [
 describe("TableHead", () => {
 	it("renders one Th per column plus a trailing filler cell", () => {
 		render(<TableHead columns={columns} />);
-		expect(screen.getAllByRole("columnheader")).toHaveLength(3);
+		expect(screen.getAllByRole("columnheader")).toHaveLength(2);
+		expect(
+			screen.getAllByRole("columnheader", { hidden: true })
+		).toHaveLength(3);
 		expect(screen.getByText("Nom")).toBeInTheDocument();
 		expect(screen.getByText("Email")).toBeInTheDocument();
 	});
@@ -95,6 +98,8 @@ describe("TableHead", () => {
 		render(<TableHead columns={columnsWithContextMenu} />);
 		// Just the 2 real columns + the trailing filler Th — no cell at all
 		// for "contextMenu".
-		expect(screen.getAllByRole("columnheader")).toHaveLength(3);
+		expect(
+			screen.getAllByRole("columnheader", { hidden: true })
+		).toHaveLength(3);
 	});
 });

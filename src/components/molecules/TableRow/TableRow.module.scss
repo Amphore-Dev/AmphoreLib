@@ -1,16 +1,16 @@
 @use "../../../styles/touch" as touch;
 
 .row {
-	&.clickable [role="gridcell"] {
+	&.clickable [role="cell"] {
 		cursor: pointer;
 	}
 
-	&[data-selected="true"] [role="gridcell"] {
+	&[data-selected="true"] [role="cell"] {
 		background: var(--amp-color-primary-tint);
 	}
 
 	@media (hover: hover) {
-		&:hover:not([data-selected="true"]) [role="gridcell"] {
+		&:hover:not([data-selected="true"]) [role="cell"] {
 			background: var(--amp-color-ghost-bg);
 		}
 	}
@@ -39,5 +39,25 @@
 
 	@include touch.hover {
 		color: var(--amp-color-ink);
+	}
+}
+
+.rowButtonCell {
+	position: relative;
+}
+
+// Over the cell for its focus ring, and transparent to the pointer: the mouse
+// keeps clicking the row, selecting text in it, and whatever else is in it.
+.rowButton {
+	position: absolute;
+	inset: 0;
+	padding: 0;
+	border: none;
+	background: none;
+	pointer-events: none;
+
+	&:focus-visible {
+		outline: 2px solid var(--amp-color-primary);
+		outline-offset: -2px;
 	}
 }

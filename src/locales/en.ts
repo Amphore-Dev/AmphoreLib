@@ -133,6 +133,12 @@ export const en: TRequiredThemeLabels = {
 	},
 	Table: {
 		noDataMessage: "No data",
+		selectAllLabel: "Select all",
+		selectRowLabel: "Select row",
+		openRowLabel: "Open row",
+		rowActionsLabel: "Row actions",
+		bulkActionsLabel: "Selection actions",
+		columnsLabel: "Columns",
 	},
 	Tabs: {
 		scrollLeftLabel: "Scroll left",
