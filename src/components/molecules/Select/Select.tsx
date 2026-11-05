@@ -621,8 +621,8 @@ export function Select<T = string>({
 				</div>
 			</div>
 
-			{/* The listbox's own messages can't be announced: that's not
-			    something a listbox may contain. */}
+			{/* A listbox only holds options, so its own messages are disabled
+			    ones nothing can land on, and nothing announces. */}
 			<span role="status" className={styles.srOnly}>
 				{status}
 			</span>
@@ -643,12 +643,22 @@ export function Select<T = string>({
 						{...getFloatingProps()}
 					>
 						{isLoading ? (
-							<div className={styles.loading}>
+							<div
+								className={styles.loading}
+								role="option"
+								aria-selected={false}
+								aria-disabled
+							>
 								<Spinner size="sm" aria-hidden />
 								{loadingMessage}
 							</div>
 						) : filteredOptions.length === 0 ? (
-							<div className={styles.noResults}>
+							<div
+								className={styles.noResults}
+								role="option"
+								aria-selected={false}
+								aria-disabled
+							>
 								{noResultsMessage}
 							</div>
 						) : (

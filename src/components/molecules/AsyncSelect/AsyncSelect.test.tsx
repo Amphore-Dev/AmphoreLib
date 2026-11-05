@@ -101,7 +101,10 @@ describe("AsyncSelect", () => {
 		);
 		render(<AsyncSelect loadOptions={loadOptions} onChange={() => {}} />);
 		await userEvent.click(screen.getByRole("combobox"));
-		expect(screen.queryByRole("option")).not.toBeInTheDocument();
+		expect(screen.getByRole("option")).toHaveAttribute(
+			"aria-disabled",
+			"true"
+		);
 		await act(async () => {
 			resolve([OPTION("Alice")]);
 			await sleep(0);

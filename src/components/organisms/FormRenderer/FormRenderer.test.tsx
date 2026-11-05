@@ -1,6 +1,7 @@
 import React from "react";
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { Formik, FormikProps } from "formik";
 import { describe, expect, it, vi } from "vitest";
 
@@ -189,7 +190,9 @@ describe("FormRenderer", () => {
 		];
 		renderForm({ fields, showFieldLabels: false });
 		expect(screen.queryByText("Titre")).not.toBeInTheDocument();
-		expect(screen.getByRole("textbox", { name: "Titre" })).toBeInTheDocument();
+		expect(
+			screen.getByRole("textbox", { name: "Titre" })
+		).toBeInTheDocument();
 		// The field itself is still there, just unlabeled.
 		expect(screen.getByRole("textbox")).toBeInTheDocument();
 	});
@@ -256,7 +259,9 @@ describe("FormRenderer field names", () => {
 
 	it("keeps a date's value in its name", () => {
 		renderForm({ fields: [{ name: "day", type: "date", label: "Day" }] });
-		expect(screen.getByRole("button", { name: /^Day / })).toBeInTheDocument();
+		expect(
+			screen.getByRole("button", { name: /^Day / })
+		).toBeInTheDocument();
 	});
 
 	it("names groups of controls", () => {
@@ -269,17 +274,25 @@ describe("FormRenderer field names", () => {
 				{ name: "period", type: "period", label: "Period" },
 			],
 		});
-		expect(screen.getByRole("group", { name: "Boxes" })).toBeInTheDocument();
+		expect(
+			screen.getByRole("group", { name: "Boxes" })
+		).toBeInTheDocument();
 		expect(
 			screen.getByRole("radiogroup", { name: "Radios" })
 		).toBeInTheDocument();
 		expect(screen.getByRole("group", { name: "Time" })).toBeInTheDocument();
-		expect(screen.getByRole("group", { name: "Range" })).toBeInTheDocument();
-		expect(screen.getByRole("group", { name: "Period" })).toBeInTheDocument();
+		expect(
+			screen.getByRole("group", { name: "Range" })
+		).toBeInTheDocument();
+		expect(
+			screen.getByRole("group", { name: "Period" })
+		).toBeInTheDocument();
 	});
 
 	it("still points native controls at the label", () => {
-		renderForm({ fields: [{ name: "text", type: "input", label: "Text" }] });
+		renderForm({
+			fields: [{ name: "text", type: "input", label: "Text" }],
+		});
 		expect(screen.getByLabelText("Text")).toHaveAttribute("id", "text");
 	});
 
@@ -309,7 +322,9 @@ describe("FormRenderer validation errors", () => {
 				{(formikCtx) => (
 					<FormRenderer
 						formikCtx={formikCtx as never}
-						fields={[{ name: "text", type: "input", label: "Text" }]}
+						fields={[
+							{ name: "text", type: "input", label: "Text" },
+						]}
 					/>
 				)}
 			</Formik>
@@ -369,5 +384,24 @@ describe("FormRendererWithFormik submit button", () => {
 		);
 		expect(submit).toBeEnabled();
 		finish();
+	});
+});
+
+describe("FormRenderer field reset", () => {
+	it("hands focus to the field when reset from the keyboard", async () => {
+		const user = userEvent.setup();
+		render(
+			<FormRendererWithFormik
+				initialValues={{ text: "a" }}
+				showResetFieldButton
+				fields={[{ name: "text", type: "input", label: "Text" }]}
+			/>
+		);
+		const reset = screen.getByRole("button", { name: "Reset" });
+
+		reset.focus();
+		await user.keyboard("{Enter}");
+
+		expect(screen.getByLabelText("Text")).toHaveFocus();
 	});
 });

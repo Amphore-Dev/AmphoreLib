@@ -31,12 +31,15 @@ button[data-amphore-svg-wrapper] {
 		width: 100%;
 	}
 
-	&:focus-visible {
+	&:focus {
 		outline: none;
 	}
 
-	&:focus {
-		outline: none;
+	// The wrapper is a <button> with `onClick`, and this is its only focus
+	// indicator. Last: :focus above has the same specificity.
+	&:focus-visible {
+		outline: 2px solid currentColor;
+		outline-offset: 2px;
 	}
 
 	& > *:focus,

@@ -99,8 +99,10 @@ export const TableHead = <T,>({
 						<Th
 							key="contextMenu"
 							className={styles.contextMenuCell}
-							aria-label={rowActionsLabel}
 						>
+							<span className={styles.srOnly}>
+								{rowActionsLabel}
+							</span>
 							{onGlobalContextMenu &&
 							(someSelected || allSelected) ? (
 								<button

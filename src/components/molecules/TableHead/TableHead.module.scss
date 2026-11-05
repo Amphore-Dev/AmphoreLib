@@ -26,6 +26,10 @@
 	}
 }
 
+.srOnly {
+	@include a11y.visually-hidden;
+}
+
 .columnsButton {
 	@include a11y.visually-hidden;
 	display: flex;

@@ -329,7 +329,9 @@ describe("Select", () => {
 	it("shows a loading state instead of options/no-results when isLoading", async () => {
 		render(<Select options={OPTIONS} onChange={() => {}} isLoading />);
 		await userEvent.click(screen.getByRole("combobox"));
-		expect(screen.queryByRole("option")).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole("option", { name: "Jour" })
+		).not.toBeInTheDocument();
 		expect(screen.queryByText("No results")).not.toBeInTheDocument();
 		expect(
 			within(screen.getByRole("listbox")).getByText("Loading...")
@@ -848,22 +850,25 @@ describe("Select accessibility", () => {
 	it.each([
 		["Escape", "{Escape}"],
 		["Tab", "{Tab}"],
-	])("keeps focus on the field when %s closes the search", async (_n, key) => {
-		const user = userEvent.setup();
-		render(
-			<>
-				<Select label="Period" options={OPTIONS} searchable />
-				<button type="button">After</button>
-			</>
-		);
+	])(
+		"keeps focus on the field when %s closes the search",
+		async (_n, key) => {
+			const user = userEvent.setup();
+			render(
+				<>
+					<Select label="Period" options={OPTIONS} searchable />
+					<button type="button">After</button>
+				</>
+			);
 
-		await user.click(screen.getByRole("combobox"));
-		await screen.findByRole("listbox");
-		await user.keyboard(key);
+			await user.click(screen.getByRole("combobox"));
+			await screen.findByRole("listbox");
+			await user.keyboard(key);
 
-		expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
-		expect(document.body).not.toHaveFocus();
-	});
+			expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+			expect(document.body).not.toHaveFocus();
+		}
+	);
 
 	it("keeps focus on the field after picking from the search", async () => {
 		const user = userEvent.setup();
