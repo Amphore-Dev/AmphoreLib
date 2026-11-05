@@ -79,6 +79,7 @@ export const fr: TThemeLabels = {
 		submitLabel: "Valider",
 		cancelLabel: "Annuler",
 		resetLabel: "Réinitialiser",
+		closeLabel: "Fermer",
 		resetFormLabel: "Réinitialiser les champs",
 	},
 	HeadBar: {

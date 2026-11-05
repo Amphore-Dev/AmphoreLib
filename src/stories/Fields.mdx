@@ -256,6 +256,29 @@ Reset handling:
 
 ---
 
+## Read-only forms
+
+`readOnly` on `FormRenderer`/`FormRendererWithFormik` shows a form for consultation:
+
+```tsx
+<FormRendererWithFormik
+  fields={fields}
+  initialValues={contact}
+  inModal
+  open={open}
+  onClose={close}
+  readOnly
+/>
+```
+
+- Every field type renders disabled, custom renderers included: they receive `disabled` like any other field.
+- Field reset buttons are hidden, whatever `showResetFieldButton` says.
+- In a modal, "Close" is the only action (`closeLabel`, or `common.close`/`FormRenderer.closeLabel` in `labels`): submit is gone and `resetFormButton` is ignored. A `modalProps.footer` you pass yourself is kept.
+
+`disableFields` differs: it only disables the fields, and the form's own actions stay. To display values as text rather than as disabled controls, use `EditableCard`'s display mode (`valueDisplay`, `valueRenderer`).
+
+---
+
 ## Sync / async handling (apply / submit)
 
 Callbacks (`onSubmit`, `onApply`) can be sync or async — normalized via `Promise.resolve(...)`, which guarantees consistent behavior (the modal closes only once processing has finished).

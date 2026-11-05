@@ -69,6 +69,14 @@ export interface IFormRendererProps<K = object>
 	formikCtx?: FormikProps<K>;
 	/** Disables every field (and its individual reset button). Doesn't affect the form's own actions (submit/reset). */
 	disableFields?: boolean;
+	/**
+	 * Consultation mode: `disableFields` plus no way to edit. Every field type
+	 * renders disabled (custom renderers receive `disabled` too), the field
+	 * reset buttons are gone and, in a modal, "Close" is the only action:
+	 * no submit, and `resetFormButton` is ignored. A `modalProps.footer` you
+	 * pass yourself is still rendered as is. Defaults to false.
+	 */
+	readOnly?: boolean;
 	setFieldValue?: FormikProps<K>["setFieldValue"];
 	defaultValues?: Partial<K>;
 	minItemWidth?: string;
@@ -77,6 +85,8 @@ export interface IFormRendererProps<K = object>
 	submitLabel?: TLabel;
 	cancelLabel?: TLabel;
 	resetLabel?: TLabel;
+	/** The modal's only action when `readOnly`. Defaults to "Close" (or `common.close`/`FormRenderer.closeLabel` from the nearest AmphoreProvider). */
+	closeLabel?: TLabel;
 	title?: string;
 }
 
@@ -97,34 +107,40 @@ export const FormRenderer = <K extends object>({
 	minItemWidth = "250px",
 	formikCtx = { values: {} as K } as FormikProps<K>,
 	disableFields,
+	readOnly = false,
 	setFieldValue,
 	defaultValues,
 	wrapperGridProps,
 	submitLabel: submitLabelProp,
 	cancelLabel: cancelLabelProp,
 	resetLabel: resetLabelProp,
+	closeLabel: closeLabelProp,
 }: IFormRendererProps<K>) => {
 	const { resolve } = useAmphoreLabels("FormRenderer");
 	const submitLabel = resolve("submitLabel", submitLabelProp, "submit");
 	const cancelLabel = resolve("cancelLabel", cancelLabelProp, "cancel");
 	const resetLabel = resolve("resetLabel", resetLabelProp, "reset");
+	const closeLabel = resolve("closeLabel", closeLabelProp, "close");
 
 	const result =
 		typeof fields === "function" ? fields(formikCtx, true) : fields;
 
 	const groups: TFieldsGroup[] = genGroups(result);
-	const fieldsDisabled = disableFields || formikCtx.isSubmitting;
+	const fieldsDisabled = readOnly || disableFields || formikCtx.isSubmitting;
+	const showFieldResets = showResetFieldButton && !readOnly;
 
 	return (
 		<FormWrapper
 			columns={wrapperGridProps?.columns || columns}
 			inModal={inModal}
+			readOnly={readOnly}
 			title={title}
 			onClose={onClose}
 			open={open}
 			modalProps={modalProps}
 			submitLabel={submitLabel}
 			cancelLabel={cancelLabel}
+			closeLabel={closeLabel}
 		>
 			<FlexGrid
 				gap="1rem"
@@ -235,7 +251,7 @@ export const FormRenderer = <K extends object>({
 										: fieldLabel;
 
 									const showFieldReset =
-										showResetFieldButton &&
+										showFieldResets &&
 										field.showResetButton !== false;
 
 									const showLabel =
@@ -287,7 +303,7 @@ export const FormRenderer = <K extends object>({
 											key={`${name}-${fieldIndex}`}
 											className={cn([
 												styles.groupItem,
-												showResetFieldButton &&
+												showFieldResets &&
 													styles.groupItemWithReset,
 												field.wrapperClassName,
 											])}
@@ -416,7 +432,7 @@ export interface IFormRendererWithFormikProps<K = object> extends Omit<
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. `FormRenderer` and `FormRendererWithFormik` are two views of the same conceptual component and share the `"FormRenderer"` namespace, so their label keys are combined into a single type here rather than exported twice. */
 export type TFormRendererLabels = Pick<
 	IFormRendererProps,
-	"submitLabel" | "cancelLabel" | "resetLabel"
+	"submitLabel" | "cancelLabel" | "resetLabel" | "closeLabel"
 > &
 	Pick<IFormRendererWithFormikProps, "resetFormLabel">;
 
@@ -470,7 +486,8 @@ export const FormRendererWithFormik = <K extends object>({
 							...props.modalProps,
 							footer:
 								props.modalProps?.footer ??
-								(props.inModal ? (
+								// Read-only: left to FormWrapper's close-only footer.
+								(props.inModal && !props.readOnly ? (
 									<div className={styles.footerActions}>
 										{resetFormButton && (
 											<Button
@@ -519,8 +536,10 @@ interface IFormWrapperProps<K extends object>
 	extends Partial<Omit<IFormRendererProps<K>, "fields">>, PropsWithChildren {
 	columns: number;
 	inModal?: boolean;
+	readOnly?: boolean;
 	submitLabel: string;
 	cancelLabel: string;
+	closeLabel: string;
 }
 
 const FormWrapper = <K extends object>({
@@ -530,9 +549,11 @@ const FormWrapper = <K extends object>({
 	columns,
 	children,
 	inModal = false,
+	readOnly = false,
 	modalProps,
 	submitLabel,
 	cancelLabel,
+	closeLabel,
 }: IFormWrapperProps<K>) => {
 	const { submitForm, isSubmitting, dirty } = useFormikContext<K>();
 
@@ -557,14 +578,16 @@ const FormWrapper = <K extends object>({
 							onClick={onClose}
 							disabled={isSubmitting}
 						>
-							{cancelLabel}
+							{readOnly ? closeLabel : cancelLabel}
 						</Button>
-						<Button
-							onClick={() => submitForm()}
-							isLoading={isSubmitting}
-						>
-							{submitLabel}
-						</Button>
+						{!readOnly && (
+							<Button
+								onClick={() => submitForm()}
+								isLoading={isSubmitting}
+							>
+								{submitLabel}
+							</Button>
+						)}
 					</div>
 				)
 			}
