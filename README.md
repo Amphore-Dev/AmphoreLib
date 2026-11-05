@@ -37,7 +37,8 @@ stylesheet is a single file covering every component.
 
 `@amphore-dev/amphore-lib/lib/style.css` still resolves. Any other path
 under `lib/` does not: the package's `exports` map only exposes the root,
-the stylesheet and `package.json`.
+the stylesheet and `package.json`. Coming from 1.x? See the
+[migration guide](https://storybook.lib.amphore.dev/?path=/docs/directives-migrating-to-2-0--docs).
 
 ## Quick start
 
