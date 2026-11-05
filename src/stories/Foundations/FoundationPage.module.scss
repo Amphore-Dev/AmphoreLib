@@ -4,6 +4,8 @@
 	display: flex;
 	flex-direction: column;
 	gap: space(8);
+	max-width: space(240);
+	margin: 0 auto;
 	font-family: var(--amp-font);
 	color: var(--amp-color-ink);
 }
@@ -55,12 +57,46 @@
 	}
 }
 
+.swatchRow {
+	display: grid;
+	grid-template-columns: space(45) 1fr;
+	gap: space(4);
+	align-items: start;
+}
+
+.swatchTitle {
+	margin: 0;
+	font-size: var(--amp-text-sm);
+	font-weight: weight(semibold);
+	text-transform: capitalize;
+}
+
+.swatches {
+	display: grid;
+	gap: space(2);
+}
+
 .swatch {
-	display: block;
-	width: space(16);
-	height: space(6);
+	display: flex;
+	flex-direction: column;
+	gap: space(1);
+	min-width: 0;
+}
+
+.swatchColor {
+	height: space(12);
 	border: var(--amp-border-width-sm) solid var(--amp-color-border);
 	border-radius: var(--amp-radius-sm);
+}
+
+.mono {
+	font-family: monospace;
+	font-size: var(--amp-text-xs);
+	overflow-wrap: anywhere;
+}
+
+.sub {
+	color: var(--amp-color-sub);
 }
 
 .bar {
