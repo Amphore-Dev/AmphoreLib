@@ -39,7 +39,7 @@
 	flex: 1;
 	align-items: center;
 	min-width: 0;
-	gap: var(--amp-space-2);
+	gap: space(2);
 	margin: 0;
 	border: none;
 	background: transparent;
@@ -63,52 +63,52 @@
 	display: flex;
 	flex-shrink: 0;
 	align-items: center;
-	gap: var(--amp-space-2);
+	gap: space(2);
 }
 
 // ---- size: header padding/font + panel padding, kept in sync per level.
 .accordion[data-size="sm"] {
 	.actions {
-		padding-right: var(--amp-space-3);
+		padding-right: space(3.5);
 	}
 
 	.header {
-		padding: var(--amp-space-2) var(--amp-space-3);
+		padding: space(2) space(3.5);
 		font-size: var(--amp-text-sm);
 	}
 
 	.panelContent {
-		padding: var(--amp-space-2) var(--amp-space-3) var(--amp-space-2);
+		padding: space(2) space(3.5) space(2);
 	}
 }
 
 .accordion[data-size="md"] {
 	.actions {
-		padding-right: var(--amp-space-4);
+		padding-right: space(4.5);
 	}
 
 	.header {
-		padding: var(--amp-space-3) var(--amp-space-4);
+		padding: space(3.5) space(4.5);
 		font-size: var(--amp-text-md);
 	}
 
 	.panelContent {
-		padding: var(--amp-space-3) var(--amp-space-4) var(--amp-space-3);
+		padding: space(3.5) space(4.5) space(3.5);
 	}
 }
 
 .accordion[data-size="lg"] {
 	.actions {
-		padding-right: var(--amp-space-4);
+		padding-right: space(4.5);
 	}
 
 	.header {
-		padding: var(--amp-space-4) var(--amp-space-4);
+		padding: space(4.5) space(4.5);
 		font-size: var(--amp-text-lg);
 	}
 
 	.panelContent {
-		padding: var(--amp-space-4) var(--amp-space-4) var(--amp-space-4);
+		padding: space(4.5) space(4.5) space(4.5);
 	}
 }
 

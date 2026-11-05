@@ -4,7 +4,7 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	gap: var(--amp-space-2);
+	gap: space(2);
 	font-family: var(--amp-font);
 	font-weight: weight(semibold);
 	border: var(--amp-border-width-sm) solid transparent;
@@ -45,19 +45,19 @@
 	// these in sync whenever ICON_SIZE changes — each must stay taller
 	// than its own size's icon, not just fit the text.
 	&[data-size="sm"] {
-		padding: var(--amp-space-1) var(--amp-space-2);
+		padding: space(1.5) space(2);
 		@include text(xs);
 	}
 
 	&[data-size="md"] {
-		padding: var(--amp-space-2) var(--amp-space-3);
+		padding: space(2) space(3.5);
 		// stylelint-disable-next-line scale-unlimited/declaration-strict-value -- off scale: 13.5px, between text-sm and text-md
 		font-size: 0.84375rem;
 		line-height: var(--amp-leading-md);
 	}
 
 	&[data-size="lg"] {
-		padding: var(--amp-space-3) var(--amp-space-4);
+		padding: space(3.5) space(4.5);
 		@include text(lg);
 	}
 

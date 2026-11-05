@@ -109,7 +109,7 @@ const TextAreaBase: React.ForwardRefRenderFunction<
 	// would otherwise never shrink back down as text is removed).
 	//
 	// maxRows caps the grown height via getComputedStyle — line-height and
-	// padding come from --amp-space-*/font tokens, themeable per
+	// padding come from --amp-spacing/font tokens, themeable per
 	// AmphoreProvider, so a hardcoded pixel constant here would silently
 	// drift from whatever a consumer's theme actually renders.
 	useEffect(() => {

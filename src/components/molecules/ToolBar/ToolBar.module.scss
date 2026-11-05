@@ -3,8 +3,8 @@
 .bar {
 	display: flex;
 	align-items: center;
-	gap: var(--amp-space-1);
-	padding: var(--amp-space-1);
+	gap: space(1.5);
+	padding: space(1.5);
 	background: var(--amp-color-card);
 	border: var(--amp-border-width-sm) solid var(--amp-color-border);
 	border-radius: var(--amp-radius-md);
@@ -16,9 +16,9 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: var(--amp-space-1);
+	gap: space(1.5);
 	height: space(8);
-	padding: 0 var(--amp-space-2);
+	padding: 0 space(2);
 	background: none;
 	border: none;
 	border-radius: var(--amp-radius-md);

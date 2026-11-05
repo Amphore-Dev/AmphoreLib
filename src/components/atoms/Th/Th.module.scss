@@ -3,9 +3,9 @@
 .th {
 	display: flex;
 	align-items: center;
-	gap: var(--amp-space-1);
+	gap: space(1.5);
 	min-width: 0;
-	padding: var(--amp-space-2) var(--amp-space-3);
+	padding: space(2) space(3.5);
 	font-family: var(--amp-font);
 	font-size: var(--amp-text-xs);
 	font-weight: weight(semibold);

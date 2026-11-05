@@ -12,14 +12,14 @@
 	display: flex;
 	align-items: flex-start;
 	justify-content: space-between;
-	gap: var(--amp-space-2);
+	gap: space(2);
 	flex-wrap: wrap;
 }
 
 .headerLeft {
 	display: flex;
 	flex-direction: column;
-	gap: var(--amp-space-1);
+	gap: space(1.5);
 	flex: 1;
 	min-width: 0;
 }
@@ -27,7 +27,7 @@
 .countRow {
 	display: flex;
 	align-items: center;
-	gap: var(--amp-space-2);
+	gap: space(2);
 }
 
 .title {
@@ -43,7 +43,7 @@
 .list {
 	display: flex;
 	flex-wrap: wrap;
-	gap: var(--amp-space-1);
+	gap: space(1.5);
 	align-items: center;
 }
 
@@ -54,7 +54,7 @@
 	display: inline-flex;
 	align-items: center;
 	height: space(6);
-	padding: 0 var(--amp-space-2);
+	padding: 0 space(2);
 	border: var(--amp-border-width-sm) solid var(--amp-color-border);
 	border-radius: var(--amp-radius-full);
 	background: none;

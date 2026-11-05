@@ -1,3 +1,5 @@
+@use "../../../styles/mixins" as *;
+
 .table {
 	display: grid;
 	align-content: start;
@@ -19,7 +21,7 @@
 	grid-column: 1 / -1;
 	display: flex;
 	justify-content: center;
-	padding: var(--amp-space-5) 0;
+	padding: space(6) 0;
 	color: var(--amp-color-sub);
 	font-size: var(--amp-text-sm);
 }

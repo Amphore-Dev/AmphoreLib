@@ -11,7 +11,7 @@
 	box-sizing: border-box;
 	display: flex;
 	align-items: center;
-	gap: var(--amp-space-2);
+	gap: space(2);
 	border: var(--amp-border-width-sm) solid var(--amp-color-border);
 	border-radius: var(--amp-radius-md);
 	background: var(--amp-color-card);
@@ -63,22 +63,22 @@
 	padding: var(--_field-pad-y) var(--_field-pad-x);
 
 	&[data-size="sm"] {
-		--_field-pad-y: var(--amp-space-1);
-		--_field-pad-x: var(--amp-space-2);
+		--_field-pad-y: #{space(1.5)};
+		--_field-pad-x: #{space(2)};
 		@include text(xs);
 	}
 
 	&[data-size="md"] {
-		--_field-pad-y: var(--amp-space-2);
-		--_field-pad-x: var(--amp-space-2);
+		--_field-pad-y: #{space(2)};
+		--_field-pad-x: #{space(2)};
 		// stylelint-disable-next-line scale-unlimited/declaration-strict-value -- off scale: 13.5px, between text-sm and text-md
 		font-size: 0.84375rem;
 		line-height: var(--amp-leading-md);
 	}
 
 	&[data-size="lg"] {
-		--_field-pad-y: var(--amp-space-3);
-		--_field-pad-x: var(--amp-space-3);
+		--_field-pad-y: #{space(3.5)};
+		--_field-pad-x: #{space(3.5)};
 		@include text(lg);
 	}
 }

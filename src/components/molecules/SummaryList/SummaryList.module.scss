@@ -1,7 +1,9 @@
+@use "../../../styles/mixins" as *;
+
 .list {
 	display: flex;
 	flex-direction: column;
-	gap: var(--amp-space-2);
+	gap: space(2);
 	margin: 0;
 	font-family: var(--amp-font);
 }

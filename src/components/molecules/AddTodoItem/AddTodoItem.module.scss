@@ -1,7 +1,9 @@
+@use "../../../styles/mixins" as *;
+
 .row {
 	display: flex;
 	align-items: flex-start;
-	gap: var(--amp-space-2);
+	gap: space(2);
 }
 
 .input {

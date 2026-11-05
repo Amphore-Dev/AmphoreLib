@@ -3,15 +3,15 @@
 .row {
 	display: flex;
 	align-items: center;
-	gap: var(--amp-space-2);
+	gap: space(2);
 	margin: 0;
-	padding: var(--amp-space-1) 0;
+	padding: space(1.5) 0;
 	font-family: var(--amp-font);
 
 	&[data-direction="vertical"] {
 		flex-direction: column;
 		align-items: stretch;
-		gap: var(--amp-space-1);
+		gap: space(1.5);
 	}
 }
 
@@ -43,7 +43,7 @@
 	min-width: 0;
 	display: flex;
 	align-items: center;
-	gap: var(--amp-space-1);
+	gap: space(1.5);
 	margin: 0;
 }
 
@@ -95,7 +95,7 @@
 	flex-shrink: 0;
 	display: flex;
 	align-items: center;
-	gap: var(--amp-space-1);
+	gap: space(1.5);
 	font-size: var(--amp-text-xs);
 	font-weight: weight(semibold);
 	color: var(--amp-color-primary);

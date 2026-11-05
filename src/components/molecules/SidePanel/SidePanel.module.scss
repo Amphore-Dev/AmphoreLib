@@ -44,10 +44,10 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: var(--amp-space-2);
+	gap: space(2);
 	flex-shrink: 0;
 	padding: var(--amp-card-padding);
-	padding-bottom: var(--amp-space-2);
+	padding-bottom: space(2);
 	border-bottom: var(--amp-border-width-sm) solid var(--amp-color-border);
 }
 
@@ -100,7 +100,7 @@
 }
 
 .mobileTitle {
-	margin: 0 0 var(--amp-space-2);
+	margin: 0 0 space(2);
 	// stylelint-disable-next-line scale-unlimited/declaration-strict-value -- off scale: 17px, between text-xl and text-2xl
 	font-size: 1.0625rem;
 	font-weight: weight(semibold);

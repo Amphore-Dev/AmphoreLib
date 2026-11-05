@@ -100,7 +100,7 @@ inside a component's own stylesheet.
 	config={{
 		colors: { primary: "#0f9be8", danger: "#e2436b" },
 		radius: { md: "10px" },
-		spacing: { 2: "0.5rem" },
+		spacing: { base: "0.25rem" }, // unit of every gap and padding
 		typography: { fontFamily: "'Inter', sans-serif" },
 		density: "compact", // "compact" | "comfortable"
 		style: "round", // radius preset shorthand — explicit `radius.*` still wins

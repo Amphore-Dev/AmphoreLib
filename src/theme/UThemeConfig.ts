@@ -206,12 +206,6 @@ export function configToCssVars(config: TThemeConfig): CSSProperties {
 		"--amp-radius-full": config.radius.full,
 
 		"--amp-spacing": config.spacing.base,
-		"--amp-space-1": config.spacing[1],
-		"--amp-space-2": config.spacing[2],
-		"--amp-space-3": config.spacing[3],
-		"--amp-space-4": config.spacing[4],
-		"--amp-space-5": config.spacing[5],
-		"--amp-space-6": config.spacing[6],
 
 		"--amp-font": config.typography.fontFamily,
 		"--amp-font-mono": config.typography.fontFamilyMono,

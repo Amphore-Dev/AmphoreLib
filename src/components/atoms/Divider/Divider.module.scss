@@ -1,3 +1,5 @@
+@use "../../../styles/mixins" as *;
+
 .divider {
 	flex-shrink: 0;
 	border: none;
@@ -15,7 +17,7 @@
 .withLabel {
 	display: flex;
 	align-items: center;
-	gap: var(--amp-space-2);
+	gap: space(2);
 	background: none;
 	height: auto;
 }

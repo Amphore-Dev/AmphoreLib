@@ -93,12 +93,6 @@ export const DEFAULT_CONFIG: TThemeConfig = {
 	},
 	spacing: {
 		base: "0.25rem",
-		1: "0.375rem",
-		2: "0.5rem",
-		3: "0.875rem",
-		4: "1.125rem",
-		5: "1.5rem",
-		6: "2rem",
 	},
 	typography: {
 		// "Inherit" the host app's own font by default — this lib never

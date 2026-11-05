@@ -81,13 +81,14 @@ describe("cssVarsToDeclarations", () => {
 });
 
 describe("configToCssVars", () => {
-	it("emits the spacing base and leaves the numbered spacing keys working", () => {
+	it("emits the spacing base as the only spacing variable", () => {
 		const vars = configToCssVars(
-			mergeConfig({ spacing: { base: "0.5rem", 2: "1rem" } })
+			mergeConfig({ spacing: { base: "0.5rem" } })
 		) as Record<string, string>;
 		expect(vars["--amp-spacing"]).toBe("0.5rem");
-		expect(vars["--amp-space-2"]).toBe("1rem");
-		expect(vars["--amp-space-1"]).toBe(DEFAULT_CONFIG.spacing[1]);
+		expect(
+			Object.keys(vars).filter((name) => name.startsWith("--amp-space-"))
+		).toEqual([]);
 	});
 
 	it("emits every scale from the config, overridable one key at a time", () => {

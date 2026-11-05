@@ -6,7 +6,7 @@
 .wrapper {
 	display: flex;
 	flex-direction: column;
-	gap: var(--amp-space-1);
+	gap: space(1.5);
 	font-family: var(--amp-font);
 }
 
@@ -128,7 +128,7 @@
 }
 
 .option {
-	padding: var(--amp-space-2) var(--amp-space-3);
+	padding: space(2) space(3.5);
 	// stylelint-disable-next-line scale-unlimited/declaration-strict-value -- off scale: 13.5px, between text-sm and text-md
 	font-size: 0.84375rem;
 	color: var(--amp-color-ink);
@@ -150,7 +150,7 @@
 }
 
 .noResults {
-	padding: var(--amp-space-2) var(--amp-space-3);
+	padding: space(2) space(3.5);
 	font-size: var(--amp-text-sm);
 	color: var(--amp-color-sub);
 }
@@ -158,14 +158,14 @@
 .loading {
 	display: flex;
 	align-items: center;
-	gap: var(--amp-space-2);
-	padding: var(--amp-space-2) var(--amp-space-3);
+	gap: space(2);
+	padding: space(2) space(3.5);
 	font-size: var(--amp-text-sm);
 	color: var(--amp-color-sub);
 }
 
 .groupHeading {
-	padding: var(--amp-space-2) var(--amp-space-3) var(--amp-space-1);
+	padding: space(2) space(3.5) space(1.5);
 	font-size: var(--amp-text-xs);
 	font-weight: weight(semibold);
 	color: var(--amp-color-sub);
