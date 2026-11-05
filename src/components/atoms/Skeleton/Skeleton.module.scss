@@ -1,3 +1,5 @@
+@use "../../../styles/mixins" as *;
+
 .skeleton {
 	display: block;
 	background: linear-gradient(
@@ -7,6 +9,7 @@
 		var(--amp-color-ghost-bg) 63%
 	);
 	background-size: 400% 100%;
+	// stylelint-disable-next-line declaration-property-value-disallowed-list -- loop period, not a UI transition
 	animation: amp-skeleton-shimmer 1.4s ease infinite;
 
 	&[data-variant="text"] {
@@ -16,14 +19,14 @@
 	}
 
 	&[data-variant="circle"] {
-		width: 2.5rem;
-		height: 2.5rem;
+		width: space(10);
+		height: space(10);
 		border-radius: var(--amp-radius-full);
 	}
 
 	&[data-variant="rect"] {
 		width: 100%;
-		height: 6rem;
+		height: space(24);
 		border-radius: var(--amp-radius-md);
 	}
 }

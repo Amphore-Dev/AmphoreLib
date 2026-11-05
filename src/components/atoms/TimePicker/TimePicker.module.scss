@@ -1,4 +1,5 @@
 @use "../../../styles/field" as field;
+@use "../../../styles/mixins" as *;
 
 .wrapper {
 	display: flex;
@@ -8,14 +9,14 @@
 }
 
 .label {
-	font-size: 0.75rem;
-	font-weight: 600;
+	font-size: var(--amp-text-xs);
+	font-weight: weight(semibold);
 	color: var(--amp-color-ink);
 }
 
 .required {
 	color: var(--amp-color-danger);
-	margin-left: 0.125rem;
+	margin-left: space(0.5);
 }
 
 .field {
@@ -41,6 +42,6 @@
 
 .separator {
 	color: var(--amp-color-sub);
-	font-weight: 600;
-	margin-top: -0.25rem;
+	font-weight: weight(semibold);
+	margin-top: space(-1);
 }

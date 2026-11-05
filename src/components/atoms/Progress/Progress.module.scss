@@ -1,3 +1,5 @@
+@use "../../../styles/mixins" as *;
+
 .wrapper {
 	display: flex;
 	align-items: center;
@@ -13,15 +15,15 @@
 	background: var(--amp-color-ghost-bg);
 
 	&[data-size="sm"] {
-		height: 0.375rem;
+		height: space(1.5);
 	}
 
 	&[data-size="md"] {
-		height: 0.5rem;
+		height: space(2);
 	}
 
 	&[data-size="lg"] {
-		height: 0.75rem;
+		height: space(3);
 	}
 
 	&[data-color="primary"] {
@@ -61,7 +63,7 @@
 	height: 100%;
 	background: var(--_color);
 	border-radius: inherit;
-	transition: width 0.2s ease;
+	transition: width var(--amp-duration-base) var(--amp-ease);
 }
 
 // Indeterminate: the bar's own width is fixed (via animation) instead of
@@ -71,6 +73,7 @@
 	position: absolute;
 	width: 40%;
 	transition: none;
+	// stylelint-disable-next-line declaration-property-value-disallowed-list -- loop period, not a UI transition
 	animation: amp-progress-indeterminate 2s ease-in-out infinite;
 }
 
@@ -86,7 +89,7 @@
 
 .value {
 	flex-shrink: 0;
-	font-size: 0.75rem;
+	font-size: var(--amp-text-xs);
 	font-variant-numeric: tabular-nums;
 	color: var(--amp-color-sub);
 }

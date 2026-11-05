@@ -1,3 +1,5 @@
+@use "../../../styles/mixins" as *;
+
 .wrapper {
 	display: flex;
 	flex-direction: column;
@@ -25,7 +27,9 @@
 	position: relative;
 	display: inline-flex;
 	flex-shrink: 0;
+	// stylelint-disable-next-line declaration-property-value-disallowed-list -- off grid: 17px circle
 	width: 1.0625rem;
+	// stylelint-disable-next-line declaration-property-value-disallowed-list -- off grid: 17px circle
 	height: 1.0625rem;
 }
 
@@ -41,8 +45,7 @@
 	// outline+offset instead of a box-shadow halo — same convention as
 	// Button/Input/Checkbox, draws a real gap instead of faking one with color.
 	&:focus-visible + .circle {
-		outline: 2px solid var(--amp-color-primary);
-		outline-offset: 2px;
+		@include focus-ring;
 	}
 }
 
@@ -53,10 +56,10 @@
 	justify-content: center;
 	width: 100%;
 	height: 100%;
-	border: 1.5px solid var(--amp-color-border);
+	border: var(--amp-border-width-md) solid var(--amp-color-border);
 	border-radius: 50%;
 	background: var(--amp-color-card);
-	transition: border-color 0.15s ease;
+	transition: border-color var(--amp-duration-fast) var(--amp-ease);
 
 	&[data-checked="true"] {
 		border-color: var(--amp-color-primary);
@@ -71,7 +74,8 @@
 }
 
 .label {
+	// stylelint-disable-next-line scale-unlimited/declaration-strict-value -- off scale: 13.5px, between text-sm and text-md
 	font-size: 0.84375rem;
-	line-height: 1;
+	line-height: var(--amp-leading-none);
 	color: var(--amp-color-ink);
 }

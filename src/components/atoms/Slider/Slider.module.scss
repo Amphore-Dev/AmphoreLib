@@ -1,3 +1,5 @@
+@use "../../../styles/mixins" as *;
+
 .wrapper {
 	display: flex;
 	flex-direction: column;
@@ -13,18 +15,18 @@
 }
 
 .label {
-	font-size: 0.75rem;
-	font-weight: 600;
+	font-size: var(--amp-text-xs);
+	font-weight: weight(semibold);
 	color: var(--amp-color-ink);
 }
 
 .required {
 	color: var(--amp-color-danger);
-	margin-left: 0.125rem;
+	margin-left: space(0.5);
 }
 
 .value {
-	font-size: 0.75rem;
+	font-size: var(--amp-text-xs);
 	font-variant-numeric: tabular-nums;
 	color: var(--amp-color-sub);
 }
@@ -39,17 +41,20 @@
 	// sm, old lg's height is the new md, lg gets a genuinely new, even
 	// larger value — thumbs trimmed slightly smaller relative to their
 	// track at every tier.
-	--_track-h: 0.5rem;
+	--_track-h: #{space(2)};
+	// stylelint-disable-next-line declaration-property-value-disallowed-list -- off grid: thumb sizes are in 1/16rem
 	--_thumb: 1.3125rem;
 	--_color: var(--amp-color-primary);
 
 	&[data-size="sm"] {
-		--_track-h: 0.375rem;
+		--_track-h: #{space(1.5)};
+		// stylelint-disable-next-line declaration-property-value-disallowed-list -- off grid: thumb sizes are in 1/16rem
 		--_thumb: 1.0625rem;
 	}
 
 	&[data-size="lg"] {
-		--_track-h: 0.625rem;
+		--_track-h: #{space(2.5)};
+		// stylelint-disable-next-line declaration-property-value-disallowed-list -- off grid: thumb sizes are in 1/16rem
 		--_thumb: 1.4375rem;
 	}
 
@@ -81,8 +86,7 @@
 	}
 
 	&:focus-within .track {
-		outline: 2px solid var(--_color);
-		outline-offset: 2px;
+		@include focus-ring(var(--_color));
 	}
 }
 
@@ -111,8 +115,8 @@
 	height: var(--_thumb);
 	border-radius: 50%;
 	background: var(--_color);
-	border: 2px solid var(--amp-color-white);
-	box-shadow: 0 0 0 1px var(--amp-color-border);
+	border: var(--amp-border-width-lg) solid var(--amp-color-white);
+	box-shadow: 0 0 0 var(--amp-border-width-sm) var(--amp-color-border);
 	pointer-events: none;
 }
 

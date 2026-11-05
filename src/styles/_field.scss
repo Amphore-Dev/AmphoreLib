@@ -5,25 +5,26 @@
 // <input> and Select's value/search-input slot is exactly the bug this
 // exists to stop from happening again.
 
+@use "mixins" as *;
+
 @mixin field-box {
 	box-sizing: border-box;
 	display: flex;
 	align-items: center;
 	gap: var(--amp-space-2);
-	border: 1px solid var(--amp-color-border);
+	border: var(--amp-border-width-sm) solid var(--amp-color-border);
 	border-radius: var(--amp-radius-md);
 	background: var(--amp-color-card);
 	transition:
-		border-color 0.15s ease,
-		box-shadow 0.15s ease;
+		border-color var(--amp-duration-fast) var(--amp-ease),
+		box-shadow var(--amp-duration-fast) var(--amp-ease);
 
 	// :focus-within covers a field whose *nested* input is focused (Input);
 	// :focus-visible covers a field that's itself the focusable element
 	// (Select's trigger div, via tabIndex). Both use the same ring.
 	&:focus-within,
 	&:focus-visible {
-		outline: 2px solid var(--_field-color, var(--amp-color-primary));
-		outline-offset: 2px;
+		@include focus-ring(var(--_field-color, var(--amp-focus-color)));
 	}
 
 	&[data-invalid="true"] {
@@ -64,22 +65,21 @@
 	&[data-size="sm"] {
 		--_field-pad-y: var(--amp-space-1);
 		--_field-pad-x: var(--amp-space-2);
-		font-size: 0.75rem;
-		line-height: 1.25rem;
+		@include text(xs);
 	}
 
 	&[data-size="md"] {
 		--_field-pad-y: var(--amp-space-2);
 		--_field-pad-x: var(--amp-space-2);
+		// stylelint-disable-next-line scale-unlimited/declaration-strict-value -- off scale: 13.5px, between text-sm and text-md
 		font-size: 0.84375rem;
-		line-height: 1.5rem;
+		line-height: var(--amp-leading-md);
 	}
 
 	&[data-size="lg"] {
 		--_field-pad-y: var(--amp-space-3);
 		--_field-pad-x: var(--amp-space-3);
-		font-size: 0.9375rem;
-		line-height: 1.75rem;
+		@include text(lg);
 	}
 }
 
@@ -114,6 +114,6 @@
 	// first devices get at least 16px on the text slot; the field box keeps
 	// its line-height, so the field itself doesn't grow.
 	@media (pointer: coarse) {
-		font-size: max(1rem, 1em);
+		font-size: max(var(--amp-text-xl), 1em);
 	}
 }
