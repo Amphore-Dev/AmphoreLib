@@ -4,7 +4,7 @@
 .badge {
 	display: inline-flex;
 	align-items: center;
-	gap: var(--amp-space-1);
+	gap: space(1.5);
 	font-family: var(--amp-font);
 	font-weight: weight(semibold);
 	line-height: var(--amp-leading-none);

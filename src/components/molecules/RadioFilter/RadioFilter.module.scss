@@ -3,7 +3,7 @@
 .wrapper {
 	display: flex;
 	flex-direction: column;
-	gap: var(--amp-space-1);
+	gap: space(1.5);
 	font-family: var(--amp-font);
 }
 
@@ -21,5 +21,5 @@
 .options {
 	display: flex;
 	flex-wrap: wrap;
-	gap: var(--amp-space-1) var(--amp-space-3);
+	gap: space(1.5) space(3.5);
 }

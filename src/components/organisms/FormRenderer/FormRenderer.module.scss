@@ -7,11 +7,11 @@
 .group {
 	display: flex;
 	flex-direction: column;
-	gap: var(--amp-space-2);
+	gap: space(2);
 }
 
 .groupBackground {
-	padding: var(--amp-space-3);
+	padding: space(3.5);
 	background: var(--amp-color-ghost-bg);
 	border-radius: var(--amp-radius-md);
 }
@@ -19,7 +19,7 @@
 .groupTitleWrapper {
 	display: flex;
 	flex-direction: column;
-	gap: var(--amp-space-1);
+	gap: space(1.5);
 }
 
 .groupTitle {
@@ -33,7 +33,7 @@
 .groupItem {
 	display: flex;
 	flex-direction: column;
-	gap: var(--amp-space-1);
+	gap: space(1.5);
 }
 
 .groupItemWithReset {
@@ -44,7 +44,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: var(--amp-space-1);
+	gap: space(1.5);
 }
 
 .groupItemLabel {
@@ -73,7 +73,7 @@
 .footerActions {
 	display: flex;
 	justify-content: flex-end;
-	gap: var(--amp-space-2);
+	gap: space(2);
 }
 
 .modalContent {

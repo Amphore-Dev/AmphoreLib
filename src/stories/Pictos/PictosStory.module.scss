@@ -3,7 +3,7 @@
 .wrapper {
 	display: flex;
 	flex-direction: column;
-	gap: var(--amp-space-4);
+	gap: space(4.5);
 	font-family: var(--amp-font);
 	color: var(--amp-color-ink);
 }
@@ -11,7 +11,7 @@
 .toolbarWrapper {
 	display: flex;
 	align-items: baseline;
-	gap: var(--amp-space-3);
+	gap: space(3.5);
 	flex-wrap: wrap;
 	flex-direction: column;
 }
@@ -19,7 +19,7 @@
 .toolbar {
 	display: flex;
 	align-items: baseline;
-	gap: var(--amp-space-3);
+	gap: space(3.5);
 	flex-wrap: wrap;
 }
 
@@ -36,15 +36,15 @@
 	display: grid;
 	// stylelint-disable-next-line declaration-property-value-disallowed-list -- px: story layout, rem would only match at a 16px root
 	grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
-	gap: var(--amp-space-3);
+	gap: space(3.5);
 }
 
 .item {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: var(--amp-space-2);
-	padding: var(--amp-space-3);
+	gap: space(2);
+	padding: space(3.5);
 	border: var(--amp-border-width-sm) solid var(--amp-color-border);
 	border-radius: var(--amp-radius-md);
 	background: var(--amp-color-card);
@@ -99,7 +99,7 @@
 }
 
 .empty {
-	padding: var(--amp-space-6) 0;
+	padding: space(8) 0;
 	color: var(--amp-color-sub);
 	font-size: var(--amp-text-md);
 	text-align: center;

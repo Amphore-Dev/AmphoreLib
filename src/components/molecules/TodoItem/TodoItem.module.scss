@@ -4,8 +4,8 @@
 .row {
 	display: flex;
 	align-items: flex-start;
-	gap: var(--amp-space-2);
-	padding: var(--amp-space-2) var(--amp-space-2);
+	gap: space(2);
+	padding: space(2) space(2);
 	font-family: var(--amp-font);
 	background: var(--amp-color-card);
 
@@ -25,11 +25,11 @@
 	}
 
 	&[data-size="sm"] {
-		padding: var(--amp-space-1) var(--amp-space-2);
+		padding: space(1.5) space(2);
 	}
 
 	&[data-size="lg"] {
-		padding: var(--amp-space-3) var(--amp-space-2);
+		padding: space(3.5) space(2);
 	}
 }
 

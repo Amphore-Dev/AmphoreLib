@@ -4,8 +4,8 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: var(--amp-space-3);
-	padding: var(--amp-space-2) var(--amp-space-4);
+	gap: space(3.5);
+	padding: space(2) space(4.5);
 	background: var(--amp-color-card);
 	border-bottom: var(--amp-border-width-sm) solid var(--amp-color-border);
 	font-family: var(--amp-font);
@@ -15,7 +15,7 @@
 .right {
 	display: flex;
 	align-items: center;
-	gap: var(--amp-space-3);
+	gap: space(3.5);
 	min-width: 0;
 }
 

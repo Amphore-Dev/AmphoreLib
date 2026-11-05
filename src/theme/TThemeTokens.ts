@@ -50,17 +50,10 @@ export type TThemeRadius = {
 
 export type TThemeSpacing = {
 	/**
-	 * Unit of the `space($n)` SCSS scale: `space(2)` is `base * 2`. The numbered
-	 * keys below are a separate, older scale (`--amp-space-*`, not linear), and
-	 * they do not follow `base`.
+	 * Unit of the `space($n)` SCSS scale, the lib's only spacing scale:
+	 * `space(2)` is `base * 2`, so changing it moves every gap and padding.
 	 */
 	base: string;
-	1: string;
-	2: string;
-	3: string;
-	4: string;
-	5: string;
-	6: string;
 };
 
 export type TThemeTypography = {

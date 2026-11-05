@@ -4,7 +4,7 @@
 .wrapper {
 	display: flex;
 	flex-direction: column;
-	gap: var(--amp-space-1);
+	gap: space(1.5);
 	font-family: var(--amp-font);
 }
 
@@ -126,7 +126,7 @@
 	flex-shrink: 0;
 	display: flex;
 	align-items: center;
-	padding-right: var(--amp-space-2);
+	padding-right: space(2);
 	color: var(--amp-color-sub);
 	font-size: var(--amp-text-sm);
 	white-space: nowrap;

@@ -46,13 +46,13 @@ $_dim-spread: 9999px;
 .bubble {
 	display: flex;
 	flex-direction: column;
-	gap: var(--amp-space-2);
+	gap: space(2);
 	box-sizing: border-box;
 	color: var(--amp-color-ink);
 	outline: none;
 
 	&[data-variant="popover"] {
-		width: min(#{space(88)}, calc(100vw - var(--amp-space-3) * 2));
+		width: min(#{space(88)}, calc(100vw - #{space(3.5)} * 2));
 	}
 
 	&[data-variant="popover"][data-centered="true"] {
@@ -64,8 +64,8 @@ $_dim-spread: 9999px;
 
 	&[data-variant="sheet"] {
 		position: fixed;
-		left: var(--amp-space-3);
-		right: var(--amp-space-3);
+		left: space(3.5);
+		right: space(3.5);
 		max-height: 50vh;
 		max-height: 50dvh;
 		overflow-y: auto;
@@ -73,11 +73,11 @@ $_dim-spread: 9999px;
 	}
 
 	&[data-variant="sheet"][data-position="bottom"] {
-		bottom: calc(var(--amp-space-3) + env(safe-area-inset-bottom, 0px));
+		bottom: calc(#{space(3.5)} + env(safe-area-inset-bottom, 0px));
 	}
 
 	&[data-variant="sheet"][data-position="top"] {
-		top: calc(var(--amp-space-3) + env(safe-area-inset-top, 0px));
+		top: calc(#{space(3.5)} + env(safe-area-inset-top, 0px));
 	}
 }
 
@@ -120,8 +120,8 @@ $_dim-spread: 9999px;
 	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
-	gap: var(--amp-space-2);
-	margin-top: var(--amp-space-2);
+	gap: space(2);
+	margin-top: space(2);
 
 	// The dots take the free room, which pushes the buttons to the other
 	// side; "start" only swaps the two sides (DOM order unchanged, the
@@ -151,13 +151,13 @@ $_dim-spread: 9999px;
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: var(--amp-space-2);
+	gap: space(2);
 }
 
 .dots {
 	display: flex;
 	flex: 1;
-	gap: var(--amp-space-1);
+	gap: space(1.5);
 
 	span {
 		width: space(1.5);

@@ -1,3 +1,5 @@
+@use "../../../styles/mixins" as *;
+
 .card {
 	width: 100%;
 }
@@ -19,7 +21,7 @@
 .fields {
 	display: flex;
 	flex-direction: column;
-	gap: var(--amp-space-6);
+	gap: space(8);
 	width: 100%;
 }
 

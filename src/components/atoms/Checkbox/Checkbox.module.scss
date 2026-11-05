@@ -8,14 +8,14 @@
 	// the default cross-axis "stretch" — a <label> spanning the whole row
 	// made the entire line clickable, not just the box+text.
 	align-items: flex-start;
-	gap: var(--amp-space-1);
+	gap: space(1.5);
 	font-family: var(--amp-font);
 }
 
 .row {
 	display: inline-flex;
 	align-items: center;
-	gap: var(--amp-space-2);
+	gap: space(2);
 	cursor: pointer;
 
 	&[data-disabled="true"] {
