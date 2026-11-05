@@ -33,6 +33,11 @@ export interface IButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 	variant?: TButtonVariant;
 	/** Falls back to `AmphoreProvider`'s `config.defaults.size`, then "md". */
 	size?: TSize;
+	/**
+	 * Shows a spinner and blocks activation. `aria-disabled`, not `disabled`:
+	 * a natively disabled button loses keyboard focus the moment it's
+	 * pressed, which throws a keyboard user back to the top of the page.
+	 */
 	isLoading?: boolean;
 	label?: string;
 	/** Leading icon name (see Picto), same convention as Input/Select. Hidden while `isLoading` — the spinner takes its place. */
@@ -57,6 +62,7 @@ export const Button = forwardRef<HTMLButtonElement, IButtonProps>(
 			label,
 			picto,
 			disabled = false,
+			onClick,
 			...props
 		},
 		ref
@@ -64,6 +70,12 @@ export const Button = forwardRef<HTMLButtonElement, IButtonProps>(
 		const { size: defaultSize } = useAmphoreDefaults();
 		const size = sizeProp ?? defaultSize ?? "md";
 		const iconSize = ICON_SIZE[size];
+
+		// preventDefault: a `type="submit"` button mustn't submit twice.
+		const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+			if (isLoading) e.preventDefault();
+			else onClick?.(e);
+		};
 
 		return (
 			<button
@@ -74,7 +86,10 @@ export const Button = forwardRef<HTMLButtonElement, IButtonProps>(
 				data-size={size}
 				data-loading={isLoading || undefined}
 				type={type}
-				disabled={disabled || isLoading}
+				disabled={disabled}
+				aria-disabled={isLoading || undefined}
+				aria-busy={isLoading || undefined}
+				onClick={handleClick}
 				{...props}
 			>
 				{isLoading && (

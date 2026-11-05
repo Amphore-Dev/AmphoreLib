@@ -26,7 +26,10 @@
 		outline-offset: 2px;
 	}
 
-	&:disabled {
+	// A loading button stays focusable (see Button.tsx), so it can't rely on
+	// :disabled for this.
+	&:disabled,
+	&[data-loading="true"] {
 		cursor: not-allowed;
 		opacity: 0.55;
 		transform: none;
@@ -114,7 +117,7 @@
 		color: var(--_color-fg);
 
 		@media (hover: hover) {
-			&:hover:not(:disabled) {
+			&:hover:not(:disabled, [data-loading="true"]) {
 				filter: brightness(1.07);
 			}
 		}
@@ -126,7 +129,7 @@
 		border-color: var(--_color);
 
 		@media (hover: hover) {
-			&:hover:not(:disabled) {
+			&:hover:not(:disabled, [data-loading="true"]) {
 				background: var(--_color-tint);
 			}
 		}
@@ -137,7 +140,7 @@
 		color: var(--amp-color-ink);
 
 		@media (hover: hover) {
-			&:hover:not(:disabled) {
+			&:hover:not(:disabled, [data-loading="true"]) {
 				background: var(--_color-tint);
 			}
 		}
@@ -155,7 +158,7 @@
 		color: var(--_color);
 
 		@media (hover: hover) {
-			&:hover:not(:disabled) {
+			&:hover:not(:disabled, [data-loading="true"]) {
 				text-decoration: underline;
 			}
 		}

@@ -74,16 +74,41 @@ describe("Button", () => {
 		);
 	});
 
-	it("disables the button and blocks clicks while isLoading", async () => {
+	it("blocks clicks while isLoading, and says so", async () => {
 		const onClick = vi.fn();
 		render(<Button label="Envoyer" isLoading onClick={onClick} />);
 		const btn = screen.getByRole("button", { name: "Envoyer" });
 
-		expect(btn).toBeDisabled();
+		expect(btn).toHaveAttribute("aria-disabled", "true");
+		expect(btn).toHaveAttribute("aria-busy", "true");
 		expect(btn).toHaveAttribute("data-loading", "true");
 
 		await userEvent.click(btn);
 		expect(onClick).not.toHaveBeenCalled();
+	});
+
+	it("keeps keyboard focus when it starts loading", () => {
+		const { rerender } = render(<Button label="Envoyer" />);
+		const btn = screen.getByRole("button", { name: "Envoyer" });
+		btn.focus();
+
+		rerender(<Button label="Envoyer" isLoading />);
+
+		expect(btn).not.toBeDisabled();
+		expect(btn).toHaveFocus();
+	});
+
+	it("doesn't submit its form while isLoading", async () => {
+		const onSubmit = vi.fn((e: React.FormEvent) => e.preventDefault());
+		render(
+			<form onSubmit={onSubmit}>
+				<Button label="Envoyer" type="submit" isLoading />
+			</form>
+		);
+
+		await userEvent.click(screen.getByRole("button", { name: "Envoyer" }));
+
+		expect(onSubmit).not.toHaveBeenCalled();
 	});
 
 	it("respects an explicit disabled prop", () => {
