@@ -19,6 +19,15 @@ export interface ITabsProps<T = string> {
 	size?: TSize;
 	color?: TColor;
 	className?: string;
+	/** Names the tablist. */
+	"aria-label"?: string;
+	/**
+	 * Ties each tab to its `TabPanel`: tabs get the ids
+	 * `${idPrefix}-tab-${value}` and `aria-controls` pointing at the panel
+	 * with the same `idPrefix`. Without it the two know nothing of each other
+	 * and the panel has no name.
+	 */
+	idPrefix?: string;
 	/** aria-label for the left scroll arrow, shown once the tab strip overflows. Defaults to "Scroll left" (or `Tabs.scrollLeftLabel` from the nearest AmphoreProvider — see useAmphoreLabels). */
 	scrollLeftLabel?: TLabel;
 	/** aria-label for the right scroll arrow. Defaults to "Scroll right" (or `Tabs.scrollRightLabel` from the nearest AmphoreProvider). */
@@ -45,6 +54,8 @@ export function Tabs<T = string>({
 	size: sizeProp,
 	color = "primary",
 	className = "",
+	"aria-label": ariaLabel,
+	idPrefix,
 	scrollLeftLabel: scrollLeftLabelProp,
 	scrollRightLabel: scrollRightLabelProp,
 }: ITabsProps<T>) {
@@ -73,6 +84,11 @@ export function Tabs<T = string>({
 	const [focusedIndex, setFocusedIndex] = useState(
 		selectedIndex !== -1 ? selectedIndex : (enabledIndexes[0] ?? 0)
 	);
+	// A disabled tab can't hold the one tab stop: the browser would skip it,
+	// and the whole strip with it, since every other tab is -1.
+	const tabStop = items[focusedIndex]?.disabled
+		? (enabledIndexes[0] ?? -1)
+		: focusedIndex;
 
 	// Keeps the roving tabindex in sync when `value` changes from outside
 	// (e.g. a consumer switching tabs programmatically), without fighting
@@ -215,6 +231,7 @@ export function Tabs<T = string>({
 			<div
 				ref={listRef}
 				role="tablist"
+				aria-label={ariaLabel}
 				className={cn([styles.tabs, className])}
 				data-size={size}
 			>
@@ -226,12 +243,21 @@ export function Tabs<T = string>({
 							ref={(node) => {
 								tabRefs.current[index] = node;
 							}}
-							id={`${tabsId}-tab-${index}`}
+							id={
+								idPrefix
+									? `${idPrefix}-tab-${String(item.value)}`
+									: `${tabsId}-tab-${index}`
+							}
 							type="button"
 							role="tab"
 							aria-selected={selected}
 							aria-disabled={item.disabled || undefined}
-							tabIndex={index === focusedIndex ? 0 : -1}
+							aria-controls={
+								idPrefix && selected
+									? `${idPrefix}-panel-${String(item.value)}`
+									: undefined
+							}
+							tabIndex={index === tabStop ? 0 : -1}
 							disabled={item.disabled}
 							data-color={color}
 							className={cn([
@@ -271,6 +297,12 @@ export function Tabs<T = string>({
 
 export interface ITabPanelProps {
 	active: boolean;
+	/** With `value`: the same `idPrefix` as `Tabs`, which names this panel after its tab. */
+	idPrefix?: string;
+	/** The `value` of the tab this panel belongs to. */
+	value?: unknown;
+	/** Names the panel when it isn't tied to a tab by `idPrefix`. */
+	"aria-label"?: string;
 	children?: React.ReactNode;
 	className?: string;
 }
@@ -280,17 +312,31 @@ export interface ITabPanelProps {
  * owns — pass `active={value === "..."}`. Deliberately not wired through
  * context/ids: keeping both components ignorant of each other's internals
  * means either can be used alone (a `Tabs` strip driving something other
- * than a panel, e.g. filtering a list) without dragging the other in.
+ * than a panel, e.g. filtering a list) without dragging the other in. The one
+ * link is an `idPrefix` string given to both, for the ARIA ids.
  */
 export const TabPanel: React.FC<ITabPanelProps> = ({
 	active,
+	idPrefix,
+	value,
+	"aria-label": ariaLabel,
 	children,
 	className = "",
 }) => {
 	if (!active) return null;
 
+	const linked = idPrefix !== undefined && value !== undefined;
+
 	return (
-		<div role="tabpanel" className={cn([styles.panel, className])}>
+		<div
+			role="tabpanel"
+			id={linked ? `${idPrefix}-panel-${String(value)}` : undefined}
+			aria-labelledby={
+				linked ? `${idPrefix}-tab-${String(value)}` : undefined
+			}
+			aria-label={ariaLabel}
+			className={cn([styles.panel, className])}
+		>
 			{children}
 		</div>
 	);

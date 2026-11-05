@@ -200,3 +200,83 @@ describe("TabPanel", () => {
 		expect(screen.queryByRole("tabpanel")).not.toBeInTheDocument();
 	});
 });
+
+describe("Tabs accessibility", () => {
+	const items = [
+		{ value: "a", label: "One" },
+		{ value: "b", label: "Two", disabled: true },
+		{ value: "c", label: "Three" },
+	];
+
+	it("stays reachable by Tab when the selected tab is disabled", async () => {
+		const user = userEvent.setup();
+		render(<Tabs items={items} value="b" onChange={() => {}} />);
+
+		await user.tab();
+
+		expect(screen.getByRole("tab", { name: "One" })).toHaveFocus();
+	});
+
+	it("stays reachable when the selected tab becomes disabled", async () => {
+		const user = userEvent.setup();
+		const enabled = items.map((item) => ({ ...item, disabled: false }));
+		const { rerender } = render(
+			<Tabs items={enabled} value="b" onChange={() => {}} />
+		);
+
+		rerender(<Tabs items={items} value="b" onChange={() => {}} />);
+		await user.tab();
+
+		expect(screen.getByRole("tab", { name: "One" })).toHaveFocus();
+	});
+
+	it("names the tablist", () => {
+		render(
+			<Tabs
+				aria-label="Sections"
+				items={items}
+				value="a"
+				onChange={() => {}}
+			/>
+		);
+		expect(
+			screen.getByRole("tablist", { name: "Sections" })
+		).toBeInTheDocument();
+	});
+
+	it("ties the selected tab and its panel together through idPrefix", () => {
+		render(
+			<>
+				<Tabs
+					idPrefix="settings"
+					items={items}
+					value="a"
+					onChange={() => {}}
+				/>
+				<TabPanel idPrefix="settings" value="a" active>
+					Content
+				</TabPanel>
+			</>
+		);
+		const panel = screen.getByRole("tabpanel", { name: "One" });
+
+		expect(screen.getByRole("tab", { name: "One" })).toHaveAttribute(
+			"aria-controls",
+			panel.id
+		);
+		expect(screen.getByRole("tab", { name: "Three" })).not.toHaveAttribute(
+			"aria-controls"
+		);
+	});
+
+	it("takes a name for a panel without a tab", () => {
+		render(
+			<TabPanel active aria-label="Results">
+				Content
+			</TabPanel>
+		);
+		expect(
+			screen.getByRole("tabpanel", { name: "Results" })
+		).toBeInTheDocument();
+	});
+});
