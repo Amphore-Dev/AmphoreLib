@@ -70,6 +70,10 @@ inside a component's own stylesheet.
 >
 ```
 
+Type sizes, weights, shadows, focus ring, layers, durations, borders and icon
+sizes are config too (`text`, `weights`, `shadows`, `focus`, ...), each
+overridable one key at a time; see **Directives/Theming** in Storybook.
+
 Open Storybook's **Configuration/Theme Configuration** page to try every
 option interactively and copy the resulting config.
 

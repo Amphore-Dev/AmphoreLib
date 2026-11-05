@@ -46,7 +46,9 @@ const LINE_PROPERTIES = [
 export default {
 	customSyntax: "postcss-scss",
 	plugins: ["stylelint-declaration-strict-value"],
-	defaultSeverity: "warning",
+	// Defines the scale: it builds the var() names the rules below check.
+	ignoreFiles: ["src/styles/_mixins.scss"],
+	defaultSeverity: "error",
 	reportNeedlessDisables: true,
 	reportDescriptionlessDisables: true,
 	rules: {
@@ -68,6 +70,8 @@ export default {
 			],
 			{
 				ignoreFunctions: false,
+				// Otherwise any var() passes, and a typo in a step name with it.
+				ignoreVariables: false,
 				ignoreValues: {
 					"": [...KEYWORDS, ...TOKEN_VALUES],
 					"font-size": [
