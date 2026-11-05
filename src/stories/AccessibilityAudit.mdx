@@ -1,0 +1,157 @@
+{/* AccessibilityAudit.mdx */}
+
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Directives/Accessibility Audit" />
+
+# Accessibility audit
+
+Audit of every exported component against WCAG 2.2 AA and the WAI-ARIA Authoring Practices, done by reading the code and by running axe over each component's default and important states. Rules that keep applying live in [Directives/Accessibility](?path=/docs/directives-accessibility--docs).
+
+**Severity.** Blocker: a task can't be done at all with a keyboard or a screen reader. Major: it can, but something essential is missing or misleading (no name, focus lost, state not conveyed). Minor: an inconvenience, or a best practice.
+
+## What was and wasn't checked
+
+| Check | Status |
+|---|---|
+| axe on every exported component, default state and open/error/disabled states (`tests/a11y/`) | Done, in the test suite. `tests/a11y/coverage.test.ts` fails if a new component has no axe assertion |
+| Keyboard and focus behaviour, by reading the code, then with a regression test per fix | Done, in jsdom. Real browser behaviour not observed |
+| Focus rings, by reading the stylesheets | Done. Not looked at in a browser |
+| Color contrast | **Not run**: jsdom has no layout and resolves no color. Ratios below are computed from the theme's tokens. Storybook's a11y addon checks it per story |
+| Target sizes | **Not measured**: no layout in jsdom. Suspects below, from the stylesheets |
+| Manual pass with a screen reader (VoiceOver, NVDA, TalkBack) | **Not done.** Nothing here has been heard through one: the markup is verified, what's announced is not |
+
+## Blockers
+
+| Component | Finding | Status |
+|---|---|---|
+| InputFile | Native input `hidden`, and a `<label>` isn't focusable: an empty field couldn't be operated from the keyboard | Fixed |
+| Table | `onRowClick` and `selectOnClick` lived on a `display: contents` row, which can't take focus: mouse-only | Fixed |
+| Tabs | With a disabled tab selected, the only `tabindex="0"` sat on a disabled button: the whole tablist was skipped | Fixed |
+| Tooltip | `useClick` swallowed Space on anything but a `<button>`: a checkbox nested in the trigger couldn't be toggled | Fixed |
+| Popover | Portaled, it sat at the end of the document with no focus management: its content was out of reach | Fixed |
+| FormRenderer | `<label htmlFor>` can't reach a combobox, or a group of controls: select, checkbox, radio, time, range, period and file fields had no name in every form | Fixed |
+| Select | Searching: focus on the input, `role="combobox"` and `aria-activedescendant` on the box around it. Arrowing through options was silent | Fixed |
+
+## Majors
+
+| Component | Finding | Status |
+|---|---|---|
+| Button | `isLoading` set `disabled`, dropping keyboard focus the moment it was pressed | Fixed |
+| All overlays | Escape closed every open layer at once, a Modal with the Select inside it, or a Modal under a Modal | Fixed |
+| Tooltip | Closed when the pointer moved onto it (1.4.13) | Fixed |
+| Popover | No accessible name; closing with focus inside dropped it on the body | Fixed |
+| DatePicker | A `<label>` replaces a button's name: the date was never read out. Focus lost on Escape from the calendar | Fixed |
+| ColorPickerField | Same naming defect; with `hideValue`, the swatch's color was the only information | Fixed |
+| Modal | No accessible name without a `title`; no `aria-modal` | Fixed |
+| SidePanel | Closing dropped focus on the body | Fixed |
+| SidePanel | `overlay`: no focus on open, no Escape. Landmark unnamed with a rich `title` | Fixed |
+| BottomPanel | No Escape, no `aria-controls`, focus left inside `hidden` content | Fixed |
+| Tour | Next step not announced: same focused button, same dialog | Fixed |
+| Tour | Closing sent focus to the step's target, usually nowhere | Fixed |
+| Select | `error` not on the combobox: no `aria-invalid`, no `aria-describedby`. No `aria-required`, no `aria-disabled` | Fixed |
+| Select | Enter on a chip's remove button or the clear button opened the listbox instead | Fixed |
+| Select | Clearing, removing a chip, Escape and Tab from the search, picking: all dropped focus. Tab left the listbox open | Fixed |
+| Select | No way to name it without a visible `label` | Fixed |
+| Select | Loading and "no results" not announced; an empty listbox held no option | Fixed |
+| Select | Space did nothing; `multiple` not stated (`aria-multiselectable`) | Fixed |
+| Dropdown, ContextMenu | Every item a tab stop, so Tab walked the menu instead of leaving it | Fixed |
+| ContextMenu | Opened from the keyboard, the event's (0, 0) put the menu in the corner of the screen. No name | Fixed |
+| Tabs | `tabpanel` unnamed and unconnected to its tab; no way to name the tablist | Fixed |
+| Accordion | Closed panels only collapsed to 0 height: still tabbable, still read out | Fixed |
+| TimePicker | Error linked to the hours only, `<label>` tied to nothing, no group, `required` not conveyed | Fixed |
+| TimeRangeFilter | Read "Hours, Minutes, Hours, Minutes", no telling the two apart | Fixed |
+| CheckboxFilter | Group unnamed; error on no control | Fixed |
+| RadioFilter | Radiogroup unnamed; no `aria-invalid` or `aria-required` on it | Fixed |
+| PeriodFilter | Active preset shown by its look alone; range radiogroup unnamed | Fixed |
+| InputFile | Removing a file dropped focus; no name at `sm`; no `aria-invalid` or `aria-required` | Fixed |
+| FilesField | `id` repeated on every slot | Fixed |
+| Input | Clear button unmounts with the value, dropping focus | Fixed |
+| ChipInput | `aria-invalid` on a `span`, which no role supports; invalid chips told apart by color alone | Fixed |
+| InputSearch | No name with neither `label` nor `placeholder` | Fixed |
+| FormRenderer | Validation errors never reached the fields: submit went disabled with nothing saying why (3.3.1) | Fixed |
+| FormRenderer | `showFieldLabels={false}` left every field unnamed | Fixed |
+| FormRenderer | A field's Reset button disables itself, dropping focus | Fixed |
+| Table | `role="grid"` promised arrow-key navigation that didn't exist. Now `role="table"` | Fixed |
+| Table | Checkboxes and "⋮" buttons had no name | Fixed |
+| Table | Virtualized rows with no `aria-rowcount`/`aria-rowindex`: the size of the table was unknowable | Fixed |
+| Table | Column-visibility menu was right-click only | Fixed |
+| Table | Menu and status inside the table, which may only hold rows; empty filler column exposed | Fixed |
+| TodoItem | Edit field unnamed; Enter and Escape dropped focus | Fixed |
+| TodoList | A keyboard move lost focus after one press and wasn't announced | Fixed |
+| TodoList | Removing a row dropped focus | Fixed |
+| ActiveFilters | Removing a chip, Reset, and Show more/less all dropped focus; remove buttons all named "Remove" | Fixed |
+| EditableCard | Inline: Edit goes `visibility: hidden` and Add unmounts on press, dropping focus | Fixed |
+| SummaryList, SummaryListItem | `<dt>`/`<dd>` with no `<dl>` in `grid` layout and standalone; a button directly in the `<dl>` | Fixed |
+| NavItem | `isReduced` removed the text: a link with no name | Fixed |
+| Picto | Clickable picto: no way to name it, and `outline: none` left it no focus ring | Fixed |
+| Progress | No name without `label` | Fixed |
+| TruncatedTooltipText | The rest of a cut-off text was hover-only | Fixed |
+| FileViewer | Scrolling preview with nothing focusable: the keyboard couldn't scroll it | Fixed |
+| FileViewer | Zoom reset's name dropped the "100%" it shows (2.5.3) | Fixed |
+| PageHeader | Result count not announced when loading ends; empty `<h1>` without a title | Fixed |
+| FileViewer | PDF pages are canvases, text layer off: a screen reader gets nothing but the download link. Needs a decision: the text layer pulls in react-pdf's own CSS | **Open** |
+| ColorPicker | `react-gcolor-picker`: board, ribbon, swatches and the gradient tab are mouse-only `div`s. Typing a hex value is the keyboard's only way, and gradients are unreachable. Third-party | **Open** |
+| FormRenderer | Submit stays disabled while invalid, so a required field left empty never shows why: errors appear once a field is touched or changed. Letting an invalid form be submitted to show its errors would change behaviour: needs a decision | **Open** |
+
+## Minors, open
+
+| Component | Finding |
+|---|---|
+| ConfirmModal | `role="dialog"`, where `alertdialog` fits a confirmation |
+| Select | Group headings aren't exposed as groups. Clicking the `label` doesn't focus the field. Chip remove label hardcoded in English |
+| Input, TextArea, NumberInput, Slider | A consumer's own `aria-describedby` is replaced rather than merged |
+| TextArea | Counter not tied to the field. Drag-to-resize has no keyboard equivalent |
+| BottomPanel | Drag-to-resize has no keyboard equivalent (the handle's toggle does) |
+| Link | `disabled` doesn't block `onClick`. `external` doesn't say it opens a new tab |
+| CountDown | No `role="timer"` |
+| Tabs | The tab stop stays where arrowing left it, not on the selected tab, once focus leaves |
+| Accordion | No optional arrow, Home and End keys between headers |
+| Table | A focused row scrolled out of the virtual window unmounts, and focus with it |
+| FormRenderer | Group titles are paragraphs, not headings or `fieldset`s |
+| SectionCard | Heading level fixed at `h3` |
+| NavList | `<nav>` unnamed: two on one page can't be told apart |
+| Breadcrumb | A row of links, not a list |
+| InfoMessage | `role="alert"` on content present at load, which isn't a change |
+| PasswordField | Visibility change not announced beyond the button's label |
+| Animations | `prefers-reduced-motion` honored by Toggle and Tour only |
+| FloatingFocusManager | Upstream: its focus guards are unnamed `role="button"` spans on Safari. Excluded from axe in `tests/axe.ts` |
+
+## Contrast suspects
+
+Not changed here. Ratios computed from the default theme's tokens, on the background they usually sit on. Normal text needs 4.5:1, large text and UI parts 3:1. To be confirmed in a browser: an actual component may set its own opacity or background.
+
+| Theme | Foreground | Background | Ratio | Where |
+|---|---|---|---|---|
+| Light | `primary` | white, `primaryForeground` | 3.05 | Solid primary Button, Link, Tabs selected label, Badge |
+| Light | `warning` | white, `warningForeground` | 3.19 | Solid warning Button/Badge, warning text |
+| Light | `success` | white, `successForeground` | 3.30 | Solid success Button/Badge, success text |
+| Light | `primary` | `primaryTint` | 2.59 | Tint Badge, InfoMessage, selected rows |
+| Light | `warning` | `warningTint` | 2.70 | Tint Badge, InfoMessage |
+| Light | `success` | `successTint` | 2.86 | Tint Badge, InfoMessage |
+| Light | `danger` | `dangerTint` | 3.98 | Tint Badge, InfoMessage, invalid chip |
+| Light | `info` | `infoTint` | 3.98 | Tint Badge, InfoMessage |
+| Light | `border` | white | 1.26 | Field outlines (3:1 for UI parts) |
+| Dark | `primary` | `primaryTint` | 4.24 | Tint Badge, InfoMessage |
+| Dark | `border` | `card` | 1.29 | Field outlines |
+
+Passing on those tokens: `sub` on card, surface and ghost (4.60 to 4.93), `danger` on white (4.83), `info` on white (4.57), and dark `primary`, `danger`, `sub`.
+
+## Target size suspects
+
+Not changed here: a design matter. WCAG 2.5.8 asks for 24×24 px. `touch-target` already pads some of these on touch screens; none of it was measured.
+
+| Component | Element |
+|---|---|
+| Badge, Select, ChipInput | Remove × (1.125em, about 13 px, outside touch screens) |
+| Input, Select | Clear × |
+| NumberInput | Steppers (half the field's height) |
+| Checkbox, Radio | The box and circle alone, when used with no label |
+| Tabs | Scroll arrows |
+| TextArea | Resize corner |
+| Table | "⋮" button in its 2rem column, `sm`/`xs` density |
+| ToolBar | Icon buttons at their smallest |
+
+## Checked, no defect found
+
+Modal's focus trap and restore (FloatingFocusManager), now under test. Dropdown's arrow keys, Home/End, disabled items and Escape. Tabs' arrow keys and manual activation. Slider, a native range input. NumberInput's arrow keys, its steppers being out of the tab order on purpose. DatePicker's calendar keyboard (react-day-picker). Checkbox, Radio and Toggle, native inputs; Radio and Toggle rightly carry no `aria-invalid`. InfoMessage and InputErrorMessage live regions. Accordion's `aria-expanded`/`aria-controls`.
