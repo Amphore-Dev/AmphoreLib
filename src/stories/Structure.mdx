@@ -45,6 +45,43 @@ Zero results → stays local. A hit in ANOTHER component → move it to `src/typ
 
 ---
 
+## Styles
+
+No raw design value in SCSS: colors, type, spacing, sizes, radius, shadows, layers, durations, borders and outlines go through a token or a scale function from `src/styles/_mixins.scss`. `yarn lint:css` (Stylelint, in CI) enforces it, on values only: formatting stays with Prettier. A hex, `rgb()` or `hsl()` in a component's `style={{}}` fails ESLint for the same reason.
+
+```scss
+@use "../../../styles/mixins" as *;
+
+.title {
+	@include text(sm, semibold); // size + line height + weight
+	gap: space(2);
+	--_size: #{space(7)}; // Sass does not evaluate functions in a custom property
+	padding: calc(#{space(2)} - 1px); // a border compensation, written as one
+	transition: color var(--amp-duration-fast) var(--amp-ease);
+
+	&:focus-visible {
+		@include focus-ring;
+	}
+}
+```
+
+One value goes through `var()` or `space()`. A mixin (`text`, `focus-ring`, `truncate`) groups declarations that repeat, and only holds `var()`. `space()`, `text()` and `weight()` fail compilation off scale. Inside `calc()`, `min()` and `max()`, interpolate: `#{space(2)}`.
+
+**What stays legal:** `0`, keywords, `1px` as a hairline (a rem would not stay one), `%` and `em` (relative, so on no absolute scale), z-index 0 to 3 inside a component.
+
+**An exception** is a `stylelint-disable-next-line` with its reason after `--`, which the lint requires:
+
+```scss
+// stylelint-disable-next-line scale-unlimited/declaration-strict-value -- off scale: 13.5px, between text-sm and text-md
+font-size: 0.84375rem;
+```
+
+Use it for a value a token cannot express without changing what renders. Never round to the nearest step to avoid one: an off-scale value is a design decision, not a lint fix. Tokens available and how to override them: [Directives/Theming](?path=/docs/directives-theming--docs).
+
+`scripts/migrate-tokens.mjs <file or folder>` moves raw values onto tokens, exact matches only.
+
+---
+
 ## Two recurring CSS recipes
 
 **Collapse/expand (`grid-template-rows: 0fr → 1fr`)** — the element whose row track collapses to `0fr` must carry `overflow: hidden` **and** zero padding/margin of its own (padding is a fixed floor, unaffected by `min-height: 0` — the content visibly overflows, cut off mid-character). Fix: nest one level deeper — the collapsing element only has `min-height: 0; overflow: hidden;`, a child carries the padding. Seen twice on `Accordion`.

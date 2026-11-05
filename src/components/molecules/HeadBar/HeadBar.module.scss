@@ -1,3 +1,5 @@
+@use "../../../styles/mixins" as *;
+
 .bar {
 	display: flex;
 	align-items: center;
@@ -5,7 +7,7 @@
 	gap: var(--amp-space-3);
 	padding: var(--amp-space-2) var(--amp-space-4);
 	background: var(--amp-color-card);
-	border-bottom: 1px solid var(--amp-color-border);
+	border-bottom: var(--amp-border-width-sm) solid var(--amp-color-border);
 	font-family: var(--amp-font);
 }
 
@@ -25,8 +27,8 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 2rem;
-	height: 2rem;
+	width: space(8);
+	height: space(8);
 	flex-shrink: 0;
 	background: none;
 	border: none;
@@ -41,7 +43,6 @@
 	}
 
 	&:focus-visible {
-		outline: 2px solid var(--amp-color-primary);
-		outline-offset: 2px;
+		@include focus-ring;
 	}
 }

@@ -1,3 +1,5 @@
+@use "../../../styles/mixins" as *;
+
 .body {
 	width: 100%;
 }
@@ -22,8 +24,8 @@
 
 .groupTitle {
 	font-family: var(--amp-font);
-	font-weight: 600;
-	font-size: 0.875rem;
+	font-weight: weight(semibold);
+	font-size: var(--amp-text-md);
 	color: var(--amp-color-ink);
 	margin: 0;
 }
@@ -47,15 +49,15 @@
 
 .groupItemLabel {
 	font-family: var(--amp-font);
-	font-size: 0.8125rem;
-	font-weight: 600;
+	font-size: var(--amp-text-sm);
+	font-weight: weight(semibold);
 	color: var(--amp-color-ink);
 	margin: 0;
 }
 
 .requiredLabel {
 	color: var(--amp-color-danger);
-	margin-left: 0.125rem;
+	margin-left: space(0.5);
 }
 
 .resetBtn {

@@ -1,3 +1,5 @@
+@use "../../../styles/mixins" as *;
+
 .row {
 	display: flex;
 	align-items: center;
@@ -15,9 +17,9 @@
 .term {
 	flex: 0 0 auto;
 	width: 40%;
-	max-width: 12rem;
-	font-size: 0.8125rem;
-	font-weight: bold;
+	max-width: space(48);
+	font-size: var(--amp-text-sm);
+	font-weight: weight(bold);
 	color: var(--amp-color-sub);
 
 	[data-direction="vertical"] & {
@@ -28,7 +30,7 @@
 
 .required {
 	color: var(--amp-color-danger);
-	margin-left: 0.125rem;
+	margin-left: space(0.5);
 }
 
 .value {
@@ -42,8 +44,8 @@
 
 .picto {
 	flex-shrink: 0;
-	width: 1rem;
-	height: 1rem;
+	width: var(--amp-icon-md);
+	height: var(--amp-icon-md);
 	color: var(--amp-color-sub);
 }
 
@@ -51,18 +53,18 @@
 // opt-in (.ellipsis) so it's never applied on top of TruncatedTooltipText,
 // which already owns its own overflow handling.
 .text {
-	font-size: 0.8125rem;
+	font-size: var(--amp-text-sm);
 	color: var(--amp-color-ink);
 	min-width: 0;
 }
 
 .link {
-	font-size: 0.8125rem;
+	font-size: var(--amp-text-sm);
 	min-width: 0;
 }
 
 .clickable {
-	font-size: 0.8125rem;
+	font-size: var(--amp-text-sm);
 	color: var(--amp-color-primary);
 	background: none;
 	border: none;
@@ -78,9 +80,7 @@
 }
 
 .ellipsis {
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
+	@include truncate;
 }
 
 .action {
@@ -91,8 +91,8 @@
 	display: flex;
 	align-items: center;
 	gap: var(--amp-space-1);
-	font-size: 0.75rem;
-	font-weight: 600;
+	font-size: var(--amp-text-xs);
+	font-weight: weight(semibold);
 	color: var(--amp-color-primary);
 	background: none;
 	border: none;

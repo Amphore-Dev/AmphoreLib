@@ -1,12 +1,14 @@
+@use "../../../styles/mixins" as *;
+
 .link {
 	display: inline-flex;
 	align-items: baseline;
 	gap: 0.25em;
 	font-family: inherit;
 	font-size: inherit;
-	font-weight: 600;
+	font-weight: weight(semibold);
 	cursor: pointer;
-	transition: color 0.15s ease;
+	transition: color var(--amp-duration-fast) var(--amp-ease);
 
 	@media (hover: hover) {
 		&:hover:not([data-disabled="true"]) {
@@ -15,8 +17,7 @@
 	}
 
 	&:focus-visible {
-		outline: 2px solid var(--_color, var(--amp-color-primary));
-		outline-offset: 2px;
+		@include focus-ring(var(--_color, var(--amp-focus-color)));
 		border-radius: var(--amp-radius-sm);
 	}
 

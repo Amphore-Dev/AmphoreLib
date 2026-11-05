@@ -1,17 +1,19 @@
+@use "../../../styles/mixins" as *;
+
 .button {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	gap: var(--amp-space-2);
 	font-family: var(--amp-font);
-	font-weight: 600;
-	border: 1px solid transparent;
+	font-weight: weight(semibold);
+	border: var(--amp-border-width-sm) solid transparent;
 	border-radius: var(--amp-radius-md);
 	cursor: pointer;
 	transition:
-		filter 0.15s ease,
-		transform 0.1s ease,
-		opacity 0.15s ease;
+		filter var(--amp-duration-fast) var(--amp-ease),
+		transform var(--amp-duration-instant) var(--amp-ease),
+		opacity var(--amp-duration-fast) var(--amp-ease);
 
 	&:active {
 		transform: translateY(1px);
@@ -22,8 +24,7 @@
 	// outside the box and doesn't need a background-matching color to fake
 	// the gap, unlike a box-shadow ring would.
 	&:focus-visible {
-		outline: 2px solid var(--_color, var(--amp-color-primary));
-		outline-offset: 2px;
+		@include focus-ring(var(--_color, var(--amp-focus-color)));
 	}
 
 	&:disabled {
@@ -42,20 +43,19 @@
 	// than its own size's icon, not just fit the text.
 	&[data-size="sm"] {
 		padding: var(--amp-space-1) var(--amp-space-2);
-		font-size: 0.75rem;
-		line-height: 1.25rem;
+		@include text(xs);
 	}
 
 	&[data-size="md"] {
 		padding: var(--amp-space-2) var(--amp-space-3);
+		// stylelint-disable-next-line scale-unlimited/declaration-strict-value -- off scale: 13.5px, between text-sm and text-md
 		font-size: 0.84375rem;
-		line-height: 1.5rem;
+		line-height: var(--amp-leading-md);
 	}
 
 	&[data-size="lg"] {
 		padding: var(--amp-space-3) var(--amp-space-4);
-		font-size: 0.9375rem;
-		line-height: 1.75rem;
+		@include text(lg);
 	}
 
 	// ---- color: sets local vars, consumed by the variant rules below.
@@ -189,6 +189,7 @@
 .spinner,
 .picto {
 	flex-shrink: 0;
+	// stylelint-disable-next-line declaration-property-value-disallowed-list -- px: rem would only match at a 16px root
 	margin-bottom: 2px;
 }
 
@@ -198,8 +199,9 @@
 	// line-height, so the button would grow while isLoading.
 	box-sizing: border-box;
 	border-radius: 50%;
-	border: 2px solid currentColor;
+	border: var(--amp-border-width-lg) solid currentColor;
 	border-top-color: transparent;
+	// stylelint-disable-next-line declaration-property-value-disallowed-list -- loop period, not a UI transition
 	animation: amp-spin 0.6s linear infinite;
 }
 

@@ -68,6 +68,30 @@ One `[data-color="x"]` block per color sets local variables (`--_color`/`--_colo
 
 `<AmphoreProvider theme="light" | "dark" | "system">` (default `"system"`). A separate `darkColors` palette (not a JS inversion of `colors`) is resolved **in CSS** — a `<style>` scoped to the provider instance + `@media (prefers-color-scheme)` — never a JS media-query detection (risk of SSR/hydration mismatch).
 
+## Scales
+
+Every design value has a token, and every token's default lives in the config (`DEFAULT_CONFIG` in `CThemeConfig.ts`), never in SCSS. Each section below is overridable one key at a time: `config={{ text: { sm: "0.875rem" }, durations: { fast: "0.2s" } }}`.
+
+| Config | Variables | Read with |
+|---|---|---|
+| `spacing.base` | `--amp-spacing` | `space($n)` |
+| `text` | `--amp-text-{2xs,xs,sm,md,lg,xl,2xl,3xl,4xl,5xl,6xl}` | `@include text(sm)` with its line height, `var()` alone |
+| `leading` | `--amp-leading-<text step>`, `--amp-leading-{none,tight,snug,normal}` | `@include text(sm)`, `var()` alone |
+| `weights` | `--amp-weight-{regular,medium,semibold,bold}` | `weight(semibold)` |
+| `shadows` | `--amp-shadow-{sm,md,lg,xl}` | `var()` |
+| `shadowColors` | `--amp-shadow-color-{1..5}`, one per `Card` elevation | `var()` |
+| `focus` | `--amp-focus-{color,width,offset}` | `@include focus-ring` |
+| `layers` | `--amp-z-{sticky,raised,overlay}` | `var()` |
+| `durations`, `ease` | `--amp-duration-{instant,fast,base,slow}`, `--amp-ease` | `var()` |
+| `borders` | `--amp-border-width-{sm,md,lg,xl}` | `var()` |
+| `icons` | `--amp-icon-{xs,sm,md,lg,xl,2xl}` | `var()` |
+
+**`space()` is one linear scale**, `$n` units of `--amp-spacing`: `space(2)` is `0.5rem`, `space(1.5)` is `0.375rem`, and `$n` must be a multiple of 0.5.
+
+**`config.spacing` also has the numbered keys `1` to `6`**, the `--amp-space-*` variables. That is a separate, non-linear scale, which sets the gaps and paddings shared between components, and overriding it keeps working. The numbers do not line up: `var(--amp-space-3)` is `0.875rem`, `space(3)` is `0.75rem`. Changing `spacing.base` moves everything on `space()`, not `--amp-space-*`.
+
+`--amp-focus-color` defaults to `var(--amp-color-primary)`, so the ring follows the palette in force.
+
 ## Radius: `sm` / `md` / `lg` / `full`
 
 Three progressive presets (`sharp` < default < `round`), plus `full` (pill/circle, outside this progression). Always usable — check that the default theme actually differentiates the three before adding a new component that depends on it (a bug already fixed once: the default's `sm` was identical to `sharp`).

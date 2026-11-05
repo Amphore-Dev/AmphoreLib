@@ -1,9 +1,11 @@
+@use "../../../styles/mixins" as *;
+
 .panel {
 	position: fixed;
 	bottom: 0;
 	left: 0;
 	right: 0;
-	z-index: 1000;
+	z-index: var(--amp-z-overlay);
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
@@ -15,7 +17,8 @@
 	// handle stays tappable above the indicator.
 	box-sizing: content-box;
 	padding-bottom: env(safe-area-inset-bottom, 0px);
-	transition: height 0.25s ease;
+	// stylelint-disable-next-line declaration-property-value-disallowed-list -- off scale: 250ms, between duration-base and duration-slow
+	transition: height 0.25s var(--amp-ease);
 
 	// No transition while actively dragging — the height already tracks the
 	// pointer 1:1 every frame; animating on top of that lags behind it.
@@ -30,7 +33,7 @@
 	align-items: center;
 	justify-content: center;
 	width: 100%;
-	height: 2.75rem;
+	height: space(11);
 	padding: 0;
 	background: none;
 	border: none;
@@ -44,14 +47,13 @@
 	}
 
 	&:focus-visible {
-		outline: 2px solid var(--amp-color-primary);
-		outline-offset: -2px;
+		@include focus-ring($inset: true);
 	}
 }
 
 .grip {
-	width: 2.5rem;
-	height: 0.25rem;
+	width: space(10);
+	height: space(1);
 	border-radius: var(--amp-radius-full);
 	background: var(--amp-color-border);
 }

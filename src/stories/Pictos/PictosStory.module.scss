@@ -1,3 +1,5 @@
+@use "../../styles/mixins" as *;
+
 .wrapper {
 	display: flex;
 	flex-direction: column;
@@ -25,13 +27,14 @@
 }
 
 .count {
-	font-size: 0.8125rem;
+	font-size: var(--amp-text-sm);
 	color: var(--amp-color-sub);
 	white-space: nowrap;
 }
 
 .grid {
 	display: grid;
+	// stylelint-disable-next-line declaration-property-value-disallowed-list -- px: story layout, rem would only match at a 16px root
 	grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
 	gap: var(--amp-space-3);
 }
@@ -42,12 +45,14 @@
 	align-items: center;
 	gap: var(--amp-space-2);
 	padding: var(--amp-space-3);
-	border: 1px solid var(--amp-color-border);
+	border: var(--amp-border-width-sm) solid var(--amp-color-border);
 	border-radius: var(--amp-radius-md);
 	background: var(--amp-color-card);
+	// stylelint-disable declaration-property-value-disallowed-list -- off scale: 120ms, story only
 	transition:
 		background 0.12s,
 		border-color 0.12s;
+	// stylelint-enable declaration-property-value-disallowed-list
 
 	@media (hover: hover) {
 		&:hover {
@@ -68,22 +73,21 @@
 	color: var(--amp-color-sub);
 
 	&:focus-visible {
-		outline: 2px solid var(--amp-color-primary);
-		outline-offset: 2px;
+		@include focus-ring;
 		border-radius: var(--amp-radius-sm);
 	}
 }
 
 .icon {
-	width: 1.75rem;
-	height: 1.75rem;
+	width: space(7);
+	height: space(7);
 }
 
 // Monospace: this label is meant to be read back verbatim as the
 // `icon="..."` string, not prose — same reasoning as any other code token.
 .name {
 	font-family: var(--amp-font-mono);
-	font-size: 0.75rem;
+	font-size: var(--amp-text-xs);
 	color: var(--amp-color-sub);
 	text-align: center;
 	word-break: break-word;
@@ -91,12 +95,12 @@
 
 .copied {
 	color: var(--amp-color-primary);
-	font-weight: 600;
+	font-weight: weight(semibold);
 }
 
 .empty {
 	padding: var(--amp-space-6) 0;
 	color: var(--amp-color-sub);
-	font-size: 0.875rem;
+	font-size: var(--amp-text-md);
 	text-align: center;
 }

@@ -1,4 +1,5 @@
 @use "../../../styles/touch" as touch;
+@use "../../../styles/mixins" as *;
 
 .wrapper {
 	display: flex;
@@ -13,7 +14,7 @@
 // note on the bug this replaces).
 .card {
 	position: relative;
-	border: 1px solid var(--amp-color-border);
+	border: var(--amp-border-width-sm) solid var(--amp-color-border);
 	border-radius: var(--amp-radius-lg);
 	background: var(--amp-color-card);
 	overflow: hidden;
@@ -73,7 +74,7 @@
 	}
 
 	.footer {
-		border-top: 1px solid var(--amp-color-border);
+		border-top: var(--amp-border-width-sm) solid var(--amp-color-border);
 	}
 }
 
@@ -100,16 +101,16 @@
 	.preview {
 		flex: 1 1 auto;
 		min-width: 0;
-		min-height: 2.75rem;
+		min-height: space(11);
 		border-radius: var(--amp-radius-md);
 	}
 
 	&[data-size="sm"] .preview {
-		min-height: 2rem;
+		min-height: space(8);
 	}
 
 	&[data-size="lg"] .preview {
-		min-height: 3.5rem;
+		min-height: space(14);
 	}
 
 	// Once filled: fixed-size square thumbnail instead. Without this
@@ -125,18 +126,18 @@
 	}
 
 	&[data-filled][data-size="sm"] .preview {
-		width: 2rem;
-		height: 2rem;
+		width: space(8);
+		height: space(8);
 	}
 
 	&[data-filled][data-size="md"] .preview {
-		width: 2.75rem;
-		height: 2.75rem;
+		width: space(11);
+		height: space(11);
 	}
 
 	&[data-filled][data-size="lg"] .preview {
-		width: 3.5rem;
-		height: 3.5rem;
+		width: space(14);
+		height: space(14);
 	}
 
 	// Zeroed entirely, not just padding-right: the base `.footer` rule's
@@ -181,24 +182,22 @@
 
 .card[data-orientation="horizontal"] .placeholderText {
 	min-width: 0;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+	@include truncate;
 }
 
 .uploadPicto {
-	width: 1.25rem;
-	height: 1.25rem;
+	width: var(--amp-icon-xl);
+	height: var(--amp-icon-xl);
 	flex-shrink: 0;
 }
 
 .placeholderText {
-	font-size: 0.8125rem;
+	font-size: var(--amp-text-sm);
 }
 
 .required {
 	color: var(--amp-color-danger);
-	margin-left: 0.125rem;
+	margin-left: space(0.5);
 }
 
 // ---- footer: name(+size) + remove, never overlapping the preview ----
@@ -213,22 +212,21 @@
 .info {
 	display: flex;
 	flex-direction: column;
+	// stylelint-disable-next-line declaration-property-value-disallowed-list -- off grid: 1px between name and meta
 	gap: 0.0625rem;
 	min-width: 0;
 	flex: 1;
 }
 
 .fileName {
-	font-size: 0.8125rem;
-	font-weight: 600;
+	font-size: var(--amp-text-sm);
+	font-weight: weight(semibold);
 	color: var(--amp-color-ink);
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+	@include truncate;
 }
 
 .fileSize {
-	font-size: 0.6875rem;
+	font-size: var(--amp-text-2xs);
 	color: var(--amp-color-sub);
 }
 
@@ -238,8 +236,8 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 1.75rem;
-	height: 1.75rem;
+	width: space(7);
+	height: space(7);
 	border: none;
 	border-radius: var(--amp-radius-full);
 	background: transparent;

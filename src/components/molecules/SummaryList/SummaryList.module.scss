@@ -11,6 +11,6 @@
 // separate), not the item's.
 .row {
 	[data-divider="true"] > &:not(:last-child) {
-		border-bottom: 1px solid var(--amp-color-border);
+		border-bottom: var(--amp-border-width-sm) solid var(--amp-color-border);
 	}
 }

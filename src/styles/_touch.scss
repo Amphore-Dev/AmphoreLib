@@ -2,13 +2,15 @@
 // the hook handles the pointer events, these make sure the browser lets
 // them through and that a finger can actually hit the thing.
 
+@use "mixins" as *;
+
 // Grows the element's hit area to at least $size without changing how it
 // looks or lays out: an invisible ::before, centered on it. 44px is the
 // usual minimum for a finger (Apple HIG / WCAG 2.5.5); pass less where
 // neighbors would overlap. Touch-first devices only (pointer: coarse): a
 // mouse is precise, and a bigger invisible target next to text there just
 // steals clicks meant for it. Takes ::before — draw visuals in ::after.
-@mixin touch-target($size: 2.75rem) {
+@mixin touch-target($size: space(11)) {
 	position: relative;
 
 	@media (pointer: coarse) {
@@ -28,7 +30,7 @@
 // `touch-action: none` is the part that matters: without it the browser
 // reads a finger drag on the handle as a page scroll, sends
 // `pointercancel`, and the drag dies after a few pixels.
-@mixin drag-handle($size: 2.75rem) {
+@mixin drag-handle($size: space(11)) {
 	@include touch-target($size);
 	touch-action: none;
 	user-select: none;

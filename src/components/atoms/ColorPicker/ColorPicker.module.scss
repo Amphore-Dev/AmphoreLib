@@ -36,7 +36,7 @@
 
 	:global(.popup_tabs-header) {
 		background: transparent;
-		border-bottom: 1px solid var(--amp-color-border);
+		border-bottom: var(--amp-border-width-sm) solid var(--amp-color-border);
 	}
 
 	:global(.popup_tabs-header-label) {
@@ -63,18 +63,21 @@
 
 	:global(.input_rgba-wrap) {
 		flex-wrap: wrap;
+		// stylelint-disable-next-line declaration-property-value-disallowed-list -- px: rem would only match at a 16px root
 		gap: 16px;
 	}
 
 	:global(.input_rgba-hex) {
 		width: unset !important;
+		// stylelint-disable-next-line declaration-property-value-disallowed-list -- px: rem would only match at a 16px root
 		flex: 1 1 100px !important;
 	}
 
 	:global(.input_rgba-alpha) {
 		width: unset !important;
+		// stylelint-disable-next-line declaration-property-value-disallowed-list -- px: rem would only match at a 16px root
 		flex: 1 1 100px !important;
-		margin-left: 0px !important;
+		margin-left: 0 !important;
 	}
 
 	:global(.input_rgba) input {

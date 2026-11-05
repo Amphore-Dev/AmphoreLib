@@ -1,14 +1,16 @@
+@use "../../../styles/mixins" as *;
+
 .accordion {
 	display: flex;
 	flex-direction: column;
 	font-family: var(--amp-font);
-	border: 1px solid var(--amp-color-border);
+	border: var(--amp-border-width-sm) solid var(--amp-color-border);
 	border-radius: var(--amp-radius-md);
 	overflow: hidden;
 }
 
 .item {
-	border-bottom: 1px solid var(--amp-color-border);
+	border-bottom: var(--amp-border-width-sm) solid var(--amp-color-border);
 
 	&:last-child {
 		border-bottom: none;
@@ -42,7 +44,7 @@
 	border: none;
 	background: transparent;
 	font-family: inherit;
-	font-weight: 600;
+	font-weight: weight(semibold);
 	color: var(--amp-color-ink);
 	text-align: left;
 	cursor: pointer;
@@ -53,8 +55,7 @@
 	}
 
 	&:focus-visible {
-		outline: 2px solid var(--amp-color-primary);
-		outline-offset: -2px;
+		@include focus-ring($inset: true);
 	}
 }
 
@@ -73,7 +74,7 @@
 
 	.header {
 		padding: var(--amp-space-2) var(--amp-space-3);
-		font-size: 0.8125rem;
+		font-size: var(--amp-text-sm);
 	}
 
 	.panelContent {
@@ -88,7 +89,7 @@
 
 	.header {
 		padding: var(--amp-space-3) var(--amp-space-4);
-		font-size: 0.875rem;
+		font-size: var(--amp-text-md);
 	}
 
 	.panelContent {
@@ -103,7 +104,7 @@
 
 	.header {
 		padding: var(--amp-space-4) var(--amp-space-4);
-		font-size: 0.9375rem;
+		font-size: var(--amp-text-lg);
 	}
 
 	.panelContent {
@@ -125,10 +126,10 @@
 
 .chevron {
 	flex-shrink: 0;
-	width: 0.75rem;
-	height: 0.75rem;
+	width: var(--amp-icon-xs);
+	height: var(--amp-icon-xs);
 	color: var(--amp-color-sub);
-	transition: transform 0.15s ease;
+	transition: transform var(--amp-duration-fast) var(--amp-ease);
 }
 
 // The animation: grid-template-rows from 0fr to 1fr on an intrinsically-
@@ -144,7 +145,7 @@
 	display: grid;
 	grid-template-rows: 0fr;
 	overflow: hidden;
-	transition: grid-template-rows 0.2s ease;
+	transition: grid-template-rows var(--amp-duration-base) var(--amp-ease);
 
 	&[data-open="true"] {
 		grid-template-rows: 1fr;

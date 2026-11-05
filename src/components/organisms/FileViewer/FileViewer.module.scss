@@ -1,3 +1,5 @@
+@use "../../../styles/mixins" as *;
+
 .viewer {
 	display: flex;
 	flex-direction: column;
@@ -12,7 +14,7 @@
 	gap: var(--amp-space-3);
 	flex-shrink: 0;
 	padding: var(--amp-space-2);
-	border-bottom: 1px solid var(--amp-color-border);
+	border-bottom: var(--amp-border-width-sm) solid var(--amp-color-border);
 }
 
 .group {
@@ -25,8 +27,8 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 1.75rem;
-	height: 1.75rem;
+	width: space(7);
+	height: space(7);
 	border: none;
 	border-radius: var(--amp-radius-sm);
 	background: transparent;
@@ -46,23 +48,22 @@
 	}
 
 	&:focus-visible {
-		outline: 2px solid var(--amp-color-primary);
-		outline-offset: 2px;
+		@include focus-ring;
 	}
 }
 
 .toolIcon {
-	width: 1rem;
-	height: 1rem;
+	width: var(--amp-icon-md);
+	height: var(--amp-icon-md);
 }
 
 .zoomValue {
 	// A <button> doesn't inherit the font: without this it falls back to the
 	// browser's own (family, size, line height) unless the consumer resets it.
 	font: inherit;
-	min-width: 3rem;
+	min-width: space(12);
 	text-align: center;
-	font-size: 0.75rem;
+	font-size: var(--amp-text-xs);
 	color: var(--amp-color-sub);
 	font-variant-numeric: tabular-nums;
 }
@@ -75,7 +76,7 @@
 	border: none;
 	background: transparent;
 	border-radius: var(--amp-radius-sm);
-	padding: 0.125rem var(--amp-space-1);
+	padding: space(0.5) var(--amp-space-1);
 	font-family: inherit;
 	cursor: pointer;
 
@@ -91,8 +92,7 @@
 	}
 
 	&:focus-visible {
-		outline: 2px solid var(--amp-color-primary);
-		outline-offset: 2px;
+		@include focus-ring;
 	}
 }
 
@@ -101,11 +101,11 @@
 	display: inline-flex;
 	align-items: center;
 	gap: var(--amp-space-1);
-	font-size: 0.8125rem;
-	font-weight: 600;
+	font-size: var(--amp-text-sm);
+	font-weight: weight(semibold);
 	color: var(--amp-color-primary);
 	text-decoration: none;
-	padding: 0.25rem var(--amp-space-2);
+	padding: space(1) var(--amp-space-2);
 	border-radius: var(--amp-radius-sm);
 
 	@media (hover: hover) {
@@ -115,8 +115,7 @@
 	}
 
 	&:focus-visible {
-		outline: 2px solid var(--amp-color-primary);
-		outline-offset: 2px;
+		@include focus-ring;
 	}
 }
 

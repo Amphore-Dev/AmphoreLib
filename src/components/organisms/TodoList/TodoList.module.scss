@@ -4,12 +4,12 @@
 	list-style: none;
 	margin: 0;
 	padding: 0;
-	border: 1px solid var(--amp-color-border);
+	border: var(--amp-border-width-sm) solid var(--amp-color-border);
 	border-radius: var(--amp-radius-md);
 	overflow: hidden;
 
 	> li {
-		border-bottom: 1px solid var(--amp-color-border);
+		border-bottom: var(--amp-border-width-sm) solid var(--amp-color-border);
 	}
 
 	> li:last-child {

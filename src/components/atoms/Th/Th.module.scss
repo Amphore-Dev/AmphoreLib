@@ -1,3 +1,5 @@
+@use "../../../styles/mixins" as *;
+
 .th {
 	display: flex;
 	align-items: center;
@@ -5,12 +7,12 @@
 	min-width: 0;
 	padding: var(--amp-space-2) var(--amp-space-3);
 	font-family: var(--amp-font);
-	font-size: 0.75rem;
-	font-weight: 600;
+	font-size: var(--amp-text-xs);
+	font-weight: weight(semibold);
 	color: var(--amp-color-sub);
 	text-align: left;
 	white-space: nowrap;
-	border-bottom: 1px solid var(--amp-color-border);
+	border-bottom: var(--amp-border-width-sm) solid var(--amp-color-border);
 
 	&[data-sortable="true"] {
 		cursor: pointer;
@@ -23,8 +25,7 @@
 		}
 
 		&:focus-visible {
-			outline: 2px solid var(--amp-color-primary);
-			outline-offset: -2px;
+			@include focus-ring($inset: true);
 		}
 	}
 
@@ -49,7 +50,7 @@
 .sortIcon {
 	display: inline-flex;
 	align-items: center;
-	width: 0.875rem;
-	height: 0.875rem;
+	width: var(--amp-icon-sm);
+	height: var(--amp-icon-sm);
 	flex-shrink: 0;
 }

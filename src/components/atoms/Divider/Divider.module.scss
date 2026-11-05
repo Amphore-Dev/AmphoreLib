@@ -3,12 +3,12 @@
 	border: none;
 	background: var(--amp-color-border);
 	width: 100%;
-	height: 1px;
+	height: var(--amp-border-width-sm);
 }
 
 .vertical {
 	align-self: stretch;
-	width: 1px;
+	width: var(--amp-border-width-sm);
 	height: auto;
 }
 
@@ -22,13 +22,13 @@
 
 .line {
 	flex: 1;
-	height: 1px;
+	height: var(--amp-border-width-sm);
 	background: var(--amp-color-border);
 }
 
 .label {
 	flex-shrink: 0;
 	font-family: var(--amp-font);
-	font-size: 0.75rem;
+	font-size: var(--amp-text-xs);
 	color: var(--amp-color-sub);
 }

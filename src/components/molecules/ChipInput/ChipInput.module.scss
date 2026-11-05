@@ -1,4 +1,5 @@
 @use "../../../styles/field" as field;
+@use "../../../styles/mixins" as *;
 
 .wrapper {
 	display: flex;
@@ -8,14 +9,14 @@
 }
 
 .label {
-	font-size: 0.75rem;
-	font-weight: 600;
+	font-size: var(--amp-text-xs);
+	font-weight: weight(semibold);
 	color: var(--amp-color-ink);
 }
 
 .required {
 	color: var(--amp-color-danger);
-	margin-left: 0.125rem;
+	margin-left: space(0.5);
 }
 
 // The field box wraps: chips first, the text input taking what's left of
@@ -23,7 +24,7 @@
 .field {
 	@include field.field-box;
 	flex-wrap: wrap;
-	gap: 0.25rem;
+	gap: space(1);
 	cursor: text;
 
 	&[data-disabled="true"] {
@@ -34,7 +35,7 @@
 .input {
 	@include field.field-text;
 	flex: 1;
-	min-width: 6rem;
+	min-width: space(24);
 
 	&::placeholder {
 		color: var(--amp-color-sub);
@@ -56,12 +57,12 @@
 .counter {
 	flex-shrink: 0;
 	margin-left: auto;
-	font-size: 0.75rem;
+	font-size: var(--amp-text-xs);
 	color: var(--amp-color-sub);
 	white-space: nowrap;
 
 	&[data-full="true"] {
 		color: var(--amp-color-ink);
-		font-weight: 600;
+		font-weight: weight(semibold);
 	}
 }

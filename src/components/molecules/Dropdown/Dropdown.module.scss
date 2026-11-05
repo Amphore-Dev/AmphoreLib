@@ -1,21 +1,23 @@
+@use "../../../styles/mixins" as *;
+
 .menu {
 	box-sizing: border-box;
-	min-width: 10rem;
-	max-width: 20rem;
+	min-width: space(40);
+	max-width: space(80);
 	// 16rem clipped a plain 7-item action list (ContextMenu reuses this same
 	// class) by a few px, forcing a needless scrollbar on an otherwise
 	// fully-visible menu. 24rem covers that comfortably while still capping
 	// a long Select options list.
-	max-height: 24rem;
+	max-height: space(96);
 	overflow-y: auto;
 	overscroll-behavior: contain;
 	padding: var(--amp-space-1);
-	border: 1px solid var(--amp-color-border);
+	border: var(--amp-border-width-sm) solid var(--amp-color-border);
 	border-radius: var(--amp-radius-md);
 	background: var(--amp-color-card);
-	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+	box-shadow: var(--amp-shadow-xl);
 	font-family: var(--amp-font);
-	z-index: 1000;
+	z-index: var(--amp-z-overlay);
 }
 
 .item {
@@ -35,6 +37,7 @@
 	border-radius: max(0px, calc(var(--amp-radius-md) - var(--amp-space-1)));
 	background: transparent;
 	font-family: inherit;
+	// stylelint-disable-next-line scale-unlimited/declaration-strict-value -- off scale: 13.5px, between text-sm and text-md
 	font-size: 0.84375rem;
 	color: var(--amp-color-ink);
 	text-align: left;
