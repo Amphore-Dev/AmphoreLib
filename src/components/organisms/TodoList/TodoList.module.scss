@@ -1,4 +1,7 @@
+@use "../../../styles/a11y";
 .list {
+	// Only ever focused from code, when its last row goes.
+	outline: none;
 	display: flex;
 	flex-direction: column;
 	list-style: none;
@@ -15,4 +18,8 @@
 	> li:last-child {
 		border-bottom: none;
 	}
+}
+
+.srOnly {
+	@include a11y.visually-hidden;
 }

@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 
 import { FormikContextType } from "formik";
 
@@ -113,6 +113,27 @@ export const EditableCard: React.FC<IEditableCardProps> = ({
 	const shouldHideEditButton = readOnly || !!hideEditButton;
 	const [isEditing, setIsEditing] = useState(defaultIsEditing ?? false);
 
+	// Inline, entering edit hides the Edit button and drops the Add button
+	// that was just pressed: focus goes to the form, and back on the way out.
+	// (In a Modal, the Modal does this.)
+	const formRef = useRef<HTMLDivElement>(null);
+	const editButtonRef = useRef<HTMLButtonElement>(null);
+	const wasEditing = useRef(isEditing);
+	useEffect(() => {
+		if (wasEditing.current === isEditing) return;
+		wasEditing.current = isEditing;
+		if (editInModal) return;
+		if (isEditing) {
+			formRef.current
+				?.querySelector<HTMLElement>(
+					'input, textarea, button, [tabindex="0"]'
+				)
+				?.focus();
+		} else if (document.activeElement === document.body) {
+			editButtonRef.current?.focus();
+		}
+	}, [isEditing, editInModal]);
+
 	const handleClose = () => {
 		setIsEditing(false);
 		onCancel?.();
@@ -134,6 +155,7 @@ export const EditableCard: React.FC<IEditableCardProps> = ({
 					{actions}
 					{!shouldHideEditButton && (
 						<Button
+							ref={editButtonRef}
 							color="neutral"
 							variant="outline"
 							size="sm"
@@ -172,28 +194,30 @@ export const EditableCard: React.FC<IEditableCardProps> = ({
 			)}
 
 			{isEditing && (
-				<FormWrapperComponent
-					title={title as string}
-					fields={fields}
-					showFieldLabels
-					validationSchema={validationSchema}
-					modalProps={modalProps}
-					{...editModalProps}
-					disableFields={readOnly || disableFields}
-					wrapperGridProps={{
-						columns: editColumns,
-						...editModalProps.wrapperGridProps,
-					}}
-					columns={editItemsColumns}
-					initialValues={{
-						...values,
-						...(editModalProps.initialValues || {}),
-					}}
-					onSubmit={handleSubmit}
-					open={isEditing}
-					onClose={handleClose}
-					inModal={editInModal}
-				/>
+				<div ref={formRef} style={{ display: "contents" }}>
+					<FormWrapperComponent
+						title={title as string}
+						fields={fields}
+						showFieldLabels
+						validationSchema={validationSchema}
+						modalProps={modalProps}
+						{...editModalProps}
+						disableFields={readOnly || disableFields}
+						wrapperGridProps={{
+							columns: editColumns,
+							...editModalProps.wrapperGridProps,
+						}}
+						columns={editItemsColumns}
+						initialValues={{
+							...values,
+							...(editModalProps.initialValues || {}),
+						}}
+						onSubmit={handleSubmit}
+						open={isEditing}
+						onClose={handleClose}
+						inModal={editInModal}
+					/>
+				</div>
 			)}
 		</SectionCard>
 	);

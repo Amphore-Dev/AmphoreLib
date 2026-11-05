@@ -28,6 +28,7 @@ export const en: TRequiredThemeLabels = {
 		loading: "Loading",
 	},
 	ActiveFilters: {
+		removeLabel: "Remove",
 		resetLabel: "Reset",
 		showMoreLabel: "Show more",
 		showLessLabel: "Show less",
@@ -157,9 +158,11 @@ export const en: TRequiredThemeLabels = {
 	},
 	TodoItem: {
 		removeLabel: "Remove",
+		editLabel: "Edit",
 	},
 	TodoList: {
 		moveLabel: "Move (up/down arrows)",
+		movedLabel: "Moved to position {position} of {total}",
 	},
 	Tour: {
 		nextLabel: "Next",

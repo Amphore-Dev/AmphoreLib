@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
@@ -34,12 +34,14 @@ export interface ITodoListProps {
 	reorderable?: boolean;
 	/** aria-label for each row's drag handle. Defaults to "Move (up/down arrows)" (or `TodoList.moveLabel` from the nearest AmphoreProvider — see useAmphoreLabels). No effect without `reorderable`. */
 	moveLabel?: TLabel;
+	/** Announced after a keyboard move, `{position}` and `{total}` replaced. Defaults to "Moved to position {position} of {total}" (or `TodoList.movedLabel` from the nearest AmphoreProvider). */
+	movedLabel?: TLabel;
 	size?: TSize;
 	className?: string;
 }
 
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
-export type TTodoListLabels = Pick<ITodoListProps, "moveLabel">;
+export type TTodoListLabels = Pick<ITodoListProps, "moveLabel" | "movedLabel">;
 
 /**
  * V2 TodoList — a controlled, reorderable list of `TodoItem` rows. Reorder
@@ -61,6 +63,7 @@ export const TodoList: React.FC<ITodoListProps> = ({
 	multiline = false,
 	reorderable = true,
 	moveLabel: moveLabelProp,
+	movedLabel: movedLabelProp,
 	size: sizeProp,
 	className = "",
 }) => {
@@ -68,6 +71,7 @@ export const TodoList: React.FC<ITodoListProps> = ({
 	const size = sizeProp ?? defaultSize ?? "md";
 	const { resolve } = useAmphoreLabels("TodoList");
 	const moveLabel = resolve("moveLabel", moveLabelProp);
+	const movedLabel = resolve("movedLabel", movedLabelProp);
 
 	const listRef = useRef<HTMLUListElement>(null);
 	const itemsRef = useRef(items);
@@ -77,6 +81,19 @@ export const TodoList: React.FC<ITodoListProps> = ({
 
 	const [dragIndex, setDragIndex] = useState<number | null>(null);
 	const dragIndexRef = useRef<number | null>(null);
+	const [announcement, setAnnouncement] = useState("");
+
+	// Moving a row can detach it from the DOM for an instant and removing one
+	// takes the pressed button with it: either way focus falls to the body.
+	// Once `items` has settled, this says where it goes instead.
+	const pendingFocus = useRef<(() => void) | null>(null);
+	useEffect(() => {
+		pendingFocus.current?.();
+		pendingFocus.current = null;
+	}, [items]);
+
+	const rowButtons = (index: number) =>
+		listRef.current?.children[index]?.querySelectorAll("button");
 
 	const move = (from: number, to: number) => {
 		const current = itemsRef.current;
@@ -142,11 +159,32 @@ export const TodoList: React.FC<ITodoListProps> = ({
 	};
 
 	const handleRemove = (index: number) => {
+		// The row that takes its place, or the last one, or the list itself.
+		pendingFocus.current = () => {
+			const row = Math.min(index, items.length - 2);
+			const buttons = rowButtons(row);
+			(buttons?.[buttons.length - 1] ?? listRef.current)?.focus();
+		};
 		onChange(items.filter((_, i) => i !== index));
 	};
 
-	return (
-		<ul ref={listRef} className={cn([styles.list, className])}>
+	const moveByKeyboard = (from: number, to: number) => {
+		if (to < 0 || to >= items.length) return;
+		pendingFocus.current = () => rowButtons(to)?.[0]?.focus();
+		move(from, to);
+		setAnnouncement(
+			movedLabel
+				.replace("{position}", String(to + 1))
+				.replace("{total}", String(items.length))
+		);
+	};
+
+	const list = (
+		<ul
+			ref={listRef}
+			className={cn([styles.list, className])}
+			tabIndex={-1}
+		>
 			{items.map((item, index) => (
 				<TodoItem
 					key={item.id}
@@ -162,7 +200,7 @@ export const TodoList: React.FC<ITodoListProps> = ({
 					dragHandleProps={
 						reorderable
 							? {
-									"aria-label": moveLabel,
+									"aria-label": `${moveLabel}: ${item.text}`,
 									onPointerDown: (e) => {
 										dragIndexRef.current = index;
 										drag.handleProps.onPointerDown(e);
@@ -170,10 +208,10 @@ export const TodoList: React.FC<ITodoListProps> = ({
 									onKeyDown: (e) => {
 										if (e.key === "ArrowUp") {
 											e.preventDefault();
-											move(index, index - 1);
+											moveByKeyboard(index, index - 1);
 										} else if (e.key === "ArrowDown") {
 											e.preventDefault();
-											move(index, index + 1);
+											moveByKeyboard(index, index + 1);
 										}
 									},
 								}
@@ -182,5 +220,14 @@ export const TodoList: React.FC<ITodoListProps> = ({
 				/>
 			))}
 		</ul>
+	);
+
+	return (
+		<>
+			{list}
+			<span role="status" className={styles.srOnly}>
+				{announcement}
+			</span>
+		</>
 	);
 };

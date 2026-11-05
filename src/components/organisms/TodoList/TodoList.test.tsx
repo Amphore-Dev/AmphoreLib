@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { fireEvent, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import { TodoList, TTodoItem } from "./TodoList";
@@ -132,5 +133,85 @@ describe("TodoList", () => {
 			{ id: "a", text: "Première tâche" },
 			{ id: "c", text: "Troisième tâche" },
 		]);
+	});
+});
+
+describe("TodoList keyboard", () => {
+	const Controlled: React.FC<{ initial?: TTodoItem[] }> = ({
+		initial = [
+			{ id: "1", text: "One" },
+			{ id: "2", text: "Two" },
+			{ id: "3", text: "Three" },
+		],
+	}) => {
+		const [items, setItems] = useState(initial);
+		return <TodoList items={items} onChange={setItems} />;
+	};
+
+	it("tells the handles apart", () => {
+		render(<Controlled />);
+		expect(
+			screen.getByRole("button", { name: /^Move .*: Two$/ })
+		).toBeInTheDocument();
+	});
+
+	it("keeps focus on the handle through a move, and announces it", async () => {
+		const user = userEvent.setup();
+		render(<Controlled />);
+		const handle = screen.getByRole("button", { name: /^Move .*: One$/ });
+
+		handle.focus();
+		await user.keyboard("{ArrowDown}");
+
+		expect(screen.getAllByRole("listitem")[1]).toHaveTextContent("One");
+		expect(
+			screen.getByRole("button", { name: /^Move .*: One$/ })
+		).toHaveFocus();
+		expect(screen.getByRole("status")).toHaveTextContent(
+			"Moved to position 2 of 3"
+		);
+
+		await user.keyboard("{ArrowDown}");
+
+		expect(screen.getByRole("status")).toHaveTextContent(
+			"Moved to position 3 of 3"
+		);
+	});
+
+	it("says nothing when a row can't go further", async () => {
+		const user = userEvent.setup();
+		render(<Controlled />);
+
+		screen.getByRole("button", { name: /^Move .*: One$/ }).focus();
+		await user.keyboard("{ArrowUp}");
+
+		expect(screen.getByRole("status")).toBeEmptyDOMElement();
+	});
+
+	it("moves focus to the next row's remove button", async () => {
+		const user = userEvent.setup();
+		render(<Controlled />);
+
+		await user.click(screen.getByRole("button", { name: "Remove: One" }));
+
+		expect(screen.getByRole("button", { name: "Remove: Two" })).toHaveFocus();
+	});
+
+	it("moves focus to the new last row after removing the last one", async () => {
+		const user = userEvent.setup();
+		render(<Controlled />);
+
+		await user.click(screen.getByRole("button", { name: "Remove: Three" }));
+
+		expect(screen.getByRole("button", { name: "Remove: Two" })).toHaveFocus();
+	});
+
+	it("moves focus to the list when it empties", async () => {
+		const user = userEvent.setup();
+		render(<Controlled initial={[{ id: "1", text: "One" }]} />);
+
+		await user.click(screen.getByRole("button", { name: "Remove: One" }));
+
+		expect(screen.getByRole("list")).toHaveFocus();
 	});
 });

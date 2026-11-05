@@ -1,4 +1,6 @@
 .wrapper {
+	// Only ever focused from code, when what had focus went away.
+	outline: none;
 	display: flex;
 	flex-direction: column;
 	font-family: var(--amp-font);

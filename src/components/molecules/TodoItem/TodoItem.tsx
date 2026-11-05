@@ -30,12 +30,14 @@ export interface ITodoItemProps {
 	dragging?: boolean;
 	/** Prefix for the remove button's aria-label, rendered as `${removeLabel}: ${text}`. Defaults to "Remove" (or `common.remove`/`TodoItem.removeLabel` from the nearest AmphoreProvider — see useAmphoreLabels). No effect without `removable`. */
 	removeLabel?: TLabel;
+	/** Prefix for the edit field's aria-label, rendered as `${editLabel}: ${text}`. Defaults to "Edit" (or `common.edit`/`TodoItem.editLabel` from the nearest AmphoreProvider). No effect without `editable`. */
+	editLabel?: TLabel;
 	size?: TSize;
 	className?: string;
 }
 
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
-export type TTodoItemLabels = Pick<ITodoItemProps, "removeLabel">;
+export type TTodoItemLabels = Pick<ITodoItemProps, "removeLabel" | "editLabel">;
 
 /**
  * V2 TodoItem — one row: optional drag handle, an optional leading slot,
@@ -55,6 +57,7 @@ export const TodoItem: React.FC<ITodoItemProps> = ({
 	dragHandleProps,
 	dragging = false,
 	removeLabel: removeLabelProp,
+	editLabel: editLabelProp,
 	size = "md",
 	className = "",
 }) => {
@@ -63,6 +66,12 @@ export const TodoItem: React.FC<ITodoItemProps> = ({
 	const editorRef = useRef<HTMLDivElement>(null);
 	const { resolve } = useAmphoreLabels("TodoItem");
 	const removeLabel = resolve("removeLabel", removeLabelProp, "remove");
+	const editLabel = resolve("editLabel", editLabelProp, "edit");
+	const textRef = useRef<HTMLButtonElement>(null);
+	// Enter and Escape end the edit by unmounting the focused field, so focus
+	// goes back to the text it came from. Blurring doesn't: that focus already
+	// went somewhere.
+	const refocusText = useRef(false);
 
 	// Neither TextArea nor Input is a `forwardRef` component, so the only
 	// way to reach the real field is through its wrapper — same reasoning
@@ -71,7 +80,11 @@ export const TodoItem: React.FC<ITodoItemProps> = ({
 	// type into is expected, not disorienting, jsx-a11y/no-autofocus
 	// notwithstanding.
 	useEffect(() => {
-		if (!editing) return;
+		if (!editing) {
+			if (refocusText.current) textRef.current?.focus();
+			refocusText.current = false;
+			return;
+		}
 		const field = editorRef.current?.querySelector<
 			HTMLTextAreaElement | HTMLInputElement
 		>("textarea, input");
@@ -98,9 +111,11 @@ export const TodoItem: React.FC<ITodoItemProps> = ({
 	const handleEditorKeyDown = (e: React.KeyboardEvent) => {
 		if (e.key === "Enter" && !e.shiftKey) {
 			e.preventDefault();
+			refocusText.current = true;
 			commit();
 		} else if (e.key === "Escape") {
 			e.preventDefault();
+			refocusText.current = true;
 			cancel();
 		}
 	};
@@ -128,6 +143,7 @@ export const TodoItem: React.FC<ITodoItemProps> = ({
 				<div ref={editorRef} className={styles.editorWrapper}>
 					{multiline ? (
 						<TextArea
+							aria-label={`${editLabel}: ${text}`}
 							value={draft}
 							onChange={setDraft}
 							autoGrow
@@ -140,6 +156,7 @@ export const TodoItem: React.FC<ITodoItemProps> = ({
 						/>
 					) : (
 						<Input
+							aria-label={`${editLabel}: ${text}`}
 							value={draft}
 							onChange={setDraft}
 							hideError
@@ -151,6 +168,7 @@ export const TodoItem: React.FC<ITodoItemProps> = ({
 				</div>
 			) : editable ? (
 				<button
+					ref={textRef}
 					type="button"
 					className={styles.text}
 					onClick={startEdit}

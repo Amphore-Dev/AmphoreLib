@@ -23,6 +23,7 @@ export const fr: TThemeLabels = {
 		loading: "Chargement",
 	},
 	ActiveFilters: {
+		removeLabel: "Retirer",
 		resetLabel: "Réinitialiser",
 		showMoreLabel: "Voir plus",
 		showLessLabel: "Voir moins",
@@ -152,9 +153,11 @@ export const fr: TThemeLabels = {
 	},
 	TodoItem: {
 		removeLabel: "Retirer",
+		editLabel: "Modifier",
 	},
 	TodoList: {
 		moveLabel: "Déplacer (flèches haut/bas)",
+		movedLabel: "Déplacé en position {position} sur {total}",
 	},
 	Tour: {
 		nextLabel: "Suivant",
