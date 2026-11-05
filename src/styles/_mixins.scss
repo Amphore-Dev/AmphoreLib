@@ -9,7 +9,7 @@
 @use "sass:math";
 @use "sass:meta";
 
-$_text-steps: (2xs, xs, sm, md, lg, xl, 2xl, 3xl, 4xl, 5xl, 6xl);
+$_text-steps: (xs, sm, base, lg, xl, 2xl, 3xl, 4xl);
 $_weights: (regular, medium, semibold, bold);
 
 // $n units of --amp-spacing, so space(1.5) is 0.375rem by default. $n is a

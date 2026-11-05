@@ -40,9 +40,9 @@ describe("space()", () => {
 
 describe("text()", () => {
 	it("sets size and line height, the weight on demand", () => {
-		const css = compile("@include text(md, medium);");
-		expect(css).toContain("font-size:var(--amp-text-md)");
-		expect(css).toContain("line-height:var(--amp-leading-md)");
+		const css = compile("@include text(base, medium);");
+		expect(css).toContain("font-size:var(--amp-text-base)");
+		expect(css).toContain("line-height:var(--amp-leading-base)");
 		expect(css).toContain("font-weight:var(--amp-weight-medium)");
 		expect(compile("@include text(sm);")).not.toContain("font-weight");
 	});
@@ -54,8 +54,8 @@ describe("text()", () => {
 	});
 
 	it("fails compilation off scale", () => {
-		expect(() => compile("@include text(m);")).toThrow(/off scale/);
-		expect(() => compile("@include text(7xl);")).toThrow(/off scale/);
+		expect(() => compile("@include text(md);")).toThrow(/off scale/);
+		expect(() => compile("@include text(5xl);")).toThrow(/off scale/);
 		expect(() => compile("@include text(md, heavy);")).toThrow(/off scale/);
 	});
 });

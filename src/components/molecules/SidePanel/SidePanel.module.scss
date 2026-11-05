@@ -60,8 +60,7 @@
 
 .title {
 	margin: 0;
-	// stylelint-disable-next-line scale-unlimited/declaration-strict-value -- off scale: 17px, between text-xl and text-2xl
-	font-size: 1.0625rem;
+	font-size: var(--amp-text-lg);
 	font-weight: weight(semibold);
 	color: var(--amp-color-ink);
 }
@@ -101,8 +100,7 @@
 
 .mobileTitle {
 	margin: 0 0 space(2);
-	// stylelint-disable-next-line scale-unlimited/declaration-strict-value -- off scale: 17px, between text-xl and text-2xl
-	font-size: 1.0625rem;
+	font-size: var(--amp-text-lg);
 	font-weight: weight(semibold);
 	color: var(--amp-color-ink);
 }

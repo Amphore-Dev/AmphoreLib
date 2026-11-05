@@ -37,8 +37,7 @@
 	border-radius: max(0px, calc(var(--amp-radius-md) - #{space(1.5)}));
 	background: transparent;
 	font-family: inherit;
-	// stylelint-disable-next-line scale-unlimited/declaration-strict-value -- off scale: 13.5px, between text-sm and text-md
-	font-size: 0.84375rem;
+	font-size: var(--amp-text-sm);
 	color: var(--amp-color-ink);
 	text-align: left;
 	cursor: pointer;

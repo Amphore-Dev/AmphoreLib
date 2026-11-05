@@ -14,13 +14,12 @@ $colors:
 	}
 
 	&[data-size="md"] {
-		// stylelint-disable-next-line scale-unlimited/declaration-strict-value -- off scale: 13.5px, the same exception as _field.scss.
-		font-size: 0.84375rem;
-		line-height: var(--amp-leading-md);
+		@include text(sm);
 	}
 
 	&[data-size="lg"] {
-		@include text(lg);
+		font-size: var(--amp-text-base);
+		line-height: space(7);
 	}
 
 	&[data-weight="regular"] {

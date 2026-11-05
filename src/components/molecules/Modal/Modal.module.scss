@@ -84,8 +84,7 @@
 
 .title {
 	margin: 0;
-	// stylelint-disable-next-line scale-unlimited/declaration-strict-value -- off scale: 17px, between text-xl and text-2xl
-	font-size: 1.0625rem;
+	font-size: var(--amp-text-lg);
 	font-weight: weight(bold);
 	color: var(--amp-color-ink);
 }
@@ -126,7 +125,7 @@
 	overscroll-behavior: contain;
 	padding: space(4.5);
 	color: var(--amp-color-ink);
-	font-size: var(--amp-text-lg);
+	font-size: var(--amp-text-base);
 }
 
 .footer {

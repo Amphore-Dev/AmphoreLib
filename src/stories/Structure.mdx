@@ -123,8 +123,8 @@ One value goes through `var()` or `space()`. A mixin (`text`, `focus-ring`, `tru
 **An exception** is a `stylelint-disable-next-line` with its reason after `--`, which the lint requires:
 
 ```scss
-// stylelint-disable-next-line scale-unlimited/declaration-strict-value -- off scale: 13.5px, between text-sm and text-md
-font-size: 0.84375rem;
+// stylelint-disable-next-line scale-unlimited/declaration-strict-value -- off scale: 9px, below text-xs
+font-size: 0.5625rem;
 ```
 
 Use it for a value a token cannot express without changing what renders. Never round to the nearest step to avoid one: an off-scale value is a design decision, not a lint fix. Tokens available and how to override them: [Directives/Theming](?path=/docs/directives-theming--docs).

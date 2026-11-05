@@ -7,27 +7,27 @@
 	margin: 0;
 
 	&[data-size="h1"] {
-		@include text(6xl);
-	}
-
-	&[data-size="h2"] {
-		@include text(5xl);
-	}
-
-	&[data-size="h3"] {
 		@include text(4xl);
 	}
 
-	&[data-size="h4"] {
+	&[data-size="h2"] {
 		@include text(3xl);
 	}
 
-	&[data-size="h5"] {
+	&[data-size="h3"] {
 		@include text(2xl);
 	}
 
-	&[data-size="h6"] {
+	&[data-size="h4"] {
 		@include text(xl);
+	}
+
+	&[data-size="h5"] {
+		@include text(lg);
+	}
+
+	&[data-size="h6"] {
+		@include text(base);
 	}
 
 	&[data-color="primary"] {
