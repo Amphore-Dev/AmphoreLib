@@ -1,24 +1,49 @@
-import React, { useEffect, useId, useRef, useState } from "react";
+import React, {
+	ComponentPropsWithoutRef,
+	useEffect,
+	useId,
+	useRef,
+	useState,
+} from "react";
+
+import { useMergeRefs } from "@floating-ui/react";
 
 import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
+import { genericForwardRef } from "@utils/UForwardRef";
 import { getPicto } from "@utils/UPicto";
+import { deriveTestId, testIdPart } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
-import { TColor, TLabel, TSize, TTabItem } from "@interfaces/index";
+import {
+	ITestIdProps,
+	TColor,
+	TElementProps,
+	TLabel,
+	TSize,
+	TTabItem,
+} from "@interfaces/index";
 
 import { Picto } from "../../atoms/Picto/Picto";
 
 import styles from "./Tabs.module.scss";
 
-export interface ITabsProps<T = string> {
+export interface ITabsProps<T = string>
+	extends
+		Omit<
+			React.ComponentPropsWithoutRef<"div">,
+			"onChange" | "color" | "defaultValue" | "children"
+		>,
+		ITestIdProps {
 	items: TTabItem<T>[];
 	value: T;
 	onChange: (value: T) => void;
 	size?: TSize;
 	color?: TColor;
 	className?: string;
+	/** Native props of the outer container (tab strip and scroll arrows). */
+	wrapperProps?: TElementProps<"div">;
 	/** aria-label for the left scroll arrow, shown once the tab strip overflows. Defaults to "Scroll left" (or `Tabs.scrollLeftLabel` from the nearest AmphoreProvider — see useAmphoreLabels). */
 	scrollLeftLabel?: TLabel;
 	/** aria-label for the right scroll arrow. Defaults to "Scroll right" (or `Tabs.scrollRightLabel` from the nearest AmphoreProvider). */
@@ -31,23 +56,21 @@ export type TTabsLabels = Pick<
 	"scrollLeftLabel" | "scrollRightLabel"
 >;
 
-/**
- * V2 Tabs — controlled tab strip, manual activation (WAI-ARIA "tabs"
- * pattern): arrows/Home/End move focus only, Enter/Space/click selects.
- * Data-driven `items`, not compound `<Tab>`/`<TabPanel>` children — renders
- * only the tablist; panel content is the consumer's own via the separate
- * `TabPanel` below, both reading the same controlled `value`.
- */
-export function Tabs<T = string>({
-	items,
-	value,
-	onChange,
-	size: sizeProp,
-	color = "primary",
-	className = "",
-	scrollLeftLabel: scrollLeftLabelProp,
-	scrollRightLabel: scrollRightLabelProp,
-}: ITabsProps<T>) {
+function TabsBase<T = string>(
+	{
+		items,
+		value,
+		onChange,
+		size: sizeProp,
+		color = "primary",
+		className = "",
+		scrollLeftLabel: scrollLeftLabelProp,
+		scrollRightLabel: scrollRightLabelProp,
+		wrapperProps,
+		...props
+	}: ITabsProps<T>,
+	ref: React.ForwardedRef<HTMLDivElement>
+) {
 	const { size: defaultSize } = useAmphoreDefaults();
 	const size = sizeProp ?? defaultSize ?? "md";
 	const { resolve } = useAmphoreLabels("Tabs");
@@ -56,6 +79,7 @@ export function Tabs<T = string>({
 	const tabsId = useId();
 	const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
 	const listRef = useRef<HTMLDivElement>(null);
+	const mergedRef = useMergeRefs([listRef, ref]);
 	const [canScrollLeft, setCanScrollLeft] = useState(false);
 	const [canScrollRight, setCanScrollRight] = useState(false);
 	const [isScrollable, setIsScrollable] = useState(false);
@@ -196,7 +220,10 @@ export function Tabs<T = string>({
 	};
 
 	return (
-		<div className={styles.wrapper}>
+		<div
+			{...wrapperProps}
+			className={cn([styles.wrapper, wrapperProps?.className])}
+		>
 			{isScrollable && (
 				<button
 					type="button"
@@ -204,6 +231,10 @@ export function Tabs<T = string>({
 					onClick={() => scrollByDirection(-1)}
 					disabled={!canScrollLeft}
 					aria-label={scrollLeftLabel}
+					data-testid={deriveTestId(
+						props["data-testid"],
+						"scroll-left"
+					)}
 					// Not part of the tablist's own roving-tabindex sequence —
 					// scrolling is a viewport concern, not a tab to select.
 					tabIndex={-1}
@@ -213,7 +244,8 @@ export function Tabs<T = string>({
 			)}
 
 			<div
-				ref={listRef}
+				{...props}
+				ref={mergedRef}
 				role="tablist"
 				className={cn([styles.tabs, className])}
 				data-size={size}
@@ -234,6 +266,11 @@ export function Tabs<T = string>({
 							tabIndex={index === focusedIndex ? 0 : -1}
 							disabled={item.disabled}
 							data-color={color}
+							data-testid={deriveTestId(
+								props["data-testid"],
+								"tab",
+								testIdPart(item.value, index)
+							)}
 							className={cn([
 								styles.tab,
 								selected && styles.tabActive,
@@ -260,6 +297,10 @@ export function Tabs<T = string>({
 					onClick={() => scrollByDirection(1)}
 					disabled={!canScrollRight}
 					aria-label={scrollRightLabel}
+					data-testid={deriveTestId(
+						props["data-testid"],
+						"scroll-right"
+					)}
 					tabIndex={-1}
 				>
 					<Picto icon="chevron" />
@@ -269,11 +310,41 @@ export function Tabs<T = string>({
 	);
 }
 
-export interface ITabPanelProps {
+/**
+ * V2 Tabs — controlled tab strip, manual activation (WAI-ARIA "tabs"
+ * pattern): arrows/Home/End move focus only, Enter/Space/click selects.
+ * Data-driven `items`, not compound `<Tab>`/`<TabPanel>` children — renders
+ * only the tablist; panel content is the consumer's own via the separate
+ * `TabPanel` below, both reading the same controlled `value`.
+ *
+ * Native props, `className` and `ref` go to the `role="tablist"` element,
+ * `wrapperProps` to the outer container. Derived testids: `-tab-<value>`
+ * (position when `value` is an object), `-scroll-left`, `-scroll-right`.
+ */
+export const Tabs = genericForwardRef(TabsBase, "Tabs");
+
+export interface ITabPanelProps extends ComponentPropsWithoutRef<"div"> {
 	active: boolean;
-	children?: React.ReactNode;
 	className?: string;
 }
+
+const TabPanelBase = (
+	{ active, children, className = "", ...props }: ITabPanelProps,
+	ref: React.ForwardedRef<HTMLDivElement>
+) => {
+	if (!active) return null;
+
+	return (
+		<div
+			{...props}
+			ref={ref}
+			role="tabpanel"
+			className={cn([styles.panel, className])}
+		>
+			{children}
+		</div>
+	);
+};
 
 /**
  * Pairs with `Tabs` via the same controlled `value` the consumer already
@@ -281,17 +352,7 @@ export interface ITabPanelProps {
  * context/ids: keeping both components ignorant of each other's internals
  * means either can be used alone (a `Tabs` strip driving something other
  * than a panel, e.g. filtering a list) without dragging the other in.
+ *
+ * Native props and `ref` go to the `role="tabpanel"` element.
  */
-export const TabPanel: React.FC<ITabPanelProps> = ({
-	active,
-	children,
-	className = "",
-}) => {
-	if (!active) return null;
-
-	return (
-		<div role="tabpanel" className={cn([styles.panel, className])}>
-			{children}
-		</div>
-	);
-};
+export const TabPanel = genericForwardRef(TabPanelBase, "TabPanel");

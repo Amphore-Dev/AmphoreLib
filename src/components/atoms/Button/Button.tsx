@@ -1,4 +1,4 @@
-import React, { ButtonHTMLAttributes, forwardRef } from "react";
+import React, { forwardRef } from "react";
 
 import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
 
@@ -7,7 +7,7 @@ import { TPictoName } from "@constants/index";
 import { getPicto } from "@utils/UPicto";
 import { cn } from "@utils/cn";
 
-import { TColor, TSize } from "@interfaces/index";
+import { ITestIdProps, TColor, TSize } from "@interfaces/index";
 
 import { IPictoProps, Picto } from "../Picto/Picto";
 
@@ -25,7 +25,10 @@ const ICON_SIZE: Record<TSize, string> = {
 	lg: "1.5rem",
 };
 
-export interface IButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface IButtonProps
+	extends
+		Omit<React.ComponentPropsWithoutRef<"button">, "color">,
+		ITestIdProps {
 	children?: React.ReactNode;
 	/** Semantic hue (shared TColor). Independent from `variant` — every color works with every variant. */
 	color?: TColor;
@@ -43,6 +46,8 @@ export interface IButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
  * V2 Button — themed via --amp-* vars. `color`/`variant` are orthogonal
  * (data-attributes), any color works with any variant. forwardRef — needed
  * as a Tooltip/Popover/Dropdown trigger (see memory/amphorelib-v2-conventions.md).
+ *
+ * Native props and `ref` go to the `<button>`.
  */
 export const Button = forwardRef<HTMLButtonElement, IButtonProps>(
 	(
@@ -67,6 +72,7 @@ export const Button = forwardRef<HTMLButtonElement, IButtonProps>(
 
 		return (
 			<button
+				{...props}
 				ref={ref}
 				className={cn([styles.button, className])}
 				data-color={color}
@@ -75,7 +81,6 @@ export const Button = forwardRef<HTMLButtonElement, IButtonProps>(
 				data-loading={isLoading || undefined}
 				type={type}
 				disabled={disabled || isLoading}
-				{...props}
 			>
 				{isLoading && (
 					<span

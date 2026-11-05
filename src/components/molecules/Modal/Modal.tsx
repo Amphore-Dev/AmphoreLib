@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef } from "react";
 
 import {
 	FloatingFocusManager,
@@ -7,26 +7,28 @@ import {
 	useFloating,
 	useId as useFloatingId,
 	useInteractions,
+	useMergeRefs,
 	useRole,
 } from "@floating-ui/react";
 
 import { AmphorePortal } from "@theme/AmphorePortal";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
-import { TLabel, TSize } from "@interfaces/index";
+import { ITestIdProps, TLabel, TSize } from "@interfaces/index";
 
 import { Card } from "../../atoms/Card/Card";
 import { Picto } from "../../atoms/Picto/Picto";
 
 import styles from "./Modal.module.scss";
 
-export interface IModalProps {
+export interface IModalProps
+	extends Omit<React.ComponentPropsWithoutRef<"div">, "title">, ITestIdProps {
 	open: boolean;
 	onClose: () => void;
 	title?: React.ReactNode;
-	children?: React.ReactNode;
 	/**
 	 * Extra header content, in the same sticky row as `title` and the close
 	 * button, taking whatever width is left between them. With no `title`
@@ -60,30 +62,25 @@ export interface IModalProps {
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
 export type TModalLabels = Pick<IModalProps, "closeLabel">;
 
-/**
- * V2 Modal — dialog overlay on floating-ui's Dialog primitives
- * (FloatingOverlay + FloatingFocusManager for the focus trap). Inline by
- * default — FloatingOverlay is already `position:fixed`, so it covers the
- * viewport without a portal. Opt into one with `portal` (AmphorePortal,
- * which re-applies the theme scope — a bare FloatingPortal would render
- * unstyled). Panel is `<Card elevation={4} noPadding>`, not a hand-rolled
- * div.
- */
-export const Modal: React.FC<IModalProps> = ({
-	open,
-	onClose,
-	title,
-	children,
-	header,
-	footer,
-	size = "md",
-	closeOnOverlayClick = true,
-	closeOnEscape = true,
-	hideCloseButton = false,
-	closeLabel: closeLabelProp,
-	portal = false,
-	className = "",
-}) => {
+const ModalBase: React.ForwardRefRenderFunction<HTMLDivElement, IModalProps> = (
+	{
+		open,
+		onClose,
+		title,
+		children,
+		header,
+		footer,
+		size = "md",
+		closeOnOverlayClick = true,
+		closeOnEscape = true,
+		hideCloseButton = false,
+		closeLabel: closeLabelProp,
+		portal = false,
+		className = "",
+		...props
+	},
+	ref
+) => {
 	const titleId = useFloatingId();
 	const { resolve } = useAmphoreLabels("Modal");
 	const closeLabel = resolve("closeLabel", closeLabelProp, "close");
@@ -106,25 +103,35 @@ export const Modal: React.FC<IModalProps> = ({
 	const role = useRole(context, { role: "dialog" });
 
 	const { getFloatingProps } = useInteractions([dismiss, role]);
+	const panelRef = useMergeRefs([refs.setFloating, ref]);
+	const testId = props["data-testid"];
 
 	if (!open) return null;
 
 	const overlay = (
-		<FloatingOverlay className={styles.overlay} lockScroll>
+		<FloatingOverlay
+			className={styles.overlay}
+			lockScroll
+			data-testid={deriveTestId(testId, "overlay")}
+		>
 			<FloatingFocusManager context={context}>
 				<Card
-					ref={refs.setFloating}
+					aria-labelledby={title ? titleId : undefined}
+					{...getFloatingProps(props)}
+					ref={panelRef}
 					elevation={4}
 					noPadding
 					className={cn([styles.panel, className])}
 					data-size={size}
-					aria-labelledby={title ? titleId : undefined}
-					{...getFloatingProps()}
 				>
 					{(title || !hideCloseButton || header) && (
 						<div className={styles.header}>
 							{title && (
-								<h2 id={titleId} className={styles.title}>
+								<h2
+									id={titleId}
+									className={styles.title}
+									data-testid={deriveTestId(testId, "title")}
+								>
 									{title}
 								</h2>
 							)}
@@ -139,6 +146,7 @@ export const Modal: React.FC<IModalProps> = ({
 									className={styles.close}
 									onClick={onClose}
 									aria-label={closeLabel}
+									data-testid={deriveTestId(testId, "close")}
 								>
 									<Picto icon="cross" />
 								</button>
@@ -148,9 +156,21 @@ export const Modal: React.FC<IModalProps> = ({
 
 					{/* Own scroll container: header/footer stay put, only this
 					    scrolls when content exceeds the panel's max-height. */}
-					<div className={styles.body}>{children}</div>
+					<div
+						className={styles.body}
+						data-testid={deriveTestId(testId, "content")}
+					>
+						{children}
+					</div>
 
-					{footer && <div className={styles.footer}>{footer}</div>}
+					{footer && (
+						<div
+							className={styles.footer}
+							data-testid={deriveTestId(testId, "footer")}
+						>
+							{footer}
+						</div>
+					)}
 				</Card>
 			</FloatingFocusManager>
 		</FloatingOverlay>
@@ -158,3 +178,18 @@ export const Modal: React.FC<IModalProps> = ({
 
 	return portal ? <AmphorePortal>{overlay}</AmphorePortal> : overlay;
 };
+
+/**
+ * V2 Modal — dialog overlay on floating-ui's Dialog primitives
+ * (FloatingOverlay + FloatingFocusManager for the focus trap). Inline by
+ * default — FloatingOverlay is already `position:fixed`, so it covers the
+ * viewport without a portal. Opt into one with `portal` (AmphorePortal,
+ * which re-applies the theme scope — a bare FloatingPortal would render
+ * unstyled). Panel is `<Card elevation={4} noPadding>`, not a hand-rolled
+ * div.
+ *
+ * Native props and `ref` go to the panel, the `role="dialog"` element.
+ * Derived testids: `-overlay`, `-title`, `-close`, `-content`, `-footer`.
+ */
+export const Modal = forwardRef(ModalBase);
+Modal.displayName = "Modal";

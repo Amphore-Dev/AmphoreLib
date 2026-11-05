@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef } from "react";
 
 import { cn } from "@utils/cn";
 
@@ -7,7 +7,7 @@ import styles from "./Divider.module.scss";
 export type TDividerOrientation = "horizontal" | "vertical";
 
 export interface IDividerProps extends Omit<
-	React.HTMLAttributes<HTMLDivElement>,
+	React.ComponentPropsWithoutRef<"div">,
 	"role"
 > {
 	orientation?: TDividerOrientation;
@@ -16,22 +16,15 @@ export interface IDividerProps extends Omit<
 	className?: string;
 }
 
-/**
- * V2 Divider — plain visual separator. Deliberately no size/color props:
- * unlike Button/Badge/Tabs, a divider doesn't have distinct visual "states"
- * to mark — it's one line, themed via --amp-color-border like every other
- * hairline in the lib (Card's own border, Input's field-box, etc).
- */
-export const Divider: React.FC<IDividerProps> = ({
-	orientation = "horizontal",
-	label,
-	className = "",
-	...props
-}) => {
+const DividerBase: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	IDividerProps
+> = ({ orientation = "horizontal", label, className = "", ...props }, ref) => {
 	if (label && orientation === "horizontal") {
 		return (
 			<div
 				{...props}
+				ref={ref}
 				role="separator"
 				aria-orientation="horizontal"
 				className={cn([styles.divider, styles.withLabel, className])}
@@ -46,6 +39,7 @@ export const Divider: React.FC<IDividerProps> = ({
 	return (
 		<div
 			{...props}
+			ref={ref}
 			role="separator"
 			aria-orientation={orientation}
 			className={cn([
@@ -56,3 +50,14 @@ export const Divider: React.FC<IDividerProps> = ({
 		/>
 	);
 };
+
+/**
+ * V2 Divider — plain visual separator. Deliberately no size/color props:
+ * unlike Button/Badge/Tabs, a divider doesn't have distinct visual "states"
+ * to mark — it's one line, themed via --amp-color-border like every other
+ * hairline in the lib (Card's own border, Input's field-box, etc).
+ *
+ * Native props and `ref` go to the root `<div>`.
+ */
+export const Divider = forwardRef(DividerBase);
+Divider.displayName = "Divider";

@@ -1,10 +1,38 @@
-import React from "react";
+import React, { forwardRef } from "react";
+
+import omit from "lodash/omit.js";
+import pick from "lodash/pick.js";
 
 import { FlexGrid } from "@components/atoms";
 import {
 	IInputFileProps,
 	InputFile,
 } from "@components/atoms/InputFile/InputFile";
+
+import { deriveTestId } from "@utils/UTestId";
+
+/** Forwarded to every slot. Everything else is a native prop of the grid. */
+const SLOT_PROP_KEYS = [
+	"id",
+	"name",
+	"accept",
+	"maxFileSize",
+	"size",
+	"placeholder",
+	"isRemovable",
+	"customPreview",
+	"onFileTypeError",
+	"onMaxSizeError",
+	"disabled",
+	"required",
+	"error",
+	"hideError",
+	"wrapperClassName",
+	"wrapperProps",
+	"inputProps",
+	"previewClassName",
+	"removeFileLabel",
+] as const satisfies readonly (keyof IInputFileProps)[];
 
 export interface IFilesFieldProps extends Omit<
 	IInputFileProps,
@@ -20,28 +48,23 @@ export interface IFilesFieldProps extends Omit<
 	gap?: string;
 }
 
-/**
- * V2 FilesField — a grid of `maxFiles` `InputFile` slots sharing one
- * controlled `(File | null)[]`. Fully controlled like every other field —
- * v1's version instead named each slot `${name}[${index}]` and relied on
- * Formik to hold the array; dropped, `FieldRenderer` does that binding now.
- *
- * `orientation` does double duty: it picks the outer FlexGrid's column count
- * (as before) *and* is forwarded to every `InputFile` slot, so "horizontal"
- * gives a compact row of horizontal-layout cards and "vertical" a column of
- * stacked ones — the two stay visually consistent instead of only the grid
- * arrangement changing.
- */
-export const FilesField: React.FC<IFilesFieldProps> = ({
-	value = [],
-	onChange,
-	maxFiles = 1,
-	orientation = "horizontal",
-	columns,
-	minItemWidth,
-	gap = "0.5rem",
-	...inputFileProps
-}) => {
+const FilesFieldBase: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	IFilesFieldProps
+> = (
+	{
+		value = [],
+		onChange,
+		maxFiles = 1,
+		orientation = "horizontal",
+		columns,
+		minItemWidth,
+		gap = "0.5rem",
+		...props
+	},
+	ref
+) => {
+	const inputFileProps = pick(props, SLOT_PROP_KEYS);
 	const computedColumns =
 		orientation === "horizontal" ? columns || Math.min(maxFiles, 3) : 1;
 
@@ -53,6 +76,8 @@ export const FilesField: React.FC<IFilesFieldProps> = ({
 
 	return (
 		<FlexGrid
+			{...omit(props, SLOT_PROP_KEYS)}
+			ref={ref}
 			columns={computedColumns}
 			gap={gap}
 			minItemWidth={minItemWidth || "150px"}
@@ -69,8 +94,33 @@ export const FilesField: React.FC<IFilesFieldProps> = ({
 					}
 					value={value[index] ?? null}
 					onChange={(file) => handleSlotChange(index, file)}
+					data-testid={deriveTestId(
+						props["data-testid"],
+						"slot",
+						index
+					)}
 				/>
 			))}
 		</FlexGrid>
 	);
 };
+
+/**
+ * V2 FilesField — a grid of `maxFiles` `InputFile` slots sharing one
+ * controlled `(File | null)[]`. Fully controlled like every other field —
+ * v1's version instead named each slot `${name}[${index}]` and relied on
+ * Formik to hold the array; dropped, `FieldRenderer` does that binding now.
+ *
+ * `orientation` does double duty: it picks the outer FlexGrid's column count
+ * (as before) *and* is forwarded to every `InputFile` slot, so "horizontal"
+ * gives a compact row of horizontal-layout cards and "vertical" a column of
+ * stacked ones — the two stay visually consistent instead of only the grid
+ * arrangement changing.
+ *
+ * Native props, `className` and `ref` go to the grid; everything that
+ * configures an upload (`accept`, `disabled`, `wrapperProps`...) to every
+ * slot. Derived testids: `-slot-<position>`, and each slot's own below it
+ * (`-slot-0-input`, `-slot-0-remove`...).
+ */
+export const FilesField = forwardRef(FilesFieldBase);
+FilesField.displayName = "FilesField";

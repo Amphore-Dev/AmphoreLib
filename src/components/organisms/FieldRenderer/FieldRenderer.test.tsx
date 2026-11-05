@@ -370,11 +370,18 @@ describe("FieldRenderer", () => {
 
 	it("file falls back to writing through Formik when it has no own onChange", () => {
 		const { values } = renderWithValues(
-			() => <FieldRenderer name="contract" type="file" value={[]} />,
+			() => (
+				<FieldRenderer
+					data-testid="contract"
+					name="contract"
+					type="file"
+					value={[]}
+				/>
+			),
 			{ contract: [] }
 		);
 		const file = new File(["x"], "a.pdf", { type: "application/pdf" });
-		const input = screen.getByTestId("input-file");
+		const input = screen.getByTestId("contract-slot-0-input");
 		fireEvent.change(input, { target: { files: [file] } });
 		expect((values.current.contract as (File | null)[])[0]?.name).toBe(
 			"a.pdf"

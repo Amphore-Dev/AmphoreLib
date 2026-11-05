@@ -4,6 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import { AmphoreProvider } from "@theme/AmphoreProvider";
 
+import { queryPicto } from "../../../../tests/queryPicto";
+
 import { Button } from "./Button";
 
 describe("Button", () => {
@@ -93,14 +95,14 @@ describe("Button", () => {
 
 	it("renders a leading picto when given", () => {
 		render(<Button label="Rechercher" picto="search" />);
-		expect(screen.getByTestId("search")).toBeInTheDocument();
+		expect(queryPicto("search")).toBeInTheDocument();
 	});
 
 	it("scales the picto's size with the button's own size", () => {
 		render(<Button label="Rechercher" picto="search" size="lg" />);
-		const svg = screen
-			.getByTestId("search")
-			.querySelector("svg") as unknown as HTMLElement;
+		const svg = queryPicto("search").querySelector(
+			"svg"
+		) as unknown as HTMLElement;
 		expect(svg).toHaveStyle({ width: "1.5rem", height: "1.5rem" });
 	});
 
@@ -108,7 +110,7 @@ describe("Button", () => {
 		const { container } = render(
 			<Button label="Envoyer" picto="search" isLoading />
 		);
-		expect(screen.queryByTestId("search")).not.toBeInTheDocument();
+		expect(queryPicto("search")).not.toBeInTheDocument();
 		expect(container.querySelector("[aria-hidden]")).toBeInTheDocument();
 	});
 

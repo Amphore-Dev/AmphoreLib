@@ -4,6 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import { AmphoreProvider } from "@theme/AmphoreProvider";
 
+import { queryPicto } from "../../../../tests/queryPicto";
+
 import { Badge } from "./Badge";
 
 describe("Badge", () => {
@@ -76,14 +78,14 @@ describe("Badge", () => {
 
 	it("renders a leading picto when provided", () => {
 		render(<Badge picto="calendar">Événement</Badge>);
-		expect(screen.getByTestId("calendar")).toBeInTheDocument();
+		expect(queryPicto("calendar")).toBeInTheDocument();
 	});
 
 	it("accepts an IPictoProps object for the picto, passing extra props through (e.g. rotation)", () => {
 		render(
 			<Badge picto={{ icon: "calendar", rotation: 90 }}>Événement</Badge>
 		);
-		const svg = screen.getByTestId("calendar").querySelector("svg");
+		const svg = queryPicto("calendar").querySelector("svg");
 		expect(svg).toHaveStyle({ transform: "rotate(90deg)" });
 	});
 

@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { forwardRef, useEffect, useRef, useState } from "react";
 
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
-import { TLabel, TSize } from "@interfaces/index";
+import { ITestIdProps, TLabel, TSize } from "@interfaces/index";
 
 import { Input } from "../../atoms/Input/Input";
 import { Picto } from "../../atoms/Picto/Picto";
@@ -12,7 +13,10 @@ import { TextArea } from "../../atoms/TextArea/TextArea";
 
 import styles from "./TodoItem.module.scss";
 
-export interface ITodoItemProps {
+export interface ITodoItemProps
+	extends
+		Omit<React.ComponentPropsWithoutRef<"li">, "children">,
+		ITestIdProps {
 	text: string;
 	/** Slot rendered before the text — a badge, an icon, an avatar. Generic on purpose: a domain-specific concern (e.g. a parsed ticket id) belongs in the consumer building this node, not in this component. */
 	before?: React.ReactNode;
@@ -37,44 +41,41 @@ export interface ITodoItemProps {
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
 export type TTodoItemLabels = Pick<ITodoItemProps, "removeLabel">;
 
-/**
- * V2 TodoItem — one row: optional drag handle, an optional leading slot,
- * click-to-edit text (a `TextArea` with `autoGrow`, swapped in on click),
- * and an optional remove button. Reorder mechanics live in TodoList (it
- * needs to measure siblings) — this component only renders the handle
- * `dragHandleProps` is spread onto and reports its own text edits/removal.
- */
-export const TodoItem: React.FC<ITodoItemProps> = ({
-	text,
-	before,
-	onTextChange,
-	onRemove,
-	editable = true,
-	removable = true,
-	multiline = false,
-	dragHandleProps,
-	dragging = false,
-	removeLabel: removeLabelProp,
-	size = "md",
-	className = "",
-}) => {
+const TodoItemBase: React.ForwardRefRenderFunction<
+	HTMLLIElement,
+	ITodoItemProps
+> = (
+	{
+		text,
+		before,
+		onTextChange,
+		onRemove,
+		editable = true,
+		removable = true,
+		multiline = false,
+		dragHandleProps,
+		dragging = false,
+		removeLabel: removeLabelProp,
+		size = "md",
+		className = "",
+		...props
+	},
+	ref
+) => {
 	const [editing, setEditing] = useState(false);
 	const [draft, setDraft] = useState(text);
-	const editorRef = useRef<HTMLDivElement>(null);
+	const editorRef = useRef<HTMLInputElement & HTMLTextAreaElement>(null);
+	const testId = props["data-testid"];
 	const { resolve } = useAmphoreLabels("TodoItem");
 	const removeLabel = resolve("removeLabel", removeLabelProp, "remove");
 
-	// Neither TextArea nor Input is a `forwardRef` component, so the only
-	// way to reach the real field is through its wrapper — same reasoning
-	// as Select's own `useEffect`-driven focus (see its comment): the user
-	// just clicked to edit, moving focus into the field they're about to
-	// type into is expected, not disorienting, jsx-a11y/no-autofocus
-	// notwithstanding.
+	// Same reasoning as Select's own `useEffect`-driven focus (see its
+	// comment): the user just clicked to edit, moving focus into the field
+	// they're about to type into is expected, not disorienting,
+	// jsx-a11y/no-autofocus notwithstanding.
 	useEffect(() => {
 		if (!editing) return;
-		const field = editorRef.current?.querySelector<
-			HTMLTextAreaElement | HTMLInputElement
-		>("textarea, input");
+		const field = editorRef.current;
 		field?.focus();
 		field?.setSelectionRange(field.value.length, field.value.length);
 	}, [editing]);
@@ -107,6 +108,8 @@ export const TodoItem: React.FC<ITodoItemProps> = ({
 
 	return (
 		<li
+			{...props}
+			ref={ref}
 			className={cn([styles.row, className])}
 			data-size={size}
 			data-dragging={dragging || undefined}
@@ -116,6 +119,7 @@ export const TodoItem: React.FC<ITodoItemProps> = ({
 				<button
 					type="button"
 					className={styles.handle}
+					data-testid={deriveTestId(testId, "handle")}
 					{...dragHandleProps}
 				>
 					<Picto icon="gripVertical" className={styles.handleIcon} />
@@ -125,9 +129,11 @@ export const TodoItem: React.FC<ITodoItemProps> = ({
 			{before && <span className={styles.before}>{before}</span>}
 
 			{editing ? (
-				<div ref={editorRef} className={styles.editorWrapper}>
+				<div className={styles.editorWrapper}>
 					{multiline ? (
 						<TextArea
+							ref={editorRef}
+							data-testid={deriveTestId(testId, "input")}
 							value={draft}
 							onChange={setDraft}
 							autoGrow
@@ -140,6 +146,8 @@ export const TodoItem: React.FC<ITodoItemProps> = ({
 						/>
 					) : (
 						<Input
+							ref={editorRef}
+							data-testid={deriveTestId(testId, "input")}
 							value={draft}
 							onChange={setDraft}
 							hideError
@@ -154,11 +162,17 @@ export const TodoItem: React.FC<ITodoItemProps> = ({
 					type="button"
 					className={styles.text}
 					onClick={startEdit}
+					data-testid={deriveTestId(testId, "text")}
 				>
 					{text}
 				</button>
 			) : (
-				<span className={styles.text}>{text}</span>
+				<span
+					className={styles.text}
+					data-testid={deriveTestId(testId, "text")}
+				>
+					{text}
+				</span>
 			)}
 
 			{removable && !editing && (
@@ -167,6 +181,7 @@ export const TodoItem: React.FC<ITodoItemProps> = ({
 					className={styles.remove}
 					onClick={onRemove}
 					aria-label={`${removeLabel}: ${text}`}
+					data-testid={deriveTestId(testId, "remove")}
 				>
 					<Picto icon="cross" className={styles.removeIcon} />
 				</button>
@@ -174,3 +189,16 @@ export const TodoItem: React.FC<ITodoItemProps> = ({
 		</li>
 	);
 };
+
+/**
+ * V2 TodoItem — one row: optional drag handle, an optional leading slot,
+ * click-to-edit text (a `TextArea` with `autoGrow`, swapped in on click),
+ * and an optional remove button. Reorder mechanics live in TodoList (it
+ * needs to measure siblings) — this component only renders the handle
+ * `dragHandleProps` is spread onto and reports its own text edits/removal.
+ *
+ * Native props and `ref` go to the `<li>`. Derived testids: `-handle`,
+ * `-text`, `-input`, `-remove`.
+ */
+export const TodoItem = forwardRef(TodoItemBase);
+TodoItem.displayName = "TodoItem";

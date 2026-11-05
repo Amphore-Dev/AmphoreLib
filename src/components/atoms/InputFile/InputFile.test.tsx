@@ -10,14 +10,14 @@ const makeFile = (name: string, type: string, sizeKb = 1) =>
 
 describe("InputFile", () => {
 	it("renders the placeholder when empty", () => {
-		render(<InputFile placeholder="Add" />);
+		render(<InputFile data-testid="input-file" placeholder="Add" />);
 		expect(screen.getByText("Add")).toBeInTheDocument();
 	});
 
 	it("calls onChange with the selected file", () => {
 		const onChange = vi.fn();
-		render(<InputFile onChange={onChange} />);
-		const input = screen.getByTestId("input-file");
+		render(<InputFile data-testid="input-file" onChange={onChange} />);
+		const input = screen.getByTestId("input-file-input");
 		const file = makeFile("a.png", "image/png");
 		fireEvent.change(input, { target: { files: [file] } });
 		expect(onChange).toHaveBeenCalledWith(file);
@@ -25,8 +25,8 @@ describe("InputFile", () => {
 
 	it("tags the picked file with an own enumerable signature (regression: a bare File has none, so Formik's react-fast-compare dirty-check saw every file as deep-equal to every other and never flipped `dirty`)", () => {
 		const onChange = vi.fn();
-		render(<InputFile onChange={onChange} />);
-		const input = screen.getByTestId("input-file");
+		render(<InputFile data-testid="input-file" onChange={onChange} />);
+		const input = screen.getByTestId("input-file-input");
 		fireEvent.change(input, {
 			target: { files: [makeFile("a.png", "image/png")] },
 		});
@@ -36,14 +36,20 @@ describe("InputFile", () => {
 
 	it("shows the file name once a value is set", () => {
 		const file = makeFile("report.pdf", "application/pdf");
-		render(<InputFile value={file} />);
+		render(<InputFile data-testid="input-file" value={file} />);
 		expect(screen.getByText("report.pdf")).toBeInTheDocument();
 	});
 
 	it("calls onChange(null) when removed", () => {
 		const onChange = vi.fn();
 		const file = makeFile("report.pdf", "application/pdf");
-		render(<InputFile value={file} onChange={onChange} />);
+		render(
+			<InputFile
+				data-testid="input-file"
+				value={file}
+				onChange={onChange}
+			/>
+		);
 		fireEvent.click(screen.getByTestId("input-file-remove"));
 		expect(onChange).toHaveBeenCalledWith(null);
 	});
@@ -53,12 +59,13 @@ describe("InputFile", () => {
 		const onFileTypeError = vi.fn();
 		render(
 			<InputFile
+				data-testid="input-file"
 				accept=".pdf"
 				onChange={onChange}
 				onFileTypeError={onFileTypeError}
 			/>
 		);
-		const input = screen.getByTestId("input-file");
+		const input = screen.getByTestId("input-file-input");
 		const file = makeFile("a.png", "image/png");
 		fireEvent.change(input, { target: { files: [file] } });
 		expect(onChange).not.toHaveBeenCalled();
@@ -70,12 +77,13 @@ describe("InputFile", () => {
 		const onMaxSizeError = vi.fn();
 		render(
 			<InputFile
+				data-testid="input-file"
 				maxFileSize={10}
 				onChange={onChange}
 				onMaxSizeError={onMaxSizeError}
 			/>
 		);
-		const input = screen.getByTestId("input-file");
+		const input = screen.getByTestId("input-file-input");
 		const file = makeFile("big.png", "image/png", 20);
 		fireEvent.change(input, { target: { files: [file] } });
 		expect(onChange).not.toHaveBeenCalled();
@@ -84,7 +92,13 @@ describe("InputFile", () => {
 
 	it("does not show a remove button when isRemovable is false", () => {
 		const file = makeFile("report.pdf", "application/pdf");
-		render(<InputFile value={file} isRemovable={false} />);
+		render(
+			<InputFile
+				data-testid="input-file"
+				value={file}
+				isRemovable={false}
+			/>
+		);
 		expect(
 			screen.queryByTestId("input-file-remove")
 		).not.toBeInTheDocument();
@@ -92,7 +106,9 @@ describe("InputFile", () => {
 
 	it("defaults to a vertical layout (preview above a footer)", () => {
 		const file = makeFile("report.pdf", "application/pdf");
-		const { container } = render(<InputFile value={file} />);
+		const { container } = render(
+			<InputFile data-testid="input-file" value={file} />
+		);
 		expect(container.querySelector("[data-orientation]")).toHaveAttribute(
 			"data-orientation",
 			"vertical"
@@ -102,18 +118,32 @@ describe("InputFile", () => {
 	it("shows the file size only in horizontal orientation", () => {
 		const file = makeFile("report.pdf", "application/pdf", 2048); // 2 MB
 		const { rerender } = render(
-			<InputFile value={file} orientation="vertical" />
+			<InputFile
+				data-testid="input-file"
+				value={file}
+				orientation="vertical"
+			/>
 		);
 		expect(screen.queryByText(/MB|KB/)).not.toBeInTheDocument();
 
-		rerender(<InputFile value={file} orientation="horizontal" />);
+		rerender(
+			<InputFile
+				data-testid="input-file"
+				value={file}
+				orientation="horizontal"
+			/>
+		);
 		expect(screen.getByText(/MB/)).toBeInTheDocument();
 	});
 
 	it("renders the preview+footer inline (horizontal), never overlaid on top of each other", () => {
 		const file = makeFile("report.pdf", "application/pdf");
 		const { container } = render(
-			<InputFile value={file} orientation="horizontal" />
+			<InputFile
+				data-testid="input-file"
+				value={file}
+				orientation="horizontal"
+			/>
 		);
 		const card = container.querySelector("[data-orientation]");
 		expect(card).toHaveAttribute("data-orientation", "horizontal");

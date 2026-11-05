@@ -1,4 +1,4 @@
-import React, { cloneElement, useState } from "react";
+import React, { cloneElement, forwardRef, useState } from "react";
 
 import {
 	flip,
@@ -21,7 +21,10 @@ import { cn } from "@utils/cn";
 
 import styles from "./Tooltip.module.scss";
 
-export interface ITooltipProps {
+export interface ITooltipProps extends Omit<
+	React.ComponentPropsWithoutRef<"div">,
+	"content" | "children"
+> {
 	content: React.ReactNode;
 	/** Single element — cloned to attach the trigger's ref/hover/focus handlers. */
 	children: React.ReactElement;
@@ -32,26 +35,22 @@ export interface ITooltipProps {
 	className?: string;
 }
 
-/**
- * V2 Tooltip — hover/focus-triggered (tap on touch), non-interactive text hint
- * (role="tooltip"). Display-only, unlike Popover (click, interactive
- * content) — a separate component, not a variant. Inline
- * (`strategy:"fixed"`) by default, `portal` opts into AmphorePortal (see
- * memory/amphorelib-v2-conventions.md).
- *
- * Touch has no hover: iOS only fires the emulated mouse events hover relies
- * on for elements it deems clickable, so a tooltip on a plain element
- * never opened there. A tap now toggles it (useClick with `ignoreMouse`,
- * so a mouse click doesn't fight the hover), and a tap elsewhere closes it.
- */
-export const Tooltip: React.FC<ITooltipProps> = ({
-	content,
-	children,
-	placement = "top",
-	disabled = false,
-	portal = false,
-	className = "",
-}) => {
+const TooltipBase: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	ITooltipProps
+> = (
+	{
+		content,
+		children,
+		placement = "top",
+		disabled = false,
+		portal = false,
+		className = "",
+		style,
+		...props
+	},
+	ref
+) => {
 	const [open, setOpen] = useState(false);
 
 	const { refs, floatingStyles, context } = useFloating({
@@ -82,6 +81,7 @@ export const Tooltip: React.FC<ITooltipProps> = ({
 	// of its ref.
 	const childRef = (children as unknown as { ref?: React.Ref<unknown> }).ref;
 	const mergedRef = useMergeRefs([refs.setReference, childRef ?? null]);
+	const floatingRef = useMergeRefs([refs.setFloating, ref]);
 
 	const trigger = cloneElement(
 		children,
@@ -90,10 +90,10 @@ export const Tooltip: React.FC<ITooltipProps> = ({
 
 	const floating = open && !disabled && !!content && (
 		<div
-			ref={refs.setFloating}
-			style={floatingStyles}
+			{...getFloatingProps(props)}
+			ref={floatingRef}
+			style={{ ...style, ...floatingStyles }}
 			className={cn([styles.tooltip, className])}
-			{...getFloatingProps()}
 		>
 			{content}
 		</div>
@@ -106,3 +106,21 @@ export const Tooltip: React.FC<ITooltipProps> = ({
 		</>
 	);
 };
+
+/**
+ * V2 Tooltip — hover/focus-triggered (tap on touch), non-interactive text hint
+ * (role="tooltip"). Display-only, unlike Popover (click, interactive
+ * content) — a separate component, not a variant. Inline
+ * (`strategy:"fixed"`) by default, `portal` opts into AmphorePortal (see
+ * memory/amphorelib-v2-conventions.md).
+ *
+ * Touch has no hover: iOS only fires the emulated mouse events hover relies
+ * on for elements it deems clickable, so a tooltip on a plain element
+ * never opened there. A tap now toggles it (useClick with `ignoreMouse`,
+ * so a mouse click doesn't fight the hover), and a tap elsewhere closes it.
+ *
+ * No root element of its own: native props and `ref` go to the floating
+ * bubble, the trigger keeps whatever its own element was given.
+ */
+export const Tooltip = forwardRef(TooltipBase);
+Tooltip.displayName = "Tooltip";

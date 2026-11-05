@@ -4,6 +4,7 @@ export * from "./TFiltersContext";
 export * from "./TFiltersModal";
 export * from "./TLabel";
 export * from "./TMenuItem";
+export * from "./TNativeProps";
 export * from "./TSearchParams";
 export * from "./TSelectOption";
 export * from "./TSize";

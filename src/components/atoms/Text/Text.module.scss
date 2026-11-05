@@ -1,3 +1,5 @@
+@use "../../../styles/mixins" as *;
+
 $colors:
 	ink, sub, primary, danger, success, warning, info, neutral, black, white;
 
@@ -7,30 +9,29 @@ $colors:
 
 	// Same pairs as a field of that size (see _field.scss).
 	&[data-size="sm"] {
-		font-size: 0.75rem;
-		line-height: 1.25rem;
+		@include text(xs);
 	}
 
 	&[data-size="md"] {
+		// stylelint-disable-next-line scale-unlimited/declaration-strict-value -- off scale: 13.5px, the same exception as _field.scss.
 		font-size: 0.84375rem;
-		line-height: 1.5rem;
+		line-height: var(--amp-leading-md);
 	}
 
 	&[data-size="lg"] {
-		font-size: 0.9375rem;
-		line-height: 1.75rem;
+		@include text(lg);
 	}
 
 	&[data-weight="regular"] {
-		font-weight: 400;
+		font-weight: weight(regular);
 	}
 
 	&[data-weight="semibold"] {
-		font-weight: 600;
+		font-weight: weight(semibold);
 	}
 
 	&[data-weight="bold"] {
-		font-weight: 700;
+		font-weight: weight(bold);
 	}
 
 	@each $color in $colors {

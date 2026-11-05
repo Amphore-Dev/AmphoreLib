@@ -1,4 +1,4 @@
-import React, { HTMLAttributes } from "react";
+import React, { forwardRef } from "react";
 
 import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
@@ -6,9 +6,10 @@ import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 import type { TPictoName } from "@constants/index";
 
 import { getPicto } from "@utils/UPicto";
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
-import { TColor, TLabel, TSize } from "@interfaces/index";
+import { ITestIdProps, TColor, TLabel, TSize } from "@interfaces/index";
 
 import type { IPictoProps } from "../Picto/Picto";
 import { Picto } from "../Picto/Picto";
@@ -24,7 +25,8 @@ const DEFAULT_ICON: Partial<Record<TColor, TPictoName>> = {
 	info: "info",
 };
 
-export interface IInfoMessageProps extends HTMLAttributes<HTMLDivElement> {
+export interface IInfoMessageProps
+	extends Omit<React.ComponentPropsWithoutRef<"div">, "color">, ITestIdProps {
 	color?: TColor;
 	variant?: TInfoMessageVariant;
 	size?: TSize;
@@ -45,19 +47,24 @@ export interface IInfoMessageProps extends HTMLAttributes<HTMLDivElement> {
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why a `Pick` here instead of auto-deriving from `TLabel`. */
 export type TInfoMessageLabels = Pick<IInfoMessageProps, "closeLabel">;
 
-/** V2 InfoMessage — inline banner/alert. Same `--_color*` per-`[data-color]` pattern as Badge/Button. */
-export const InfoMessage: React.FC<IInfoMessageProps> = ({
-	color = "info",
-	variant = "tint",
-	size: sizeProp,
-	picto,
-	hideIcon = false,
-	onClose,
-	closeLabel: closeLabelProp,
-	children,
-	className = "",
-	...props
-}) => {
+const InfoMessageBase: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	IInfoMessageProps
+> = (
+	{
+		color = "info",
+		variant = "tint",
+		size: sizeProp,
+		picto,
+		hideIcon = false,
+		onClose,
+		closeLabel: closeLabelProp,
+		children,
+		className = "",
+		...props
+	},
+	ref
+) => {
 	const { size: defaultSize } = useAmphoreDefaults();
 	const size = sizeProp ?? defaultSize ?? "md";
 	const { resolve } = useAmphoreLabels("InfoMessage");
@@ -70,6 +77,7 @@ export const InfoMessage: React.FC<IInfoMessageProps> = ({
 	return (
 		<div
 			{...props}
+			ref={ref}
 			role={role}
 			data-color={color}
 			data-variant={variant}
@@ -84,6 +92,7 @@ export const InfoMessage: React.FC<IInfoMessageProps> = ({
 					className={styles.close}
 					onClick={onClose}
 					aria-label={closeLabel}
+					data-testid={deriveTestId(props["data-testid"], "close")}
 				>
 					<Picto icon="cross" />
 				</button>
@@ -91,3 +100,12 @@ export const InfoMessage: React.FC<IInfoMessageProps> = ({
 		</div>
 	);
 };
+
+/**
+ * V2 InfoMessage — inline banner/alert. Same `--_color*` per-`[data-color]`
+ * pattern as Badge/Button.
+ *
+ * Native props and `ref` go to the root `<div>`. Derived testid: `-close`.
+ */
+export const InfoMessage = forwardRef(InfoMessageBase);
+InfoMessage.displayName = "InfoMessage";

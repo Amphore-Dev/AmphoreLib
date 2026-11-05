@@ -2,6 +2,8 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
+import { queryPicto } from "../../../../tests/queryPicto";
+
 import { InfoMessage } from "./InfoMessage";
 
 describe("InfoMessage", () => {
@@ -26,23 +28,23 @@ describe("InfoMessage", () => {
 
 	it("shows an icon by default", () => {
 		render(<InfoMessage>Hello</InfoMessage>);
-		expect(screen.getByTestId("info")).toBeInTheDocument();
+		expect(queryPicto("info")).toBeInTheDocument();
 	});
 
 	it("hides the icon when hideIcon is set", () => {
 		render(<InfoMessage hideIcon>Hello</InfoMessage>);
-		expect(screen.queryByTestId("info")).not.toBeInTheDocument();
+		expect(queryPicto("info")).not.toBeInTheDocument();
 	});
 
 	it("picks a default icon per color", () => {
 		const { rerender } = render(
 			<InfoMessage color="success">Hello</InfoMessage>
 		);
-		expect(screen.getByTestId("checkCircle")).toBeInTheDocument();
+		expect(queryPicto("checkCircle")).toBeInTheDocument();
 		rerender(<InfoMessage color="danger">Hello</InfoMessage>);
-		expect(screen.getByTestId("alert")).toBeInTheDocument();
+		expect(queryPicto("alert")).toBeInTheDocument();
 		rerender(<InfoMessage color="warning">Hello</InfoMessage>);
-		expect(screen.getByTestId("alertTriangle")).toBeInTheDocument();
+		expect(queryPicto("alertTriangle")).toBeInTheDocument();
 	});
 
 	it("lets `picto` override the default icon", () => {
@@ -51,7 +53,7 @@ describe("InfoMessage", () => {
 				Hello
 			</InfoMessage>
 		);
-		expect(screen.getByTestId("star")).toBeInTheDocument();
+		expect(queryPicto("star")).toBeInTheDocument();
 	});
 
 	it("shows no close button without onClose", () => {

@@ -1,15 +1,20 @@
-import React, { useEffect, useId, useRef } from "react";
+import React, { forwardRef, useEffect, useId, useRef } from "react";
 
+import { useMergeRefs } from "@floating-ui/react";
+
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
+
+import { ITestIdProps, TElementProps } from "@interfaces/index";
 
 import { InputErrorMessage } from "../InputErrorMessage/InputErrorMessage";
 
 import styles from "./Checkbox.module.scss";
 
-export interface ICheckboxProps extends Omit<
-	React.InputHTMLAttributes<HTMLInputElement>,
-	"onChange" | "checked"
-> {
+export interface ICheckboxProps
+	extends
+		Omit<React.ComponentPropsWithoutRef<"input">, "onChange" | "checked">,
+		ITestIdProps {
 	checked?: boolean;
 	/** Renders a dash instead of a check, and reports as neither checked nor unchecked. Purely visual — doesn't change `checked`. */
 	indeterminate?: boolean;
@@ -22,31 +27,36 @@ export interface ICheckboxProps extends Omit<
 	hideError?: boolean;
 	className?: string;
 	wrapperClassName?: string;
+	/** Native props of the outer container (the row and the error message). */
+	wrapperProps?: TElementProps<"div">;
 }
 
-/**
- * V2 Checkbox — fully controlled (checked/onChange only), no ambient
- * form-library awareness. Single fixed size and color (primary) by design:
- * unlike Button/Input, a checkbox isn't a place consumers reach for visual
- * variants — keep the surface small.
- */
-export const Checkbox: React.FC<ICheckboxProps> = ({
-	checked = false,
-	indeterminate = false,
-	onChange,
-	label,
-	error,
-	hideError = false,
-	disabled = false,
-	className = "",
-	wrapperClassName = "",
-	id,
-	...props
-}) => {
+const CheckboxBase: React.ForwardRefRenderFunction<
+	HTMLInputElement,
+	ICheckboxProps
+> = (
+	{
+		checked = false,
+		indeterminate = false,
+		onChange,
+		label,
+		error,
+		hideError = false,
+		disabled = false,
+		className = "",
+		wrapperClassName = "",
+		wrapperProps,
+		id,
+		"aria-describedby": ariaDescribedBy,
+		...props
+	},
+	ref
+) => {
 	const generatedId = useId();
 	const inputId = id ?? generatedId;
 	const errorId = `${inputId}-error`;
 	const inputRef = useRef<HTMLInputElement>(null);
+	const mergedRef = useMergeRefs([inputRef, ref]);
 
 	useEffect(() => {
 		if (inputRef.current) {
@@ -59,7 +69,14 @@ export const Checkbox: React.FC<ICheckboxProps> = ({
 	};
 
 	return (
-		<div className={cn([styles.wrapper, wrapperClassName])}>
+		<div
+			{...wrapperProps}
+			className={cn([
+				styles.wrapper,
+				wrapperClassName,
+				wrapperProps?.className,
+			])}
+		>
 			<label
 				className={styles.row}
 				data-disabled={disabled || undefined}
@@ -68,7 +85,7 @@ export const Checkbox: React.FC<ICheckboxProps> = ({
 				<span className={styles.boxWrapper}>
 					<input
 						{...props}
-						ref={inputRef}
+						ref={mergedRef}
 						id={inputId}
 						type="checkbox"
 						className={cn([styles.input, className])}
@@ -76,7 +93,10 @@ export const Checkbox: React.FC<ICheckboxProps> = ({
 						disabled={disabled}
 						aria-invalid={!!error}
 						aria-describedby={
-							error && !hideError ? errorId : undefined
+							cn([
+								ariaDescribedBy,
+								error && !hideError && errorId,
+							]) || undefined
 						}
 						onChange={handleChange}
 					/>
@@ -111,8 +131,25 @@ export const Checkbox: React.FC<ICheckboxProps> = ({
 			</label>
 
 			{!hideError && (
-				<InputErrorMessage id={errorId}>{error}</InputErrorMessage>
+				<InputErrorMessage
+					id={errorId}
+					data-testid={deriveTestId(props["data-testid"], "error")}
+				>
+					{error}
+				</InputErrorMessage>
 			)}
 		</div>
 	);
 };
+
+/**
+ * V2 Checkbox — fully controlled (checked/onChange only), no ambient
+ * form-library awareness. Single fixed size and color (primary) by design:
+ * unlike Button/Input, a checkbox isn't a place consumers reach for visual
+ * variants — keep the surface small.
+ *
+ * Native props, `className` and `ref` go to the `<input>`, `wrapperProps` to
+ * the outer container. Derived testid: `-error`.
+ */
+export const Checkbox = forwardRef(CheckboxBase);
+Checkbox.displayName = "Checkbox";

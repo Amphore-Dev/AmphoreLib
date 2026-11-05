@@ -1,10 +1,11 @@
-import React from "react";
+import React, { forwardRef } from "react";
 
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
-import type { TLabel } from "@interfaces/index";
+import type { ITestIdProps, TLabel } from "@interfaces/index";
 
 import { Link } from "../../atoms/Link/Link";
 
@@ -18,7 +19,10 @@ export interface IBreadcrumbEntry {
 	hidden?: boolean;
 }
 
-export interface IBreadcrumbProps {
+export interface IBreadcrumbProps
+	extends
+		Omit<React.ComponentPropsWithoutRef<"nav">, "children">,
+		ITestIdProps {
 	items: IBreadcrumbEntry[];
 	/** Between each entry. Defaults to "/". */
 	separator?: React.ReactNode;
@@ -30,20 +34,19 @@ export interface IBreadcrumbProps {
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
 export type TBreadcrumbLabels = Pick<IBreadcrumbProps, "navigationLabel">;
 
-/**
- * V2 Breadcrumb — a trail of page links, the last one being the current
- * page (rendered as plain text with `aria-current="page"`, never a link,
- * regardless of whether it has an `href`). No separate `BreadcrumbItem`
- * atom, unlike the reference this was ported from: a breadcrumb link is
- * just `Link` (already themed/styled) — the only thing this adds on top is
- * the trail layout, the separator, and the current-page/link split.
- */
-export const Breadcrumb: React.FC<IBreadcrumbProps> = ({
-	items,
-	separator = "/",
-	navigationLabel: navigationLabelProp,
-	className = "",
-}) => {
+const BreadcrumbBase: React.ForwardRefRenderFunction<
+	HTMLElement,
+	IBreadcrumbProps
+> = (
+	{
+		items,
+		separator = "/",
+		navigationLabel: navigationLabelProp,
+		className = "",
+		...props
+	},
+	ref
+) => {
 	const visible = items.filter((item) => !item.hidden);
 	const { resolve } = useAmphoreLabels("Breadcrumb");
 	const navigationLabel = resolve("navigationLabel", navigationLabelProp);
@@ -53,10 +56,17 @@ export const Breadcrumb: React.FC<IBreadcrumbProps> = ({
 	return (
 		<nav
 			aria-label={navigationLabel}
+			{...props}
+			ref={ref}
 			className={cn([styles.breadcrumb, className])}
 		>
 			{visible.map((item, index) => {
 				const isLast = index === visible.length - 1;
+				const itemTestId = deriveTestId(
+					props["data-testid"],
+					"item",
+					index
+				);
 
 				return (
 					<React.Fragment key={index}>
@@ -66,6 +76,7 @@ export const Breadcrumb: React.FC<IBreadcrumbProps> = ({
 								color="neutral"
 								underline="hover"
 								className={styles.item}
+								data-testid={itemTestId}
 							>
 								{item.label}
 							</Link>
@@ -74,6 +85,7 @@ export const Breadcrumb: React.FC<IBreadcrumbProps> = ({
 								className={styles.item}
 								data-current={isLast || undefined}
 								aria-current={isLast ? "page" : undefined}
+								data-testid={itemTestId}
 							>
 								{item.label}
 							</span>
@@ -89,3 +101,17 @@ export const Breadcrumb: React.FC<IBreadcrumbProps> = ({
 		</nav>
 	);
 };
+
+/**
+ * V2 Breadcrumb — a trail of page links, the last one being the current
+ * page (rendered as plain text with `aria-current="page"`, never a link,
+ * regardless of whether it has an `href`). No separate `BreadcrumbItem`
+ * atom, unlike the reference this was ported from: a breadcrumb link is
+ * just `Link` (already themed/styled) — the only thing this adds on top is
+ * the trail layout, the separator, and the current-page/link split.
+ *
+ * Native props and `ref` go to the `<nav>`, `aria-label` winning over
+ * `navigationLabel`. Derived testids: `-item-<position>`.
+ */
+export const Breadcrumb = forwardRef(BreadcrumbBase);
+Breadcrumb.displayName = "Breadcrumb";

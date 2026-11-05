@@ -1,4 +1,5 @@
 import React, {
+	forwardRef,
 	isValidElement,
 	useEffect,
 	useLayoutEffect,
@@ -18,6 +19,7 @@ import {
 	useFloating,
 	useId as useFloatingId,
 	useInteractions,
+	useMergeRefs,
 	useRole,
 	type Placement,
 } from "@floating-ui/react";
@@ -27,9 +29,11 @@ import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
 import { useMediaQuery } from "@hooks/index";
 
+import { composeHandlers } from "@utils/UHandlers";
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
-import { TLabel } from "@interfaces/index";
+import { ITestIdProps, TLabel } from "@interfaces/index";
 
 import { Button } from "../../atoms/Button/Button";
 import { Card } from "../../atoms/Card/Card";
@@ -96,7 +100,10 @@ export type TTourActionsAlign = "start" | "center" | "end";
 
 export type TTourCloseReason = "done" | "skip" | "missing";
 
-export interface ITourProps {
+export interface ITourProps
+	extends
+		Omit<React.ComponentPropsWithoutRef<"div">, "children">,
+		ITestIdProps {
 	steps: TTourStep[];
 	open: boolean;
 	/**
@@ -161,35 +168,30 @@ const forDevice = <T,>(value: TPerDevice<T>, device: TTourDevice) =>
 
 type TRect = { top: number; left: number; width: number; height: number };
 
-/**
- * V2 Tour — a guided walkthrough over the real interface: the page is
- * dimmed except the current step's target, and the step's text sits in a
- * bubble anchored to it (desktop) or in a full-width sheet (mobile). Same
- * engine and same steps on both: targets, contents and whole steps can
- * differ per device, the tour switches mid-way if the viewport crosses
- * `mobileBreakpoint`, and targets rendered late (async data) are waited
- * for. Passive: the page underneath is not clickable while it runs.
- * Controlled by `open`/`onClose` — when to start it and whether it was
- * already seen stays the consumer's business.
- */
-export const Tour: React.FC<ITourProps> = ({
-	steps,
-	open,
-	onClose,
-	step: stepProp,
-	onStepChange,
-	variant = "auto",
-	mobileBreakpoint = 768,
-	targetTimeout = 3000,
-	portal = false,
-	nextLabel: nextLabelProp,
-	prevLabel: prevLabelProp,
-	skipLabel: skipLabelProp,
-	doneLabel: doneLabelProp,
-	stepOfLabel: stepOfLabelProp,
-	actionsAlign = "end",
-	className = "",
-}) => {
+const TourBase: React.ForwardRefRenderFunction<HTMLDivElement, ITourProps> = (
+	{
+		steps,
+		open,
+		onClose,
+		step: stepProp,
+		onStepChange,
+		variant = "auto",
+		mobileBreakpoint = 768,
+		targetTimeout = 3000,
+		portal = false,
+		nextLabel: nextLabelProp,
+		prevLabel: prevLabelProp,
+		skipLabel: skipLabelProp,
+		doneLabel: doneLabelProp,
+		stepOfLabel: stepOfLabelProp,
+		actionsAlign = "end",
+		className = "",
+		style,
+		onKeyDown: onKeyDownProp,
+		...props
+	},
+	ref
+) => {
 	const { resolve } = useAmphoreLabels("Tour");
 	const nextLabel = resolve("nextLabel", nextLabelProp);
 	const prevLabel = resolve("prevLabel", prevLabelProp);
@@ -357,6 +359,8 @@ export const Tour: React.FC<ITourProps> = ({
 	const dismiss = useDismiss(context, { outsidePress: false });
 	const role = useRole(context, { role: "dialog" });
 	const { getFloatingProps } = useInteractions([dismiss, role]);
+	const bubbleRef = useMergeRefs([refs.setFloating, ref]);
+	const testId = props["data-testid"];
 
 	const titleId = useFloatingId();
 	const contentId = useFloatingId();
@@ -414,7 +418,16 @@ export const Tour: React.FC<ITourProps> = ({
 					initialFocus={primaryRef}
 				>
 					<Card
-						ref={refs.setFloating}
+						aria-labelledby={titleId}
+						aria-describedby={contentId}
+						{...getFloatingProps({
+							...props,
+							onKeyDown: composeHandlers(
+								onKeyDownProp,
+								onKeyDown
+							),
+						})}
+						ref={bubbleRef}
 						elevation={4}
 						className={cn([
 							styles.bubble,
@@ -427,14 +440,12 @@ export const Tour: React.FC<ITourProps> = ({
 							display === "sheet" ? sheetPosition : undefined
 						}
 						style={{
+							...style,
 							...(currentStep.style ?? {}),
 							...(display === "popover" && !centered
 								? floatingStyles
 								: undefined),
 						}}
-						aria-labelledby={titleId}
-						aria-describedby={contentId}
-						{...getFloatingProps({ onKeyDown })}
 					>
 						{display === "popover" && !centered && (
 							<FloatingArrow
@@ -455,10 +466,18 @@ export const Tour: React.FC<ITourProps> = ({
 									.replace("{total}", String(counted.length))}
 							</span>
 						)}
-						<h2 id={titleId} className={styles.title}>
+						<h2
+							id={titleId}
+							className={styles.title}
+							data-testid={deriveTestId(testId, "title")}
+						>
 							{forDevice(currentStep.title, device)}
 						</h2>
-						<div id={contentId} className={styles.content}>
+						<div
+							id={contentId}
+							className={styles.content}
+							data-testid={deriveTestId(testId, "content")}
+						>
 							{forDevice(currentStep.content, device)}
 						</div>
 						<div
@@ -485,6 +504,10 @@ export const Tour: React.FC<ITourProps> = ({
 										size="sm"
 										variant="ghost"
 										onClick={() => onClose("skip")}
+										data-testid={deriveTestId(
+											testId,
+											"skip"
+										)}
 									>
 										{currentStep.skipLabel ?? skipLabel}
 									</Button>
@@ -494,6 +517,10 @@ export const Tour: React.FC<ITourProps> = ({
 										size="sm"
 										variant="outline"
 										onClick={prev}
+										data-testid={deriveTestId(
+											testId,
+											"secondary"
+										)}
 									>
 										{prevLabel}
 									</Button>
@@ -502,6 +529,10 @@ export const Tour: React.FC<ITourProps> = ({
 									ref={primaryRef}
 									size="sm"
 									onClick={next}
+									data-testid={deriveTestId(
+										testId,
+										"primary"
+									)}
 								>
 									{currentStep.nextLabel ??
 										(isLast ? doneLabel : nextLabel)}
@@ -516,3 +547,21 @@ export const Tour: React.FC<ITourProps> = ({
 
 	return portal ? <AmphorePortal>{layer}</AmphorePortal> : layer;
 };
+
+/**
+ * V2 Tour — a guided walkthrough over the real interface: the page is
+ * dimmed except the current step's target, and the step's text sits in a
+ * bubble anchored to it (desktop) or in a full-width sheet (mobile). Same
+ * engine and same steps on both: targets, contents and whole steps can
+ * differ per device, the tour switches mid-way if the viewport crosses
+ * `mobileBreakpoint`, and targets rendered late (async data) are waited
+ * for. Passive: the page underneath is not clickable while it runs.
+ * Controlled by `open`/`onClose` — when to start it and whether it was
+ * already seen stays the consumer's business.
+ *
+ * Native props and `ref` go to the step's bubble, the dialog element.
+ * Derived testids: `-title`, `-content`, `-primary` (next or done),
+ * `-secondary` (previous), `-skip`.
+ */
+export const Tour = forwardRef(TourBase);
+Tour.displayName = "Tour";

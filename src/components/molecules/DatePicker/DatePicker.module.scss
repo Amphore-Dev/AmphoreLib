@@ -137,9 +137,9 @@
 		content: "";
 		position: absolute;
 		left: 50%;
-		bottom: 0.125rem;
+		bottom: space(0.5);
 		width: var(--amp-space-3);
-		height: 0.125rem;
+		height: space(0.5);
 		transform: translateX(-50%);
 		border-radius: var(--amp-radius-full);
 		background: var(--amp-color-primary);

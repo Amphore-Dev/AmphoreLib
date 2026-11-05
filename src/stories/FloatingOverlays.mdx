@@ -37,7 +37,7 @@ export const Button = React.forwardRef<HTMLButtonElement, IButtonProps>(
 );
 ```
 
-`Card` (Modal's panel) and `Button` are both `forwardRef` for this reason — check any other component before using it as a trigger.
+Every component with an element of its own is a `forwardRef` for this reason, so any of them works as a trigger — see [Native props](?path=/docs/directives-structure--docs). `Tooltip`, `Popover`, `Dropdown` and `ContextMenu` have no element of their own: their `ref` is their floating panel, so they don't work as one.
 
 ## One shared controller for N triggers
 

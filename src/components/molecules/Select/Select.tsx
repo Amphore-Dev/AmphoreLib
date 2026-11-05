@@ -11,6 +11,7 @@ import {
 	useFloating,
 	useInteractions,
 	useListNavigation,
+	useMergeRefs,
 	useRole,
 	useTypeahead,
 	type UseFloatingOptions,
@@ -22,11 +23,16 @@ import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
 import type { TPictoName } from "@constants/index";
 
+import { genericForwardRef } from "@utils/UForwardRef";
+import { composeHandlers } from "@utils/UHandlers";
 import { getPicto } from "@utils/UPicto";
+import { deriveTestId, testIdPart } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
 import {
+	ITestIdProps,
 	TColor,
+	TElementProps,
 	TLabel,
 	TSelectOption,
 	TSelectOptionGroup,
@@ -41,7 +47,13 @@ import { Spinner } from "../../atoms/Spinner/Spinner";
 
 import styles from "./Select.module.scss";
 
-export interface ISelectProps<T = string> {
+export interface ISelectProps<T = string>
+	extends
+		Omit<
+			React.ComponentPropsWithoutRef<"div">,
+			"onChange" | "defaultValue" | "color" | "placeholder" | "children"
+		>,
+		ITestIdProps {
 	/** Flat options, or grouped (each group gets a heading — see `renderGroupHeader`). */
 	options: TSelectOption<T>[] | TSelectOptionGroup<T>[];
 	/** Single mode: `T | null`. Multi mode (`multiple`): `T[]`. */
@@ -116,6 +128,12 @@ export interface ISelectProps<T = string> {
 	portal?: boolean;
 	className?: string;
 	wrapperClassName?: string;
+	/** Native props of the outer container (label, trigger and error message). */
+	wrapperProps?: TElementProps<"div">;
+	/** Native props of the open listbox. */
+	menuProps?: TElementProps<"div">;
+	/** Native props of the search `<input>` (searchable only). */
+	inputProps?: Omit<TElementProps<"input">, "value">;
 	/**
 	 * Advanced escape hatch: overrides/extends the internal `useFloating`
 	 * config (placement, middleware, strategy...). `open` and `onOpenChange`
@@ -131,20 +149,6 @@ export type TSelectLabels = Pick<
 >;
 
 /**
- * V2 Select — fully controlled, generic over the option value type `T`.
- * Value <-> option matching defaults to `===`, fine for a primitive T or a
- * guaranteed-stable object reference; pass `getOptionValue` (e.g. `(c) =>
- * c.id`) the moment `T` is an object that might not be the exact same
- * reference across renders (a fresh fetch, a different source than the
- * current value came from, ...).
- *
- * No ambient form-library awareness, same rule as every other field (see
- * memory/react-library-fields-audit.md). Async option loading (remote
- * search) is AsyncSelect, a thin wrapper around this one — `onSearchChange`/
- * `filterOptions`/`isLoading` exist on this component specifically so that
- * wrapper doesn't need to reach into internals.
- */
-/**
  * Wraps the listbox in AmphorePortal only when asked — kept as a tiny
  * component (not `portal ? <AmphorePortal>{el}</AmphorePortal> : el` inline)
  * because the listbox JSX below is ~80 lines and would otherwise have to be
@@ -155,38 +159,46 @@ const PortalOrInline: React.FC<
 > = ({ portal, children }) =>
 	portal ? <AmphorePortal>{children}</AmphorePortal> : <>{children}</>;
 
-export function Select<T = string>({
-	options,
-	value,
-	onChange,
-	multiple = false,
-	searchable = false,
-	onSearchChange,
-	filterOptions = true,
-	isLoading = false,
-	loadingMessage: loadingMessageProp,
-	isClearable = false,
-	placeholder: placeholderProp,
-	clearLabel: clearLabelProp,
-	picto,
-	label,
-	error,
-	hideError = false,
-	disabled = false,
-	required = false,
-	size: sizeProp,
-	color = "primary",
-	noResultsMessage: noResultsMessageProp,
-	renderOption,
-	getOptionValue,
-	renderGroupHeader,
-	footer,
-	clearInputOnSelect = false,
-	portal = false,
-	className = "",
-	wrapperClassName = "",
-	floatingProps,
-}: ISelectProps<T>) {
+function SelectBase<T = string>(
+	{
+		options,
+		value,
+		onChange,
+		multiple = false,
+		searchable = false,
+		onSearchChange,
+		filterOptions = true,
+		isLoading = false,
+		loadingMessage: loadingMessageProp,
+		isClearable = false,
+		placeholder: placeholderProp,
+		clearLabel: clearLabelProp,
+		picto,
+		label,
+		error,
+		hideError = false,
+		disabled = false,
+		required = false,
+		size: sizeProp,
+		color = "primary",
+		noResultsMessage: noResultsMessageProp,
+		renderOption,
+		getOptionValue,
+		renderGroupHeader,
+		footer,
+		clearInputOnSelect = false,
+		portal = false,
+		className = "",
+		wrapperClassName = "",
+		wrapperProps,
+		menuProps,
+		inputProps,
+		floatingProps,
+		onKeyDown,
+		...props
+	}: ISelectProps<T>,
+	ref: React.ForwardedRef<HTMLDivElement>
+) {
 	const { size: defaultSize } = useAmphoreDefaults();
 	const size = sizeProp ?? defaultSize ?? "md";
 	const { resolve } = useAmphoreLabels("Select");
@@ -358,6 +370,8 @@ export function Select<T = string>({
 
 	const { getReferenceProps, getFloatingProps, getItemProps } =
 		useInteractions([click, dismiss, role, listNav, typeahead]);
+	const triggerRef = useMergeRefs([refs.setReference, ref]);
+	const testId = props["data-testid"];
 
 	const commit = (next: T[]) => {
 		onChange?.(multiple ? next : (next[0] ?? null));
@@ -430,7 +444,14 @@ export function Select<T = string>({
 	}, [searchable, open]);
 
 	return (
-		<div className={cn([styles.wrapper, wrapperClassName])}>
+		<div
+			{...wrapperProps}
+			className={cn([
+				styles.wrapper,
+				wrapperClassName,
+				wrapperProps?.className,
+			])}
+		>
 			{label && (
 				<label id={labelId} className={styles.label}>
 					{label}
@@ -439,15 +460,18 @@ export function Select<T = string>({
 			)}
 
 			<div
-				ref={refs.setReference}
+				tabIndex={disabled ? undefined : 0}
+				aria-labelledby={labelId}
+				{...getReferenceProps({
+					...props,
+					onKeyDown: composeHandlers(onKeyDown, handleTriggerKeyDown),
+				})}
+				ref={triggerRef}
 				className={cn([styles.field, className])}
 				data-size={size}
 				data-color={color}
 				data-disabled={disabled || undefined}
 				data-invalid={!!error || undefined}
-				tabIndex={disabled ? undefined : 0}
-				aria-labelledby={labelId}
-				{...getReferenceProps({ onKeyDown: handleTriggerKeyDown })}
 			>
 				{!!picto && (
 					<Picto {...getPicto(picto)} className={styles.picto} />
@@ -474,6 +498,11 @@ export function Select<T = string>({
 										handleRemoveChip(option.value)
 									}
 									removeLabel={`Remove ${option.label}`}
+									data-testid={deriveTestId(
+										testId,
+										"chip",
+										index
+									)}
 								>
 									{option.label}
 								</Badge>
@@ -481,23 +510,36 @@ export function Select<T = string>({
 						</div>
 					) : searchable && open ? (
 						<input
-							ref={searchInputRef}
-							className={styles.searchInput}
 							aria-labelledby={labelId}
+							data-testid={deriveTestId(testId, "search")}
+							{...inputProps}
+							ref={searchInputRef}
+							className={cn([
+								styles.searchInput,
+								inputProps?.className,
+							])}
 							value={search}
 							placeholder={
 								selectedOptions[0]?.label ?? placeholder
 							}
-							onChange={(e) => {
-								setSearch(e.target.value);
-								onSearchChange?.(e.target.value);
-							}}
+							onChange={composeHandlers(
+								inputProps?.onChange,
+								(e) => {
+									setSearch(e.target.value);
+									onSearchChange?.(e.target.value);
+								}
+							)}
 							// A click here is "focus the search field", not "toggle the
 							// dropdown" — without stopping it, the click bubbles to the
 							// reference div's useClick handler and immediately re-closes
 							// the listbox that just opened.
-							onMouseDown={(e) => e.stopPropagation()}
-							onClick={(e) => e.stopPropagation()}
+							onMouseDown={composeHandlers(
+								inputProps?.onMouseDown,
+								(e) => e.stopPropagation()
+							)}
+							onClick={composeHandlers(inputProps?.onClick, (e) =>
+								e.stopPropagation()
+							)}
 						/>
 					) : (
 						<span
@@ -522,6 +564,7 @@ export function Select<T = string>({
 							className={styles.clear}
 							onClick={handleClear}
 							aria-label={clearLabel}
+							data-testid={deriveTestId(testId, "clear")}
 						>
 							<Picto icon="cross" />
 						</button>
@@ -544,11 +587,14 @@ export function Select<T = string>({
 				// FloatingPortal would drop the theme's CSS vars).
 				<PortalOrInline portal={portal}>
 					<div
-						ref={refs.setFloating}
-						style={floatingStyles}
-						className={styles.listbox}
 						aria-labelledby={labelId}
-						{...getFloatingProps()}
+						data-testid={deriveTestId(testId, "menu")}
+						{...getFloatingProps(
+							menuProps as React.HTMLProps<HTMLElement>
+						)}
+						ref={refs.setFloating}
+						style={{ ...menuProps?.style, ...floatingStyles }}
+						className={cn([styles.listbox, menuProps?.className])}
 					>
 						{isLoading ? (
 							<div className={styles.loading}>
@@ -601,6 +647,18 @@ export function Select<T = string>({
 											isSelected(entry.option) ||
 											undefined
 										}
+										data-testid={deriveTestId(
+											testId,
+											"option",
+											getOptionValue
+												? getOptionValue(
+														entry.option.value
+													)
+												: testIdPart(
+														entry.option.value,
+														entry.index
+													)
+										)}
 										{...getItemProps({
 											onClick: () =>
 												handleSelect(entry.option),
@@ -621,7 +679,34 @@ export function Select<T = string>({
 				</PortalOrInline>
 			)}
 
-			{!hideError && <InputErrorMessage>{error}</InputErrorMessage>}
+			{!hideError && (
+				<InputErrorMessage data-testid={deriveTestId(testId, "error")}>
+					{error}
+				</InputErrorMessage>
+			)}
 		</div>
 	);
 }
+
+/**
+ * V2 Select — fully controlled, generic over the option value type `T`.
+ * Value <-> option matching defaults to `===`, fine for a primitive T or a
+ * guaranteed-stable object reference; pass `getOptionValue` (e.g. `(c) =>
+ * c.id`) the moment `T` is an object that might not be the exact same
+ * reference across renders (a fresh fetch, a different source than the
+ * current value came from, ...).
+ *
+ * No ambient form-library awareness, same rule as every other field (see
+ * memory/react-library-fields-audit.md). Async option loading (remote
+ * search) is AsyncSelect, a thin wrapper around this one — `onSearchChange`/
+ * `filterOptions`/`isLoading` exist on this component specifically so that
+ * wrapper doesn't need to reach into internals.
+ *
+ * Native props, `className` and `ref` go to the trigger, the `role="combobox"`
+ * element (`onKeyDown` and `onClick` run alongside its own handling);
+ * `wrapperProps` to the outer container, `menuProps` to the listbox,
+ * `inputProps` to the search field. Derived testids: `-menu`, `-search`,
+ * `-clear`, `-chip-<position>`, `-error`, `-option-<value>` (the
+ * `getOptionValue` key, or the position when `value` is an object).
+ */
+export const Select = genericForwardRef(SelectBase, "Select");

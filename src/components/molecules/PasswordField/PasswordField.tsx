@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { forwardRef, useState } from "react";
 
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
+
+import { deriveTestId } from "@utils/UTestId";
 
 import type { TLabel } from "@interfaces/index";
 
@@ -29,23 +31,21 @@ export type TPasswordFieldLabels = Pick<
 	"hidePasswordLabel" | "showPasswordLabel"
 >;
 
-/**
- * V2 PasswordField — an Input preset (visibility toggle). The
- * mouseenter/mouseleave pair that drives auto-hide is on the outer
- * wrapper div, not the `<input>` itself — otherwise moving the pointer
- * onto the toggle button (a sibling inside the same field box) would
- * fire a spurious mouseleave on the input and start the countdown while
- * the pointer is still visually over the field.
- */
-export const PasswordField: React.FC<IPasswordFieldProps> = ({
-	autoHide = true,
-	autoHideSeconds = 5,
-	onFocus,
-	onBlur,
-	hidePasswordLabel: hidePasswordLabelProp,
-	showPasswordLabel: showPasswordLabelProp,
-	...props
-}) => {
+const PasswordFieldBase: React.ForwardRefRenderFunction<
+	HTMLInputElement,
+	IPasswordFieldProps
+> = (
+	{
+		autoHide = true,
+		autoHideSeconds = 5,
+		onFocus,
+		onBlur,
+		hidePasswordLabel: hidePasswordLabelProp,
+		showPasswordLabel: showPasswordLabelProp,
+		...props
+	},
+	ref
+) => {
 	const [visible, setVisible] = useState(false);
 	const [counting, setCounting] = useState(false);
 	const { resolve } = useAmphoreLabels("PasswordField");
@@ -72,6 +72,7 @@ export const PasswordField: React.FC<IPasswordFieldProps> = ({
 		<div onMouseEnter={stopCountdown} onMouseLeave={startCountdown}>
 			<Input
 				{...props}
+				ref={ref}
 				type={visible ? "text" : "password"}
 				onFocus={(e) => {
 					stopCountdown();
@@ -86,6 +87,10 @@ export const PasswordField: React.FC<IPasswordFieldProps> = ({
 						type="button"
 						className={styles.toggle}
 						onClick={toggle}
+						data-testid={deriveTestId(
+							props["data-testid"],
+							"toggle"
+						)}
 						aria-label={
 							visible ? hidePasswordLabel : showPasswordLabel
 						}
@@ -109,3 +114,17 @@ export const PasswordField: React.FC<IPasswordFieldProps> = ({
 		</div>
 	);
 };
+
+/**
+ * V2 PasswordField — an Input preset (visibility toggle). The
+ * mouseenter/mouseleave pair that drives auto-hide is on the outer
+ * wrapper div, not the `<input>` itself — otherwise moving the pointer
+ * onto the toggle button (a sibling inside the same field box) would
+ * fire a spurious mouseleave on the input and start the countdown while
+ * the pointer is still visually over the field.
+ *
+ * Native props and `ref` go where Input sends them. Derived testids: Input's
+ * own, plus `-toggle`.
+ */
+export const PasswordField = forwardRef(PasswordFieldBase);
+PasswordField.displayName = "PasswordField";

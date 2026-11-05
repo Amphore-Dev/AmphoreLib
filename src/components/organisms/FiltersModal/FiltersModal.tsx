@@ -8,8 +8,12 @@ import { Badge, Button, IButtonProps } from "@components/atoms";
 import { IModalProps } from "@components/molecules/Modal/Modal";
 
 import { computeModalSize } from "@utils/UFormGroups";
+import { genericForwardRef } from "@utils/UForwardRef";
+import { composeHandlers } from "@utils/UHandlers";
+import { deriveTestId } from "@utils/UTestId";
 
 import {
+	ITestIdProps,
 	IUseFiltersContext,
 	TEditFields,
 	TFieldRendererMap,
@@ -23,7 +27,8 @@ export interface IFiltersModalProps<
 	T extends Record<string, TFiltersSlice<object>>,
 	K extends keyof T,
 	S = T[K],
-> {
+>
+	extends Omit<IButtonProps, "title" | "onReset" | "children">, ITestIdProps {
 	/** Modal title. Defaults to "Filters" (or `FiltersModal.title` from the nearest AmphoreProvider — see useAmphoreLabels). No commonKey. */
 	title?: TLabel;
 	filters:
@@ -55,32 +60,30 @@ export type TFiltersModalLabels = Pick<
 	"title" | "buttonLabel" | "applyLabel" | "resetLabel"
 >;
 
-/**
- * V2 FiltersModal — a "Filters" button (with an active-count Badge) that
- * opens a `FormRendererWithFormik` modal built from the same field
- * descriptors as everything else in this system. All strings are props
- * with English fallback defaults (decision 3), no i18next dependency.
- */
-export const FiltersModal = <
+const FiltersModalBase = <
 	T extends Record<string, TFiltersSlice<object>>,
 	K extends keyof T,
 	S = T[K],
->({
-	title: titleProp,
-	filters,
-	filtersContext,
-	onReset,
-	onApply,
-	displayGroupTitles = true,
-	fieldsRenderers: filtersRenderers,
-	defaultValues,
-	columns = 1,
-	modalSize,
-	buttonProps,
-	buttonLabel: buttonLabelProp,
-	applyLabel: applyLabelProp,
-	resetLabel: resetLabelProp,
-}: IFiltersModalProps<T, K, S>) => {
+>(
+	{
+		title: titleProp,
+		filters,
+		filtersContext,
+		onReset,
+		onApply,
+		displayGroupTitles = true,
+		fieldsRenderers: filtersRenderers,
+		defaultValues,
+		columns = 1,
+		modalSize,
+		buttonProps,
+		buttonLabel: buttonLabelProp,
+		applyLabel: applyLabelProp,
+		resetLabel: resetLabelProp,
+		...props
+	}: IFiltersModalProps<T, K, S>,
+	ref: React.ForwardedRef<HTMLButtonElement>
+) => {
 	const { resolve } = useAmphoreLabels("FiltersModal");
 	const title = resolve("title", titleProp);
 	const buttonLabel = resolve("buttonLabel", buttonLabelProp);
@@ -125,10 +128,16 @@ export const FiltersModal = <
 	return (
 		<>
 			<Button
-				onClick={() => setIsOpen(true)}
 				picto="sliders"
 				variant="outline"
+				{...props}
 				{...buttonProps}
+				ref={ref}
+				onClick={composeHandlers(
+					props.onClick,
+					buttonProps?.onClick,
+					() => setIsOpen(true)
+				)}
 			>
 				{buttonLabel}
 				{!!filtersCtxRest.options?.countCallback && (
@@ -142,6 +151,10 @@ export const FiltersModal = <
 
 			{isOpen && (
 				<FormRendererWithFormik
+					data-testid={deriveTestId(
+						buttonProps?.["data-testid"] ?? props["data-testid"],
+						"modal"
+					)}
 					modalProps={{
 						size: modalSize ?? computeModalSize(columns),
 					}}
@@ -171,3 +184,15 @@ export const FiltersModal = <
 		</>
 	);
 };
+
+/**
+ * V2 FiltersModal — a "Filters" button (with an active-count Badge) that
+ * opens a `FormRendererWithFormik` modal built from the same field
+ * descriptors as everything else in this system. All strings are props
+ * with English fallback defaults (decision 3), no i18next dependency.
+ *
+ * Native props and `ref` go to the "Filters" button, as `buttonProps` do
+ * (`onClick` runs alongside opening the modal). Derived testids: `-modal`,
+ * and FormRendererWithFormik's below it (`-modal-primary`...).
+ */
+export const FiltersModal = genericForwardRef(FiltersModalBase, "FiltersModal");

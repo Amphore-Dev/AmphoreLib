@@ -1,5 +1,6 @@
 import React, {
 	Suspense,
+	forwardRef,
 	lazy,
 	useEffect,
 	useMemo,
@@ -9,9 +10,10 @@ import React, {
 
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
-import type { TLabel } from "@interfaces/index";
+import type { ITestIdProps, TLabel } from "@interfaces/index";
 
 import { InfoMessage } from "../../atoms/InfoMessage/InfoMessage";
 import { Picto } from "../../atoms/Picto/Picto";
@@ -61,7 +63,10 @@ const SCALE_STEP = 0.25;
 
 export type TFileViewerType = "image" | "pdf";
 
-export interface IFileViewerProps {
+export interface IFileViewerProps
+	extends
+		Omit<React.ComponentPropsWithoutRef<"div">, "children">,
+		ITestIdProps {
 	/** A local, not-yet-uploaded file, or the URL of one already hosted somewhere. Type is always auto-detected — see `inferType` — never a prop to set by hand. */
 	src: File | string;
 	/** Used as the downloaded filename, and in the "unsupported format" message. Inferred from `src.name` for a `File`, from the last path segment for a URL. */
@@ -128,44 +133,31 @@ const inferType = (src: File | string): TFileViewerType | undefined => {
 	return undefined;
 };
 
-/**
- * V2 FileViewer — a standalone image/PDF preview with its own zoom + page
- * toolbar. Deliberately not wrapped in a Modal/SidePanel itself and never
- * portals (see memory/amphorelib-v2-conventions.md) — a consumer opening
- * this inside one of those (or full-page, or inline) is their call, made
- * once outside, not baked in here.
- *
- * PDF rendering is `react-pdf` (a peer dependency — no dep-free way to
- * decode/paint a PDF), loaded lazily (see above). Text/annotation layers
- * are off: this is a viewer with its own toolbar, not a document a user
- * selects text out of, and skipping them avoids importing react-pdf's
- * extra layer CSS entirely.
- *
- * To render a PDF, install `pdfjs-dist` + `react-pdf` yourself and, before
- * this component's first render, set `pdfjs.GlobalWorkerOptions.workerSrc`
- * to your own bundler-resolved worker URL (e.g. Vite: `import workerSrc
- * from "pdfjs-dist/build/pdf.worker.min.mjs?url"`). This component sets no
- * default of its own — there's no worker path this lib's own build can
- * resolve reliably across every consumer's bundler — and only warns (once)
- * if you haven't; a PDF render fails without it.
- */
-export const FileViewer: React.FC<IFileViewerProps> = ({
-	src,
-	name,
-	continuous = true,
-	zoomOutLabel: zoomOutLabelProp,
-	zoomInLabel: zoomInLabelProp,
-	resetZoomLabel: resetZoomLabelProp,
-	previousPageLabel: previousPageLabelProp,
-	nextPageLabel: nextPageLabelProp,
-	downloadLabel: downloadLabelProp,
-	loadingLabel: loadingLabelProp,
-	pdfErrorLabel: pdfErrorLabelProp,
-	unsupportedFormatLabel: unsupportedFormatLabelProp,
-	previewAltLabel: previewAltLabelProp,
-	className = "",
-}) => {
+const FileViewerBase: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	IFileViewerProps
+> = (
+	{
+		src,
+		name,
+		continuous = true,
+		zoomOutLabel: zoomOutLabelProp,
+		zoomInLabel: zoomInLabelProp,
+		resetZoomLabel: resetZoomLabelProp,
+		previousPageLabel: previousPageLabelProp,
+		nextPageLabel: nextPageLabelProp,
+		downloadLabel: downloadLabelProp,
+		loadingLabel: loadingLabelProp,
+		pdfErrorLabel: pdfErrorLabelProp,
+		unsupportedFormatLabel: unsupportedFormatLabelProp,
+		previewAltLabel: previewAltLabelProp,
+		className = "",
+		...props
+	},
+	ref
+) => {
 	const { resolve } = useAmphoreLabels("FileViewer");
+	const testId = props["data-testid"];
 	const zoomOutLabel = resolve("zoomOutLabel", zoomOutLabelProp);
 	const zoomInLabel = resolve("zoomInLabel", zoomInLabelProp);
 	const resetZoomLabel = resolve("resetZoomLabel", resetZoomLabelProp);
@@ -286,7 +278,7 @@ export const FileViewer: React.FC<IFileViewerProps> = ({
 	};
 
 	return (
-		<div className={cn([styles.viewer, className])}>
+		<div {...props} ref={ref} className={cn([styles.viewer, className])}>
 			<div className={styles.toolbar}>
 				<div className={styles.group}>
 					<button
@@ -297,6 +289,7 @@ export const FileViewer: React.FC<IFileViewerProps> = ({
 						}
 						disabled={pdfError || scale <= MIN_SCALE}
 						aria-label={zoomOutLabel}
+						data-testid={deriveTestId(testId, "zoom-out")}
 					>
 						<Picto icon="zoomOut" className={styles.toolIcon} />
 					</button>
@@ -306,6 +299,7 @@ export const FileViewer: React.FC<IFileViewerProps> = ({
 						onClick={() => setScale(1)}
 						disabled={pdfError || scale === 1}
 						aria-label={resetZoomLabel}
+						data-testid={deriveTestId(testId, "zoom-reset")}
 					>
 						{zoomPercent}%
 					</button>
@@ -317,6 +311,7 @@ export const FileViewer: React.FC<IFileViewerProps> = ({
 						}
 						disabled={pdfError || scale >= MAX_SCALE}
 						aria-label={zoomInLabel}
+						data-testid={deriveTestId(testId, "zoom-in")}
 					>
 						<Picto icon="zoomIn" className={styles.toolIcon} />
 					</button>
@@ -330,6 +325,7 @@ export const FileViewer: React.FC<IFileViewerProps> = ({
 							onClick={() => goToPage(Math.max(1, page - 1))}
 							disabled={page <= 1}
 							aria-label={previousPageLabel}
+							data-testid={deriveTestId(testId, "previous")}
 						>
 							<Picto
 								icon="chevron"
@@ -348,6 +344,7 @@ export const FileViewer: React.FC<IFileViewerProps> = ({
 							}
 							disabled={page >= numPages}
 							aria-label={nextPageLabel}
+							data-testid={deriveTestId(testId, "next")}
 						>
 							<Picto icon="chevron" className={styles.toolIcon} />
 						</button>
@@ -360,6 +357,7 @@ export const FileViewer: React.FC<IFileViewerProps> = ({
 						href={resolvedUrl}
 						download={resolvedName ?? true}
 						aria-label={downloadLabel}
+						data-testid={deriveTestId(testId, "download")}
 						target="_blank"
 						rel="noopener noreferrer"
 					>
@@ -369,7 +367,11 @@ export const FileViewer: React.FC<IFileViewerProps> = ({
 				)}
 			</div>
 
-			<div ref={viewportRef} className={styles.viewport}>
+			<div
+				ref={viewportRef}
+				className={styles.viewport}
+				data-testid={deriveTestId(testId, "viewport")}
+			>
 				{resolvedType === "image" && resolvedUrl && (
 					<img
 						src={resolvedUrl}
@@ -445,3 +447,30 @@ export const FileViewer: React.FC<IFileViewerProps> = ({
 		</div>
 	);
 };
+
+/**
+ * V2 FileViewer — a standalone image/PDF preview with its own zoom + page
+ * toolbar. Deliberately not wrapped in a Modal/SidePanel itself and never
+ * portals (see memory/amphorelib-v2-conventions.md) — a consumer opening
+ * this inside one of those (or full-page, or inline) is their call, made
+ * once outside, not baked in here.
+ *
+ * PDF rendering is `react-pdf` (a peer dependency — no dep-free way to
+ * decode/paint a PDF), loaded lazily (see above). Text/annotation layers
+ * are off: this is a viewer with its own toolbar, not a document a user
+ * selects text out of, and skipping them avoids importing react-pdf's
+ * extra layer CSS entirely.
+ *
+ * To render a PDF, install `pdfjs-dist` + `react-pdf` yourself and, before
+ * this component's first render, set `pdfjs.GlobalWorkerOptions.workerSrc`
+ * to your own bundler-resolved worker URL (e.g. Vite: `import workerSrc
+ * from "pdfjs-dist/build/pdf.worker.min.mjs?url"`). This component sets no
+ * default of its own — there's no worker path this lib's own build can
+ * resolve reliably across every consumer's bundler — and only warns (once)
+ * if you haven't; a PDF render fails without it.
+ *
+ * Native props and `ref` go to the root `<div>`. Derived testids: `-zoom-out`,
+ * `-zoom-reset`, `-zoom-in`, `-previous`, `-next`, `-download`, `-viewport`.
+ */
+export const FileViewer = forwardRef(FileViewerBase);
+FileViewer.displayName = "FileViewer";
