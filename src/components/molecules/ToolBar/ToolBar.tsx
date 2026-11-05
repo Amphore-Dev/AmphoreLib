@@ -1,9 +1,12 @@
-import React from "react";
+import React, { forwardRef } from "react";
 
 import { TPictoName } from "@constants/index";
 
 import { getPicto } from "@utils/UPicto";
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
+
+import type { ITestIdProps } from "@interfaces/index";
 
 import type { IPictoProps } from "../../atoms/Picto/Picto";
 import { Picto } from "../../atoms/Picto/Picto";
@@ -23,7 +26,10 @@ export interface TToolBarItem {
 	disabled?: boolean;
 }
 
-export interface IToolBarProps {
+export interface IToolBarProps
+	extends
+		Omit<React.ComponentPropsWithoutRef<"div">, "onChange" | "children">,
+		ITestIdProps {
 	items: TToolBarItem[];
 	/** Which item's popover is open (only meaningful for items with `popoverContent`). */
 	activeItem?: string;
@@ -45,24 +51,40 @@ export interface IToolBarProps {
  * without the render-prop indirection.
  *
  * A popover item's trigger uses a native `title` for the hover hint
- * (not Tooltip) — Tooltip isn't `forwardRef`, so nesting it as Popover's
- * direct child would silently break Popover's own ref (see memory:
- * any Popover/Tooltip/Dropdown trigger must forward its ref).
+ * (not Tooltip) — Tooltip's `ref` is its floating panel, not its trigger, so
+ * nesting it as Popover's direct child would silently break Popover's own
+ * reference (see memory: any Popover/Tooltip/Dropdown trigger must forward
+ * its ref).
+ *
+ * Native props and `ref` go to the root `<div>`. Derived testids:
+ * `-item-<id>`.
  */
-export const ToolBar: React.FC<IToolBarProps> = ({
-	items,
-	activeItem,
-	onChange,
-	position = "bottom",
-	portal = false,
-	className = "",
-}) => {
+const ToolBarBase: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	IToolBarProps
+> = (
+	{
+		items,
+		activeItem,
+		onChange,
+		position = "bottom",
+		portal = false,
+		className = "",
+		...props
+	},
+	ref
+) => {
 	const placement = position === "top" ? "bottom" : "top";
 
 	return (
-		<div className={cn([styles.bar, className])}>
+		<div {...props} ref={ref} className={cn([styles.bar, className])}>
 			{items.map((item) => {
 				const isActive = activeItem === item.id;
+				const itemTestId = deriveTestId(
+					props["data-testid"],
+					"item",
+					item.id
+				);
 
 				const buttonContent = item.picto ? (
 					<Picto {...getPicto(item.picto)} className={styles.icon} />
@@ -92,6 +114,7 @@ export const ToolBar: React.FC<IToolBarProps> = ({
 								disabled={item.disabled}
 								aria-label={item.label}
 								title={item.label}
+								data-testid={itemTestId}
 							>
 								{buttonContent}
 							</button>
@@ -113,6 +136,7 @@ export const ToolBar: React.FC<IToolBarProps> = ({
 						disabled={item.disabled}
 						aria-label={item.label}
 						aria-pressed={isActive}
+						data-testid={itemTestId}
 					>
 						{buttonContent}
 					</button>
@@ -134,3 +158,6 @@ export const ToolBar: React.FC<IToolBarProps> = ({
 		</div>
 	);
 };
+
+export const ToolBar = forwardRef(ToolBarBase);
+ToolBar.displayName = "ToolBar";

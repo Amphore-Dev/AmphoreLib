@@ -4,10 +4,12 @@ import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
 
 import type { TPictoName } from "@constants/index";
 
+import { genericForwardRef } from "@utils/UForwardRef";
 import { getPicto } from "@utils/UPicto";
+import { deriveTestId, testIdPart } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
-import { TSize } from "@interfaces/index";
+import { ITestIdProps, TSize } from "@interfaces/index";
 
 import type { IPictoProps } from "../../atoms/Picto/Picto";
 import { Picto } from "../../atoms/Picto/Picto";
@@ -33,7 +35,10 @@ export interface TAccordionItem<T = string> {
 	picto?: TPictoName | IPictoProps;
 }
 
-export interface IAccordionProps<T = string> {
+export interface IAccordionProps<T = string>
+	extends
+		Omit<React.ComponentPropsWithoutRef<"div">, "onChange" | "children">,
+		ITestIdProps {
 	items: TAccordionItem<T>[];
 	/** Single mode: `T | null`. Multi mode (`multiple`): `T[]`. Same convention as Select. */
 	value?: T | T[] | null;
@@ -66,17 +71,24 @@ export const chevronRotation = (
  * (chevron, picto, title — full width) and the optional `actions` beside
  * it. No click handler on the row itself, so nothing has to guess which
  * element was meant to be interactive.
+ *
+ * Native props and `ref` go to the root `<div>`. Derived testids:
+ * `-header-<value>`, `-panel-<value>` (position when `value` is an object).
  */
-export function Accordion<T = string>({
-	items,
-	value,
-	onChange,
-	multiple = true,
-	chevronPosition = "end",
-	headingLevel,
-	size: sizeProp,
-	className = "",
-}: IAccordionProps<T>) {
+function AccordionBase<T = string>(
+	{
+		items,
+		value,
+		onChange,
+		multiple = true,
+		chevronPosition = "end",
+		headingLevel,
+		size: sizeProp,
+		className = "",
+		...props
+	}: IAccordionProps<T>,
+	ref: React.ForwardedRef<HTMLDivElement>
+) {
 	const { size: defaultSize } = useAmphoreDefaults();
 	const size = sizeProp ?? defaultSize ?? "md";
 	const accordionId = useId();
@@ -106,11 +118,17 @@ export function Accordion<T = string>({
 	};
 
 	return (
-		<div className={cn([styles.accordion, className])} data-size={size}>
+		<div
+			{...props}
+			ref={ref}
+			className={cn([styles.accordion, className])}
+			data-size={size}
+		>
 			{items.map((item, index) => {
 				const open = isOpen(item);
 				const headerId = `${accordionId}-header-${index}`;
 				const panelId = `${accordionId}-panel-${index}`;
+				const testIdItem = testIdPart(item.value, index);
 				const chevron = (
 					<Picto
 						icon="chevron"
@@ -136,6 +154,11 @@ export function Accordion<T = string>({
 								aria-disabled={item.disabled || undefined}
 								disabled={item.disabled}
 								onClick={() => toggle(item)}
+								data-testid={deriveTestId(
+									props["data-testid"],
+									"header",
+									testIdItem
+								)}
 							>
 								{"start" === chevronPosition && chevron}
 								{!!item.picto && (
@@ -166,6 +189,11 @@ export function Accordion<T = string>({
 							aria-labelledby={headerId}
 							className={styles.panel}
 							data-open={open || undefined}
+							data-testid={deriveTestId(
+								props["data-testid"],
+								"panel",
+								testIdItem
+							)}
 						>
 							{/* Two nested divs, not one: .panelInner is the grid
 							    item that actually needs to collapse to 0
@@ -188,3 +216,5 @@ export function Accordion<T = string>({
 		</div>
 	);
 }
+
+export const Accordion = genericForwardRef(AccordionBase, "Accordion");

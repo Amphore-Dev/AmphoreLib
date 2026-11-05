@@ -1,13 +1,16 @@
-import React, { useId, useState } from "react";
+import React, { forwardRef, useId, useState } from "react";
 
 import { type Placement } from "@floating-ui/react";
+import { omit, pick } from "lodash";
 
 import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
 
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
-import { TColor, TSize } from "@interfaces/index";
+import { ITestIdProps, TColor, TElementProps, TSize } from "@interfaces/index";
 
+import { COLOR_PICKER_OPTION_KEYS } from "../../atoms/ColorPicker/CColorPicker";
 import {
 	ColorPicker,
 	IColorPickerProps,
@@ -17,10 +20,19 @@ import { Popover } from "../Popover/Popover";
 
 import styles from "./ColorPickerField.module.scss";
 
-export interface IColorPickerFieldProps extends Omit<
-	IColorPickerProps,
-	"className"
-> {
+export interface IColorPickerFieldProps
+	extends
+		Pick<
+			IColorPickerProps,
+			| (typeof COLOR_PICKER_OPTION_KEYS)[number]
+			| "noPadding"
+			| "noElevation"
+		>,
+		Omit<
+			React.ComponentPropsWithoutRef<"button">,
+			"value" | "onChange" | "color" | "type" | "children"
+		>,
+		ITestIdProps {
 	label?: string;
 	error?: string;
 	hideError?: boolean;
@@ -33,6 +45,8 @@ export interface IColorPickerFieldProps extends Omit<
 	hideValue?: boolean;
 	className?: string;
 	wrapperClassName?: string;
+	/** Native props of the outer container (label, trigger and error message). */
+	wrapperProps?: TElementProps<"div">;
 	popoverClassName?: string;
 }
 
@@ -48,32 +62,58 @@ export interface IColorPickerFieldProps extends Omit<
  * via `...pickerProps` — no field-specific prop needed) — the wrapping
  * Popover is made flush here so there's exactly one frame, not two nested
  * ones.
+ *
+ * Native props, `className` and `ref` go to the trigger `<button>`, the
+ * picker's own options to the picker, `wrapperProps` to the outer container.
+ * Derived testids: `-popover`, `-error`.
  */
-export const ColorPickerField: React.FC<IColorPickerFieldProps> = ({
-	label,
-	error,
-	hideError = false,
-	size: sizeProp,
-	color = "primary",
-	disabled = false,
-	required = false,
-	placement = "bottom-start",
-	hideValue = false,
-	className = "",
-	wrapperClassName = "",
-	popoverClassName = "",
-	...pickerProps
-}) => {
+const ColorPickerFieldBase: React.ForwardRefRenderFunction<
+	HTMLButtonElement,
+	IColorPickerFieldProps
+> = (
+	{
+		label,
+		error,
+		hideError = false,
+		size: sizeProp,
+		color = "primary",
+		disabled = false,
+		required = false,
+		placement = "bottom-start",
+		hideValue = false,
+		className = "",
+		wrapperClassName = "",
+		wrapperProps,
+		popoverClassName = "",
+		noPadding = true,
+		noElevation = true,
+		id,
+		"aria-describedby": ariaDescribedBy,
+		...props
+	},
+	ref
+) => {
 	const { size: defaultSize } = useAmphoreDefaults();
 	const size = sizeProp ?? defaultSize ?? "md";
 	const generatedId = useId();
-	const errorId = `${generatedId}-error`;
+	const triggerId = id ?? generatedId;
+	const errorId = `${triggerId}-error`;
+	const pickerProps = pick(props, COLOR_PICKER_OPTION_KEYS);
+	const triggerProps = omit(props, COLOR_PICKER_OPTION_KEYS);
+	const testId = props["data-testid"];
 	const [open, setOpen] = useState(false);
 
 	return (
-		<div className={cn([styles.wrapper, wrapperClassName])}>
+		<div
+			{...wrapperProps}
+			className={cn([
+				styles.wrapper,
+				wrapperClassName,
+				wrapperProps?.className,
+			])}
+		>
 			{label && (
-				<label className={styles.label} htmlFor={generatedId}>
+				<label className={styles.label} htmlFor={triggerId}>
 					{label}
 					{required && <span className={styles.required}>*</span>}
 				</label>
@@ -85,11 +125,20 @@ export const ColorPickerField: React.FC<IColorPickerFieldProps> = ({
 				placement={placement}
 				disabled={disabled}
 				className={cn([styles.popover, popoverClassName])}
-				content={<ColorPicker noElevation noPadding {...pickerProps} />}
+				data-testid={deriveTestId(testId, "popover")}
+				content={
+					<ColorPicker
+						noElevation={noElevation}
+						noPadding={noPadding}
+						{...pickerProps}
+					/>
+				}
 			>
 				<button
+					{...triggerProps}
+					ref={ref}
 					type="button"
-					id={generatedId}
+					id={triggerId}
 					className={cn([styles.field, className])}
 					data-size={size}
 					data-color={color}
@@ -97,7 +146,10 @@ export const ColorPickerField: React.FC<IColorPickerFieldProps> = ({
 					data-invalid={!!error || undefined}
 					disabled={disabled}
 					aria-haspopup="dialog"
-					aria-describedby={error && !hideError ? errorId : undefined}
+					aria-describedby={
+						cn([ariaDescribedBy, error && !hideError && errorId]) ||
+						undefined
+					}
 				>
 					<span
 						className={styles.swatch}
@@ -112,8 +164,16 @@ export const ColorPickerField: React.FC<IColorPickerFieldProps> = ({
 			</Popover>
 
 			{!hideError && (
-				<InputErrorMessage id={errorId}>{error}</InputErrorMessage>
+				<InputErrorMessage
+					id={errorId}
+					data-testid={deriveTestId(testId, "error")}
+				>
+					{error}
+				</InputErrorMessage>
 			)}
 		</div>
 	);
 };
+
+export const ColorPickerField = forwardRef(ColorPickerFieldBase);
+ColorPickerField.displayName = "ColorPickerField";

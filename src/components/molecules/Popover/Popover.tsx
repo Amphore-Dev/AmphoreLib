@@ -1,4 +1,4 @@
-import React, { cloneElement, useState } from "react";
+import React, { cloneElement, forwardRef, useState } from "react";
 
 import {
 	flip,
@@ -16,11 +16,15 @@ import {
 
 import { AmphorePortal } from "@theme/AmphorePortal";
 
+import { composeHandlers } from "@utils/UHandlers";
 import { cn } from "@utils/cn";
 
 import styles from "./Popover.module.scss";
 
-export interface IPopoverProps {
+export interface IPopoverProps extends Omit<
+	React.ComponentPropsWithoutRef<"div">,
+	"content" | "children"
+> {
 	content: React.ReactNode;
 	/** Single element — cloned to attach the trigger's ref/click handler. */
 	children: React.ReactElement;
@@ -57,20 +61,32 @@ export interface IPopoverProps {
  * Controlled (`open`/`onOpenChange`) or uncontrolled (omit `open`).
  * Inline (`strategy:"fixed"`) by default, `portal` opts into AmphorePortal
  * (see memory/amphorelib-v2-conventions.md).
+ *
+ * No root element of its own: native props and `ref` go to the floating
+ * panel, the trigger keeps whatever its own element was given.
  */
-export const Popover: React.FC<IPopoverProps> = ({
-	content,
-	children,
-	placement = "bottom-start",
-	open: openProp,
-	onOpenChange,
-	closeOnOutsideClick = true,
-	closeOnClick = false,
-	disabled = false,
-	matchTriggerWidth = false,
-	portal = false,
-	className = "",
-}) => {
+const PopoverBase: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	IPopoverProps
+> = (
+	{
+		content,
+		children,
+		placement = "bottom-start",
+		open: openProp,
+		onOpenChange,
+		closeOnOutsideClick = true,
+		closeOnClick = false,
+		disabled = false,
+		matchTriggerWidth = false,
+		portal = false,
+		className = "",
+		style,
+		onClick,
+		...props
+	},
+	ref
+) => {
 	const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
 	const open = disabled ? false : (openProp ?? uncontrolledOpen);
 
@@ -116,6 +132,7 @@ export const Popover: React.FC<IPopoverProps> = ({
 
 	const childRef = (children as unknown as { ref?: React.Ref<unknown> }).ref;
 	const mergedRef = useMergeRefs([refs.setReference, childRef ?? null]);
+	const floatingRef = useMergeRefs([refs.setFloating, ref]);
 
 	const trigger = cloneElement(
 		children,
@@ -124,12 +141,16 @@ export const Popover: React.FC<IPopoverProps> = ({
 
 	const floating = open && (
 		<div
-			ref={refs.setFloating}
-			style={floatingStyles}
-			className={cn([styles.popover, className])}
 			{...getFloatingProps({
-				onClick: closeOnClick ? () => setOpen(false) : undefined,
+				...props,
+				onClick: composeHandlers(
+					onClick,
+					closeOnClick ? () => setOpen(false) : undefined
+				),
 			})}
+			ref={floatingRef}
+			style={{ ...style, ...floatingStyles }}
+			className={cn([styles.popover, className])}
 		>
 			{content}
 		</div>
@@ -142,3 +163,6 @@ export const Popover: React.FC<IPopoverProps> = ({
 		</>
 	);
 };
+
+export const Popover = forwardRef(PopoverBase);
+Popover.displayName = "Popover";

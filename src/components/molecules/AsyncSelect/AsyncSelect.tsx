@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
+import { genericForwardRef } from "@utils/UForwardRef";
+
 import { TSelectOption, TSelectOptionGroup } from "@interfaces/index";
 
 import { ISelectProps, Select } from "../Select/Select";
@@ -25,12 +27,13 @@ export interface IAsyncSelectProps<T = string> extends Omit<
  * `filterOptions={false}` (loadOptions is trusted to return already-
  * relevant results, not filtered again client-side), and a ref-counted
  * request guard so a slow, stale response can never clobber a newer one.
+ *
+ * Native props and `ref` go where Select sends them.
  */
-export function AsyncSelect<T = string>({
-	loadOptions,
-	debounce = 300,
-	...selectProps
-}: IAsyncSelectProps<T>) {
+function AsyncSelectBase<T = string>(
+	{ loadOptions, debounce = 300, ...selectProps }: IAsyncSelectProps<T>,
+	ref: React.ForwardedRef<HTMLDivElement>
+) {
 	const [options, setOptions] = useState<
 		TSelectOption<T>[] | TSelectOptionGroup<T>[]
 	>([]);
@@ -72,7 +75,8 @@ export function AsyncSelect<T = string>({
 
 	return (
 		<Select
-			{...selectProps}
+			{...(selectProps as ISelectProps<T>)}
+			ref={ref}
 			options={options}
 			searchable
 			filterOptions={false}
@@ -81,3 +85,5 @@ export function AsyncSelect<T = string>({
 		/>
 	);
 }
+
+export const AsyncSelect = genericForwardRef(AsyncSelectBase, "AsyncSelect");

@@ -1,6 +1,10 @@
 import React from "react";
 
-import { TSortDirection, TTableColumn } from "@interfaces/index";
+import { genericForwardRef } from "@utils/UForwardRef";
+import { composeHandlers } from "@utils/UHandlers";
+import { deriveTestId } from "@utils/UTestId";
+
+import { ITestIdProps, TSortDirection, TTableColumn } from "@interfaces/index";
 
 import { Checkbox } from "../../atoms/Checkbox/Checkbox";
 import { Picto } from "../../atoms/Picto/Picto";
@@ -8,7 +12,10 @@ import { Th } from "../../atoms/Th/Th";
 
 import styles from "./TableHead.module.scss";
 
-export interface ITableHeadProps<T> {
+export interface ITableHeadProps<T>
+	extends
+		Omit<React.ComponentPropsWithoutRef<"div">, "children">,
+		ITestIdProps {
 	columns: TTableColumn<T>[];
 	activeSortKey?: keyof T & string;
 	sortDirection?: TSortDirection;
@@ -30,36 +37,48 @@ export interface ITableHeadProps<T> {
  * by string). V2's `useContextMenu<T>()` controller has no such registry —
  * it's an object, not an id — so `Table` owns it and passes down a plain
  * `onColumnsContextMenu` callback instead.
+ *
+ * Native props and `ref` go to the `role="row"` element. Derived testids:
+ * `-select-all`, `-column-<key>`, `-actions`.
  */
-export const TableHead = <T,>({
-	columns,
-	activeSortKey,
-	sortDirection,
-	onSort,
-	onColumnsContextMenu,
-	hasContextMenuColumn = false,
-	onGlobalContextMenu,
-	selectable = false,
-	allSelected = false,
-	someSelected = false,
-	onSelectAll,
-}: ITableHeadProps<T>) => (
+const TableHeadBase = <T,>(
+	{
+		columns,
+		activeSortKey,
+		sortDirection,
+		onSort,
+		onColumnsContextMenu,
+		hasContextMenuColumn = false,
+		onGlobalContextMenu,
+		selectable = false,
+		allSelected = false,
+		someSelected = false,
+		onSelectAll,
+		style,
+		onContextMenu,
+		...props
+	}: ITableHeadProps<T>,
+	ref: React.ForwardedRef<HTMLDivElement>
+) => (
 	// role="row" is a layout/grid semantic (this div's Ths are its real grid
 	// cells, via display:contents) — right-click-to-open-a-menu is a mouse
 	// affordance layered on top, not the row itself becoming a single
 	// keyboard-focusable interactive control (individual Ths already are).
 	// eslint-disable-next-line jsx-a11y/interactive-supports-focus
 	<div
+		{...props}
+		ref={ref}
 		role="row"
-		style={{ display: "contents" }}
-		onContextMenu={
+		style={{ ...style, display: "contents" }}
+		onContextMenu={composeHandlers(
+			onContextMenu,
 			onColumnsContextMenu
 				? (e) => {
 						e.preventDefault();
 						onColumnsContextMenu(e);
 					}
 				: undefined
-		}
+		)}
 	>
 		{selectable && (
 			<Th key="select" className={styles.selectCell}>
@@ -67,6 +86,10 @@ export const TableHead = <T,>({
 					checked={allSelected}
 					indeterminate={someSelected}
 					onChange={() => onSelectAll?.()}
+					data-testid={deriveTestId(
+						props["data-testid"],
+						"select-all"
+					)}
 				/>
 			</Th>
 		)}
@@ -87,6 +110,10 @@ export const TableHead = <T,>({
 								<button
 									type="button"
 									className={styles.contextMenuButton}
+									data-testid={deriveTestId(
+										props["data-testid"],
+										"actions"
+									)}
 									onClick={(e) => {
 										e.stopPropagation();
 										onGlobalContextMenu?.(e);
@@ -105,6 +132,11 @@ export const TableHead = <T,>({
 			return (
 				<Th
 					key={col.key}
+					data-testid={deriveTestId(
+						props["data-testid"],
+						"column",
+						col.key
+					)}
 					sortable={col.sortable}
 					sortDirection={isActive ? sortDirection : undefined}
 					onSort={
@@ -122,3 +154,5 @@ export const TableHead = <T,>({
 		<Th />
 	</div>
 );
+
+export const TableHead = genericForwardRef(TableHeadBase, "TableHead");

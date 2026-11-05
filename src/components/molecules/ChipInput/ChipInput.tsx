@@ -1,18 +1,34 @@
-import React, { useId, useRef, useState } from "react";
+import React, { forwardRef, useId, useRef, useState } from "react";
+
+import { useMergeRefs } from "@floating-ui/react";
 
 import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
+import { composeHandlers } from "@utils/UHandlers";
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
-import { TColor, TLabel, TSize } from "@interfaces/index";
+import {
+	ITestIdProps,
+	TColor,
+	TElementProps,
+	TLabel,
+	TSize,
+} from "@interfaces/index";
 
 import { Badge } from "../../atoms/Badge/Badge";
 import { InputErrorMessage } from "../../atoms/InputErrorMessage/InputErrorMessage";
 
 import styles from "./ChipInput.module.scss";
 
-export interface IChipInputProps {
+export interface IChipInputProps
+	extends
+		Omit<
+			React.ComponentPropsWithoutRef<"input">,
+			"value" | "onChange" | "size" | "color" | "defaultValue"
+		>,
+		ITestIdProps {
 	/** Controlled — the chips. Every add/remove calls `onChange` with the next full list. */
 	value?: string[];
 	onChange?: (value: string[]) => void;
@@ -49,6 +65,8 @@ export interface IChipInputProps {
 	/** Applied to the field box (chips + text), not the outer wrapper — same convention as Input/TextArea. */
 	className?: string;
 	wrapperClassName?: string;
+	/** Native props of the outer container (label, field, footer). */
+	wrapperProps?: TElementProps<"div">;
 }
 
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
@@ -66,33 +84,50 @@ const DEFAULT_SEPARATORS = /[,;\s]+/;
  *
  * A chip is committed by a separator (typed or in pasted text), Enter, or
  * leaving the field; Backspace on an empty field removes the last one.
+ *
+ * Native props and `ref` go to the text `<input>` (`onKeyDown`, `onPaste` and
+ * `onBlur` run alongside the chip handling), `className` to the field box,
+ * `wrapperProps` to the outer container. Derived testids:
+ * `-chip-<position>`, `-counter`, `-error`.
  */
-export const ChipInput: React.FC<IChipInputProps> = ({
-	value = [],
-	onChange,
-	label,
-	placeholder,
-	error,
-	hideError = false,
-	size: sizeProp,
-	color = "primary",
-	disabled = false,
-	required = false,
-	id,
-	name,
-	maxCount,
-	showCounter,
-	separators = DEFAULT_SEPARATORS,
-	normalize,
-	validate,
-	rejectInvalid = false,
-	onInvalidValue,
-	allowDuplicates = false,
-	addOnBlur = true,
-	removeLabel: removeLabelProp,
-	className = "",
-	wrapperClassName = "",
-}) => {
+const ChipInputBase: React.ForwardRefRenderFunction<
+	HTMLInputElement,
+	IChipInputProps
+> = (
+	{
+		value = [],
+		onChange,
+		label,
+		placeholder,
+		error,
+		hideError = false,
+		size: sizeProp,
+		color = "primary",
+		disabled = false,
+		required = false,
+		id,
+		name,
+		maxCount,
+		showCounter,
+		separators = DEFAULT_SEPARATORS,
+		normalize,
+		validate,
+		rejectInvalid = false,
+		onInvalidValue,
+		allowDuplicates = false,
+		addOnBlur = true,
+		removeLabel: removeLabelProp,
+		className = "",
+		wrapperClassName = "",
+		wrapperProps,
+		onKeyDown,
+		onPaste,
+		onBlur,
+		"aria-describedby": ariaDescribedBy,
+		...props
+	},
+	ref
+) => {
 	const { size: defaultSize } = useAmphoreDefaults();
 	const size = sizeProp ?? defaultSize ?? "md";
 	const { resolve } = useAmphoreLabels("ChipInput");
@@ -102,6 +137,7 @@ export const ChipInput: React.FC<IChipInputProps> = ({
 	const errorId = `${inputId}-error`;
 	const counterId = `${inputId}-counter`;
 	const inputRef = useRef<HTMLInputElement>(null);
+	const mergedRef = useMergeRefs([inputRef, ref]);
 	const [draft, setDraft] = useState("");
 
 	const hasMax = typeof maxCount === "number";
@@ -210,12 +246,21 @@ export const ChipInput: React.FC<IChipInputProps> = ({
 	};
 
 	const describedBy =
-		[error && !hideError && errorId, displayCounter && counterId]
-			.filter(Boolean)
-			.join(" ") || undefined;
+		cn([
+			ariaDescribedBy,
+			error && !hideError && errorId,
+			displayCounter && counterId,
+		]) || undefined;
 
 	return (
-		<div className={cn([styles.wrapper, wrapperClassName])}>
+		<div
+			{...wrapperProps}
+			className={cn([
+				styles.wrapper,
+				wrapperClassName,
+				wrapperProps?.className,
+			])}
+		>
 			{label && (
 				<label className={styles.label} htmlFor={inputId}>
 					{label}
@@ -247,13 +292,19 @@ export const ChipInput: React.FC<IChipInputProps> = ({
 							disabled ? undefined : () => handleRemove(index)
 						}
 						removeLabel={`${removeLabel}: ${chip}`}
+						data-testid={deriveTestId(
+							props["data-testid"],
+							"chip",
+							index
+						)}
 					>
 						{chip}
 					</Badge>
 				))}
 
 				<input
-					ref={inputRef}
+					{...props}
+					ref={mergedRef}
 					id={inputId}
 					name={name}
 					type="text"
@@ -265,16 +316,24 @@ export const ChipInput: React.FC<IChipInputProps> = ({
 					aria-invalid={!!error}
 					aria-describedby={describedBy}
 					onChange={handleChange}
-					onPaste={handlePaste}
-					onKeyDown={handleKeyDown}
-					onBlur={() => addOnBlur && commitDraft()}
+					onPaste={composeHandlers(onPaste, handlePaste)}
+					onKeyDown={composeHandlers(onKeyDown, handleKeyDown)}
+					onBlur={composeHandlers(onBlur, () => {
+						if (addOnBlur) commitDraft();
+					})}
 				/>
 			</div>
 
 			{(!hideError || displayCounter) && (
 				<div className={styles.footer}>
 					{!hideError && (
-						<InputErrorMessage id={errorId}>
+						<InputErrorMessage
+							id={errorId}
+							data-testid={deriveTestId(
+								props["data-testid"],
+								"error"
+							)}
+						>
 							{error}
 						</InputErrorMessage>
 					)}
@@ -284,6 +343,10 @@ export const ChipInput: React.FC<IChipInputProps> = ({
 							className={styles.counter}
 							data-full={isFull || undefined}
 							aria-live="polite"
+							data-testid={deriveTestId(
+								props["data-testid"],
+								"counter"
+							)}
 						>
 							{hasMax
 								? `${value.length} / ${maxCount}`
@@ -295,3 +358,6 @@ export const ChipInput: React.FC<IChipInputProps> = ({
 		</div>
 	);
 };
+
+export const ChipInput = forwardRef(ChipInputBase);
+ChipInput.displayName = "ChipInput";

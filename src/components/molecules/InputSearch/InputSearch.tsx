@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { forwardRef, useEffect, useRef, useState } from "react";
 
 import { IInputProps, Input } from "../../atoms/Input/Input";
 
@@ -20,16 +20,24 @@ export interface IInputSearchProps extends Omit<
  * on by default). Keeps its own `internalValue` so the field responds
  * instantly to typing while `onChange` (the actual search trigger) fires
  * debounced — same split as v1, minus its Formik-era `TextField` plumbing.
+ *
+ * Native props and `ref` go where Input sends them.
  */
-export const InputSearch: React.FC<IInputSearchProps> = ({
-	value = "",
-	onChange,
-	delay = 500,
-	debounced = true,
-	minLength = 0,
-	isClearable = true,
-	...props
-}) => {
+const InputSearchBase: React.ForwardRefRenderFunction<
+	HTMLInputElement,
+	IInputSearchProps
+> = (
+	{
+		value = "",
+		onChange,
+		delay = 500,
+		debounced = true,
+		minLength = 0,
+		isClearable = true,
+		...props
+	},
+	ref
+) => {
 	const [internalValue, setInternalValue] = useState(value);
 	const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
 	const onChangeRef = useRef(onChange);
@@ -56,6 +64,7 @@ export const InputSearch: React.FC<IInputSearchProps> = ({
 	return (
 		<Input
 			{...props}
+			ref={ref}
 			isClearable={isClearable}
 			value={internalValue}
 			onChange={handleChange}
@@ -63,3 +72,6 @@ export const InputSearch: React.FC<IInputSearchProps> = ({
 		/>
 	);
 };
+
+export const InputSearch = forwardRef(InputSearchBase);
+InputSearch.displayName = "InputSearch";

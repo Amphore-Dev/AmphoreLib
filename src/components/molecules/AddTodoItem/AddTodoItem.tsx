@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { forwardRef, useState } from "react";
 
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
-import { TLabel, TSize } from "@interfaces/index";
+import { ITestIdProps, TLabel, TSize } from "@interfaces/index";
 
 import { Button } from "../../atoms/Button/Button";
 import { Input } from "../../atoms/Input/Input";
@@ -12,7 +13,10 @@ import { TextArea } from "../../atoms/TextArea/TextArea";
 
 import styles from "./AddTodoItem.module.scss";
 
-export interface IAddTodoItemProps {
+export interface IAddTodoItemProps
+	extends
+		Omit<React.ComponentPropsWithoutRef<"div">, "children">,
+		ITestIdProps {
 	onAdd: (text: string) => void;
 	/** Defaults to "Add…" (or `AddTodoItem.placeholder` from the nearest AmphoreProvider — see useAmphoreLabels). */
 	placeholder?: TLabel;
@@ -36,18 +40,26 @@ export type TAddTodoItemLabels = Pick<
  * of local, uncontrolled state in this whole family: it has no meaning to
  * a consumer until submitted, unlike `TodoList.items`, which is why it
  * isn't lifted the way every other field's value is. Enter submits without
- * losing focus (the input stays mounted, value just clears) — `Input`
- * isn't a `forwardRef` component, so there's no refocus-after-click path
- * for the button either.
+ * losing focus (the input stays mounted, value just clears).
+ *
+ * Native props and `ref` go to the root `<div>`. Derived testids: `-input`,
+ * `-submit`.
  */
-export const AddTodoItem: React.FC<IAddTodoItemProps> = ({
-	onAdd,
-	placeholder: placeholderProp,
-	buttonLabel: buttonLabelProp,
-	multiline = false,
-	size,
-	className = "",
-}) => {
+const AddTodoItemBase: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	IAddTodoItemProps
+> = (
+	{
+		onAdd,
+		placeholder: placeholderProp,
+		buttonLabel: buttonLabelProp,
+		multiline = false,
+		size,
+		className = "",
+		...props
+	},
+	ref
+) => {
 	const [draft, setDraft] = useState("");
 	const { resolve } = useAmphoreLabels("AddTodoItem");
 	const placeholder = resolve("placeholder", placeholderProp);
@@ -70,7 +82,7 @@ export const AddTodoItem: React.FC<IAddTodoItemProps> = ({
 	};
 
 	return (
-		<div className={cn([styles.row, className])}>
+		<div {...props} ref={ref} className={cn([styles.row, className])}>
 			{multiline ? (
 				<TextArea
 					value={draft}
@@ -82,6 +94,7 @@ export const AddTodoItem: React.FC<IAddTodoItemProps> = ({
 					resizable={false}
 					wrapperClassName={styles.input}
 					onKeyDown={handleKeyDown}
+					data-testid={deriveTestId(props["data-testid"], "input")}
 				/>
 			) : (
 				<Input
@@ -91,11 +104,21 @@ export const AddTodoItem: React.FC<IAddTodoItemProps> = ({
 					size={size}
 					wrapperClassName={styles.input}
 					onKeyDown={handleKeyDown}
+					data-testid={deriveTestId(props["data-testid"], "input")}
 				/>
 			)}
-			<Button variant="outline" size={size} onClick={submit} picto="add">
+			<Button
+				variant="outline"
+				size={size}
+				onClick={submit}
+				picto="add"
+				data-testid={deriveTestId(props["data-testid"], "submit")}
+			>
 				{buttonLabel}
 			</Button>
 		</div>
 	);
 };
+
+export const AddTodoItem = forwardRef(AddTodoItemBase);
+AddTodoItem.displayName = "AddTodoItem";

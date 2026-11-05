@@ -1,19 +1,26 @@
-import React, { PropsWithChildren, useRef, useState } from "react";
+import React, {
+	ComponentPropsWithoutRef,
+	forwardRef,
+	useRef,
+	useState,
+} from "react";
 
 import { AmphorePortal } from "@theme/AmphorePortal";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
 import { useDrag } from "@hooks/index";
 
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
-import type { TLabel } from "@interfaces/index";
+import type { ITestIdProps, TLabel } from "@interfaces/index";
 
 import { Card } from "../../atoms/Card/Card";
 
 import styles from "./BottomPanel.module.scss";
 
-export interface IBottomPanelProps extends PropsWithChildren {
+export interface IBottomPanelProps
+	extends ComponentPropsWithoutRef<"div">, ITestIdProps {
 	/** Controlled — same convention as Modal/ConfirmModal. `false` doesn't unmount the panel, it docks it to `minHeight` (a peeking handle, not gone) — for a version that's fully gone, don't render this at all. */
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
@@ -54,22 +61,33 @@ const DRAG_THRESHOLD = 4;
  * AmphorePortal for the ancestors that break that. Reusable on its own (a
  * mobile action sheet, say) — SidePanel uses it as its own mobile
  * fallback, but this doesn't know anything about that.
+ *
+ * Native props and `ref` go to the sheet (`role="dialog"`), `aria-label`
+ * winning over the labels below. Derived testids: `-handle`, `-content`.
  */
-export const BottomPanel: React.FC<IBottomPanelProps> = ({
-	open,
-	onOpenChange,
-	defaultHeight = 500,
-	minHeight = 48,
-	maxHeightRatio = 0.9,
-	closeThreshold = 200,
-	openLabel: openLabelProp,
-	collapsedLabel: collapsedLabelProp,
-	collapseLabel: collapseLabelProp,
-	expandLabel: expandLabelProp,
-	portal = false,
-	className = "",
-	children,
-}) => {
+const BottomPanelBase: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	IBottomPanelProps
+> = (
+	{
+		open,
+		onOpenChange,
+		defaultHeight = 500,
+		minHeight = 48,
+		maxHeightRatio = 0.9,
+		closeThreshold = 200,
+		openLabel: openLabelProp,
+		collapsedLabel: collapsedLabelProp,
+		collapseLabel: collapseLabelProp,
+		expandLabel: expandLabelProp,
+		portal = false,
+		className = "",
+		style,
+		children,
+		...props
+	},
+	ref
+) => {
 	const { resolve } = useAmphoreLabels("BottomPanel");
 	const openLabel = resolve("openLabel", openLabelProp);
 	const collapsedLabel = resolve("collapsedLabel", collapsedLabelProp);
@@ -115,13 +133,15 @@ export const BottomPanel: React.FC<IBottomPanelProps> = ({
 
 	const panel = (
 		<Card
+			aria-label={open ? openLabel : collapsedLabel}
+			{...props}
+			ref={ref}
 			elevation={4}
 			noPadding
 			className={cn([styles.panel, className])}
-			style={{ height: open ? height : minHeight }}
+			style={{ ...style, height: open ? height : minHeight }}
 			data-dragging={drag.isDragging || undefined}
 			role="dialog"
-			aria-label={open ? openLabel : collapsedLabel}
 		>
 			<button
 				type="button"
@@ -130,11 +150,16 @@ export const BottomPanel: React.FC<IBottomPanelProps> = ({
 				onKeyDown={handleKeyDown}
 				aria-expanded={open}
 				aria-label={open ? collapseLabel : expandLabel}
+				data-testid={deriveTestId(props["data-testid"], "handle")}
 			>
 				<span className={styles.grip} />
 			</button>
 
-			<div className={styles.content} hidden={!open}>
+			<div
+				className={styles.content}
+				hidden={!open}
+				data-testid={deriveTestId(props["data-testid"], "content")}
+			>
 				{children}
 			</div>
 		</Card>
@@ -142,3 +167,6 @@ export const BottomPanel: React.FC<IBottomPanelProps> = ({
 
 	return portal ? <AmphorePortal>{panel}</AmphorePortal> : panel;
 };
+
+export const BottomPanel = forwardRef(BottomPanelBase);
+BottomPanel.displayName = "BottomPanel";

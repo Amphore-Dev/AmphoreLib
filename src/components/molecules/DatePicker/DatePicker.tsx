@@ -1,4 +1,4 @@
-import React, { useId, useState } from "react";
+import React, { forwardRef, useId, useState } from "react";
 
 import { DayPicker, type Locale } from "react-day-picker";
 import { enGB } from "react-day-picker/locale";
@@ -7,9 +7,16 @@ import "react-day-picker/style.css";
 import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
-import { TColor, TLabel, TSize } from "@interfaces/index";
+import {
+	ITestIdProps,
+	TColor,
+	TElementProps,
+	TLabel,
+	TSize,
+} from "@interfaces/index";
 
 import { InputErrorMessage } from "../../atoms/InputErrorMessage/InputErrorMessage";
 import { Picto } from "../../atoms/Picto/Picto";
@@ -17,7 +24,13 @@ import { Popover } from "../Popover/Popover";
 
 import styles from "./DatePicker.module.scss";
 
-export interface IDatePickerProps {
+export interface IDatePickerProps
+	extends
+		Omit<
+			React.ComponentPropsWithoutRef<"button">,
+			"value" | "onChange" | "color" | "type" | "children"
+		>,
+		ITestIdProps {
 	/** Controlled value — a plain `Date` (local midnight), or `null` for empty. */
 	value: Date | null;
 	onChange: (value: Date | null) => void;
@@ -38,6 +51,8 @@ export interface IDatePickerProps {
 	portal?: boolean;
 	className?: string;
 	wrapperClassName?: string;
+	/** Native props of the outer container (label, trigger and error message). */
+	wrapperProps?: TElementProps<"div">;
 }
 
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
@@ -48,29 +63,44 @@ export type TDatePickerLabels = Pick<IDatePickerProps, "placeholder">;
  * Trigger is a text-like field (same _field.scss box as Input/Select);
  * the grid is react-day-picker, restyled via its own --rdp-* vars, opened
  * in a `Popover`.
+ *
+ * Native props, `className` and `ref` go to the trigger `<button>`,
+ * `wrapperProps` to the outer container. Derived testids: `-popover`,
+ * `-error`.
  */
-export const DatePicker: React.FC<IDatePickerProps> = ({
-	value,
-	onChange,
-	min,
-	max,
-	locale = enGB,
-	placeholder: placeholderProp,
-	label,
-	error,
-	hideError = false,
-	size: sizeProp,
-	color = "primary",
-	disabled = false,
-	required = false,
-	portal = false,
-	className = "",
-	wrapperClassName = "",
-}) => {
+const DatePickerBase: React.ForwardRefRenderFunction<
+	HTMLButtonElement,
+	IDatePickerProps
+> = (
+	{
+		value,
+		onChange,
+		min,
+		max,
+		locale = enGB,
+		placeholder: placeholderProp,
+		label,
+		error,
+		hideError = false,
+		size: sizeProp,
+		color = "primary",
+		disabled = false,
+		required = false,
+		portal = false,
+		className = "",
+		wrapperClassName = "",
+		wrapperProps,
+		id,
+		"aria-describedby": ariaDescribedBy,
+		...props
+	},
+	ref
+) => {
 	const { size: defaultSize } = useAmphoreDefaults();
 	const size = sizeProp ?? defaultSize ?? "md";
 	const generatedId = useId();
-	const errorId = `${generatedId}-error`;
+	const triggerId = id ?? generatedId;
+	const errorId = `${triggerId}-error`;
 	const [open, setOpen] = useState(false);
 	const { resolve } = useAmphoreLabels("DatePicker");
 	const placeholder = resolve("placeholder", placeholderProp);
@@ -89,9 +119,16 @@ export const DatePicker: React.FC<IDatePickerProps> = ({
 	};
 
 	return (
-		<div className={cn([styles.wrapper, wrapperClassName])}>
+		<div
+			{...wrapperProps}
+			className={cn([
+				styles.wrapper,
+				wrapperClassName,
+				wrapperProps?.className,
+			])}
+		>
 			{label && (
-				<label className={styles.label} htmlFor={generatedId}>
+				<label className={styles.label} htmlFor={triggerId}>
 					{label}
 					{required && <span className={styles.required}>*</span>}
 				</label>
@@ -103,6 +140,7 @@ export const DatePicker: React.FC<IDatePickerProps> = ({
 				placement="bottom-start"
 				disabled={disabled}
 				portal={portal}
+				data-testid={deriveTestId(props["data-testid"], "popover")}
 				content={
 					<DayPicker
 						className={styles.calendar}
@@ -125,8 +163,10 @@ export const DatePicker: React.FC<IDatePickerProps> = ({
 				}
 			>
 				<button
+					{...props}
+					ref={ref}
 					type="button"
-					id={generatedId}
+					id={triggerId}
 					className={cn([styles.field, className])}
 					data-size={size}
 					data-color={color}
@@ -134,7 +174,10 @@ export const DatePicker: React.FC<IDatePickerProps> = ({
 					data-invalid={!!error || undefined}
 					disabled={disabled}
 					aria-haspopup="dialog"
-					aria-describedby={error && !hideError ? errorId : undefined}
+					aria-describedby={
+						cn([ariaDescribedBy, error && !hideError && errorId]) ||
+						undefined
+					}
 				>
 					<Picto icon="calendar" className={styles.picto} />
 					<span
@@ -149,8 +192,16 @@ export const DatePicker: React.FC<IDatePickerProps> = ({
 			</Popover>
 
 			{!hideError && (
-				<InputErrorMessage id={errorId}>{error}</InputErrorMessage>
+				<InputErrorMessage
+					id={errorId}
+					data-testid={deriveTestId(props["data-testid"], "error")}
+				>
+					{error}
+				</InputErrorMessage>
 			)}
 		</div>
 	);
 };
+
+export const DatePicker = forwardRef(DatePickerBase);
+DatePicker.displayName = "DatePicker";

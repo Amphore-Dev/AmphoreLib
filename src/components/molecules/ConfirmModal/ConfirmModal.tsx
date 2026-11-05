@@ -1,22 +1,24 @@
-import React, { useState } from "react";
+import React, { forwardRef, useState } from "react";
 
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
-import { TColor, TLabel, TSize } from "@interfaces/index";
+import { deriveTestId } from "@utils/UTestId";
+
+import { ITestIdProps, TColor, TLabel, TSize } from "@interfaces/index";
 
 import { Button } from "../../atoms/Button/Button";
 import { Modal } from "../Modal/Modal";
 
 import styles from "./ConfirmModal.module.scss";
 
-export interface IConfirmModalProps {
+export interface IConfirmModalProps
+	extends Omit<React.ComponentPropsWithoutRef<"div">, "title">, ITestIdProps {
 	open: boolean;
 	onClose: () => void;
 	onConfirm: () => void | Promise<void>;
 	/** Defaults to `onClose`. */
 	onCancel?: () => void;
 	title?: string;
-	children?: React.ReactNode;
 	/** Defaults to "Cancel" (or `common.cancel`/`ConfirmModal.cancelText` from the nearest AmphoreProvider — see useAmphoreLabels). */
 	cancelText?: TLabel;
 	/** Defaults to "Confirm" (or `common.confirm`/`ConfirmModal.confirmText` from the nearest AmphoreProvider). */
@@ -44,21 +46,31 @@ export type TConfirmModalLabels = Pick<
  * component's escape hatch. Doesn't auto-close on confirm (same as v1) —
  * the caller decides when to close, e.g. after its own side effect
  * succeeds.
+ *
+ * Native props and `ref` go to Modal's dialog panel. Derived testids: Modal's
+ * own, plus `-primary` (confirm) and `-secondary` (cancel).
  */
-export const ConfirmModal: React.FC<IConfirmModalProps> = ({
-	open,
-	onClose,
-	onConfirm,
-	onCancel,
-	title,
-	children,
-	cancelText: cancelTextProp,
-	confirmText: confirmTextProp,
-	confirmColor = "primary",
-	size = "sm",
-	portal = false,
-	className = "",
-}) => {
+const ConfirmModalBase: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	IConfirmModalProps
+> = (
+	{
+		open,
+		onClose,
+		onConfirm,
+		onCancel,
+		title,
+		children,
+		cancelText: cancelTextProp,
+		confirmText: confirmTextProp,
+		confirmColor = "primary",
+		size = "sm",
+		portal = false,
+		className = "",
+		...props
+	},
+	ref
+) => {
 	const [isLoading, setIsLoading] = useState(false);
 	const { resolve } = useAmphoreLabels("ConfirmModal");
 	const cancelText = resolve("cancelText", cancelTextProp, "cancel");
@@ -83,6 +95,8 @@ export const ConfirmModal: React.FC<IConfirmModalProps> = ({
 
 	return (
 		<Modal
+			{...props}
+			ref={ref}
 			open={open}
 			onClose={onClose}
 			title={title}
@@ -102,6 +116,10 @@ export const ConfirmModal: React.FC<IConfirmModalProps> = ({
 						variant="outline"
 						onClick={onCancel ?? onClose}
 						disabled={isLoading}
+						data-testid={deriveTestId(
+							props["data-testid"],
+							"secondary"
+						)}
 					>
 						{cancelText}
 					</Button>
@@ -109,6 +127,10 @@ export const ConfirmModal: React.FC<IConfirmModalProps> = ({
 						color={confirmColor}
 						onClick={handleConfirm}
 						isLoading={isLoading}
+						data-testid={deriveTestId(
+							props["data-testid"],
+							"primary"
+						)}
 					>
 						{confirmText}
 					</Button>
@@ -119,3 +141,6 @@ export const ConfirmModal: React.FC<IConfirmModalProps> = ({
 		</Modal>
 	);
 };
+
+export const ConfirmModal = forwardRef(ConfirmModalBase);
+ConfirmModal.displayName = "ConfirmModal";
