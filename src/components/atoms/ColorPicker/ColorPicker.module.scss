@@ -63,8 +63,7 @@
 
 	:global(.input_rgba-wrap) {
 		flex-wrap: wrap;
-		// stylelint-disable-next-line declaration-property-value-disallowed-list -- px: rem would only match at a 16px root
-		gap: 16px;
+		gap: space(4);
 	}
 
 	:global(.input_rgba-hex) {

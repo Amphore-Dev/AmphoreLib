@@ -17,8 +17,7 @@
 	padding-bottom: max(#{space(4.5)}, env(safe-area-inset-bottom, 0px));
 	overflow-y: auto;
 	overscroll-behavior: contain;
-	// stylelint-disable-next-line scale-unlimited/declaration-strict-value, function-disallowed-list -- backdrop color: no token, Tour uses 0.5 and merging is a design choice
-	background: rgba(0, 0, 0, 0.45);
+	background: var(--amp-color-backdrop);
 	z-index: var(--amp-z-overlay);
 }
 

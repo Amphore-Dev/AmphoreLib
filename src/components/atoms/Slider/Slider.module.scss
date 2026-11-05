@@ -42,20 +42,17 @@
 	// larger value — thumbs trimmed slightly smaller relative to their
 	// track at every tier.
 	--_track-h: #{space(2)};
-	// stylelint-disable-next-line declaration-property-value-disallowed-list -- off grid: thumb sizes are in 1/16rem
-	--_thumb: 1.3125rem;
+	--_thumb: #{space(5)};
 	--_color: var(--amp-color-primary);
 
 	&[data-size="sm"] {
 		--_track-h: #{space(1.5)};
-		// stylelint-disable-next-line declaration-property-value-disallowed-list -- off grid: thumb sizes are in 1/16rem
-		--_thumb: 1.0625rem;
+		--_thumb: #{space(4)};
 	}
 
 	&[data-size="lg"] {
 		--_track-h: #{space(2.5)};
-		// stylelint-disable-next-line declaration-property-value-disallowed-list -- off grid: thumb sizes are in 1/16rem
-		--_thumb: 1.4375rem;
+		--_thumb: #{space(6)};
 	}
 
 	&[data-color="danger"] {
@@ -115,7 +112,7 @@
 	height: var(--_thumb);
 	border-radius: 50%;
 	background: var(--_color);
-	border: var(--amp-border-width-lg) solid var(--amp-color-white);
+	border: var(--amp-border-width-md) solid var(--amp-color-white);
 	box-shadow: 0 0 0 var(--amp-border-width-sm) var(--amp-color-border);
 	pointer-events: none;
 }

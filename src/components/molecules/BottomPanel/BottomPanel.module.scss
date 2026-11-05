@@ -17,8 +17,7 @@
 	// handle stays tappable above the indicator.
 	box-sizing: content-box;
 	padding-bottom: env(safe-area-inset-bottom, 0px);
-	// stylelint-disable-next-line declaration-property-value-disallowed-list -- off scale: 250ms, between duration-base and duration-slow
-	transition: height 0.25s var(--amp-ease);
+	transition: height var(--amp-duration-base) var(--amp-ease);
 
 	// No transition while actively dragging — the height already tracks the
 	// pointer 1:1 every frame; animating on top of that lags behind it.

@@ -96,10 +96,8 @@
 	margin-top: 0.0625rem;
 
 	[data-size="sm"] > & {
-		// stylelint-disable-next-line declaration-property-value-disallowed-list -- off scale: 15px icon, between icon-sm and icon-md
-		width: 0.9375rem;
-		// stylelint-disable-next-line declaration-property-value-disallowed-list -- off scale: 15px icon, between icon-sm and icon-md
-		height: 0.9375rem;
+		width: var(--amp-icon-md);
+		height: var(--amp-icon-md);
 	}
 
 	[data-size="lg"] > & {

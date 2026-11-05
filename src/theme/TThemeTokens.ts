@@ -39,6 +39,8 @@ export type TThemeColors = {
 	ink: string;
 	sub: string;
 	ghostBg: string;
+	/** Dims the page behind a modal or a tour. */
+	backdrop: string;
 };
 
 export type TThemeRadius = {
@@ -124,6 +126,8 @@ export type TThemeLayers = {
 	sticky: string;
 	raised: string;
 	overlay: string;
+	/** Above `overlay`: a tooltip inside a modal has to show over it. */
+	tooltip: string;
 };
 
 /** Transition durations (`--amp-duration-*`). */
@@ -138,8 +142,6 @@ export type TThemeDurations = {
 export type TThemeBorders = {
 	sm: string;
 	md: string;
-	lg: string;
-	xl: string;
 };
 
 /** Fixed icon sizes (`--amp-icon-*`). */

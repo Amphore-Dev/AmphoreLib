@@ -1,7 +1,6 @@
 @use "../../../styles/mixins" as *;
 
-// stylelint-disable-next-line function-disallowed-list -- backdrop color: no token, Modal uses 0.45 and merging is a design choice
-$_dim: rgba(0, 0, 0, 0.5);
+$_dim: var(--amp-color-backdrop);
 // stylelint-disable-next-line declaration-property-value-disallowed-list -- not a size: enough to reach the viewport edges from anywhere
 $_dim-spread: 9999px;
 
@@ -28,7 +27,7 @@ $_dim-spread: 9999px;
 	position: fixed;
 	border-radius: var(--amp-radius-md);
 	box-shadow:
-		0 0 0 var(--amp-border-width-lg) var(--amp-color-primary),
+		0 0 0 var(--amp-border-width-md) var(--amp-color-primary),
 		0 0 0 $_dim-spread $_dim;
 	pointer-events: none;
 	transition:
@@ -90,7 +89,7 @@ $_dim-spread: 9999px;
 .counter {
 	font-size: var(--amp-text-xs);
 	font-weight: weight(medium);
-	letter-spacing: 0.04em;
+	letter-spacing: 0.05em;
 	text-transform: uppercase;
 	color: var(--amp-color-sub);
 }
