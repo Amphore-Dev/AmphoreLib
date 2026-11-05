@@ -4,7 +4,7 @@
 	display: block;
 	flex-shrink: 0;
 	border-radius: 50%;
-	border: var(--amp-border-width-lg) solid var(--_color-tint, currentColor);
+	border: var(--amp-border-width-md) solid var(--_color-tint, currentColor);
 	border-top-color: var(--_color, currentColor);
 	// stylelint-disable-next-line declaration-property-value-disallowed-list -- loop period, not a UI transition
 	animation: amp-spinner-spin 1.5s linear infinite;
@@ -16,19 +16,19 @@
 	&[data-size="sm"] {
 		width: space(3.5);
 		height: space(3.5);
-		border-width: var(--amp-border-width-lg);
+		border-width: var(--amp-border-width-md);
 	}
 
 	&[data-size="md"] {
 		width: space(5);
 		height: space(5);
-		border-width: var(--amp-border-width-lg);
+		border-width: var(--amp-border-width-md);
 	}
 
 	&[data-size="lg"] {
 		width: space(7);
 		height: space(7);
-		border-width: var(--amp-border-width-xl);
+		border-width: var(--amp-border-width-md);
 	}
 
 	&[data-color="primary"] {

@@ -192,8 +192,7 @@
 .spinner,
 .picto {
 	flex-shrink: 0;
-	// stylelint-disable-next-line declaration-property-value-disallowed-list -- px: rem would only match at a 16px root
-	margin-bottom: 2px;
+	margin-bottom: space(0.5);
 }
 
 .spinner {
@@ -202,7 +201,7 @@
 	// line-height, so the button would grow while isLoading.
 	box-sizing: border-box;
 	border-radius: 50%;
-	border: var(--amp-border-width-lg) solid currentColor;
+	border: var(--amp-border-width-md) solid currentColor;
 	border-top-color: transparent;
 	// stylelint-disable-next-line declaration-property-value-disallowed-list -- loop period, not a UI transition
 	animation: amp-spin 0.6s linear infinite;

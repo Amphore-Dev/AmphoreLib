@@ -29,10 +29,8 @@
 	position: relative;
 	display: inline-flex;
 	flex-shrink: 0;
-	// stylelint-disable-next-line declaration-property-value-disallowed-list -- off grid: 17px box
-	width: 1.0625rem;
-	// stylelint-disable-next-line declaration-property-value-disallowed-list -- off grid: 17px box
-	height: 1.0625rem;
+	width: space(4);
+	height: space(4);
 }
 
 .input {
@@ -75,14 +73,14 @@
 	// SVG defaults to display: inline, which can pad its box with
 	// descender/line-gap space — same issue fixed for Picto's wrapper.
 	display: block;
-	width: 70%;
-	height: 70%;
+	width: 85%;
+	height: 85%;
 	color: var(--amp-color-primary-fg);
 }
 
 .dash {
-	width: 55%;
-	height: var(--amp-border-width-lg);
+	width: 65%;
+	height: var(--amp-border-width-md);
 	background: var(--amp-color-primary-fg);
 	// stylelint-disable-next-line scale-unlimited/declaration-strict-value -- off scale: below radius-sm, on a 2px high dash
 	border-radius: 1px;

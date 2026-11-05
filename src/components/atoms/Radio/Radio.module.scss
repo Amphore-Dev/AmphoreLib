@@ -27,10 +27,8 @@
 	position: relative;
 	display: inline-flex;
 	flex-shrink: 0;
-	// stylelint-disable-next-line declaration-property-value-disallowed-list -- off grid: 17px circle
-	width: 1.0625rem;
-	// stylelint-disable-next-line declaration-property-value-disallowed-list -- off grid: 17px circle
-	height: 1.0625rem;
+	width: space(4);
+	height: space(4);
 }
 
 .input {

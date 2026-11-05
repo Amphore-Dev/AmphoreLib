@@ -39,6 +39,7 @@ export const DARK_DEFAULT_CONFIG_COLORS: TThemeConfig["colors"] = {
 	ink: "#f2f3f5",
 	sub: "#9a9fa8",
 	ghostBg: "#212327",
+	backdrop: "rgba(0, 0, 0, 0.5)",
 };
 
 /**
@@ -79,6 +80,7 @@ export const DEFAULT_CONFIG: TThemeConfig = {
 		ink: "#1a1d21",
 		sub: "#6b7178",
 		ghostBg: "#f6f7f9",
+		backdrop: "rgba(0, 0, 0, 0.5)",
 	},
 	// sm was 0.125rem — identical to the "sharp" preset's own sm, so any
 	// component using -radius-sm looked "sharp" even under the plain
@@ -170,6 +172,7 @@ export const DEFAULT_CONFIG: TThemeConfig = {
 		sticky: "20",
 		raised: "50",
 		overlay: "1000",
+		tooltip: "1100",
 	},
 	durations: {
 		instant: "0.1s",
@@ -180,9 +183,7 @@ export const DEFAULT_CONFIG: TThemeConfig = {
 	ease: "ease",
 	borders: {
 		sm: "1px",
-		md: "1.5px",
-		lg: "2px",
-		xl: "3px",
+		md: "2px",
 	},
 	icons: {
 		xs: "0.75rem",

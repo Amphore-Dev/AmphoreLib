@@ -85,13 +85,11 @@
 // `styles` prop on <DayPicker> instead, a class can't reliably win.
 .calendar :global(.rdp-chevron) {
 	fill: var(--amp-color-primary);
-	// stylelint-disable-next-line declaration-property-value-disallowed-list -- off grid: not on the 0.125rem steps
-	margin-top: 0.1rem;
+	margin-top: space(0.5);
 }
 
 .calendar :global(.rdp-month_grid) {
-	// stylelint-disable-next-line declaration-property-value-disallowed-list -- off grid: not on the 0.125rem steps
-	margin-top: 0.4rem;
+	margin-top: space(1.5);
 }
 
 // Excludes [data-selected] so hovering the selected day doesn't un-select it visually.

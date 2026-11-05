@@ -31,6 +31,7 @@
 	--amp-color-ink: #1a1d21;
 	--amp-color-sub: #6b7178;
 	--amp-color-ghost-bg: #f6f7f9;
+	--amp-color-backdrop: rgba(0, 0, 0, 0.5);
 	--amp-gap: 1.5rem;
 	--amp-card-padding: 1.5rem;
 	--amp-section-padding: 2rem;
@@ -87,14 +88,13 @@
 	--amp-z-sticky: 20;
 	--amp-z-raised: 50;
 	--amp-z-overlay: 1000;
+	--amp-z-tooltip: 1100;
 	--amp-duration-instant: 0.1s;
 	--amp-duration-fast: 0.15s;
 	--amp-duration-base: 0.2s;
 	--amp-duration-slow: 0.3s;
 	--amp-border-width-sm: 1px;
-	--amp-border-width-md: 1.5px;
-	--amp-border-width-lg: 2px;
-	--amp-border-width-xl: 3px;
+	--amp-border-width-md: 2px;
 	--amp-icon-xs: 0.75rem;
 	--amp-icon-sm: 0.875rem;
 	--amp-icon-md: 1rem;
