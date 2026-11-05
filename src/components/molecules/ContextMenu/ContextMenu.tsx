@@ -143,7 +143,9 @@ export function ContextMenu<T = undefined>({
 			context={context}
 			floatingRef={refs.setFloating}
 			floatingStyles={floatingStyles}
-			getFloatingProps={() => getFloatingProps({ "aria-label": ariaLabel })}
+			getFloatingProps={() =>
+				getFloatingProps({ "aria-label": ariaLabel })
+			}
 			getItemProps={(_item, onClick) => getItemProps({ onClick })}
 			itemRef={(node, index) => {
 				listRef.current[index] = node;

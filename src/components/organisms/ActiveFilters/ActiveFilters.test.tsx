@@ -1,6 +1,4 @@
-import React from "react";
-
-import { useState } from "react";
+import React, { useState } from "react";
 
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -311,7 +309,9 @@ describe("ActiveFilters keyboard", () => {
 				defaultValues: {},
 			} as never,
 		});
-		return <ActiveFilters filters={filterGroups} filtersContext={context} />;
+		return (
+			<ActiveFilters filters={filterGroups} filtersContext={context} />
+		);
 	};
 
 	it("names each chip's remove button after the chip", () => {
@@ -325,7 +325,9 @@ describe("ActiveFilters keyboard", () => {
 		const user = userEvent.setup();
 		render(<Live initial={{ tags: ["a", "b"] }} />);
 
-		await user.click(screen.getByRole("button", { name: "Remove: Tags: a" }));
+		await user.click(
+			screen.getByRole("button", { name: "Remove: Tags: a" })
+		);
 
 		expect(
 			screen.getByRole("button", { name: "Remove: Tags: b" })

@@ -60,7 +60,11 @@ describe("FilesField accessibility", () => {
 		render(
 			<>
 				<span id="external">Documents</span>
-				<FilesField aria-labelledby="external" name="docs" maxFiles={2} />
+				<FilesField
+					aria-labelledby="external"
+					name="docs"
+					maxFiles={2}
+				/>
 			</>
 		);
 		expect(

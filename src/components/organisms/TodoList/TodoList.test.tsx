@@ -194,7 +194,9 @@ describe("TodoList keyboard", () => {
 
 		await user.click(screen.getByRole("button", { name: "Remove: One" }));
 
-		expect(screen.getByRole("button", { name: "Remove: Two" })).toHaveFocus();
+		expect(
+			screen.getByRole("button", { name: "Remove: Two" })
+		).toHaveFocus();
 	});
 
 	it("moves focus to the new last row after removing the last one", async () => {
@@ -203,7 +205,9 @@ describe("TodoList keyboard", () => {
 
 		await user.click(screen.getByRole("button", { name: "Remove: Three" }));
 
-		expect(screen.getByRole("button", { name: "Remove: Two" })).toHaveFocus();
+		expect(
+			screen.getByRole("button", { name: "Remove: Two" })
+		).toHaveFocus();
 	});
 
 	it("moves focus to the list when it empties", async () => {

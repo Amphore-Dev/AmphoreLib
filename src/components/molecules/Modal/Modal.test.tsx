@@ -242,7 +242,9 @@ describe("Modal dialog semantics", () => {
 				Body
 			</Modal>
 		);
-		expect(screen.getByRole("dialog", { name: "Dialog" })).toBeInTheDocument();
+		expect(
+			screen.getByRole("dialog", { name: "Dialog" })
+		).toBeInTheDocument();
 	});
 
 	it("takes a name for a title-less dialog", () => {
@@ -251,7 +253,9 @@ describe("Modal dialog semantics", () => {
 				Body
 			</Modal>
 		);
-		expect(screen.getByRole("dialog", { name: "Preview" })).toBeInTheDocument();
+		expect(
+			screen.getByRole("dialog", { name: "Preview" })
+		).toBeInTheDocument();
 	});
 });
 
@@ -263,7 +267,11 @@ describe("Modal focus", () => {
 				<button type="button" onClick={() => setOpen(true)}>
 					Open
 				</button>
-				<Modal open={open} onClose={() => setOpen(false)} title="Details">
+				<Modal
+					open={open}
+					onClose={() => setOpen(false)}
+					title="Details"
+				>
 					<button type="button">Inside</button>
 				</Modal>
 			</>

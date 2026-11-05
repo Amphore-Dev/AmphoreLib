@@ -111,7 +111,9 @@ describe("SummaryListItem", () => {
 
 describe("SummaryListItem structure", () => {
 	it("is its own <dl> when on its own", () => {
-		const { container } = render(<SummaryListItem label="Name" value="Ada" />);
+		const { container } = render(
+			<SummaryListItem label="Name" value="Ada" />
+		);
 		expect(container.firstElementChild?.tagName).toBe("DL");
 	});
 

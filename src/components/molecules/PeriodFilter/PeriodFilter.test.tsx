@@ -123,9 +123,7 @@ describe("PeriodFilter accessibility", () => {
 		const now = new Date();
 		const from = startOfMonth(now);
 		const to = endOfMonth(now);
-		render(
-			<PeriodFilter from={{ value: from }} to={{ value: to }} />
-		);
+		render(<PeriodFilter from={{ value: from }} to={{ value: to }} />);
 
 		expect(
 			screen.getByRole("button", { name: "This month", pressed: true })
@@ -149,6 +147,8 @@ describe("PeriodFilter accessibility", () => {
 				<PeriodFilter aria-labelledby="external" />
 			</>
 		);
-		expect(screen.getByRole("group", { name: "Period" })).toBeInTheDocument();
+		expect(
+			screen.getByRole("group", { name: "Period" })
+		).toBeInTheDocument();
 	});
 });

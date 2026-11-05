@@ -55,7 +55,9 @@ describe("TimeRangeFilter accessibility", () => {
 
 	it("leaves a visible label to name its picker", () => {
 		render(<TimeRangeFilter from={{ label: "Opens" }} />);
-		expect(screen.getByRole("group", { name: "Opens" })).toBeInTheDocument();
+		expect(
+			screen.getByRole("group", { name: "Opens" })
+		).toBeInTheDocument();
 	});
 
 	it("names the pair through an external label", () => {

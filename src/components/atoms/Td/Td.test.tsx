@@ -11,10 +11,7 @@ describe("Td", () => {
 
 	it("sets data-sticky when given", () => {
 		render(<Td sticky="left">Hello</Td>);
-		expect(screen.getByRole("cell")).toHaveAttribute(
-			"data-sticky",
-			"left"
-		);
+		expect(screen.getByRole("cell")).toHaveAttribute("data-sticky", "left");
 	});
 
 	it("forwards native div props and a custom className", () => {

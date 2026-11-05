@@ -106,7 +106,11 @@ describe("ColorPickerField", () => {
 describe("ColorPickerField accessibility", () => {
 	it("names the trigger by its label and its value", () => {
 		render(
-			<ColorPickerField label="Tint" value="#336699" onChange={() => {}} />
+			<ColorPickerField
+				label="Tint"
+				value="#336699"
+				onChange={() => {}}
+			/>
 		);
 		expect(screen.getByRole("button")).toHaveAccessibleName("Tint #336699");
 	});
@@ -132,6 +136,8 @@ describe("ColorPickerField accessibility", () => {
 				hideValue
 			/>
 		);
-		expect(screen.getByRole("button")).toHaveAccessibleName("Tint: #336699");
+		expect(screen.getByRole("button")).toHaveAccessibleName(
+			"Tint: #336699"
+		);
 	});
 });

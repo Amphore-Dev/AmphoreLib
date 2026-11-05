@@ -563,7 +563,11 @@ describe("Tour accessibility", () => {
 					<button type="button" onClick={() => setOpen(true)}>
 						Start
 					</button>
-					<Tour steps={STEPS} open={open} onClose={() => setOpen(false)} />
+					<Tour
+						steps={STEPS}
+						open={open}
+						onClose={() => setOpen(false)}
+					/>
 				</Page>
 			);
 		};

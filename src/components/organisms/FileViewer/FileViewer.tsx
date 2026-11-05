@@ -371,12 +371,12 @@ export const FileViewer: React.FC<IFileViewerProps> = ({
 
 			{/* A scrolling area the keyboard can't otherwise scroll: nothing in
 			    it takes focus (WCAG 2.1.1). */}
-			{/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
 			<div
 				ref={viewportRef}
 				className={styles.viewport}
 				role="region"
 				aria-label={resolvedName ?? previewAltLabel}
+				// eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
 				tabIndex={0}
 			>
 				{resolvedType === "image" && resolvedUrl && (

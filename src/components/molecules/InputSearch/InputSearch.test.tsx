@@ -85,7 +85,9 @@ describe("InputSearch", () => {
 describe("InputSearch name", () => {
 	it("is named when it shows nothing but its icon", () => {
 		render(<InputSearch onChange={() => {}} />);
-		expect(screen.getByRole("textbox", { name: "Search" })).toBeInTheDocument();
+		expect(
+			screen.getByRole("textbox", { name: "Search" })
+		).toBeInTheDocument();
 	});
 
 	it("defers to a placeholder or a label", () => {

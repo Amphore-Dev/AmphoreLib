@@ -185,7 +185,9 @@ export const TimePicker: React.FC<ITimePickerProps> = ({
 
 			<div
 				role="group"
-				aria-labelledby={ariaLabelledBy ?? (label ? labelId : undefined)}
+				aria-labelledby={
+					ariaLabelledBy ?? (label ? labelId : undefined)
+				}
 				aria-label={ariaLabel}
 				className={cn([styles.field, className])}
 				data-size={size}

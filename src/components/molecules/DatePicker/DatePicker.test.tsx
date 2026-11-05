@@ -193,9 +193,7 @@ describe("DatePicker accessibility", () => {
 		await user.keyboard("{Escape}");
 
 		await waitFor(() =>
-			expect(
-				screen.getByRole("button", { name: /Start/ })
-			).toHaveFocus()
+			expect(screen.getByRole("button", { name: /Start/ })).toHaveFocus()
 		);
 	});
 
@@ -210,9 +208,7 @@ describe("DatePicker accessibility", () => {
 		await user.keyboard("{ArrowRight}{Enter}");
 
 		await waitFor(() =>
-			expect(
-				screen.getByRole("button", { name: /Start/ })
-			).toHaveFocus()
+			expect(screen.getByRole("button", { name: /Start/ })).toHaveFocus()
 		);
 	});
 });

@@ -68,7 +68,9 @@ export const CheckboxFilter: React.FC<ICheckboxesFilterProps> = ({
 			<div
 				className={cn([styles.options, className])}
 				role="group"
-				aria-labelledby={ariaLabelledBy ?? (label ? labelId : undefined)}
+				aria-labelledby={
+					ariaLabelledBy ?? (label ? labelId : undefined)
+				}
 				aria-label={ariaLabel}
 				aria-describedby={error && !hideError ? errorId : undefined}
 			>

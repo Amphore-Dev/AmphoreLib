@@ -440,7 +440,9 @@ describe("Table accessibility", () => {
 
 	it("is a table, named, not a grid it can't navigate like one", () => {
 		render(<Table {...base} aria-label="Users" />);
-		expect(screen.getByRole("table", { name: "Users" })).toBeInTheDocument();
+		expect(
+			screen.getByRole("table", { name: "Users" })
+		).toBeInTheDocument();
 		expect(screen.queryByRole("grid")).not.toBeInTheDocument();
 	});
 
@@ -460,7 +462,9 @@ describe("Table accessibility", () => {
 
 	it("puts messages in a row, the only thing a table may contain", () => {
 		render(<Table {...base} items={[]} />);
-		expect(screen.getByRole("cell", { name: "No data" })).toBeInTheDocument();
+		expect(
+			screen.getByRole("cell", { name: "No data" })
+		).toBeInTheDocument();
 	});
 
 	it("reaches a clickable row from the keyboard", async () => {
@@ -492,7 +496,9 @@ describe("Table accessibility", () => {
 
 	it("selects a row from the keyboard without a checkbox, and says so", async () => {
 		const user = userEvent.setup();
-		render(<Table {...base} selectable showCheckbox={false} selectOnClick />);
+		render(
+			<Table {...base} selectable showCheckbox={false} selectOnClick />
+		);
 		const row = screen.getByRole("button", { name: "Select row: Alice" });
 		expect(row).toHaveAttribute("aria-pressed", "false");
 
@@ -522,7 +528,10 @@ describe("Table accessibility", () => {
 	it("names the row-actions button, opens its menu beside it, restores focus", async () => {
 		const user = userEvent.setup();
 		render(
-			<Table {...base} rowActions={[{ label: "Edit", onClick: () => {} }]} />
+			<Table
+				{...base}
+				rowActions={[{ label: "Edit", onClick: () => {} }]}
+			/>
 		);
 		const more = screen.getByRole("button", { name: "Row actions: Alice" });
 

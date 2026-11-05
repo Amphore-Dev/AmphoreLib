@@ -216,7 +216,9 @@ describe("TimePicker", () => {
 describe("TimePicker accessibility", () => {
 	it("groups its segments under the label", () => {
 		render(<TimePicker label="Start" value={null} onChange={() => {}} />);
-		expect(screen.getByRole("group", { name: "Start" })).toBeInTheDocument();
+		expect(
+			screen.getByRole("group", { name: "Start" })
+		).toBeInTheDocument();
 	});
 
 	it("focuses the hours when the label is clicked", async () => {
@@ -252,7 +254,12 @@ describe("TimePicker accessibility", () => {
 
 	it("states required on both segments", () => {
 		render(
-			<TimePicker label="Start" value={null} onChange={() => {}} required />
+			<TimePicker
+				label="Start"
+				value={null}
+				onChange={() => {}}
+				required
+			/>
 		);
 		for (const segment of screen.getAllByRole("textbox")) {
 			expect(segment).toBeRequired();

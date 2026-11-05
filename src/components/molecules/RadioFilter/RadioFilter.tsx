@@ -63,7 +63,9 @@ export const RadioFilter: React.FC<IRadioFilterProps> = ({
 			<div
 				className={cn([styles.options, className])}
 				role="radiogroup"
-				aria-labelledby={ariaLabelledBy ?? (label ? labelId : undefined)}
+				aria-labelledby={
+					ariaLabelledBy ?? (label ? labelId : undefined)
+				}
 				aria-label={ariaLabel}
 				aria-invalid={!!error || undefined}
 				aria-required={required || undefined}

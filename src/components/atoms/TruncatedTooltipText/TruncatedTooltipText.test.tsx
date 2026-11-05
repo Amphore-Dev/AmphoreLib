@@ -92,8 +92,12 @@ describe("TruncatedTooltipText", () => {
 
 describe("TruncatedTooltipText keyboard", () => {
 	const truncate = () => {
-		vi.spyOn(HTMLElement.prototype, "scrollWidth", "get").mockReturnValue(200);
-		vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(100);
+		vi.spyOn(HTMLElement.prototype, "scrollWidth", "get").mockReturnValue(
+			200
+		);
+		vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(
+			100
+		);
 	};
 
 	afterEach(() => {
@@ -107,7 +111,9 @@ describe("TruncatedTooltipText keyboard", () => {
 
 		await user.tab();
 
-		expect(await screen.findByRole("tooltip")).toHaveTextContent("Long text");
+		expect(await screen.findByRole("tooltip")).toHaveTextContent(
+			"Long text"
+		);
 	});
 
 	it("adds no tab stop when nothing is cut off", () => {

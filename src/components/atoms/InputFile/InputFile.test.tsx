@@ -1,6 +1,4 @@
-import React from "react";
-
-import { useState } from "react";
+import React, { useState } from "react";
 
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -151,7 +149,9 @@ describe("InputFile accessibility", () => {
 				<InputFile aria-labelledby="external" />
 			</>
 		);
-		expect(screen.getByTestId("input-file")).toHaveAccessibleName("Invoice");
+		expect(screen.getByTestId("input-file")).toHaveAccessibleName(
+			"Invoice"
+		);
 	});
 
 	it("states an error and required", () => {

@@ -260,7 +260,9 @@ export const ChipInput: React.FC<IChipInputProps> = ({
 					>
 						{chip}
 						{!isValid(chip) && (
-							<span className={styles.srOnly}>{invalidLabel}</span>
+							<span className={styles.srOnly}>
+								{invalidLabel}
+							</span>
 						)}
 					</Badge>
 				))}

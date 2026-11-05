@@ -93,7 +93,9 @@ describe("Th accessibility", () => {
 		);
 
 		rerender(<Th>Age</Th>);
-		expect(screen.getByRole("columnheader")).not.toHaveAttribute("aria-sort");
+		expect(screen.getByRole("columnheader")).not.toHaveAttribute(
+			"aria-sort"
+		);
 	});
 
 	it("keeps the sort marker out of the column's name", () => {

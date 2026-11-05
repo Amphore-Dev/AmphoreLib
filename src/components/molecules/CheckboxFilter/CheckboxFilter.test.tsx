@@ -70,12 +70,16 @@ describe("CheckboxFilter accessibility", () => {
 
 	it("names the group after its label", () => {
 		render(<CheckboxFilter label="Colors" options={options} />);
-		expect(screen.getByRole("group", { name: "Colors" })).toBeInTheDocument();
+		expect(
+			screen.getByRole("group", { name: "Colors" })
+		).toBeInTheDocument();
 	});
 
 	it("names the group without a visible label", () => {
 		render(<CheckboxFilter aria-label="Colors" options={options} />);
-		expect(screen.getByRole("group", { name: "Colors" })).toBeInTheDocument();
+		expect(
+			screen.getByRole("group", { name: "Colors" })
+		).toBeInTheDocument();
 	});
 
 	it("describes the group by its error, and marks each box invalid", () => {

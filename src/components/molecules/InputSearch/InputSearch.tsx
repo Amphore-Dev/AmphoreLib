@@ -67,7 +67,9 @@ export const InputSearch: React.FC<IInputSearchProps> = ({
 
 	return (
 		<Input
-			aria-label={props.label || props.placeholder ? undefined : searchLabel}
+			aria-label={
+				props.label || props.placeholder ? undefined : searchLabel
+			}
 			{...props}
 			isClearable={isClearable}
 			value={internalValue}

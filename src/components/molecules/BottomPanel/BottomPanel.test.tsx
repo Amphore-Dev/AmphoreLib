@@ -190,7 +190,9 @@ describe("BottomPanel keyboard", () => {
 			</BottomPanel>
 		);
 
-		expect(screen.getByRole("button", { name: "Expand panel" })).toHaveFocus();
+		expect(
+			screen.getByRole("button", { name: "Expand panel" })
+		).toHaveFocus();
 	});
 
 	it("takes focus on open only when asked to", () => {
@@ -206,6 +208,8 @@ describe("BottomPanel keyboard", () => {
 				content
 			</BottomPanel>
 		);
-		expect(screen.getByRole("button", { name: "Collapse panel" })).toHaveFocus();
+		expect(
+			screen.getByRole("button", { name: "Collapse panel" })
+		).toHaveFocus();
 	});
 });
