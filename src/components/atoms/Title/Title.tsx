@@ -1,4 +1,4 @@
-import React, { HTMLAttributes } from "react";
+import React, { forwardRef, HTMLAttributes } from "react";
 
 import { cn } from "@utils/cn";
 
@@ -21,25 +21,24 @@ export interface ITitleProps extends HTMLAttributes<HTMLHeadingElement> {
  * V2 Title — heading text. `as` picks the semantic tag, `size` (defaults to
  * `as`) picks the visual scale — decoupled so heading order stays correct
  * (h1 → h2 → h3, no skipping for style reasons) independent of look.
+ * forwardRef, so it can be a Tooltip/Popover trigger.
  */
-export const Title: React.FC<ITitleProps> = ({
-	as = "h1",
-	size,
-	color,
-	className = "",
-	children,
-	...props
-}) => {
-	const Tag = as;
+export const Title = forwardRef<HTMLHeadingElement, ITitleProps>(
+	({ as = "h1", size, color, className = "", children, ...props }, ref) => {
+		const Tag = as;
 
-	return (
-		<Tag
-			{...props}
-			className={cn([styles.title, className])}
-			data-size={size ?? as}
-			data-color={color}
-		>
-			{children}
-		</Tag>
-	);
-};
+		return (
+			<Tag
+				{...props}
+				ref={ref}
+				className={cn([styles.title, className])}
+				data-size={size ?? as}
+				data-color={color}
+			>
+				{children}
+			</Tag>
+		);
+	}
+);
+
+Title.displayName = "Title";

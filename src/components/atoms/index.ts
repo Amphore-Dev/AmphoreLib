@@ -23,6 +23,7 @@ export * from "./Skeleton/Skeleton";
 export * from "./Slider/Slider";
 export * from "./Spinner/Spinner";
 export * from "./Td/Td";
+export * from "./Text/Text";
 export * from "./TextArea/TextArea";
 export * from "./Th/Th";
 export * from "./TimePicker/TimePicker";
