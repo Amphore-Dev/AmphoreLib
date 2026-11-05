@@ -15,9 +15,12 @@ import { Button, Divider, FlexGrid, IFlexGridProps } from "@components/atoms";
 import { IModalProps, Modal } from "@components/molecules/Modal/Modal";
 
 import { computeModalSize, genGroups, hasValue } from "@utils/UFormGroups";
+import { genericForwardRef } from "@utils/UForwardRef";
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
 import {
+	ITestIdProps,
 	TEditFields,
 	TFieldRendererMap,
 	TFieldsGroup,
@@ -46,8 +49,22 @@ const REQUIRED_FIELD_ON_LABEL: Partial<Record<TFieldType, true>> = {
 
 export interface IFormRendererProps<K = object>
 	extends
-		Partial<Omit<IModalProps, "children" | "size">>,
-		Omit<IFlexGridProps, "children" | "onSubmit" | "onReset"> {
+		Partial<
+			Pick<
+				IModalProps,
+				| "open"
+				| "onClose"
+				| "header"
+				| "footer"
+				| "closeOnOverlayClick"
+				| "closeOnEscape"
+				| "hideCloseButton"
+				| "closeLabel"
+				| "portal"
+			>
+		>,
+		Omit<IFlexGridProps, "children" | "onSubmit" | "onReset">,
+		ITestIdProps {
 	initialValues?: K;
 	initialTouched?: FormikComputedProps<K>["initialTouched"];
 	onSubmit?: (values: K) => void;
@@ -80,30 +97,57 @@ export interface IFormRendererProps<K = object>
 	title?: string;
 }
 
-export const FormRenderer = <K extends object>({
-	title,
-	open,
-	onClose,
-	fields,
-	displayGroupTitles = true,
-	groupBackground = false,
-	fieldsRenderers,
-	showResetFieldButton = false,
-	showFieldLabels = true,
-	inModal = false,
-	modalProps,
-	columns = 1,
-	gap = "1rem",
-	minItemWidth = "250px",
-	formikCtx = { values: {} as K } as FormikProps<K>,
-	disableFields,
-	setFieldValue,
-	defaultValues,
-	wrapperGridProps,
-	submitLabel: submitLabelProp,
-	cancelLabel: cancelLabelProp,
-	resetLabel: resetLabelProp,
-}: IFormRendererProps<K>) => {
+/**
+ * V2 FormRenderer — a grid of fields built from their definitions, inline or
+ * in a Modal.
+ *
+ * Native props, `className` and `ref` go to the form's grid. `data-testid`
+ * names the form: inline it sits on the grid, with `inModal` on the dialog,
+ * the grid taking `-form`. Derived testids: `-field-<name>`, `-reset-<name>`,
+ * Modal's own, `-primary` (submit), `-secondary` (cancel), `-reset` (reset
+ * form).
+ */
+const FormRendererBase = <K extends object>(
+	{
+		title,
+		open,
+		onClose,
+		fields,
+		displayGroupTitles = true,
+		groupBackground = false,
+		fieldsRenderers,
+		showResetFieldButton = false,
+		showFieldLabels = true,
+		inModal = false,
+		modalProps,
+		columns = 1,
+		gap = "1rem",
+		minItemWidth = "250px",
+		formikCtx = { values: {} as K } as FormikProps<K>,
+		disableFields,
+		setFieldValue,
+		defaultValues,
+		wrapperGridProps,
+		submitLabel: submitLabelProp,
+		cancelLabel: cancelLabelProp,
+		resetLabel: resetLabelProp,
+		className,
+		initialValues: _initialValues,
+		initialTouched: _initialTouched,
+		onSubmit: _onSubmit,
+		validationSchema: _validationSchema,
+		header: _header,
+		footer: _footer,
+		closeOnOverlayClick: _closeOnOverlayClick,
+		closeOnEscape: _closeOnEscape,
+		hideCloseButton: _hideCloseButton,
+		closeLabel: _closeLabel,
+		portal: _portal,
+		size: _size,
+		...props
+	}: IFormRendererProps<K>,
+	ref: React.ForwardedRef<HTMLDivElement>
+) => {
 	const { resolve } = useAmphoreLabels("FormRenderer");
 	const submitLabel = resolve("submitLabel", submitLabelProp, "submit");
 	const cancelLabel = resolve("cancelLabel", cancelLabelProp, "cancel");
@@ -114,6 +158,7 @@ export const FormRenderer = <K extends object>({
 
 	const groups: TFieldsGroup[] = genGroups(result);
 	const fieldsDisabled = disableFields || formikCtx.isSubmitting;
+	const testId = props["data-testid"];
 
 	return (
 		<FormWrapper
@@ -125,13 +170,21 @@ export const FormRenderer = <K extends object>({
 			modalProps={modalProps}
 			submitLabel={submitLabel}
 			cancelLabel={cancelLabel}
+			data-testid={testId}
 		>
 			<FlexGrid
 				gap="1rem"
 				minItemWidth="250px"
 				columns={columns}
+				{...props}
 				{...wrapperGridProps}
-				className={styles.body}
+				ref={ref}
+				data-testid={inModal ? deriveTestId(testId, "form") : testId}
+				className={cn([
+					styles.body,
+					className,
+					wrapperGridProps?.className,
+				])}
 			>
 				{groups.map((group, groupIndex) => {
 					const groupFields =
@@ -334,6 +387,11 @@ export const FormRenderer = <K extends object>({
 																	styles.resetBtnDisabled,
 															])}
 															size="sm"
+															data-testid={deriveTestId(
+																testId,
+																"reset",
+																name
+															)}
 															onClick={() =>
 																field.onReset
 																	? field.onReset(
@@ -367,6 +425,11 @@ export const FormRenderer = <K extends object>({
 												type={type}
 												id={name}
 												value={fieldValue}
+												data-testid={deriveTestId(
+													testId,
+													"field",
+													name
+												)}
 												{...fieldProps}
 												formik={
 													formikCtx as unknown as FormikContextType<object>
@@ -396,6 +459,8 @@ export const FormRenderer = <K extends object>({
 	);
 };
 
+export const FormRenderer = genericForwardRef(FormRendererBase, "FormRenderer");
+
 export interface IFormRendererWithFormikProps<K = object> extends Omit<
 	IFormRendererProps<K>,
 	"initialValues" | "onSubmit" | "validationSchema"
@@ -420,19 +485,24 @@ export type TFormRendererLabels = Pick<
 > &
 	Pick<IFormRendererWithFormikProps, "resetFormLabel">;
 
-export const FormRendererWithFormik = <K extends object>({
-	onSubmit = () => {},
-	onReset,
-	disableSubmit,
-	resetFormButton = false,
-	resetFormLabel: resetFormLabelProp,
-	submitLabel: submitLabelProp,
-	cancelLabel: cancelLabelProp,
-	onClose = () => {},
-	defaultValues,
-	...props
-}: IFormRendererWithFormikProps<K>) => {
+/** FormRenderer inside its own Formik: same native props, same `ref`, same derived testids. */
+const FormRendererWithFormikBase = <K extends object>(
+	{
+		onSubmit = () => {},
+		onReset,
+		disableSubmit,
+		resetFormButton = false,
+		resetFormLabel: resetFormLabelProp,
+		submitLabel: submitLabelProp,
+		cancelLabel: cancelLabelProp,
+		onClose = () => {},
+		defaultValues,
+		...props
+	}: IFormRendererWithFormikProps<K>,
+	ref: React.ForwardedRef<HTMLDivElement>
+) => {
 	const { initialValues, validationSchema, initialTouched } = props;
+	const testId = props["data-testid"];
 	const { resolve } = useAmphoreLabels("FormRenderer");
 	const resetFormLabel = resolve("resetFormLabel", resetFormLabelProp);
 	const submitLabel = resolve("submitLabel", submitLabelProp, "submit");
@@ -459,7 +529,8 @@ export const FormRendererWithFormik = <K extends object>({
 
 				return (
 					<FormRenderer
-						{...props}
+						{...(props as IFormRendererProps<K>)}
+						ref={ref}
 						groupBackground={props.groupBackground ?? props.inModal}
 						formikCtx={formikCtx}
 						onClose={onClose}
@@ -475,6 +546,10 @@ export const FormRendererWithFormik = <K extends object>({
 										{resetFormButton && (
 											<Button
 												variant="ghost"
+												data-testid={deriveTestId(
+													testId,
+													"reset"
+												)}
 												onClick={() => {
 													formikCtx.resetForm({
 														values: (defaultValues ??
@@ -492,6 +567,10 @@ export const FormRendererWithFormik = <K extends object>({
 										<Button
 											variant="outline"
 											onClick={onClose}
+											data-testid={deriveTestId(
+												testId,
+												"secondary"
+											)}
 											disabled={formikCtx.isSubmitting}
 										>
 											{cancelLabel}
@@ -500,6 +579,10 @@ export const FormRendererWithFormik = <K extends object>({
 											onClick={() =>
 												formikCtx.submitForm()
 											}
+											data-testid={deriveTestId(
+												testId,
+												"primary"
+											)}
 											isLoading={formikCtx.isSubmitting}
 											disabled={submitDisabled}
 										>
@@ -514,6 +597,11 @@ export const FormRendererWithFormik = <K extends object>({
 		</Formik>
 	);
 };
+
+export const FormRendererWithFormik = genericForwardRef(
+	FormRendererWithFormikBase,
+	"FormRendererWithFormik"
+);
 
 interface IFormWrapperProps<K extends object>
 	extends Partial<Omit<IFormRendererProps<K>, "fields">>, PropsWithChildren {
@@ -533,6 +621,7 @@ const FormWrapper = <K extends object>({
 	modalProps,
 	submitLabel,
 	cancelLabel,
+	"data-testid": testId,
 }: IFormWrapperProps<K>) => {
 	const { submitForm, isSubmitting, dirty } = useFormikContext<K>();
 
@@ -548,6 +637,7 @@ const FormWrapper = <K extends object>({
 			closeOnOverlayClick={!isSubmitting && !dirty}
 			closeOnEscape={!isSubmitting}
 			hideCloseButton={isSubmitting}
+			data-testid={testId}
 			{...modalProps}
 			footer={
 				modalProps?.footer ?? (
@@ -556,12 +646,14 @@ const FormWrapper = <K extends object>({
 							variant="outline"
 							onClick={onClose}
 							disabled={isSubmitting}
+							data-testid={deriveTestId(testId, "secondary")}
 						>
 							{cancelLabel}
 						</Button>
 						<Button
 							onClick={() => submitForm()}
 							isLoading={isSubmitting}
+							data-testid={deriveTestId(testId, "primary")}
 						>
 							{submitLabel}
 						</Button>

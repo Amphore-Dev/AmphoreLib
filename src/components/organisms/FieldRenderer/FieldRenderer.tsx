@@ -1,6 +1,7 @@
 import React from "react";
 
 import { FormikContextType, useFormikContext } from "formik";
+import { omit } from "lodash";
 
 import {
 	Input,
@@ -39,6 +40,38 @@ export interface IFieldRendererProps extends TBaseField<string, TFieldType> {
 	/** Runtime value for this field, computed by FormRenderer from `formik.values`. */
 	value?: unknown;
 }
+
+/**
+ * Keys of a field definition that mean something to the layers above
+ * (FormRenderer, EditableCard, ActiveFilters) and nothing to the component
+ * drawing the field. Built-in components forward what they don't declare to
+ * the DOM, where these would end up as stray attributes.
+ */
+const FIELD_DEFINITION_KEYS = [
+	"type",
+	"hidden",
+	"valueRenderer",
+	"displayProps",
+	"chip",
+	"chipLabel",
+];
+
+/** Common field keys a given built-in has no use for, for the same reason. */
+const KEYS_UNKNOWN_TO: Partial<Record<TFieldType, string[]>> = {
+	select: ["name"],
+	date: ["picto"],
+	period: ["name", "value", "label", "required", "picto"],
+	time: ["name", "picto"],
+	timeRange: ["name", "value", "label", "required", "picto"],
+	number: ["picto"],
+	textarea: ["picto"],
+	chips: ["picto"],
+	checkbox: ["name", "picto"],
+	radio: ["picto"],
+	toggle: ["value", "picto"],
+	file: ["picto"],
+	color: ["picto"],
+};
 
 /**
  * V2 FieldRenderer — a `type -> component` map, the one place in this
@@ -245,7 +278,14 @@ export const FieldRenderer: React.FC<IFieldRendererProps> = ({
 			| ((fieldProps: TFieldPropsByType[K]) => JSX.Element)
 			| undefined;
 		const custom = renderer ?? customRenderer;
-		if (!custom) return renderers[type](fieldProps);
+		if (!custom) {
+			return renderers[type](
+				omit(fieldProps as object, [
+					...FIELD_DEFINITION_KEYS,
+					...(KEYS_UNKNOWN_TO[type] ?? []),
+				]) as TFieldPropsByType[K]
+			);
+		}
 
 		// A custom renderer gets the same deal as the built-in ones: an
 		// `onChange` that writes through Formik unless the descriptor

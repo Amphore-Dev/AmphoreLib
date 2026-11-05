@@ -11,9 +11,12 @@ import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
 import { Badge, Button } from "@components/atoms";
 
+import { genericForwardRef } from "@utils/UForwardRef";
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
 import {
+	ITestIdProps,
 	IUseFiltersContext,
 	TFieldType,
 	TFilterModalFilter,
@@ -28,7 +31,10 @@ export interface IActiveFiltersProps<
 	T extends Record<string, TFiltersSlice<object>>,
 	K extends keyof T,
 	S = T[K],
-> {
+>
+	extends
+		Omit<React.ComponentPropsWithoutRef<"div">, "children">,
+		ITestIdProps {
 	filters?: TFiltersModalGroup[];
 	filtersContext?: IUseFiltersContext<T, K, S>;
 	className?: string;
@@ -72,27 +78,34 @@ type TFiltersMap = {
  * `from`/`to`) via `filtersContext.setFilter`/`setFilters` — the same
  * `Badge`'s `onRemove` used everywhere else a removable tag is needed
  * (decision 5), no separate `Chip` component.
+ *
+ * Native props and `ref` go to the root `<div>`. Derived testids: `-reset`,
+ * `-show-more`, `-show-less`, `-chip-<name>-<position>`.
  */
-export const ActiveFilters = <
+const ActiveFiltersBase = <
 	T extends Record<string, TFiltersSlice<object>>,
 	K extends keyof T,
 	S = T[K],
->({
-	filters = [],
-	filtersContext,
-	className,
-	clearFieldsOnReset = [],
-	rightContent,
-	resetLabel: resetLabelProp,
-	showMoreLabel: showMoreLabelProp,
-	showLessLabel: showLessLabelProp,
-	countLabel = (count) => `${count} active filter${count > 1 ? "s" : ""}`,
-	periodLabel = (from, to) => (
-		<>
-			From {String(from ?? "…")} to {String(to ?? "…")}
-		</>
-	),
-}: IActiveFiltersProps<T, K, S>) => {
+>(
+	{
+		filters = [],
+		filtersContext,
+		className,
+		clearFieldsOnReset = [],
+		rightContent,
+		resetLabel: resetLabelProp,
+		showMoreLabel: showMoreLabelProp,
+		showLessLabel: showLessLabelProp,
+		countLabel = (count) => `${count} active filter${count > 1 ? "s" : ""}`,
+		periodLabel = (from, to) => (
+			<>
+				From {String(from ?? "…")} to {String(to ?? "…")}
+			</>
+		),
+		...props
+	}: IActiveFiltersProps<T, K, S>,
+	ref: React.ForwardedRef<HTMLDivElement>
+) => {
 	const { resolve } = useAmphoreLabels("ActiveFilters");
 	const resetLabel = resolve("resetLabel", resetLabelProp, "reset");
 	const showMoreLabel = resolve("showMoreLabel", showMoreLabelProp);
@@ -155,7 +168,7 @@ export const ActiveFilters = <
 	};
 
 	return (
-		<div className={cn([styles.wrapper, className])}>
+		<div {...props} ref={ref} className={cn([styles.wrapper, className])}>
 			{(!!count || !!rightContent) && (
 				<div className={styles.header}>
 					<div className={styles.headerLeft}>
@@ -170,6 +183,10 @@ export const ActiveFilters = <
 									variant="ghost"
 									color="neutral"
 									className={styles.resetBtn}
+									data-testid={deriveTestId(
+										props["data-testid"],
+										"reset"
+									)}
 									onClick={() => {
 										const values = {
 											...((options?.defaultValues ||
@@ -201,6 +218,7 @@ export const ActiveFilters = <
 								onCountChange={setTotalFiltersCount}
 								showMoreLabel={showMoreLabel}
 								showLessLabel={showLessLabel}
+								testId={props["data-testid"]}
 							/>
 						)}
 					</div>
@@ -211,6 +229,11 @@ export const ActiveFilters = <
 	);
 };
 
+export const ActiveFilters = genericForwardRef(
+	ActiveFiltersBase,
+	"ActiveFilters"
+);
+
 interface IActiveFiltersListProps<S> {
 	flatFilters: TFilterModalFilter[];
 	contextFilters: TFiltersSlice<S>;
@@ -219,6 +242,7 @@ interface IActiveFiltersListProps<S> {
 	onCountChange: (count: number) => void;
 	showMoreLabel: string;
 	showLessLabel: string;
+	testId?: string;
 }
 
 const ActiveFiltersList = <S,>({
@@ -229,6 +253,7 @@ const ActiveFiltersList = <S,>({
 	onCountChange,
 	showMoreLabel,
 	showLessLabel,
+	testId,
 }: IActiveFiltersListProps<S>) => {
 	const [expanded, setExpanded] = useState(false);
 	const [isMeasuring, setIsMeasuring] = useState(true);
@@ -344,6 +369,12 @@ const ActiveFiltersList = <S,>({
 							onRemove={onClear}
 							variant="outline"
 							data-active-filter-chip=""
+							data-testid={deriveTestId(
+								testId,
+								"chip",
+								String(filter.name),
+								idx
+							)}
 						>
 							{label}
 						</Badge>
@@ -353,7 +384,7 @@ const ActiveFiltersList = <S,>({
 		});
 
 		return { chips: mappedChips, totalCount: total };
-	}, [contextFilters, filtersMap, flatFilters, onSetFilter]);
+	}, [contextFilters, filtersMap, flatFilters, onSetFilter, testId]);
 
 	// Re-measure synchronously (before paint) whenever the chip set itself
 	// changes — avoids a flash of the wrong overflow state.
@@ -450,6 +481,7 @@ const ActiveFiltersList = <S,>({
 					style={isMeasuring ? { visibility: "hidden" } : undefined}
 					tabIndex={isMeasuring ? -1 : 0}
 					onClick={() => setExpanded(true)}
+					data-testid={deriveTestId(testId, "show-more")}
 				>
 					{showMoreLabel}
 				</button>
@@ -458,6 +490,7 @@ const ActiveFiltersList = <S,>({
 			{expanded && (
 				<button
 					className={styles.seeMore}
+					data-testid={deriveTestId(testId, "show-less")}
 					onClick={() => {
 						setExpanded(false);
 						setIsMeasuring(true);

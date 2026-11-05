@@ -5,6 +5,8 @@ import type { TPictoName } from "@constants/index";
 export type TSortDirection = "asc" | "desc";
 
 export type TTableItemAction<T> = {
+	/** Names the action in its derived testid. Falls back to its position. */
+	id?: string;
 	label: string;
 	/** Leading icon (see Picto) — an icon name, or an `IPictoProps` object to pass other Picto props. */
 	picto?: TPictoName | IPictoProps;

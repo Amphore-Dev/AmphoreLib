@@ -1,6 +1,7 @@
-import React, { Fragment, useState } from "react";
+import React, { forwardRef, Fragment, useState } from "react";
 
 import { FormikContextType } from "formik";
+import { omit, pick } from "lodash";
 
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
@@ -14,6 +15,7 @@ import {
 	getDefaultValueDisplay,
 	hasValue,
 } from "@utils/UFormGroups";
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
 import { TFieldsGroup, TLabel, TSummaryListItem } from "@interfaces/index";
@@ -27,6 +29,37 @@ import {
 import styles from "./EditableCard.module.scss";
 
 const NOOP = () => {};
+
+/** Props for the edit form. Everything else is a native prop of the card. */
+const FORM_PROP_KEYS = [
+	"initialValues",
+	"initialTouched",
+	"displayGroupTitles",
+	"groupBackground",
+	"fieldsRenderers",
+	"showResetFieldButton",
+	"showFieldLabels",
+	"size",
+	"inModal",
+	"formikCtx",
+	"setFieldValue",
+	"defaultValues",
+	"minItemWidth",
+	"gap",
+	"wrapperGridProps",
+	"submitLabel",
+	"cancelLabel",
+	"resetLabel",
+	"open",
+	"onClose",
+	"header",
+	"footer",
+	"closeOnOverlayClick",
+	"closeOnEscape",
+	"hideCloseButton",
+	"closeLabel",
+	"portal",
+] as const satisfies readonly (keyof IFormRendererProps)[];
 
 export interface IEditableCardProps<K = object> extends Omit<
 	IFormRendererProps<K>,
@@ -79,35 +112,48 @@ export type TEditableCardLabels = Pick<
 	"editLabel" | "addLabel"
 >;
 
-export const EditableCard: React.FC<IEditableCardProps> = ({
-	title,
-	fields,
-	actions,
-	className,
-	modalProps,
-	onSubmit = () => {},
-	onCancel,
-	onClickOnEdit,
-	hideEditButton,
-	readOnly = false,
-	values = {},
-	columns = 4,
-	editColumns = 1,
-	editItemsColumns = 1,
-	mergeGroupsForDisplay = true,
-	validationSchema,
-	displayRequiredAsterisk = true,
-	editInModal = true,
-	defaultIsEditing,
-	disableFields,
-	addOnEmptyValue = true,
-	formikWrapper = true,
-	displayGridProps,
-	editLabel: editLabelProp,
-	addLabel: addLabelProp,
-	...editModalProps
-}) => {
+/**
+ * Native props and `ref` go to the SectionCard root, what configures the form
+ * to the form. Derived testids: SectionCard's own, `-edit`, `-form` (and the
+ * form's below it, `-form-primary`...), `-field-<name>`, `-add-<name>`.
+ */
+const EditableCardBase: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	IEditableCardProps
+> = (
+	{
+		title,
+		fields,
+		actions,
+		className,
+		modalProps,
+		onSubmit = () => {},
+		onCancel,
+		onClickOnEdit,
+		hideEditButton,
+		readOnly = false,
+		values = {},
+		columns = 4,
+		editColumns = 1,
+		editItemsColumns = 1,
+		mergeGroupsForDisplay = true,
+		validationSchema,
+		displayRequiredAsterisk = true,
+		editInModal = true,
+		defaultIsEditing,
+		disableFields,
+		addOnEmptyValue = true,
+		formikWrapper = true,
+		displayGridProps,
+		editLabel: editLabelProp,
+		addLabel: addLabelProp,
+		...props
+	},
+	ref
+) => {
 	const { resolve } = useAmphoreLabels("EditableCard");
+	const editModalProps = pick(props, FORM_PROP_KEYS);
+	const testId = props["data-testid"];
 	const editLabel = resolve("editLabel", editLabelProp, "edit");
 	const addLabel = resolve("addLabel", addLabelProp, "add");
 	const shouldHideEditButton = readOnly || !!hideEditButton;
@@ -127,6 +173,8 @@ export const EditableCard: React.FC<IEditableCardProps> = ({
 
 	return (
 		<SectionCard
+			{...omit(props, FORM_PROP_KEYS)}
+			ref={ref}
 			className={cn([styles.card, className])}
 			title={title}
 			actions={
@@ -138,6 +186,7 @@ export const EditableCard: React.FC<IEditableCardProps> = ({
 							variant="outline"
 							size="sm"
 							picto="edit"
+							data-testid={deriveTestId(testId, "edit")}
 							className={cn([
 								styles.editBtn,
 								isEditing &&
@@ -168,11 +217,13 @@ export const EditableCard: React.FC<IEditableCardProps> = ({
 					readOnly={readOnly}
 					gridProps={displayGridProps}
 					addLabel={addLabel}
+					testId={testId}
 				/>
 			)}
 
 			{isEditing && (
 				<FormWrapperComponent
+					data-testid={deriveTestId(testId, "form")}
 					title={title as string}
 					fields={fields}
 					showFieldLabels
@@ -199,6 +250,9 @@ export const EditableCard: React.FC<IEditableCardProps> = ({
 	);
 };
 
+export const EditableCard = forwardRef(EditableCardBase);
+EditableCard.displayName = "EditableCard";
+
 interface IDisplayFieldsProps {
 	fields?: IFormRendererProps["fields"];
 	data?: object;
@@ -212,6 +266,7 @@ interface IDisplayFieldsProps {
 	readOnly?: boolean;
 	gridProps?: IGridProps;
 	addLabel: string;
+	testId?: string;
 }
 
 const DisplayFields: React.FC<IDisplayFieldsProps> = ({
@@ -226,6 +281,7 @@ const DisplayFields: React.FC<IDisplayFieldsProps> = ({
 	readOnly = false,
 	gridProps,
 	addLabel,
+	testId,
 }) => {
 	if (!fields) return null;
 
@@ -302,6 +358,7 @@ const DisplayFields: React.FC<IDisplayFieldsProps> = ({
 					size="sm"
 					picto="add"
 					onClick={() => setIsEditing(true)}
+					data-testid={deriveTestId(testId, "add", field.name)}
 				>
 					{addLabel}
 				</Button>
@@ -348,7 +405,10 @@ const DisplayFields: React.FC<IDisplayFieldsProps> = ({
 					className={displayProps?.className}
 					style={{ order }}
 				>
-					<SummaryListItem {...item} />
+					<SummaryListItem
+						{...item}
+						data-testid={deriveTestId(testId, "field", field.name)}
+					/>
 				</div>
 			);
 		});

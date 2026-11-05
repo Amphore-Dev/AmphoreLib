@@ -1,13 +1,16 @@
-import React, { useRef, useState } from "react";
+import React, { forwardRef, useRef, useState } from "react";
+
+import { useMergeRefs } from "@floating-ui/react";
 
 import { useAmphoreDefaults } from "@theme/useAmphoreDefaults";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
 import { useAutoScroll, useDrag } from "@hooks/index";
 
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
-import { TLabel, TSize } from "@interfaces/index";
+import { ITestIdProps, TLabel, TSize } from "@interfaces/index";
 
 import { TodoItem } from "../../molecules/TodoItem/TodoItem";
 
@@ -20,7 +23,10 @@ export interface TTodoItem {
 	before?: React.ReactNode;
 }
 
-export interface ITodoListProps {
+export interface ITodoListProps
+	extends
+		Omit<React.ComponentPropsWithoutRef<"ul">, "onChange" | "children">,
+		ITestIdProps {
 	/** Controlled — every mutation (edit, remove, reorder) calls `onChange` with the next full array, this component holds no list state of its own. */
 	items: TTodoItem[];
 	onChange: (items: TTodoItem[]) => void;
@@ -52,24 +58,35 @@ export type TTodoListLabels = Pick<ITodoListProps, "moveLabel">;
  * reordered past what's visible — on a phone, the finger on the handle
  * can't scroll it any other way. Arrow-up/down on the handle reorders by
  * one without needing a drag at all.
+ *
+ * Native props and `ref` go to the `<ul>`. Derived testids: `-item-<id>`,
+ * each row then deriving its own.
  */
-export const TodoList: React.FC<ITodoListProps> = ({
-	items,
-	onChange,
-	editable = true,
-	removable = true,
-	multiline = false,
-	reorderable = true,
-	moveLabel: moveLabelProp,
-	size: sizeProp,
-	className = "",
-}) => {
+const TodoListBase: React.ForwardRefRenderFunction<
+	HTMLUListElement,
+	ITodoListProps
+> = (
+	{
+		items,
+		onChange,
+		editable = true,
+		removable = true,
+		multiline = false,
+		reorderable = true,
+		moveLabel: moveLabelProp,
+		size: sizeProp,
+		className = "",
+		...props
+	},
+	ref
+) => {
 	const { size: defaultSize } = useAmphoreDefaults();
 	const size = sizeProp ?? defaultSize ?? "md";
 	const { resolve } = useAmphoreLabels("TodoList");
 	const moveLabel = resolve("moveLabel", moveLabelProp);
 
 	const listRef = useRef<HTMLUListElement>(null);
+	const mergedRef = useMergeRefs([listRef, ref]);
 	const itemsRef = useRef(items);
 	itemsRef.current = items;
 	const onChangeRef = useRef(onChange);
@@ -146,10 +163,15 @@ export const TodoList: React.FC<ITodoListProps> = ({
 	};
 
 	return (
-		<ul ref={listRef} className={cn([styles.list, className])}>
+		<ul {...props} ref={mergedRef} className={cn([styles.list, className])}>
 			{items.map((item, index) => (
 				<TodoItem
 					key={item.id}
+					data-testid={deriveTestId(
+						props["data-testid"],
+						"item",
+						item.id
+					)}
 					text={item.text}
 					before={item.before}
 					editable={editable}
@@ -184,3 +206,6 @@ export const TodoList: React.FC<ITodoListProps> = ({
 		</ul>
 	);
 };
+
+export const TodoList = forwardRef(TodoListBase);
+TodoList.displayName = "TodoList";

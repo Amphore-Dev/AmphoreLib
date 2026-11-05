@@ -1,12 +1,16 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
+import { useMergeRefs } from "@floating-ui/react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
+import { genericForwardRef } from "@utils/UForwardRef";
+import { deriveTestId } from "@utils/UTestId";
 import { cn } from "@utils/cn";
 
 import {
+	ITestIdProps,
 	TLabel,
 	TMenuItem,
 	TSortDirection,
@@ -22,7 +26,10 @@ import { TableRow } from "../../molecules/TableRow/TableRow";
 
 import styles from "./Table.module.scss";
 
-export interface ITableProps<T> {
+export interface ITableProps<T>
+	extends
+		Omit<React.ComponentPropsWithoutRef<"div">, "children">,
+		ITestIdProps {
 	columns: TTableColumn<T>[];
 	items: T[];
 	getItemKey: (item: T) => string | number;
@@ -130,35 +137,44 @@ function columnTrackSize<T>({ width, minWidth }: TTableColumn<T>): string {
  * controllers directly and passes callbacks down, rather than components
  * three levels deep reaching a menu by string id. The column-visibility
  * one is opt-in (`columnVisibilityMenu`).
+ *
+ * Native props and `ref` go to the root, the `role="grid"` element. Derived
+ * testids: `-header` (and TableHead's below it), `-row-<key>` (and TableRow's
+ * below it), `-actions-menu`, `-columns-menu`, `-loading`, `-empty`.
  */
-export const Table = <T,>({
-	columns: columnsProp,
-	items,
-	getItemKey,
-	onRowClick,
-	onRowContextMenu,
-	onGlobalContextMenu,
-	rowActions,
-	onSort,
-	onSelectionChange,
-	rowHeight = 36,
-	noDataMessage: noDataMessageProp,
-	className = "",
-	rowClassName,
-	selectable: selectableProp,
-	showCheckbox: showCheckboxProp = true,
-	selectedKeys: controlledSelectedKeys,
-	setSelectedKeys: setControlledSelectedKeys,
-	columnVisibilityMenu = false,
-	onColumnVisibilityChange,
-	initialVisibleColumns,
-	isLoading = false,
-	onLoadMore,
-	hasMore = false,
-	loadMoreThreshold = 4,
-	selectOnClick = false,
-	selectionMode = "toggle",
-}: ITableProps<T>) => {
+const TableBase = <T,>(
+	{
+		columns: columnsProp,
+		items,
+		getItemKey,
+		onRowClick,
+		onRowContextMenu,
+		onGlobalContextMenu,
+		rowActions,
+		onSort,
+		onSelectionChange,
+		rowHeight = 36,
+		noDataMessage: noDataMessageProp,
+		className = "",
+		rowClassName,
+		selectable: selectableProp,
+		showCheckbox: showCheckboxProp = true,
+		selectedKeys: controlledSelectedKeys,
+		setSelectedKeys: setControlledSelectedKeys,
+		columnVisibilityMenu = false,
+		onColumnVisibilityChange,
+		initialVisibleColumns,
+		isLoading = false,
+		onLoadMore,
+		hasMore = false,
+		loadMoreThreshold = 4,
+		selectOnClick = false,
+		selectionMode = "toggle",
+		style,
+		...props
+	}: ITableProps<T>,
+	ref: React.ForwardedRef<HTMLDivElement>
+) => {
 	const { resolve } = useAmphoreLabels("Table");
 	const noDataMessage = resolve("noDataMessage", noDataMessageProp);
 
@@ -176,6 +192,8 @@ export const Table = <T,>({
 	}, [columnsProp, rowActions]);
 
 	const containerRef = useRef<HTMLDivElement>(null);
+	const mergedRef = useMergeRefs([containerRef, ref]);
+	const testId = props["data-testid"];
 	const anchorIndexRef = useRef<number>(-1);
 	const [activeSortKey, setActiveSortKey] = useState<keyof T & string>();
 	const [sortDirection, setSortDirection] = useState<TSortDirection>("asc");
@@ -233,6 +251,7 @@ export const Table = <T,>({
 
 	const rowActionItems = (item: T): TMenuItem[] =>
 		(rowActions ?? []).map((action) => ({
+			id: action.id,
 			label: action.label,
 			picto: action.picto,
 			disabled:
@@ -386,6 +405,7 @@ export const Table = <T,>({
 	const columnsMenuItems: TMenuItem[] = columns
 		.filter((col) => col.disableHiding !== true)
 		.map((col) => ({
+			id: col.key,
 			label: col.label || col.key,
 			picto: hiddenColumns.has(col.key) ? undefined : "check",
 			onClick: () => handleColumnToggle(col.key),
@@ -398,12 +418,14 @@ export const Table = <T,>({
 
 	return (
 		<div
-			ref={containerRef}
+			{...props}
+			ref={mergedRef}
 			role="grid"
-			style={{ gridTemplateColumns }}
+			style={{ ...style, gridTemplateColumns }}
 			className={cn([styles.table, className])}
 		>
 			<TableHead
+				data-testid={deriveTestId(testId, "header")}
 				columns={visibleColumns}
 				activeSortKey={activeSortKey}
 				sortDirection={sortDirection}
@@ -426,18 +448,34 @@ export const Table = <T,>({
 			/>
 
 			{columnVisibilityMenu && (
-				<ContextMenu menu={columnsMenu} items={columnsMenuItems} />
+				<ContextMenu
+					menu={columnsMenu}
+					items={columnsMenuItems}
+					data-testid={deriveTestId(testId, "columns-menu")}
+				/>
 			)}
 			{!!rowActions?.length && (
-				<ContextMenu menu={rowActionsMenu} items={rowActionItems} />
+				<ContextMenu
+					menu={rowActionsMenu}
+					items={rowActionItems}
+					data-testid={deriveTestId(testId, "actions-menu")}
+				/>
 			)}
 
 			{isLoading ? (
-				<div className={styles.centerRow}>
+				<div
+					className={styles.centerRow}
+					data-testid={deriveTestId(testId, "loading")}
+				>
 					<Spinner />
 				</div>
 			) : sortedItems.length === 0 ? (
-				<div className={styles.centerRow}>{noDataMessage}</div>
+				<div
+					className={styles.centerRow}
+					data-testid={deriveTestId(testId, "empty")}
+				>
+					{noDataMessage}
+				</div>
 			) : (
 				<>
 					{paddingTop > 0 && (
@@ -451,6 +489,7 @@ export const Table = <T,>({
 						return (
 							<TableRow
 								key={key}
+								data-testid={deriveTestId(testId, "row", key)}
 								rowKey={key}
 								item={item}
 								columns={visibleColumns}
@@ -515,3 +554,5 @@ export const Table = <T,>({
 		</div>
 	);
 };
+
+export const Table = genericForwardRef(TableBase, "Table");
