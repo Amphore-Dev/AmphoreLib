@@ -1,8 +1,11 @@
 import React from "react";
+
 import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { pdfjs } from "react-pdf";
 import { create } from "storybook/theming";
 
+import logoWhite from "../src/assets/logo-white.png";
+import logo from "../src/assets/logo.png";
 // src/index.ts, which ships this in lib/style.css, isn't loaded here.
 import "../src/styles/tokens.css";
 import { AmphoreProvider } from "../src/theme/AmphoreProvider";
@@ -13,9 +16,6 @@ import type {
 	TThemeStylePreset,
 } from "../src/theme/TThemeTokens";
 import type { TSize } from "../src/types/TSize";
-
-import logo from "../src/assets/logo.png";
-import logoWhite from "../src/assets/logo-white.png";
 
 const lightTheme = create({
 	base: "light",
@@ -72,14 +72,49 @@ export const parameters = {
 		storySort: (a, b) => {
 			if (a.id === b.id) return 0;
 
-			// 1. Priorité aux racines (introduction, puis components, avant le reste)
-			const rootA = a.title.split("/")[0].toLowerCase();
-			const rootB = b.title.split("/")[0].toLowerCase();
-			if (rootA !== rootB) {
-				if (rootA === "introduction") return -1;
-				if (rootB === "introduction") return 1;
-				if (rootA === "components") return -1;
-				if (rootB === "components") return 1;
+			// 1. Roots in this order, an unknown one goes last.
+			const ROOTS = [
+				"introduction",
+				"components",
+				"contexts",
+				"configuration",
+				"foundations",
+				"guides",
+			];
+			const rank = (title) => {
+				const index = ROOTS.indexOf(title.split("/")[0].toLowerCase());
+				return index === -1 ? ROOTS.length : index;
+			};
+			if (rank(a.title) !== rank(b.title)) {
+				return rank(a.title) - rank(b.title);
+			}
+
+			// Reading order: alphabetical means nothing for these two.
+			const ORDERED = [
+				"Foundations/Icons",
+				"Foundations/Colors",
+				"Foundations/Typography",
+				"Foundations/Spacing",
+				"Foundations/Radius",
+				"Guides/Migrating to 2.0",
+				"Guides/Theme",
+				"Guides/Labels",
+				"Guides/Fields",
+				"Guides/FiltersContext",
+				"Guides/Structure",
+				"Guides/Sizing",
+				"Guides/Controlled Components",
+				"Guides/Floating Overlays",
+				"Guides/Accessibility",
+				"Guides/Accessibility Audit",
+				"Guides/Verification",
+			];
+			const orderA = ORDERED.indexOf(a.title);
+			const orderB = ORDERED.indexOf(b.title);
+			if (orderA !== orderB) {
+				if (orderA === -1) return 1;
+				if (orderB === -1) return -1;
+				return orderA - orderB;
 			}
 
 			// 2. Priorité aux docs
@@ -129,7 +164,8 @@ export const globalTypes = {
 const STORYBOOK_TYPOGRAPHY: TThemeConfigInput["typography"] = {
 	fontFamily:
 		'"Nunito Sans", -apple-system, ".SFNSText-Regular", "San Francisco", BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif',
-	fontFamilyMono: "ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace",
+	fontFamilyMono:
+		"ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace",
 };
 
 /**

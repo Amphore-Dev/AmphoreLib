@@ -2,7 +2,7 @@
 
 import { Meta } from "@storybook/addon-docs/blocks";
 
-<Meta title="Directives/Theming" />
+<Meta title="Guides/Theme" />
 
 # Theming
 
@@ -33,7 +33,7 @@ Every component reads its styles via `var(--amp-*)`, never a literal value:
 
 `AmphoreProvider` computes these variables (`configToCssVars` in `UThemeConfig.ts`) and sets them as inline `style` on its own wrapper — every descendant component inherits them.
 
-The flip side: anything rendered **outside** that wrapper in the DOM — a portal to `document.body` — doesn't inherit them, and falls back to the default theme at `:root` (see below) instead of the provider's. `AmphoreScope` re-applies the nearest provider's wrapper attributes and vars (read from `AmphoreScopeContext`) around such content, and `AmphorePortal` bundles it with `FloatingPortal`. See [Directives/FloatingOverlays](?path=/docs/directives-floatingoverlays--docs).
+The flip side: anything rendered **outside** that wrapper in the DOM — a portal to `document.body` — doesn't inherit them, and falls back to the default theme at `:root` (see below) instead of the provider's. `AmphoreScope` re-applies the nearest provider's wrapper attributes and vars (read from `AmphoreScopeContext`) around such content, and `AmphorePortal` bundles it with `FloatingPortal`. See [Guides/Floating Overlays](?path=/docs/guides-floating-overlays--docs).
 
 ## Without a provider
 
@@ -123,4 +123,4 @@ Three progressive presets (`sharp` < default < `round`), plus `full` (pill/circl
 
 ---
 
-See also: `AmphoreProvider.tsx`, `CThemeConfig.ts`, `UThemeConfig.ts`, `tokens.test.ts`, [Directives/Sizing](?path=/docs/directives-sizing--docs).
+See also: `AmphoreProvider.tsx`, `CThemeConfig.ts`, `UThemeConfig.ts`, `tokens.test.ts`, [Guides/Sizing](?path=/docs/guides-sizing--docs).

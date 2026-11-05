@@ -2,7 +2,7 @@
 
 import { Meta } from "@storybook/addon-docs/blocks";
 
-<Meta title="Directives/Structure" />
+<Meta title="Guides/Structure" />
 
 # Structure & naming
 
@@ -41,7 +41,7 @@ Zero results → stays local. A hit in ANOTHER component → move it to `src/typ
 
 ## Files not exported by the lib
 
-`src/index.ts` only re-exports `./components`, `./theme`, `./contexts`, `./hooks`, `./types`, `./utils`, `./constants` — that's the only list that matters for what ends up in the published package. `src/stories/` (this page included, and `StoriesArgs.ts` — see [Directives/Verification](?path=/docs/directives-verification--docs)) isn't in it: everything living there stays invisible to the package, usable only by the `*.stories.tsx`/`*.mdx` files themselves.
+`src/index.ts` only re-exports `./components`, `./theme`, `./contexts`, `./hooks`, `./types`, `./utils`, `./constants` — that's the only list that matters for what ends up in the published package. `src/stories/` (this page included, and `StoriesArgs.ts` — see [Guides/Verification](?path=/docs/guides-verification--docs)) isn't in it: everything living there stays invisible to the package, usable only by the `*.stories.tsx`/`*.mdx` files themselves.
 
 ## Native props
 
@@ -127,7 +127,7 @@ One value goes through `var()` or `space()`. A mixin (`text`, `focus-ring`, `tru
 font-size: 0.5625rem;
 ```
 
-Use it for a value a token cannot express without changing what renders. Never round to the nearest step to avoid one: an off-scale value is a design decision, not a lint fix. Tokens available and how to override them: [Directives/Theming](?path=/docs/directives-theming--docs).
+Use it for a value a token cannot express without changing what renders. Never round to the nearest step to avoid one: an off-scale value is a design decision, not a lint fix. Tokens available and how to override them: [Guides/Theme](?path=/docs/guides-theme--docs).
 
 `scripts/migrate-tokens.mjs <file or folder>` moves raw values onto tokens, exact matches only.
 
@@ -141,4 +141,4 @@ Use it for a value a token cannot express without changing what renders. Never r
 
 ---
 
-See also: `Button/`, `TMenuItem` (`src/types/TMenuItem.ts`), [Directives/Verification](?path=/docs/directives-verification--docs).
+See also: `Button/`, `TMenuItem` (`src/types/TMenuItem.ts`), [Guides/Verification](?path=/docs/guides-verification--docs).

@@ -43,24 +43,27 @@ Paths under `lib/` are not public, except the older
 
 - **Components** — every atom, molecule, organism and template, each
   with live controls, a props table, and every documented state.
-- **Concepts** — [Fields](/docs/concepts-fields--docs),
-  [FiltersContext](/docs/concepts-filterscontext--docs) and
-  [Pictos](/docs/concepts-pictos--docs): how the bigger, consumer-facing
-  systems fit together.
+- **Contexts** — [FiltersContext](/story/contexts-filterscontext--base),
+  live.
 - **Configuration** — the
   [Theme Configuration](/docs/configuration-theme-configuration--docs)
   playground: every `AmphoreProvider` config option, live, with the
   resulting config to copy.
-- **Directives** — the engineering conventions every component in this
-  library follows (theming, sizing, controlled components, floating
-  overlays, accessibility, structure, verification) — read these before
-  contributing a new one.
+- **Foundations** — the design system itself: [Icons](/docs/foundations-icons--docs),
+  [Colors](/story/foundations-colors--colors),
+  [Typography](/story/foundations-typography--typography),
+  [Spacing](/story/foundations-spacing--spacing) and
+  [Radius](/story/foundations-radius--radius), read live from the theme.
+- **Guides** — [migrating to 2.0](/docs/guides-migrating-to-2-0--docs), how
+  the bigger systems fit together ([Fields](/docs/guides-fields--docs),
+  [FiltersContext](/docs/guides-filterscontext--docs)), and the conventions
+  every component follows: read these before contributing a new one.
 
 ## Dark mode, out of the box
 
 Every story on this Storybook renders in both themes — flip between them
 with the sun/moon icon in the toolbar above, or pin `theme="light"` /
-`"dark"` on your own `AmphoreProvider`. See the **Directives/Theming**
+`"dark"` on your own `AmphoreProvider`. See the **Guides/Theme**
 page for how the dark palette differs from the light one inverted.
 
 ---

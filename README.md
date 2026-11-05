@@ -38,7 +38,7 @@ stylesheet is a single file covering every component.
 `@amphore-dev/amphore-lib/lib/style.css` still resolves. Any other path
 under `lib/` does not: the package's `exports` map only exposes the root,
 the stylesheet and `package.json`. Coming from 1.x? See the
-[migration guide](https://storybook.lib.amphore.dev/?path=/docs/directives-migrating-to-2-0--docs).
+[migration guide](https://storybook.lib.amphore.dev/?path=/docs/guides-migrating-to-2-0--docs).
 
 ## Quick start
 
@@ -112,7 +112,7 @@ inside a component's own stylesheet.
 
 Type sizes, weights, shadows, focus ring, layers, durations, borders and icon
 sizes are config too (`text`, `weights`, `shadows`, `focus`, ...), each
-overridable one key at a time; see **Directives/Theming** in Storybook.
+overridable one key at a time; see **Guides/Theme** in Storybook.
 
 Open Storybook's **Configuration/Theme Configuration** page to try every
 option interactively and copy the resulting config.
@@ -178,11 +178,11 @@ exhaustive list:
   `PageHeader`.
 - **Icons** — `Picto` renders any icon from the `Pictos` set; browse the
   whole set (searchable, click to copy the exact name) on Storybook's
-  **Concepts/Pictos** page.
+  **Foundations/Icons** page.
 
 ## Conventions worth knowing
 
-These are covered in depth on Storybook's **Directives/\*** pages
+These are covered in depth on Storybook's **Guides/\*** pages
 (Theming, Sizing, Controlled Components, Floating Overlays,
 Accessibility, Structure, Verification) — the short version:
 
@@ -216,7 +216,7 @@ compares against them and fails on any differing pixel. Take the references
 on the starting commit, change the code, compare. It runs locally only:
 references and diffs stay in `.visual/`, out of git, because text rendering
 differs from one OS to another. Tag a story `no-visual` to exclude it. See
-Storybook's **Directives/Verification** page.
+Storybook's **Guides/Verification** page.
 
 ## Credits
 

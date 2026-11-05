@@ -2,7 +2,7 @@
 
 import { Meta } from "@storybook/addon-docs/blocks";
 
-<Meta title="Directives/FloatingOverlays" />
+<Meta title="Guides/Floating Overlays" />
 
 # Floating overlays (Tooltip / Popover / Dropdown / ContextMenu / Select / Modal / Tour)
 
@@ -37,7 +37,7 @@ export const Button = React.forwardRef<HTMLButtonElement, IButtonProps>(
 );
 ```
 
-Every component with an element of its own is a `forwardRef` for this reason, so any of them works as a trigger — see [Native props](?path=/docs/directives-structure--docs). `Tooltip`, `Popover`, `Dropdown` and `ContextMenu` have no element of their own: their `ref` is their floating panel, so they don't work as one.
+Every component with an element of its own is a `forwardRef` for this reason, so any of them works as a trigger — see [Native props](?path=/docs/guides-structure--docs). `Tooltip`, `Popover`, `Dropdown` and `ContextMenu` have no element of their own: their `ref` is their floating panel, so they don't work as one.
 
 ## One shared controller for N triggers
 
@@ -69,4 +69,4 @@ Prefer `useLayoutEffect` over `useEffect` for the measurement that drives this `
 
 ---
 
-See also: `AmphorePortal.tsx`, `AmphoreScope.tsx`, `Tooltip.tsx`, `Popover.tsx`, `Dropdown.tsx`, `ContextMenu.tsx`, `useContextMenu.ts`, [Directives/Accessibility](?path=/docs/directives-accessibility--docs).
+See also: `AmphorePortal.tsx`, `AmphoreScope.tsx`, `Tooltip.tsx`, `Popover.tsx`, `Dropdown.tsx`, `ContextMenu.tsx`, `useContextMenu.ts`, [Guides/Accessibility](?path=/docs/guides-accessibility--docs).

@@ -2,7 +2,7 @@
 
 import { Meta } from "@storybook/addon-docs/blocks";
 
-<Meta title="Directives/Verification" />
+<Meta title="Guides/Verification" />
 
 # Writing a story, a test, verifying a change
 
@@ -23,7 +23,7 @@ Accepted exception: a demo function with no `Template` when the story shows **se
 
 ## Shared `StoriesArgs`
 
-`size`/`color`/`picto` repeat identically across some twenty files — factored out into `src/stories/StoriesArgs.ts` (not exported by the lib, see [Directives/Structure](?path=/docs/directives-structure--docs)):
+`size`/`color`/`picto` repeat identically across some twenty files — factored out into `src/stories/StoriesArgs.ts` (not exported by the lib, see [Guides/Structure](?path=/docs/guides-structure--docs)):
 
 ```tsx
 import { colorArgType, pictoArgType, sizeArgType } from "@stories/StoriesArgs";
@@ -33,7 +33,7 @@ export default {
 };
 ```
 
-A sized component always has a `DefaultSizeFromConfig` story (see [Directives/Sizing](?path=/docs/directives-sizing--docs)). A component that fills its own viewport inline (`Modal` without `portal`) needs `parameters.docs.story.height` — addon-docs' default iframe height is too short otherwise; a `Portaled` story can reset it to `"auto"`.
+A sized component always has a `DefaultSizeFromConfig` story (see [Guides/Sizing](?path=/docs/guides-sizing--docs)). A component that fills its own viewport inline (`Modal` without `portal`) needs `parameters.docs.story.height` — addon-docs' default iframe height is too short otherwise; a `Portaled` story can reset it to `"auto"`.
 
 ---
 
@@ -107,4 +107,4 @@ One commit per logical change, a detailed message (root cause, not just the symp
 
 ---
 
-See also: `StoriesArgs.ts`, `tests/setup.js`, [Directives/Structure](?path=/docs/directives-structure--docs), [Directives/Sizing](?path=/docs/directives-sizing--docs).
+See also: `StoriesArgs.ts`, `tests/setup.js`, [Guides/Structure](?path=/docs/guides-structure--docs), [Guides/Sizing](?path=/docs/guides-sizing--docs).
