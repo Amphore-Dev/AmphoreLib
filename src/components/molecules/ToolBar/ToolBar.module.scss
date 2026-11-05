@@ -1,10 +1,12 @@
+@use "../../../styles/mixins" as *;
+
 .bar {
 	display: flex;
 	align-items: center;
 	gap: var(--amp-space-1);
 	padding: var(--amp-space-1);
 	background: var(--amp-color-card);
-	border: 1px solid var(--amp-color-border);
+	border: var(--amp-border-width-sm) solid var(--amp-color-border);
 	border-radius: var(--amp-radius-md);
 	font-family: var(--amp-font);
 	width: fit-content;
@@ -15,14 +17,14 @@
 	align-items: center;
 	justify-content: center;
 	gap: var(--amp-space-1);
-	height: 2rem;
+	height: space(8);
 	padding: 0 var(--amp-space-2);
 	background: none;
 	border: none;
 	border-radius: var(--amp-radius-md);
 	color: var(--amp-color-sub);
 	font-family: inherit;
-	font-size: 0.8125rem;
+	font-size: var(--amp-text-sm);
 	cursor: pointer;
 
 	@media (hover: hover) {
@@ -38,8 +40,7 @@
 	}
 
 	&:focus-visible {
-		outline: 2px solid var(--amp-color-primary);
-		outline-offset: 2px;
+		@include focus-ring;
 	}
 }
 
@@ -49,6 +50,6 @@
 }
 
 .icon {
-	width: 1.125rem;
-	height: 1.125rem;
+	width: var(--amp-icon-lg);
+	height: var(--amp-icon-lg);
 }

@@ -1,4 +1,5 @@
 @use "../../../styles/touch" as touch;
+@use "../../../styles/mixins" as *;
 
 .overlay {
 	display: flex;
@@ -16,8 +17,9 @@
 	padding-bottom: max(var(--amp-space-4), env(safe-area-inset-bottom, 0px));
 	overflow-y: auto;
 	overscroll-behavior: contain;
+	// stylelint-disable-next-line scale-unlimited/declaration-strict-value, function-disallowed-list -- backdrop color: no token, Tour uses 0.5 and merging is a design choice
 	background: rgba(0, 0, 0, 0.45);
-	z-index: 1000;
+	z-index: var(--amp-z-overlay);
 }
 
 // Background/radius/shadow come from Card (elevation prop) — this only
@@ -43,15 +45,15 @@
 	overflow: hidden;
 
 	&[data-size="sm"] {
-		max-width: 24rem;
+		max-width: space(96);
 	}
 
 	&[data-size="md"] {
-		max-width: 32rem;
+		max-width: space(128);
 	}
 
 	&[data-size="lg"] {
-		max-width: 48rem;
+		max-width: space(192);
 	}
 }
 
@@ -71,7 +73,7 @@
 	gap: var(--amp-space-3);
 	padding: var(--amp-space-4);
 	background: var(--amp-color-card);
-	border-bottom: 1px solid var(--amp-color-border);
+	border-bottom: var(--amp-border-width-sm) solid var(--amp-color-border);
 }
 
 // Whatever's left between the title and the close button — min-width: 0
@@ -83,8 +85,9 @@
 
 .title {
 	margin: 0;
+	// stylelint-disable-next-line scale-unlimited/declaration-strict-value -- off scale: 17px, between text-xl and text-2xl
 	font-size: 1.0625rem;
-	font-weight: 700;
+	font-weight: weight(bold);
 	color: var(--amp-color-ink);
 }
 
@@ -94,8 +97,8 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 1.5rem;
-	height: 1.5rem;
+	width: space(6);
+	height: space(6);
 	margin-left: auto;
 	padding: 0;
 	border: none;
@@ -112,8 +115,7 @@
 	}
 
 	&:focus-visible {
-		outline: 2px solid var(--amp-color-primary);
-		outline-offset: 2px;
+		@include focus-ring;
 	}
 }
 
@@ -125,7 +127,7 @@
 	overscroll-behavior: contain;
 	padding: var(--amp-space-4);
 	color: var(--amp-color-ink);
-	font-size: 0.9375rem;
+	font-size: var(--amp-text-lg);
 }
 
 .footer {
@@ -138,5 +140,5 @@
 	gap: var(--amp-space-2);
 	padding: var(--amp-space-4);
 	background: var(--amp-color-card);
-	border-top: 1px solid var(--amp-color-border);
+	border-top: var(--amp-border-width-sm) solid var(--amp-color-border);
 }

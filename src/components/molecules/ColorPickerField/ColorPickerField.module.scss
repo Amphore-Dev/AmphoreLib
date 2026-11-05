@@ -1,4 +1,5 @@
 @use "../../../styles/field" as field;
+@use "../../../styles/mixins" as *;
 
 .wrapper {
 	display: flex;
@@ -8,14 +9,14 @@
 }
 
 .label {
-	font-size: 0.75rem;
-	font-weight: 600;
+	font-size: var(--amp-text-xs);
+	font-weight: weight(semibold);
 	color: var(--amp-color-ink);
 }
 
 .required {
 	color: var(--amp-color-danger);
-	margin-left: 0.125rem;
+	margin-left: space(0.5);
 }
 
 .field {
@@ -33,12 +34,12 @@
 	// border-box: the 1px border would otherwise grow the box past its width/height.
 	box-sizing: border-box;
 	flex-shrink: 0;
-	width: 1.125rem;
+	width: space(4.5);
 	aspect-ratio: 1 / 1;
 	// Fixed length, not a %, so this reads as a "squircle" under some
 	// presets rather than a true circle (accepted, follows the radius preset).
 	border-radius: var(--amp-radius-md);
-	border: 1px solid var(--amp-color-border);
+	border: var(--amp-border-width-sm) solid var(--amp-color-border);
 }
 
 .value {

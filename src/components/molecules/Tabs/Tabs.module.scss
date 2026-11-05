@@ -1,4 +1,5 @@
 @use "../../../styles/touch" as touch;
+@use "../../../styles/mixins" as *;
 
 .wrapper {
 	position: relative;
@@ -11,7 +12,7 @@
 	align-items: flex-end;
 	flex: 1;
 	gap: var(--amp-space-4);
-	border-bottom: 1px solid var(--amp-color-border);
+	border-bottom: var(--amp-border-width-sm) solid var(--amp-color-border);
 	font-family: var(--amp-font);
 	overflow-x: auto;
 	scrollbar-width: none;
@@ -24,17 +25,17 @@
 	// ---- size ----
 	&[data-size="sm"] .tab {
 		padding: var(--amp-space-1) 0;
-		font-size: 0.8125rem;
+		font-size: var(--amp-text-sm);
 	}
 
 	&[data-size="md"] .tab {
 		padding: var(--amp-space-2) 0;
-		font-size: 0.875rem;
+		font-size: var(--amp-text-md);
 	}
 
 	&[data-size="lg"] .tab {
 		padding: var(--amp-space-2) 0;
-		font-size: 0.9375rem;
+		font-size: var(--amp-text-lg);
 	}
 }
 
@@ -46,15 +47,15 @@
 	margin: 0;
 	white-space: nowrap;
 	border: none;
-	border-bottom: 2px solid transparent;
+	border-bottom: var(--amp-border-width-lg) solid transparent;
 	background: transparent;
 	font-family: inherit;
-	font-weight: 600;
+	font-weight: weight(semibold);
 	color: var(--amp-color-sub);
 	cursor: pointer;
 	transition:
-		color 0.15s ease,
-		border-color 0.15s ease;
+		color var(--amp-duration-fast) var(--amp-ease),
+		border-color var(--amp-duration-fast) var(--amp-ease);
 
 	// ---- color: sets the local var the active state reads below.
 	&[data-color="primary"] {
@@ -101,8 +102,7 @@
 	}
 
 	&:focus-visible {
-		outline: 2px solid var(--_color, var(--amp-color-primary));
-		outline-offset: 2px;
+		@include focus-ring(var(--_color, var(--amp-focus-color)));
 	}
 }
 
@@ -123,7 +123,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 1.5rem;
+	width: space(6);
 	margin: 0;
 	padding: 0;
 	border: none;
@@ -135,8 +135,8 @@
 	cursor: pointer;
 
 	& svg {
-		width: 0.875rem;
-		height: 0.875rem;
+		width: var(--amp-icon-sm);
+		height: var(--amp-icon-sm);
 	}
 
 	@media (hover: hover) {
@@ -158,17 +158,16 @@
 	}
 
 	&:focus-visible {
-		outline: 2px solid var(--amp-color-primary);
-		outline-offset: -2px;
+		@include focus-ring($inset: true);
 	}
 }
 
 .arrowLeft {
-	padding-right: 0.125rem;
+	padding-right: space(0.5);
 }
 
 .arrowRight {
-	padding-left: 0.125rem;
+	padding-left: space(0.5);
 }
 
 .panel {
