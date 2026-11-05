@@ -49,6 +49,24 @@ Every input-like component is controlled through `value`/`onChange` (or
 `checked`/`onChange`) and has no built-in form-library awareness — wire it
 to Formik, React Hook Form, or plain state from the outside.
 
+### Without a provider
+
+`AmphoreProvider` is optional. The stylesheet defines the default light
+theme at `:root`, so importing it is enough for components to render
+correctly:
+
+```tsx
+import { Button } from "@amphore-dev/amphore-lib";
+import "@amphore-dev/amphore-lib/lib/style.css";
+
+<Button>Save</Button>;
+```
+
+You need the provider for `config`, dark mode, `locale` and
+`config.defaults`. Without one the theme stays light whatever the OS,
+labels are in English and `size` falls back to `"md"`. Any provider you do
+add wins over these defaults for its own subtree.
+
 ## Theming
 
 Everything visual — colors, radius, spacing, typography, density — is a
@@ -85,6 +103,10 @@ option interactively and copy the resulting config.
   in CSS, not JS, so there's no hydration mismatch and no re-render on an
   OS-level change.
 - `"light"` / `"dark"` — pins that palette regardless of the OS.
+
+An app with no dark design of its own should pin `theme="light"`:
+with the default, its components turn dark for anyone whose OS is dark,
+whatever the page around them looks like.
 
 The dark palette isn't the light one inverted — it's a separate set of
 colors (`darkColors`), with tints derived toward black instead of white.
@@ -158,9 +180,9 @@ Accessibility, Structure, Verification) — the short version:
   (`transform`, `filter`, `contain`) or trap its z-index (`sticky`, any
   stacking context). Never a bare `createPortal`/`FloatingPortal`: the
   theme is CSS variables inlined on the provider's wrapper, so anything
-  rendered outside it loses every `var(--amp-*)`. `AmphorePortal` (or
-  `AmphoreScope` around your own `createPortal`) re-applies that scope
-  inside the portal.
+  rendered outside it drops back to the default light theme at `:root`,
+  ignoring your `config` and dark mode. `AmphorePortal` (or `AmphoreScope`
+  around your own `createPortal`) re-applies that scope inside the portal.
 
 ## Credits
 

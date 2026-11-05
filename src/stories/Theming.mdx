@@ -33,7 +33,28 @@ Every component reads its styles via `var(--amp-*)`, never a literal value:
 
 `AmphoreProvider` computes these variables (`configToCssVars` in `UThemeConfig.ts`) and sets them as inline `style` on its own wrapper — every descendant component inherits them.
 
-The flip side: anything rendered **outside** that wrapper in the DOM — a portal to `document.body` — inherits nothing and shows up unstyled. `AmphoreScope` re-applies the nearest provider's wrapper attributes and vars (read from `AmphoreScopeContext`) around such content, and `AmphorePortal` bundles it with `FloatingPortal`. See [Directives/FloatingOverlays](?path=/docs/directives-floatingoverlays--docs).
+The flip side: anything rendered **outside** that wrapper in the DOM — a portal to `document.body` — doesn't inherit them, and falls back to the default theme at `:root` (see below) instead of the provider's. `AmphoreScope` re-applies the nearest provider's wrapper attributes and vars (read from `AmphoreScopeContext`) around such content, and `AmphorePortal` bundles it with `FloatingPortal`. See [Directives/FloatingOverlays](?path=/docs/directives-floatingoverlays--docs).
+
+## Without a provider
+
+`AmphoreProvider` is optional. `lib/style.css` also defines the default light theme at `:root`, so components render correctly with no provider at all ([Configuration/Without a provider](?path=/story/configuration-without-a-provider--components)):
+
+```tsx
+import { Button } from "@amphore-dev/amphore-lib";
+import "@amphore-dev/amphore-lib/lib/style.css";
+
+<Button>Save</Button>;
+```
+
+What you don't get without one: `config`, the dark palette (the fallback stays light whatever the OS, since dark mode is the provider's `theme`), `locale`, and `config.defaults`. Labels stay in English and `size` falls back to `"md"`.
+
+A provider always wins over the fallback: `:root` is only the far end of inheritance, and the provider sets every one of these variables on its own wrapper, closer to the component. Same for a nested provider, the dark palette, and `AmphoreScope` inside a portal.
+
+The rule comes from `src/styles/tokens.css`, generated from the same defaults as the provider (`mergeConfig` + `configToCssVars`), never edited by hand:
+
+- After changing a default in `CThemeConfig.ts`, run `yarn tokens` and commit the result. `src/theme/tokens.test.ts` fails while the file is stale.
+- That test also fails on any `var(--amp-*)` read in `src/` that the fallback doesn't define: a typo'd or removed token can't ship unnoticed. A variable a component sets for itself should be named `--_x`, which the check ignores.
+- `scripts/check-built-css.mjs` fails `yarn build` if any token didn't reach a `:root` rule in `lib/style.css`.
 
 ## `data-*`, never a conditional className
 
@@ -68,10 +89,14 @@ One `[data-color="x"]` block per color sets local variables (`--_color`/`--_colo
 
 `<AmphoreProvider theme="light" | "dark" | "system">` (default `"system"`). A separate `darkColors` palette (not a JS inversion of `colors`) is resolved **in CSS** — a `<style>` scoped to the provider instance + `@media (prefers-color-scheme)` — never a JS media-query detection (risk of SSR/hydration mismatch).
 
+Those dark declarations are `!important` on purpose: the light palette is inlined on the same element, and an inline declaration beats any plain stylesheet rule regardless of specificity. The rule only matches that provider's own scope id, so it can't reach a nested provider's node.
+
+An app with no dark design of its own should pin `theme="light"`: with the default `"system"`, its components turn dark for anyone whose OS is dark, whatever the page around them looks like.
+
 ## Radius: `sm` / `md` / `lg` / `full`
 
 Three progressive presets (`sharp` < default < `round`), plus `full` (pill/circle, outside this progression). Always usable — check that the default theme actually differentiates the three before adding a new component that depends on it (a bug already fixed once: the default's `sm` was identical to `sharp`).
 
 ---
 
-See also: `AmphoreProvider.tsx`, `CThemeConfig.ts`, `UThemeConfig.ts`, [Directives/Sizing](?path=/docs/directives-sizing--docs).
+See also: `AmphoreProvider.tsx`, `CThemeConfig.ts`, `UThemeConfig.ts`, `tokens.test.ts`, [Directives/Sizing](?path=/docs/directives-sizing--docs).
