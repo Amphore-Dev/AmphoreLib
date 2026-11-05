@@ -1,3 +1,5 @@
+@use "../../../styles/mixins" as *;
+
 .header {
 	display: flex;
 	flex-direction: column;
@@ -41,8 +43,8 @@
 }
 
 .title {
-	font-size: 1.5rem;
-	font-weight: 700;
+	font-size: var(--amp-text-4xl);
+	font-weight: weight(bold);
 	color: var(--amp-color-ink);
 	margin: 0;
 }
@@ -53,7 +55,7 @@
 }
 
 .subtitle {
-	font-size: 0.8125rem;
+	font-size: var(--amp-text-sm);
 	color: var(--amp-color-sub);
 	margin: 0;
 }
@@ -86,6 +88,7 @@
 }
 
 .search {
+	// stylelint-disable-next-line declaration-property-value-disallowed-list -- px: rem would only match at a 16px root
 	min-width: 200px;
 }
 
