@@ -80,6 +80,21 @@ describe("cssVarsToDeclarations", () => {
 	});
 });
 
+describe("mergeConfig text tones", () => {
+	it("replaces a color's text tone along with its base", () => {
+		const { colors } = mergeConfig({ colors: { primary: "#e2673f" } });
+		expect(colors.primaryText).toBe("#e2673f");
+	});
+
+	it("keeps an explicit text tone, and the default of an untouched color", () => {
+		const { colors } = mergeConfig({
+			colors: { primary: "#e2673f", primaryText: "#7a2f14" },
+		});
+		expect(colors.primaryText).toBe("#7a2f14");
+		expect(colors.warningText).toBe(DEFAULT_CONFIG.colors.warningText);
+	});
+});
+
 describe("configToCssVars", () => {
 	it("emits the spacing base as the only spacing variable", () => {
 		const vars = configToCssVars(

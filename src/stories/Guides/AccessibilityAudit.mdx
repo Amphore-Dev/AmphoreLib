@@ -117,25 +117,17 @@ Audit of every exported component against WCAG 2.2 AA and the WAI-ARIA Authoring
 | Animations | `prefers-reduced-motion` honored by Toggle and Tour only |
 | FloatingFocusManager | Upstream: its focus guards are unnamed `role="button"` spans on Safari. Excluded from axe in `tests/axe.ts` |
 
-## Contrast suspects
+## Contrast
 
-Not changed here. Ratios computed from the default theme's tokens, on the background they usually sit on. Normal text needs 4.5:1, large text and UI parts 3:1. To be confirmed in a browser: an actual component may set its own opacity or background.
+The default palette passes 4.5:1 for normal text, in both themes: every color's foreground on its fill, and its `-text` tone on a card, on its tint and on `ghostBg`, plus `ink` and `sub` on every surface. `src/theme/contrast.test.ts` keeps it that way. A color too light to carry text, such as `warning`, keeps a darker tone in its `warningText` token.
+
+Two suspects remain, both on purpose:
 
 | Theme | Foreground | Background | Ratio | Where |
 |---|---|---|---|---|
-| Light | `primary` | white, `primaryForeground` | 3.05 | Solid primary Button, Link, Tabs selected label, Badge |
-| Light | `warning` | white, `warningForeground` | 3.19 | Solid warning Button/Badge, warning text |
-| Light | `success` | white, `successForeground` | 3.30 | Solid success Button/Badge, success text |
-| Light | `primary` | `primaryTint` | 2.59 | Tint Badge, InfoMessage, selected rows |
-| Light | `warning` | `warningTint` | 2.70 | Tint Badge, InfoMessage |
-| Light | `success` | `successTint` | 2.86 | Tint Badge, InfoMessage |
-| Light | `danger` | `dangerTint` | 3.98 | Tint Badge, InfoMessage, invalid chip |
-| Light | `info` | `infoTint` | 3.98 | Tint Badge, InfoMessage |
-| Light | `border` | white | 1.26 | Field outlines (3:1 for UI parts) |
-| Dark | `primary` | `primaryTint` | 4.24 | Tint Badge, InfoMessage |
-| Dark | `border` | `card` | 1.29 | Field outlines |
-
-Passing on those tokens: `sub` on card, surface and ghost (4.60 to 4.93), `danger` on white (4.83), `info` on white (4.57), and dark `primary`, `danger`, `sub`.
+| Light | `border` | white | 1.29 | Field outlines (3:1 for UI parts) |
+| Dark | `border` | `card` | 1.36 | Field outlines |
+| Light | `warning` | white | 1.98 | Outline borders, `Progress` and `Slider` fills |
 
 ## Target size suspects
 

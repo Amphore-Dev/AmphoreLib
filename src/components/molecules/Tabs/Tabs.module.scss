@@ -60,34 +60,42 @@
 	// ---- color: sets the local var the active state reads below.
 	&[data-color="primary"] {
 		--_color: var(--amp-color-primary);
+		--_color-text: var(--amp-color-primary-text);
 	}
 
 	&[data-color="danger"] {
 		--_color: var(--amp-color-danger);
+		--_color-text: var(--amp-color-danger-text);
 	}
 
 	&[data-color="success"] {
 		--_color: var(--amp-color-success);
+		--_color-text: var(--amp-color-success-text);
 	}
 
 	&[data-color="warning"] {
 		--_color: var(--amp-color-warning);
+		--_color-text: var(--amp-color-warning-text);
 	}
 
 	&[data-color="info"] {
 		--_color: var(--amp-color-info);
+		--_color-text: var(--amp-color-info-text);
 	}
 
 	&[data-color="neutral"] {
 		--_color: var(--amp-color-neutral);
+		--_color-text: var(--amp-color-neutral-text);
 	}
 
 	&[data-color="black"] {
 		--_color: var(--amp-color-black);
+		--_color-text: var(--amp-color-black-text);
 	}
 
 	&[data-color="white"] {
 		--_color: var(--amp-color-white);
+		--_color-text: var(--amp-color-white-text);
 	}
 
 	@media (hover: hover) {
@@ -107,7 +115,7 @@
 }
 
 .tabActive {
-	color: var(--_color);
+	color: var(--_color-text);
 	border-bottom-color: var(--_color);
 }
 

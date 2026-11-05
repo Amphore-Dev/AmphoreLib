@@ -52,6 +52,13 @@ function mergeColors(
 			colors[tintKey] =
 				`color-mix(in srgb, ${colors[key]} 15%, ${tintMixTarget})`;
 		}
+
+		// A new base replaces the default text tone too: it would otherwise
+		// stay the default palette's hue.
+		const textKey = `${key}Text` as const;
+		if (baseOverridden && input?.[textKey] === undefined) {
+			colors[textKey] = colors[key];
+		}
 	}
 
 	return colors;

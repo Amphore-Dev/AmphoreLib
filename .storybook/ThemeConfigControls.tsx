@@ -112,7 +112,7 @@ export function ThemeConfigControls({
 				>
 					<input
 						type="color"
-						value={ampPrimary || "#0f9be8"}
+						value={ampPrimary || "#0674db"}
 						onChange={(e) =>
 							updateGlobals({ ampPrimary: e.target.value })
 						}
