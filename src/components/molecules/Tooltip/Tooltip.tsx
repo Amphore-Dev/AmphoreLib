@@ -17,6 +17,8 @@ import {
 
 import { AmphorePortal } from "@theme/AmphorePortal";
 
+import { useEscapeLayer } from "@hooks/index";
+
 import { cn } from "@utils/cn";
 
 import styles from "./Tooltip.module.scss";
@@ -65,7 +67,8 @@ export const Tooltip: React.FC<ITooltipProps> = ({
 	const hover = useHover(context, { move: false, enabled: !disabled });
 	const focus = useFocus(context, { enabled: !disabled });
 	const tap = useClick(context, { ignoreMouse: true, enabled: !disabled });
-	const dismiss = useDismiss(context);
+	const dismiss = useDismiss(context, { escapeKey: false });
+	useEscapeLayer(open && !disabled, () => setOpen(false));
 	const role = useRole(context, { role: "tooltip" });
 
 	const { getReferenceProps, getFloatingProps } = useInteractions([

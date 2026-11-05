@@ -25,7 +25,7 @@ import {
 import { AmphorePortal } from "@theme/AmphorePortal";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
-import { useMediaQuery } from "@hooks/index";
+import { useEscapeLayer, useMediaQuery } from "@hooks/index";
 
 import { cn } from "@utils/cn";
 
@@ -354,7 +354,11 @@ export const Tour: React.FC<ITourProps> = ({
 		return autoUpdate(target, el, update);
 	}, [target]);
 
-	const dismiss = useDismiss(context, { outsidePress: false });
+	const dismiss = useDismiss(context, {
+		outsidePress: false,
+		escapeKey: false,
+	});
+	useEscapeLayer(open && !!currentStep, () => onClose("skip"));
 	const role = useRole(context, { role: "dialog" });
 	const { getFloatingProps } = useInteractions([dismiss, role]);
 

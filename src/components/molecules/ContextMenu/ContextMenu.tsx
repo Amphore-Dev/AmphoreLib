@@ -13,6 +13,8 @@ import {
 
 import { AmphorePortal } from "@theme/AmphorePortal";
 
+import { useEscapeLayer } from "@hooks/index";
+
 import type { TMenuItem } from "@interfaces/index";
 
 import { MenuList } from "../Dropdown/MenuList";
@@ -84,7 +86,8 @@ export function ContextMenu<T = undefined>({
 		],
 	});
 
-	const dismiss = useDismiss(context);
+	const dismiss = useDismiss(context, { escapeKey: false });
+	useEscapeLayer(open, menu.hide);
 	const role = useRole(context, { role: "menu" });
 	const listNav = useListNavigation(context, {
 		listRef,

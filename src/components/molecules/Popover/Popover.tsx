@@ -16,6 +16,8 @@ import {
 
 import { AmphorePortal } from "@theme/AmphorePortal";
 
+import { useEscapeLayer } from "@hooks/index";
+
 import { cn } from "@utils/cn";
 
 import styles from "./Popover.module.scss";
@@ -105,7 +107,11 @@ export const Popover: React.FC<IPopoverProps> = ({
 	});
 
 	const click = useClick(context, { enabled: !disabled });
-	const dismiss = useDismiss(context, { outsidePress: closeOnOutsideClick });
+	const dismiss = useDismiss(context, {
+		outsidePress: closeOnOutsideClick,
+		escapeKey: false,
+	});
+	useEscapeLayer(open, () => setOpen(false));
 	const role = useRole(context, { role: "dialog" });
 
 	const { getReferenceProps, getFloatingProps } = useInteractions([

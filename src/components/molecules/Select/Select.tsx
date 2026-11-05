@@ -22,6 +22,8 @@ import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
 import type { TPictoName } from "@constants/index";
 
+import { useEscapeLayer } from "@hooks/index";
+
 import { getPicto } from "@utils/UPicto";
 import { cn } from "@utils/cn";
 
@@ -337,7 +339,11 @@ export function Select<T = string>({
 		enabled: !disabled,
 		keyboardHandlers: false,
 	});
-	const dismiss = useDismiss(context);
+	const dismiss = useDismiss(context, { escapeKey: false });
+	useEscapeLayer(open, () => {
+		setOpen(false);
+		setSearch("");
+	});
 	const role = useRole(context, { role: "listbox" });
 	// virtual: true keeps real DOM focus on the trigger (or the search input),
 	// options are only "active" via aria-activedescendant — the correct

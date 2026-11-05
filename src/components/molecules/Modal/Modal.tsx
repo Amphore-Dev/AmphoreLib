@@ -13,6 +13,8 @@ import {
 import { AmphorePortal } from "@theme/AmphorePortal";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
+import { useEscapeLayer } from "@hooks/index";
+
 import { cn } from "@utils/cn";
 
 import { TLabel, TSize } from "@interfaces/index";
@@ -101,7 +103,10 @@ export const Modal: React.FC<IModalProps> = ({
 	const dismiss = useDismiss(context, {
 		outsidePress: closeOnOverlayClick,
 		outsidePressEvent: "click",
-		escapeKey: closeOnEscape,
+		escapeKey: false,
+	});
+	useEscapeLayer(open, () => {
+		if (closeOnEscape) onClose();
 	});
 	const role = useRole(context, { role: "dialog" });
 
