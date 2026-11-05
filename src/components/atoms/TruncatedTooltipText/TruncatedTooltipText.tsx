@@ -30,6 +30,11 @@ export interface ITruncatedTooltipTextProps {
  * timing race, not hypothetical: hovering right as a Storybook story
  * settles hits it easily). `useLayoutEffect` measures before paint too, so
  * there's no frame where the untruncated/disabled version is visible.
+ *
+ * Text that's cut off takes keyboard focus, or the tooltip with the rest of
+ * it would be a mouse-only thing. Not inside a link or a button, already a
+ * tab stop of its own (and which the tooltip then won't help: their name is
+ * read in full anyway).
  */
 export const TruncatedTooltipText: React.FC<ITruncatedTooltipTextProps> = ({
 	children,
@@ -41,11 +46,14 @@ export const TruncatedTooltipText: React.FC<ITruncatedTooltipTextProps> = ({
 }) => {
 	const ref = useRef<HTMLSpanElement>(null);
 	const [isTruncated, setIsTruncated] = useState(false);
+	const [insideControl, setInsideControl] = useState(false);
 	const isMultiLine = maxLines > 1;
 
 	useLayoutEffect(() => {
 		const el = ref.current;
 		if (!el) return;
+
+		setInsideControl(!!el.closest("a, button"));
 
 		const checkTruncated = () => {
 			setIsTruncated(
@@ -65,6 +73,8 @@ export const TruncatedTooltipText: React.FC<ITruncatedTooltipTextProps> = ({
 	const content = (
 		<span
 			ref={ref}
+			// eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- what's focused is what shows the tooltip
+			tabIndex={tooltip && isTruncated && !insideControl ? 0 : undefined}
 			className={cn([
 				styles.text,
 				isMultiLine ? styles.multiLine : styles.singleLine,

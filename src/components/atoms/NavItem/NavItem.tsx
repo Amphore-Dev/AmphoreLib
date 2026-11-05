@@ -52,6 +52,12 @@ export const NavItem: React.FC<INavItemProps> = ({
 			data-active={isActive || undefined}
 			data-reduced={isReduced || undefined}
 			aria-current={isActive ? "page" : undefined}
+			// Reduced, the text is gone and the Tooltip only describes.
+			aria-label={
+				isReduced && typeof children === "string"
+					? children
+					: props["aria-label"]
+			}
 		>
 			{!!picto && <Picto {...getPicto(picto)} className={styles.picto} />}
 			{!isReduced && children}

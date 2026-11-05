@@ -125,6 +125,9 @@ export const en: TRequiredThemeLabels = {
 		noResultsMessage: "No results",
 		clearLabel: "Clear",
 	},
+	Progress: {
+		label: "Progress",
+	},
 	SidePanel: {
 		closeLabel: "Close",
 	},

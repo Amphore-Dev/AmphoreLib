@@ -20,6 +20,8 @@ export interface IPictoProps {
 	rotation?: number;
 	color?: string;
 	disabled?: boolean;
+	/** Names a clickable picto (an icon-only button has no other name), or an image one that means something. Without it an icon is decorative. */
+	"aria-label"?: string;
 }
 
 export const Picto: React.FC<IPictoProps> = ({
@@ -33,6 +35,7 @@ export const Picto: React.FC<IPictoProps> = ({
 	onClick,
 	wrapperClassName,
 	disabled = false,
+	"aria-label": ariaLabel,
 }) => {
 	const Wrapper = onClick ? "button" : "div";
 	const wrapperProps = onClick
@@ -41,6 +44,7 @@ export const Picto: React.FC<IPictoProps> = ({
 				onClick,
 				tabIndex: 0,
 				type: "button" as HTMLButtonElement["type"],
+				"aria-label": ariaLabel,
 			}
 		: {
 				"data-testid": icon,
@@ -73,6 +77,7 @@ export const Picto: React.FC<IPictoProps> = ({
 			{!!SvgIcon && (
 				<SvgIcon
 					className={className}
+					aria-hidden
 					style={{
 						// Only set inline color when explicitly passed as a prop — an inline style
 						// always wins over any CSS class/module color rule (e.g. Checkbox's ".check"
@@ -91,7 +96,7 @@ export const Picto: React.FC<IPictoProps> = ({
 			{src && (
 				<img
 					src={src}
-					alt={icon || "Picto"}
+					alt={onClick ? "" : (ariaLabel ?? "")}
 					className={className}
 					style={{
 						...style,

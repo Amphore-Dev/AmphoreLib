@@ -24,10 +24,9 @@ export interface ISummaryListProps {
 
 /**
  * V2 SummaryList — data-driven (`items`) term/value pairs, rendered via
- * the shared `SummaryListItem`. `layout="grid"` wraps items in `FlexGrid`
- * instead of a `<dl>` — trades the `<dl>` semantics for a multi-column
- * layout (each item still uses `<dt>`/`<dd>` internally); "vertical"/
- * "horizontal" keep the real `<dl>`.
+ * the shared `SummaryListItem`. `layout="grid"` wraps items in `FlexGrid`,
+ * which puts a wrapper between a list and its rows: each item is then its
+ * own one-row `<dl>`. "vertical"/"horizontal" share a single `<dl>`.
  */
 export const SummaryList: React.FC<ISummaryListProps> = ({
 	items,
@@ -57,6 +56,7 @@ export const SummaryList: React.FC<ISummaryListProps> = ({
 					key={item.label}
 					{...item}
 					direction={layout}
+					inList
 					className={styles.row}
 				/>
 			))}

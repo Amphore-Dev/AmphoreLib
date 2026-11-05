@@ -273,14 +273,15 @@ export const PageHeader: React.FC<IPageHeaderProps> = ({
 			>
 				<div className={styles.leftContent}>
 					<div className={styles.titleBlock}>
-						<h1 className={styles.title}>{title}</h1>
+						{!!title && <h1 className={styles.title}>{title}</h1>}
 						{titleAfter && (
 							<div className={styles.titleAfter}>
 								{titleAfter}
 							</div>
 						)}
 					</div>
-					<p className={styles.subtitle}>
+					{/* Stays mounted: a live region only speaks about changes. */}
+					<p className={styles.subtitle} role="status">
 						{isLoading
 							? loadingLabel
 							: totalCount !== undefined

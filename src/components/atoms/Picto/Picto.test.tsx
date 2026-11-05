@@ -16,3 +16,23 @@ describe("Picto", () => {
 		}
 	);
 });
+
+describe("Picto accessibility", () => {
+	it("names a clickable picto", () => {
+		render(<Picto icon="home" onClick={() => {}} aria-label="Home" />);
+		expect(screen.getByRole("button", { name: "Home" })).toBeInTheDocument();
+	});
+
+	it("is decorative by default", () => {
+		const { container } = render(<Picto icon="home" />);
+		expect(container.querySelector("svg")).toHaveAttribute(
+			"aria-hidden",
+			"true"
+		);
+	});
+
+	it("doesn't read an image's file role as text", () => {
+		const { container } = render(<Picto src="/icon.png" />);
+		expect(container.querySelector("img")).toHaveAttribute("alt", "");
+	});
+});

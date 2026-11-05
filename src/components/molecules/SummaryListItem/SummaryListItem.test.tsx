@@ -108,3 +108,32 @@ describe("SummaryListItem", () => {
 		expect(outer?.className).not.toMatch(/ellipsis/);
 	});
 });
+
+describe("SummaryListItem structure", () => {
+	it("is its own <dl> when on its own", () => {
+		const { container } = render(<SummaryListItem label="Name" value="Ada" />);
+		expect(container.firstElementChild?.tagName).toBe("DL");
+	});
+
+	it("leaves the <dl> to its list", () => {
+		const { container } = render(
+			<dl>
+				<SummaryListItem label="Name" value="Ada" inList />
+			</dl>
+		);
+		expect(container.querySelectorAll("dl")).toHaveLength(1);
+	});
+
+	it("keeps an action inside the list's valid content", () => {
+		render(
+			<SummaryListItem
+				label="Name"
+				value="Ada"
+				action={{ label: "Edit", onClick: () => {} }}
+			/>
+		);
+		expect(
+			screen.getByRole("button", { name: "Edit" }).parentElement?.tagName
+		).toBe("DD");
+	});
+});

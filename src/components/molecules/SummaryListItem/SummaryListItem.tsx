@@ -14,6 +14,8 @@ import styles from "./SummaryListItem.module.scss";
 export interface ISummaryListItemProps extends TSummaryListItem {
 	/** Label above value, or side by side. Defaults to "vertical". */
 	direction?: "vertical" | "horizontal";
+	/** Set by `SummaryList`: the row sits in a `<dl>` already. Left off, the row is its own `<dl>`, `<dt>` and `<dd>` being invalid anywhere else. */
+	inList?: boolean;
 	className?: string;
 }
 
@@ -37,8 +39,11 @@ export const SummaryListItem: React.FC<ISummaryListItemProps> = ({
 	maxLines,
 	action,
 	direction = "vertical",
+	inList = false,
 	className = "",
 }) => {
+	const Row = inList ? "div" : "dl";
+
 	// TruncatedTooltipText already owns its own overflow/ellipsis — the
 	// outer text/link/button must not *also* clip+ellipsize, otherwise the
 	// two fight (double truncation, and TruncatedTooltipText's own
@@ -52,7 +57,7 @@ export const SummaryListItem: React.FC<ISummaryListItemProps> = ({
 	);
 
 	return (
-		<div className={cn([styles.row, className])} data-direction={direction}>
+		<Row className={cn([styles.row, className])} data-direction={direction}>
 			<dt className={styles.term}>
 				{label}
 				{required && <span className={styles.required}>*</span>}
@@ -93,21 +98,25 @@ export const SummaryListItem: React.FC<ISummaryListItemProps> = ({
 					</span>
 				)}
 			</dd>
+			{/* A `<dd>` too, a `<dl>` holds nothing else. `contents`: the button
+			    stays the row's own flex item. */}
 			{action && (
-				<button
-					type="button"
-					className={styles.action}
-					onClick={action.onClick}
-				>
-					{!!action.picto && (
-						<Picto
-							{...getPicto(action.picto)}
-							className={styles.picto}
-						/>
-					)}
-					{action.label}
-				</button>
+				<dd className={styles.actionCell}>
+					<button
+						type="button"
+						className={styles.action}
+						onClick={action.onClick}
+					>
+						{!!action.picto && (
+							<Picto
+								{...getPicto(action.picto)}
+								className={styles.picto}
+							/>
+						)}
+						{action.label}
+					</button>
+				</dd>
 			)}
-		</div>
+		</Row>
 	);
 };

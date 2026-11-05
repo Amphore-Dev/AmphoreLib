@@ -19,6 +19,7 @@ import type { TInfoMessageLabels } from "../components/atoms/InfoMessage/InfoMes
 import type { TInputLabels } from "../components/atoms/Input/Input";
 import type { TInputFileLabels } from "../components/atoms/InputFile/InputFile";
 import type { TNumberInputLabels } from "../components/atoms/NumberInput/NumberInput";
+import type { TProgressLabels } from "../components/atoms/Progress/Progress";
 import type { TSpinnerLabels } from "../components/atoms/Spinner/Spinner";
 import type { TTimePickerLabels } from "../components/atoms/TimePicker/TimePicker";
 import type { TAddTodoItemLabels } from "../components/molecules/AddTodoItem/AddTodoItem";
@@ -98,6 +99,7 @@ export interface TThemeLabels {
 	NumberInput?: TNumberInputLabels;
 	PageHeader?: TPageHeaderLabels;
 	PasswordField?: TPasswordFieldLabels;
+	Progress?: TProgressLabels;
 	Select?: TSelectLabels;
 	SidePanel?: TSidePanelLabels;
 	Spinner?: TSpinnerLabels;
@@ -141,6 +143,7 @@ export type TRequiredThemeLabels = {
 	NumberInput: Required<TNumberInputLabels>;
 	PageHeader: Required<TPageHeaderLabels>;
 	PasswordField: Required<TPasswordFieldLabels>;
+	Progress: Required<TProgressLabels>;
 	Select: Required<TSelectLabels>;
 	SidePanel: Required<TSidePanelLabels>;
 	Spinner: Required<TSpinnerLabels>;

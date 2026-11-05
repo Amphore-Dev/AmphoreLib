@@ -51,7 +51,7 @@ describe("SummaryList", () => {
 		});
 	});
 
-	it('renders items via Grid (not a <dl>) for layout="grid", forwarding gridConfig', () => {
+	it('renders items via Grid, each its own <dl>, for layout="grid", forwarding gridConfig', () => {
 		const { container } = render(
 			<SummaryList
 				items={items}
@@ -59,7 +59,7 @@ describe("SummaryList", () => {
 				gridConfig={{ columns: 3 }}
 			/>
 		);
-		expect(container.querySelector("dl")).not.toBeInTheDocument();
+		expect(container.querySelectorAll("dl")).toHaveLength(items.length);
 		const grid = container.firstChild as HTMLElement;
 		expect(grid.style.getPropertyValue("--_column-count")).toBe("3");
 	});

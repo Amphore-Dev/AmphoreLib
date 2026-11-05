@@ -120,6 +120,9 @@ export const fr: TThemeLabels = {
 		noResultsMessage: "Aucun résultat",
 		clearLabel: "Effacer",
 	},
+	Progress: {
+		label: "Progression",
+	},
 	SidePanel: {
 		closeLabel: "Fermer",
 	},
