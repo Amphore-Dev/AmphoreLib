@@ -27,6 +27,8 @@ export interface IContextMenuProps<T> {
 	/** Static list, or resolved from whatever `data` the triggering `show(event, data)` call passed. */
 	items: TMenuItem[] | ((data: T) => TMenuItem[]);
 	disabled?: boolean;
+	/** Names the menu: there's no trigger element to take its name from, unlike Dropdown. */
+	"aria-label"?: string;
 	/** Renders the menu into `document.body` via AmphorePortal (theme scope re-applied) — escapes any ancestor stacking context/`transform`/`overflow` that would trap or clip it. Defaults to false (inline, `position: fixed`). */
 	portal?: boolean;
 	className?: string;
@@ -45,6 +47,7 @@ export function ContextMenu<T = undefined>({
 	menu,
 	items,
 	disabled = false,
+	"aria-label": ariaLabel,
 	portal = false,
 	className = "",
 }: IContextMenuProps<T>) {
@@ -140,7 +143,7 @@ export function ContextMenu<T = undefined>({
 			context={context}
 			floatingRef={refs.setFloating}
 			floatingStyles={floatingStyles}
-			getFloatingProps={getFloatingProps}
+			getFloatingProps={() => getFloatingProps({ "aria-label": ariaLabel })}
 			getItemProps={(_item, onClick) => getItemProps({ onClick })}
 			itemRef={(node, index) => {
 				listRef.current[index] = node;

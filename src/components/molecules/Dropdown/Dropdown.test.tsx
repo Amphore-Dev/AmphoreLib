@@ -1,6 +1,6 @@
 import React from "react";
 
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
@@ -192,5 +192,79 @@ describe("Dropdown", () => {
 			expect(onEdit).toHaveBeenCalledTimes(1);
 			expect(screen.queryByRole("menu")).not.toBeInTheDocument();
 		});
+	});
+});
+
+describe("Dropdown keyboard", () => {
+	const items = [
+		{ label: "Edit", onClick: () => {} },
+		{ label: "Archive", onClick: () => {}, disabled: true },
+		{ label: "Share", onClick: () => {} },
+		{ label: "Delete", onClick: () => {} },
+	];
+
+	const setup = async () => {
+		const user = userEvent.setup();
+		render(
+			<>
+				<Dropdown items={items}>
+					<button type="button">Actions</button>
+				</Dropdown>
+				<button type="button">After</button>
+			</>
+		);
+		const trigger = screen.getByRole("button", { name: "Actions" });
+		trigger.focus();
+		await user.keyboard("{Enter}");
+		await screen.findByRole("menu", { name: "Actions" });
+		await waitFor(() =>
+			expect(screen.getByRole("menuitem", { name: "Edit" })).toHaveFocus()
+		);
+		return { user, trigger };
+	};
+
+	it("states what the trigger opens", async () => {
+		const { trigger } = await setup();
+		expect(trigger).toHaveAttribute("aria-haspopup", "menu");
+		expect(trigger).toHaveAttribute("aria-expanded", "true");
+	});
+
+	it("moves with the arrows, skipping disabled items, wrapping", async () => {
+		const { user } = await setup();
+
+		await user.keyboard("{ArrowDown}");
+		expect(screen.getByRole("menuitem", { name: "Share" })).toHaveFocus();
+
+		await user.keyboard("{ArrowUp}{ArrowUp}");
+		expect(screen.getByRole("menuitem", { name: "Delete" })).toHaveFocus();
+	});
+
+	it("goes to the ends with Home and End", async () => {
+		const { user } = await setup();
+
+		await user.keyboard("{End}");
+		expect(screen.getByRole("menuitem", { name: "Delete" })).toHaveFocus();
+
+		await user.keyboard("{Home}");
+		expect(screen.getByRole("menuitem", { name: "Edit" })).toHaveFocus();
+	});
+
+	it("returns focus to the trigger on Escape", async () => {
+		const { user, trigger } = await setup();
+
+		await user.keyboard("{Escape}");
+
+		expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+		await waitFor(() => expect(trigger).toHaveFocus());
+	});
+
+	it("closes on Tab", async () => {
+		const { user } = await setup();
+
+		await user.tab();
+
+		await waitFor(() =>
+			expect(screen.queryByRole("menu")).not.toBeInTheDocument()
+		);
 	});
 });

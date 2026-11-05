@@ -1,6 +1,6 @@
 import React from "react";
 
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
@@ -139,5 +139,84 @@ describe("ContextMenu (shared menu, controller-based)", () => {
 			expect(onEdit).toHaveBeenCalledWith(ROWS[1]);
 			expect(screen.queryByRole("menu")).not.toBeInTheDocument();
 		});
+	});
+});
+
+describe("ContextMenu keyboard", () => {
+	const Row: React.FC<{ onEdit?: () => void }> = ({ onEdit = () => {} }) => {
+		const menu = useContextMenu();
+		return (
+			<>
+				<button type="button" onClick={(e) => menu.show(e, undefined)}>
+					More
+				</button>
+				<ContextMenu
+					menu={menu}
+					aria-label="Row actions"
+					items={[
+						{ label: "Edit", onClick: onEdit },
+						{ label: "Archive", onClick: () => {}, disabled: true },
+						{ label: "Delete", onClick: () => {} },
+					]}
+				/>
+			</>
+		);
+	};
+
+	it("opens from the keyboard under its trigger, not in the corner", async () => {
+		const user = userEvent.setup();
+		let position: { x: number; y: number } | null = null;
+		const Probe = () => {
+			const menu = useContextMenu();
+			position = menu.state;
+			return (
+				<button type="button" onClick={(e) => menu.show(e, undefined)}>
+					More
+				</button>
+			);
+		};
+		render(<Probe />);
+		const trigger = screen.getByRole("button", { name: "More" });
+		trigger.getBoundingClientRect = () =>
+			({ left: 120, bottom: 240 }) as DOMRect;
+
+		trigger.focus();
+		await user.keyboard("{Enter}");
+
+		expect(position).toMatchObject({ x: 120, y: 240 });
+	});
+
+	it("focuses the first item, skips disabled ones, and restores focus", async () => {
+		const user = userEvent.setup();
+		render(<Row />);
+		const trigger = screen.getByRole("button", { name: "More" });
+
+		trigger.focus();
+		await user.keyboard("{Enter}");
+		await waitFor(() =>
+			expect(screen.getByRole("menuitem", { name: "Edit" })).toHaveFocus()
+		);
+
+		await user.keyboard("{ArrowDown}");
+		expect(screen.getByRole("menuitem", { name: "Delete" })).toHaveFocus();
+
+		await user.keyboard("{Escape}");
+		expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+		await waitFor(() => expect(trigger).toHaveFocus());
+	});
+
+	it("runs an item with Enter", async () => {
+		const user = userEvent.setup();
+		const onEdit = vi.fn();
+		render(<Row onEdit={onEdit} />);
+
+		screen.getByRole("button", { name: "More" }).focus();
+		await user.keyboard("{Enter}");
+		await waitFor(() =>
+			expect(screen.getByRole("menuitem", { name: "Edit" })).toHaveFocus()
+		);
+		await user.keyboard("{Enter}");
+
+		expect(onEdit).toHaveBeenCalledTimes(1);
 	});
 });
