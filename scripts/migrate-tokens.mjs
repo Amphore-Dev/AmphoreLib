@@ -342,8 +342,8 @@ function ensureMixinsImport(root, file) {
 		params: `"${relative}" as *`,
 		raws: { afterName: " ", semicolon: true },
 	});
-	// Sass wants every @use before any rule: after the last one, or else
-	// after the file's opening comments.
+	// Sass wants every @use before any rule: after the last one, or else after
+	// the file's opening comments, unless they belong to the first rule.
 	const uses = root.nodes.filter(
 		(node) => node.type === "atrule" && node.name === "use"
 	);
@@ -352,11 +352,11 @@ function ensureMixinsImport(root, file) {
 		uses.at(-1).after(use);
 		return;
 	}
-	const first = root.nodes.find((node) => node.type !== "comment");
-	const isFirstNode = root.nodes[0] === first;
-	use.raws.before = isFirstNode ? "" : "\n\n";
-	first.before(use);
-	first.raws.before = "\n\n";
+	const firstRule = root.nodes.find((node) => node.type !== "comment");
+	const anchor = firstRule.raws.before === "\n" ? root.first : firstRule;
+	use.raws.before = anchor === root.first ? "" : "\n\n";
+	anchor.before(use);
+	anchor.raws.before = "\n\n";
 }
 
 function migrateFile(file) {
