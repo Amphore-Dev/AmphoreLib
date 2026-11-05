@@ -1,9 +1,16 @@
-import React, { PropsWithChildren, useRef, useState } from "react";
+import React, {
+	PropsWithChildren,
+	useEffect,
+	useId,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from "react";
 
 import { AmphorePortal } from "@theme/AmphorePortal";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
-import { useDrag } from "@hooks/index";
+import { useDrag, useEscapeLayer } from "@hooks/index";
 
 import { cn } from "@utils/cn";
 
@@ -33,6 +40,8 @@ export interface IBottomPanelProps extends PropsWithChildren {
 	collapseLabel?: TLabel;
 	/** aria-label for the drag handle while collapsed (tapping/dragging it expands the panel). Defaults to "Expand panel" (or `BottomPanel.expandLabel` from the nearest AmphoreProvider). */
 	expandLabel?: TLabel;
+	/** Moves focus to the handle whenever the panel opens, for a panel opened from elsewhere on the page rather than through its own handle. Defaults to false. */
+	focusOnOpen?: boolean;
 	/** Renders the sheet into `document.body` via AmphorePortal (theme scope re-applied) — escapes any ancestor `transform`/`filter`/`contain` that would turn its `position: fixed` into a local one, or a stacking context that would trap its z-index. Defaults to false (inline). */
 	portal?: boolean;
 	className?: string;
@@ -54,6 +63,11 @@ const DRAG_THRESHOLD = 4;
  * AmphorePortal for the ancestors that break that. Reusable on its own (a
  * mobile action sheet, say) — SidePanel uses it as its own mobile
  * fallback, but this doesn't know anything about that.
+ *
+ * A non-modal dialog: Escape closes it, and closing with focus inside moves
+ * focus to the handle, the one part that stays. Docked, its content is
+ * `hidden`, which would otherwise take the focused element out from under
+ * the keyboard.
  */
 export const BottomPanel: React.FC<IBottomPanelProps> = ({
 	open,
@@ -66,6 +80,7 @@ export const BottomPanel: React.FC<IBottomPanelProps> = ({
 	collapsedLabel: collapsedLabelProp,
 	collapseLabel: collapseLabelProp,
 	expandLabel: expandLabelProp,
+	focusOnOpen = false,
 	portal = false,
 	className = "",
 	children,
@@ -77,6 +92,21 @@ export const BottomPanel: React.FC<IBottomPanelProps> = ({
 	const expandLabel = resolve("expandLabel", expandLabelProp);
 	const [height, setHeight] = useState(defaultHeight);
 	const startHeightRef = useRef(0);
+	const contentId = useId();
+	const handleRef = useRef<HTMLButtonElement>(null);
+	const contentRef = useRef<HTMLDivElement>(null);
+
+	useEscapeLayer(open, () => onOpenChange(false));
+
+	useEffect(() => {
+		if (open && focusOnOpen) handleRef.current?.focus();
+	}, [open, focusOnOpen]);
+
+	useLayoutEffect(() => {
+		if (!open && contentRef.current?.contains(document.activeElement)) {
+			handleRef.current?.focus();
+		}
+	}, [open]);
 
 	const drag = useDrag({
 		axis: "y",
@@ -124,17 +154,24 @@ export const BottomPanel: React.FC<IBottomPanelProps> = ({
 			aria-label={open ? openLabel : collapsedLabel}
 		>
 			<button
+				ref={handleRef}
 				type="button"
 				className={styles.handle}
 				{...drag.handleProps}
 				onKeyDown={handleKeyDown}
 				aria-expanded={open}
+				aria-controls={contentId}
 				aria-label={open ? collapseLabel : expandLabel}
 			>
 				<span className={styles.grip} />
 			</button>
 
-			<div className={styles.content} hidden={!open}>
+			<div
+				ref={contentRef}
+				id={contentId}
+				className={styles.content}
+				hidden={!open}
+			>
 				{children}
 			</div>
 		</Card>

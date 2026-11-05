@@ -48,6 +48,8 @@ export interface IModalProps {
 	hideCloseButton?: boolean;
 	/** aria-label for the header close (×) button. Defaults to "Close" (or `common.close`/`Modal.closeLabel` from the nearest AmphoreProvider — see useAmphoreLabels). No effect when `hideCloseButton`. */
 	closeLabel?: TLabel;
+	/** The dialog's accessible name when it has no `title` — say a custom `header`. Ignored with a `title`, which names it. Defaults to "Dialog" (or `Modal.dialogLabel` from the nearest AmphoreProvider). */
+	dialogLabel?: TLabel;
 	/**
 	 * Render into `document.body` (via AmphorePortal) instead of inline.
 	 * Escapes any ancestor stacking context / `transform` / `overflow` that
@@ -60,7 +62,7 @@ export interface IModalProps {
 }
 
 /** Picked, not listed by hand elsewhere — see TThemeLabels.ts's own comment on why. */
-export type TModalLabels = Pick<IModalProps, "closeLabel">;
+export type TModalLabels = Pick<IModalProps, "closeLabel" | "dialogLabel">;
 
 /**
  * V2 Modal — dialog overlay on floating-ui's Dialog primitives
@@ -83,12 +85,14 @@ export const Modal: React.FC<IModalProps> = ({
 	closeOnEscape = true,
 	hideCloseButton = false,
 	closeLabel: closeLabelProp,
+	dialogLabel: dialogLabelProp,
 	portal = false,
 	className = "",
 }) => {
 	const titleId = useFloatingId();
 	const { resolve } = useAmphoreLabels("Modal");
 	const closeLabel = resolve("closeLabel", closeLabelProp, "close");
+	const dialogLabel = resolve("dialogLabel", dialogLabelProp);
 
 	const { refs, context } = useFloating({
 		open,
@@ -123,7 +127,9 @@ export const Modal: React.FC<IModalProps> = ({
 					noPadding
 					className={cn([styles.panel, className])}
 					data-size={size}
+					aria-modal
 					aria-labelledby={title ? titleId : undefined}
+					aria-label={title ? undefined : dialogLabel}
 					{...getFloatingProps()}
 				>
 					{(title || !hideCloseButton || header) && (

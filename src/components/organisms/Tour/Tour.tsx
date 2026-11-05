@@ -25,7 +25,7 @@ import {
 import { AmphorePortal } from "@theme/AmphorePortal";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
-import { useEscapeLayer, useMediaQuery } from "@hooks/index";
+import { useEscapeLayer, useMediaQuery, useRestoreFocus } from "@hooks/index";
 
 import { cn } from "@utils/cn";
 
@@ -366,6 +366,11 @@ export const Tour: React.FC<ITourProps> = ({
 	const contentId = useFloatingId();
 	const primaryRef = useRef<HTMLButtonElement>(null);
 
+	// Not FloatingFocusManager's returnFocus: that goes to the floating
+	// reference, here the step's target, not where the person was. It also
+	// fires whenever the reference changes, so on every step.
+	useRestoreFocus(open);
+
 	if (!open || !currentStep) return null;
 
 	const ready = !searching && (!selector || !!target);
@@ -416,6 +421,7 @@ export const Tour: React.FC<ITourProps> = ({
 				<FloatingFocusManager
 					context={context}
 					initialFocus={primaryRef}
+					returnFocus={false}
 				>
 					<Card
 						ref={refs.setFloating}
@@ -436,6 +442,7 @@ export const Tour: React.FC<ITourProps> = ({
 								? floatingStyles
 								: undefined),
 						}}
+						aria-modal
 						aria-labelledby={titleId}
 						aria-describedby={contentId}
 						{...getFloatingProps({ onKeyDown })}
@@ -449,21 +456,34 @@ export const Tour: React.FC<ITourProps> = ({
 								height={7}
 							/>
 						)}
-						{showProgress && (
-							<span className={styles.counter}>
-								{stepOfLabel
-									.replace(
-										"{current}",
-										String(counted.indexOf(current) + 1)
-									)
-									.replace("{total}", String(counted.length))}
-							</span>
-						)}
-						<h2 id={titleId} className={styles.title}>
-							{forDevice(currentStep.title, device)}
-						</h2>
-						<div id={contentId} className={styles.content}>
-							{forDevice(currentStep.content, device)}
+						{/* The dialog is named and described once, as it opens:
+						    going to the next step keeps focus on its button and
+						    the same dialog, so nothing would be read out without
+						    this live region. `contents`: no box of its own. */}
+						<div
+							aria-live="polite"
+							aria-atomic
+							style={{ display: "contents" }}
+						>
+							{showProgress && (
+								<span className={styles.counter}>
+									{stepOfLabel
+										.replace(
+											"{current}",
+											String(counted.indexOf(current) + 1)
+										)
+										.replace(
+											"{total}",
+											String(counted.length)
+										)}
+								</span>
+							)}
+							<h2 id={titleId} className={styles.title}>
+								{forDevice(currentStep.title, device)}
+							</h2>
+							<div id={contentId} className={styles.content}>
+								{forDevice(currentStep.content, device)}
+							</div>
 						</div>
 						<div
 							className={styles.footer}

@@ -101,6 +101,7 @@ export const en: TRequiredThemeLabels = {
 	},
 	Modal: {
 		closeLabel: "Close",
+		dialogLabel: "Dialog",
 	},
 	NumberInput: {
 		increaseLabel: "Increase",

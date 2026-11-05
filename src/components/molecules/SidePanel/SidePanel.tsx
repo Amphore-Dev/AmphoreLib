@@ -1,9 +1,9 @@
-import React, { PropsWithChildren } from "react";
+import React, { PropsWithChildren, useEffect, useId, useRef } from "react";
 
 import { AmphorePortal } from "@theme/AmphorePortal";
 import { useAmphoreLabels } from "@theme/useAmphoreLabels";
 
-import { useMediaQuery } from "@hooks/index";
+import { useEscapeLayer, useMediaQuery, useRestoreFocus } from "@hooks/index";
 
 import { cn } from "@utils/cn";
 
@@ -131,6 +131,12 @@ export type TSidePanelLabels = Pick<ISidePanelProps, "closeLabel">;
  * behaves the same on both by default (fully gone) — `keepDockedOnMobile`
  * opts the mobile BottomPanel into its own native closed-but-peeking
  * behavior instead, for the cases that actually want it.
+ *
+ * Focus: the sticky column is part of the page and never takes focus, an
+ * `overlay` panel or a mobile sheet does when it opens (rendered last in the
+ * document, it would otherwise be a long way off by Tab), and Escape closes
+ * those two. Closing with focus inside hands it back to whoever had it, in
+ * every mode. No focus trap: the page stays usable next to the panel.
  */
 export const SidePanel: React.FC<ISidePanelProps> = ({
 	open,
@@ -153,6 +159,15 @@ export const SidePanel: React.FC<ISidePanelProps> = ({
 	const isMobile = useMediaQuery(`(max-width: ${mobileBreakpoint - 1}px)`);
 	const { resolve } = useAmphoreLabels("SidePanel");
 	const closeLabel = resolve("closeLabel", closeLabelProp, "close");
+	const titleId = useId();
+	const panelRef = useRef<HTMLDivElement>(null);
+	const floats = open && overlay && !isMobile;
+
+	useRestoreFocus(open);
+	useEscapeLayer(floats, () => onOpenChange(false));
+	useEffect(() => {
+		if (floats) panelRef.current?.focus({ preventScroll: true });
+	}, [floats]);
 
 	if (isMobile && mobileMode === "modal") {
 		// Modal's `title` is a plain string (it doubles as the dialog's
@@ -187,6 +202,7 @@ export const SidePanel: React.FC<ISidePanelProps> = ({
 				{...bottomPanelProps}
 				open={open}
 				onOpenChange={onOpenChange}
+				focusOnOpen
 				portal={portal}
 				className={className}
 			>
@@ -201,8 +217,12 @@ export const SidePanel: React.FC<ISidePanelProps> = ({
 
 	const panel = (
 		<Card
+			ref={panelRef}
 			elevation={overlay ? 4 : 2}
-			aria-label={typeof title === "string" ? title : undefined}
+			tabIndex={overlay ? -1 : undefined}
+			aria-labelledby={
+				title && !cardProps?.["aria-label"] ? titleId : undefined
+			}
 			{...cardProps}
 			noPadding
 			className={cn([styles.panel, className])}
@@ -211,7 +231,11 @@ export const SidePanel: React.FC<ISidePanelProps> = ({
 		>
 			{(title || header || !hideCloseButton) && (
 				<div className={styles.header}>
-					{title && <h2 className={styles.title}>{title}</h2>}
+					{title && (
+						<h2 id={titleId} className={styles.title}>
+							{title}
+						</h2>
+					)}
 					{header && (
 						<div className={styles.headerSlot}>{header}</div>
 					)}

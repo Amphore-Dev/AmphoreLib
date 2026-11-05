@@ -96,6 +96,7 @@ export const fr: TThemeLabels = {
 	},
 	Modal: {
 		closeLabel: "Fermer",
+		dialogLabel: "Boîte de dialogue",
 	},
 	NumberInput: {
 		increaseLabel: "Augmenter",

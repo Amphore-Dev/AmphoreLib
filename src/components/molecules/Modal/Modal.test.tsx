@@ -1,4 +1,6 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { useState } from "react";
+
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
@@ -219,5 +221,84 @@ describe("Modal", () => {
 			await user.keyboard("{Escape}");
 			expect(onClose).toHaveBeenCalledTimes(2);
 		});
+	});
+});
+
+describe("Modal dialog semantics", () => {
+	it("is a modal dialog named by its title", () => {
+		render(
+			<Modal open onClose={() => {}} title="Details">
+				Body
+			</Modal>
+		);
+		const dialog = screen.getByRole("dialog", { name: "Details" });
+		expect(dialog).toHaveAttribute("aria-modal", "true");
+		expect(dialog).not.toHaveAttribute("aria-label");
+	});
+
+	it("is still named without a title", () => {
+		render(
+			<Modal open onClose={() => {}} header={<b>Custom</b>}>
+				Body
+			</Modal>
+		);
+		expect(screen.getByRole("dialog", { name: "Dialog" })).toBeInTheDocument();
+	});
+
+	it("takes a name for a title-less dialog", () => {
+		render(
+			<Modal open onClose={() => {}} dialogLabel="Preview">
+				Body
+			</Modal>
+		);
+		expect(screen.getByRole("dialog", { name: "Preview" })).toBeInTheDocument();
+	});
+});
+
+describe("Modal focus", () => {
+	const Page = () => {
+		const [open, setOpen] = useState(false);
+		return (
+			<>
+				<button type="button" onClick={() => setOpen(true)}>
+					Open
+				</button>
+				<Modal open={open} onClose={() => setOpen(false)} title="Details">
+					<button type="button">Inside</button>
+				</Modal>
+			</>
+		);
+	};
+
+	it("moves focus in, traps Tab, and restores focus on close", async () => {
+		const user = userEvent.setup();
+		render(<Page />);
+		const opener = screen.getByRole("button", { name: "Open" });
+
+		await user.click(opener);
+		const close = screen.getByRole("button", { name: "Close" });
+		await waitFor(() => expect(close).toHaveFocus());
+
+		await user.tab();
+		expect(screen.getByRole("button", { name: "Inside" })).toHaveFocus();
+		await user.tab();
+		await waitFor(() => expect(close).toHaveFocus());
+
+		await user.keyboard("{Escape}");
+		expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+		await waitFor(() => expect(opener).toHaveFocus());
+	});
+
+	it("hides the page behind it from assistive tech", async () => {
+		const user = userEvent.setup();
+		render(<Page />);
+
+		await user.click(screen.getByRole("button", { name: "Open" }));
+
+		await waitFor(() =>
+			expect(
+				screen.queryByRole("button", { name: "Open" })
+			).not.toBeInTheDocument()
+		);
 	});
 });
