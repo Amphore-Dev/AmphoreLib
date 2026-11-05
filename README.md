@@ -99,7 +99,7 @@ inside a component's own stylesheet.
 ```tsx
 <AmphoreProvider
 	config={{
-		colors: { primary: "#0f9be8", danger: "#e2436b" },
+		colors: { primary: "#0674db", danger: "#e2436b" },
 		radius: { md: "10px" },
 		spacing: { base: "0.25rem" }, // unit of every gap and padding
 		typography: { fontFamily: "'Inter', sans-serif" },
@@ -109,6 +109,12 @@ inside a component's own stylesheet.
 	}}
 >
 ```
+
+A semantic color has four values: the fill (`warning`), the text on it
+(`warningForeground`), a light tint (`warningTint`) and the color for text on
+a light ground (`warningText`). Override only the fill and the others follow,
+except the foreground: set it too when the fill gets light enough to need dark
+text.
 
 Type sizes, weights, shadows, focus ring, layers, durations, borders and icon
 sizes are config too (`text`, `weights`, `shadows`, `focus`, ...), each
@@ -129,9 +135,9 @@ option interactively and copy the resulting config.
 - `"system"` — follows the OS (`prefers-color-scheme`), resolved in CSS, not
   JS, so there's no hydration mismatch and no re-render on an OS-level change.
 
-An app with no dark design of its own should pin `theme="light"`:
-with the default, its components turn dark for anyone whose OS is dark,
-whatever the page around them looks like.
+Dark is opt-in: with `"system"`, components turn dark for anyone whose OS
+is dark, whatever the page around them looks like, so pick it once the app
+has a dark design of its own.
 
 The dark palette isn't the light one inverted — it's a separate set of
 colors (`darkColors`), with tints derived toward black instead of white.
@@ -141,8 +147,8 @@ Override it independently of the light palette:
 <AmphoreProvider
 	theme="system"
 	config={{
-		colors: { primary: "#0f9be8" },
-		darkColors: { primary: "#4f8cf7" },
+		colors: { primary: "#0674db" },
+		darkColors: { primary: "#7cbdf6" },
 	}}
 >
 ```
@@ -160,7 +166,7 @@ exhaustive list:
 - **Form atoms** — `Input`, `TextArea`, `NumberInput`, `PasswordField`,
   `Select`, `AsyncSelect`, `Checkbox`, `Radio`, `Toggle`, `Slider`,
   `DatePicker`, `TimePicker`, `ColorPicker`/`ColorPickerField`,
-  `InputFile`, `InputSearch`.
+  `InputFile`, `InputSearch`, `ChipInput`.
 - **Feedback & status** — `Spinner`, `Skeleton`, `InfoMessage`, `Progress`,
   `Badge`, `CountDown`.
 - **Overlays** — `Modal`, `ConfirmModal`, `Popover`, `Tooltip`, `Dropdown`,
@@ -168,7 +174,8 @@ exhaustive list:
   `mobileMode="modal"` — a centered `Modal`).
 - **Navigation & structure** — `Tabs`, `Accordion`, `Breadcrumb`,
   `NavItem`/`NavList`, `Card`, `Grid`/`FlexGrid`, `Divider`,
-  `SectionCard`.
+  `SectionCard`, `Tour`.
+- **Text** — `Title`, `Text`, `Link`.
 - **Data display** — `SummaryList`/`SummaryListItem`, `Table`,
   `TableHead`/`TableRow`, `TodoList`/`TodoItem`/`AddTodoItem`,
   `FileViewer` (image/PDF preview with its own zoom + page toolbar).
@@ -183,8 +190,8 @@ exhaustive list:
 ## Conventions worth knowing
 
 These are covered in depth on Storybook's **Guides/\*** pages
-(Theming, Sizing, Controlled Components, Floating Overlays,
-Accessibility, Structure, Verification) — the short version:
+(Theme, Sizing, Controlled Components, Floating Overlays, Accessibility,
+Structure, Verification) — the short version:
 
 - **Controlled, always.** `value`/`onChange`, never an uncontrolled
   fallback or an ambient form-library subscription baked into an atom.
@@ -193,6 +200,11 @@ Accessibility, Structure, Verification) — the short version:
   them from CSS, not from JS branching.
 - **One `size` scale everywhere** (`"sm" | "md" | "lg"`), resolved as
   `sizeProp ?? config.defaults.size ?? "md"`.
+- **Native props reach the DOM.** `aria-*`, `data-*`, handlers and `ref`
+  forward on every component. The library sets no test id of its own: give a
+  component a `data-testid` and its inner parts derive theirs from it.
+- **Tokens only.** Stylelint refuses a raw color, size or duration in a
+  component's SCSS: `yarn lint:css`.
 - **User-facing strings are props with English defaults**, not a global
   i18n dictionary — override per instance (`removeLabel`, `submitLabel`,
   `zoomOutLabel`, ...).
