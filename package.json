@@ -1,6 +1,6 @@
 {
 	"name": "@amphore-dev/amphore-lib",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"main": "lib/cjs/index.cjs",
 	"module": "lib/esm/index.mjs",
 	"types": "lib/types/index.d.ts",
@@ -70,10 +70,10 @@
 	},
 	"devDependencies": {
 		"@storybook/addon-a11y": "^10.6.0",
-		"@storybook/addon-docs": "^10.6.0",
-		"@storybook/addon-links": "^10.6.0",
-		"@storybook/react": "^10.6.0",
-		"@storybook/react-vite": "^10.6.0",
+		"@storybook/addon-docs": "^10.6.7",
+		"@storybook/addon-links": "^10.6.7",
+		"@storybook/react": "^10.6.7",
+		"@storybook/react-vite": "^10.6.7",
 		"@svgr/core": "^8.1.0",
 		"@svgr/plugin-jsx": "^8.1.0",
 		"@svgr/plugin-svgo": "^8.1.0",
@@ -87,8 +87,8 @@
 		"@types/react-dom": "^18.3.0",
 		"@typescript-eslint/eslint-plugin": "^8.70.0",
 		"@typescript-eslint/parser": "^8.70.0",
-		"@vitejs/plugin-react": "^4.3.4",
-		"@vitest/coverage-v8": "3.2.4",
+		"@vitejs/plugin-react": "^6.3.0",
+		"@vitest/coverage-v8": "5.1.0",
 		"eslint": "^8.57.1",
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-import-resolver-node": "^0.4.0",
@@ -111,14 +111,14 @@
 		"react-pdf": "^9.2.1",
 		"remark-gfm": "^4.0.1",
 		"sass": "^1.77.8",
-		"storybook": "^10.6.0",
+		"storybook": "^10.6.7",
 		"storybook-dark-mode": "^5.0.0",
 		"stylelint": "^18.0.0",
 		"stylelint-declaration-strict-value": "^1.12.1",
 		"typescript": "^5.9.3",
-		"vite": "^6.2.6",
+		"vite": "^8.3.8",
 		"vite-plugin-dts": "^5.1.0",
-		"vitest": "^3.0.7",
+		"vitest": "^5.1.0",
 		"vitest-axe": "^0.1.0"
 	},
 	"packageManager": "yarn@4.14.1",
@@ -132,6 +132,6 @@
 		"formik": "^2.4.9",
 		"lodash": "^4.18.1",
 		"react-day-picker": "10.0.1",
-		"react-gcolor-picker": "^1.3.3"
+		"react-gcolor-picker": "^1.3.5"
 	}
 }
