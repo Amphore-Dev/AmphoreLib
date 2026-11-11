@@ -67,3 +67,22 @@ WithError.args = {
 	loadOptions: fakeFetch,
 	error: "Selection required",
 };
+
+/** Fails on the first call, answers after: the listbox says the load failed, and opening it again tries again. */
+const failingOnce = () => {
+	let calls = 0;
+	return (query: string): Promise<TSelectOption[]> => {
+		calls += 1;
+		return calls === 1
+			? new Promise((_, reject) =>
+					setTimeout(() => reject(new Error("Network")), 600)
+				)
+			: fakeFetch(query);
+	};
+};
+
+export const LoadFailure = Template.bind({});
+LoadFailure.args = {
+	label: "User (first load fails)",
+	loadOptions: failingOnce(),
+};

@@ -66,6 +66,8 @@ export interface ISelectProps<T = string>
 	searchable?: boolean;
 	/** Called with the search query on every keystroke (searchable only) — e.g. to drive a remote search (see AsyncSelect). */
 	onSearchChange?: (query: string) => void;
+	/** Called when the listbox opens or closes. The component still owns its open state: this only reports it (e.g. AsyncSelect reloads on open after a failed load). */
+	onOpenChange?: (open: boolean) => void;
 	/** Filters `options` by the search query client-side. Defaults to true — set false when `options` is already filtered externally (e.g. server-side search results). */
 	filterOptions?: boolean;
 	/** Shows a loading state in the listbox instead of the options (e.g. while a remote search is in flight), and a small spinner next to the chevron. */
@@ -173,6 +175,7 @@ function SelectBase<T = string>(
 		multiple = false,
 		searchable = false,
 		onSearchChange,
+		onOpenChange,
 		filterOptions = true,
 		isLoading = false,
 		loadingMessage: loadingMessageProp,
@@ -222,7 +225,14 @@ function SelectBase<T = string>(
 	const labelId = label ? `${selectId}-label` : undefined;
 	const labelledBy = ariaLabelledBy ?? (ariaLabel ? undefined : labelId);
 	const errorId = `${selectId}-error`;
-	const [open, setOpen] = useState(false);
+	const [open, setOpenState] = useState(false);
+	// Every open/close goes through here, so `onOpenChange` hears all of
+	// them: floating-ui's (click, dismiss) and the component's own (Enter,
+	// Escape, picking an option).
+	const setOpen = (next: boolean) => {
+		setOpenState(next);
+		onOpenChange?.(next);
+	};
 	const [search, setSearch] = useState("");
 	const [activeIndex, setActiveIndex] = useState<number | null>(null);
 

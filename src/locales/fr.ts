@@ -116,6 +116,9 @@ export const fr: TThemeLabels = {
 		hidePasswordLabel: "Masquer le mot de passe",
 		showPasswordLabel: "Afficher le mot de passe",
 	},
+	AsyncSelect: {
+		errorMessage: "Impossible de charger les options",
+	},
 	Select: {
 		loadingMessage: "Chargement...",
 		placeholder: "Sélectionner...",

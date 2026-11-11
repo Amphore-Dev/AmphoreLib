@@ -121,6 +121,9 @@ export const en: TRequiredThemeLabels = {
 		hidePasswordLabel: "Hide password",
 		showPasswordLabel: "Show password",
 	},
+	AsyncSelect: {
+		errorMessage: "Could not load the options",
+	},
 	Select: {
 		loadingMessage: "Loading...",
 		placeholder: "Select...",

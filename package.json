@@ -1,6 +1,6 @@
 {
 	"name": "@amphore-dev/amphore-lib",
-	"version": "2.0.1",
+	"version": "2.0.2",
 	"main": "lib/cjs/index.cjs",
 	"module": "lib/esm/index.mjs",
 	"types": "lib/types/index.d.ts",

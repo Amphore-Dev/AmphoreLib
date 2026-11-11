@@ -111,4 +111,77 @@ describe("AsyncSelect", () => {
 		});
 		expect(screen.getByText("Alice")).toBeInTheDocument();
 	});
+
+	it("says a failed load failed, not that nothing matched", async () => {
+		const loadOptions = vi.fn().mockRejectedValue(new Error("Network"));
+		render(<AsyncSelect loadOptions={loadOptions} onChange={() => {}} />);
+		await waitFor(() => expect(loadOptions).toHaveBeenCalledTimes(1));
+		await act(async () => {
+			await sleep(0);
+		});
+		await userEvent.click(screen.getByRole("combobox"));
+		expect(
+			await screen.findByRole("option", {
+				name: "Could not load the options",
+			})
+		).toBeInTheDocument();
+		expect(screen.queryByText("No results")).not.toBeInTheDocument();
+	});
+
+	it("tries a failed load again when the listbox opens", async () => {
+		// Regression: one failed request left "No results" for as long as the
+		// field stayed mounted - nothing ever called loadOptions again.
+		const loadOptions = vi
+			.fn()
+			.mockRejectedValueOnce(new Error("Network"))
+			.mockResolvedValue([OPTION("Alice")]);
+		render(<AsyncSelect loadOptions={loadOptions} onChange={() => {}} />);
+		await waitFor(() => expect(loadOptions).toHaveBeenCalledTimes(1));
+		await act(async () => {
+			await sleep(0);
+		});
+
+		await userEvent.click(screen.getByRole("combobox"));
+		expect(await screen.findByText("Alice")).toBeInTheDocument();
+		expect(loadOptions).toHaveBeenCalledTimes(2);
+		expect(loadOptions).toHaveBeenLastCalledWith("");
+	});
+
+	it("does not reload on open once a load has succeeded", async () => {
+		const loadOptions = vi.fn().mockResolvedValue([OPTION("Alice")]);
+		render(<AsyncSelect loadOptions={loadOptions} onChange={() => {}} />);
+		await waitFor(() => expect(loadOptions).toHaveBeenCalledTimes(1));
+		await userEvent.click(screen.getByRole("combobox"));
+		expect(await screen.findByText("Alice")).toBeInTheDocument();
+		await userEvent.keyboard("{Escape}");
+		await userEvent.click(screen.getByRole("combobox"));
+		expect(loadOptions).toHaveBeenCalledTimes(1);
+	});
+
+	it("reloads the unfiltered options when closed after a search", async () => {
+		const loadOptions = vi.fn((query: string) =>
+			Promise.resolve(
+				query ? [OPTION("Alice")] : [OPTION("Alice"), OPTION("Bob")]
+			)
+		);
+		render(
+			<AsyncSelect
+				loadOptions={loadOptions}
+				onChange={() => {}}
+				debounce={0}
+			/>
+		);
+		await waitFor(() => expect(loadOptions).toHaveBeenCalledTimes(1));
+		await userEvent.click(screen.getByRole("combobox"));
+		await userEvent.type(screen.getByRole("combobox"), "al");
+		await waitFor(() => expect(loadOptions).toHaveBeenLastCalledWith("al"));
+		await waitFor(() =>
+			expect(screen.queryByText("Bob")).not.toBeInTheDocument()
+		);
+
+		await userEvent.keyboard("{Escape}");
+		await waitFor(() => expect(loadOptions).toHaveBeenLastCalledWith(""));
+		await userEvent.click(screen.getByRole("combobox"));
+		expect(await screen.findByText("Bob")).toBeInTheDocument();
+	});
 });

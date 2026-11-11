@@ -23,6 +23,7 @@ import type { TProgressLabels } from "../components/atoms/Progress/Progress";
 import type { TSpinnerLabels } from "../components/atoms/Spinner/Spinner";
 import type { TTimePickerLabels } from "../components/atoms/TimePicker/TimePicker";
 import type { TAddTodoItemLabels } from "../components/molecules/AddTodoItem/AddTodoItem";
+import type { TAsyncSelectLabels } from "../components/molecules/AsyncSelect/AsyncSelect";
 import type { TBottomPanelLabels } from "../components/molecules/BottomPanel/BottomPanel";
 import type { TBreadcrumbLabels } from "../components/molecules/Breadcrumb/Breadcrumb";
 import type { TChipInputLabels } from "../components/molecules/ChipInput/ChipInput";
@@ -80,6 +81,7 @@ export interface TThemeLabels {
 	common?: TCommonLabels;
 	ActiveFilters?: TActiveFiltersLabels;
 	AddTodoItem?: TAddTodoItemLabels;
+	AsyncSelect?: TAsyncSelectLabels;
 	Badge?: TBadgeLabels;
 	BottomPanel?: TBottomPanelLabels;
 	Breadcrumb?: TBreadcrumbLabels;
@@ -124,6 +126,7 @@ export type TRequiredThemeLabels = {
 	common: Required<TCommonLabels>;
 	ActiveFilters: Required<TActiveFiltersLabels>;
 	AddTodoItem: Required<TAddTodoItemLabels>;
+	AsyncSelect: Required<TAsyncSelectLabels>;
 	Badge: Required<TBadgeLabels>;
 	BottomPanel: Required<TBottomPanelLabels>;
 	Breadcrumb: Required<TBreadcrumbLabels>;
